@@ -2886,9 +2886,6 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                   ),
                                 ),
 
-
-
-
                                 Padding(
                                   padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 0),
                                   child: SizedBox(
@@ -3026,7 +3023,6 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                     ),
                                   ),
                                 ),
-
 
                                 Padding(
                                   padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 0),

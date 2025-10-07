@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "670969435559",
+    "project_id": "fincore-mobile",
+    "storage_bucket": "fincore-mobile.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:670969435559:android:2bb036073906e6c2709282",
+        "android_client_info": {
+          "package_name": "com.csh.fincoremobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChD3t8lgP3sccxZ03LJ6JMI0vMWuo5V8c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -6,8 +6,6 @@ PODS:
     - Flutter
   - fluttertoast (0.0.2):
     - Flutter
-  - number_to_character (0.0.1):
-    - Flutter
   - open_file_ios (0.0.1):
     - Flutter
   - package_info_plus (0.4.5):
@@ -38,7 +36,6 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
-  - number_to_character (from `.symlinks/plugins/number_to_character/ios`)
   - open_file_ios (from `.symlinks/plugins/open_file_ios/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -60,8 +57,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_keyboard_visibility/ios"
   fluttertoast:
     :path: ".symlinks/plugins/fluttertoast/ios"
-  number_to_character:
-    :path: ".symlinks/plugins/number_to_character/ios"
   open_file_ios:
     :path: ".symlinks/plugins/open_file_ios/ios"
   package_info_plus:
@@ -90,7 +85,6 @@ SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   fluttertoast: 21eecd6935e7064cc1fcb733a4c5a428f3f24f0f
-  number_to_character: c04f3d87c12f1c69d4a23476008038c67aa1a4a8
   open_file_ios: 461db5853723763573e140de3193656f91990d9e
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46

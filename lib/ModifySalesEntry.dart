@@ -3,7 +3,6 @@ import 'package:fincoremobile/Items.dart';
 import 'package:fincoremobile/PendingSalesEntry.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
-import 'package:number_to_character/number_to_character.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -591,7 +590,6 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
   late GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey;
 
   late SharedPreferences prefs;
-  var converter;
 
   dynamic _selectedledger, _selecteditem, _selectedunit, _selectedsalesledger,
       _selectedvchtypename, _selectedpartyledger, _selectedvatledger;
@@ -3141,7 +3139,6 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
   Future<void> _initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
 
-    converter = NumberToCharacterConverter('en');
     setState(() {
       hostname = prefs.getString('hostname');
       company = prefs.getString('company_name');

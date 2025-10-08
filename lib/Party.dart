@@ -1178,50 +1178,46 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin{
                       const SizedBox(height: 12),
 
                       // Toggle Buttons
-                      Row(
+      Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 12,
+        runSpacing: 12,
+        children: [
+          if (allparties_visibility)
+            _buildToggleButton(
+              icon: Icons.group_sharp,
+              label: "All Parties",
+              isActive: isClicked_allparties,
+              onTap: () {
+                setState(() {
+                  isClicked_allparties = true;
+                  isClicked_inactiveparties = false;
+                });
+                fetchPartyData(_selectedparty);
+              },
+            ),
+          if (inactiveparties_visibility)
+            _buildToggleButton(
+              icon: Icons.group_off_sharp,
+              label: "Inactive Parties",
+              isActive: isClicked_inactiveparties,
+              onTap: () {
+                setState(() {
+                  isClicked_allparties = false;
+                  isClicked_inactiveparties = true;
+                  filteredItems_parties.clear();
+                  parties_list.clear();
+                  party_count = "0";
+                  party_text = int.parse(party_count) < 2 ? "Party" : "Parties";
+                });
+                _showInactiveDialog();
+              },
+            ),
+        ],
+      ),
 
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (allparties_visibility)
-                            _buildToggleButton(
-                              icon: Icons.group_sharp,
-                              label: "All Parties",
-                              isActive: isClicked_allparties,
-                              onTap: () {
-                                setState(() {
-                                  isClicked_allparties = true;
-                                  isClicked_inactiveparties = false;
-                                });
-                                fetchPartyData(_selectedparty);
-                              },
-                            ),
-                          if (inactiveparties_visibility)
-                            _buildToggleButton(
-                              icon: Icons.group_off_sharp,
-                              label: "Inactive Parties",
-                              isActive: isClicked_inactiveparties,
-                              onTap: () {
-                                setState(() {
-                                  isClicked_allparties = false;
-                                  isClicked_inactiveparties = true;
-                                  filteredItems_parties.clear();
-                                  parties_list.clear();
-                                  party_count = "0";
-                                  if(int.parse(party_count)<2)
-                                  {
-                                    party_text = "Party";
-                                  }
-                                  else
-                                  {
-                                    party_text="Parties";
-                                  }
-                                });
-                                _showInactiveDialog();
-                              },
-                            ),
-                        ],
-                      ),
-                    ],
+
+      ],
                   ),
                 ),
 
@@ -1554,51 +1550,60 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin{
     required bool isActive,
     required VoidCallback onTap,
   }) {
-    final Color activeColor = app_color; // 👈 AppBar ka color
+    final Color activeColor = app_color;
 
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isActive ? activeColor : Colors.transparent, // 👈 active = app_color fill
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: activeColor,
-            width: 1.5,
-          ),
-          boxShadow: [
-            if (isActive)
-              BoxShadow(
-                color: activeColor.withOpacity(0.25),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
-              ),
-          ],
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.45, // width limit
+          minHeight: 56, // 👈 fixed min height for all buttons
         ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              size: 20,
-              color: isActive ? Colors.white : activeColor, // 👈 text/icon opposite
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: GoogleFonts.poppins(
-                fontSize: 14.5,
-                fontWeight: FontWeight.w600,
-                color: isActive ? Colors.white : activeColor, // 👈 text opposite
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: isActive ? activeColor : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: activeColor, width: 1.5),
+            boxShadow: [
+              if (isActive)
+                BoxShadow(
+                  color: activeColor.withOpacity(0.25),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: isActive ? Colors.white : activeColor,
               ),
-            ),
-          ],
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.visible,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w600,
+                    color: isActive ? Colors.white : activeColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
+
 
   void _showInactiveDialog() {
     showDialog(
@@ -1606,6 +1611,7 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin{
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           child: Padding(

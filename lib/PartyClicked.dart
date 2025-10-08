@@ -3700,14 +3700,21 @@ class SummaryExpansionCard extends StatelessWidget {
             ),
 
             // 🔹 Total value (right aligned)
-            Text(
-              '${formattedTotal}',
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.teal.shade700,
+            // 🔹 Total value (right aligned, wraps to next line if long)
+            Flexible(
+              child: Text(
+                formattedTotal,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.teal.shade700,
+                ),
+                textAlign: TextAlign.right, // ✅ right align
+                softWrap: true,              // ✅ allow multi-line
+                overflow: TextOverflow.visible, // ✅ prevent clipping
               ),
             ),
+
           ],
         ),
 
@@ -4494,7 +4501,7 @@ Widget _buildSoldPurchaseCard({
   required String qty,
   required String lastDate,
   required String rate,
-  required bool isSale, // true = sold, false = purchase
+  required bool isSale,
   required VoidCallback onTap,
 }) {
   return GestureDetector(
@@ -4518,42 +4525,51 @@ Widget _buildSoldPurchaseCard({
         children: [
           // 🔹 Item + Qty badge
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: isSale
-                            ? [Colors.teal.shade400, Colors.teal.shade700] // sold
-                            : [Colors.deepOrange.shade400, Colors.deepOrange.shade700], // purchase
+              // 📦 Icon + Item Name
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: isSale
+                              ? [Colors.teal.shade400, Colors.teal.shade700]
+                              : [Colors.deepOrange.shade400, Colors.deepOrange.shade700],
+                        ),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      borderRadius: BorderRadius.circular(10),
+                      child: const Icon(Icons.inventory_2_rounded,
+                          color: Colors.white, size: 16),
                     ),
-                    child: const Icon(Icons.inventory_2_rounded,
-                        color: Colors.white, size: 16),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    item,
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: Colors.black87,
+                    const SizedBox(width: 10),
+                    // 👇 Flexible text prevents overflow
+                    Expanded(
+                      child: Text(
+                        item,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: Colors.black87,
+                        ),
+                      ),
                     ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                  ],
+                ),
               ),
+
+              // 🧮 Qty badge (fixed size, aligned right)
               Container(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (isSale ? Colors.teal : Colors.deepOrange)
-                      .withOpacity(0.1),
+                  color: (isSale ? Colors.teal : Colors.deepOrange).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -4570,66 +4586,89 @@ Widget _buildSoldPurchaseCard({
 
           const SizedBox(height: 10),
 
+
           // 🔹 Last Date + Rate row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.blueGrey.shade400, Colors.blueGrey.shade700],
+              // 📅 Date
+              Flexible(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.blueGrey.shade400, Colors.blueGrey.shade700],
+                        ),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      borderRadius: BorderRadius.circular(8),
+                      child: const Icon(Icons.calendar_today,
+                          size: 14, color: Colors.white),
                     ),
-                    child: const Icon(Icons.calendar_today,
-                        size: 14, color: Colors.white),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    formatdate(lastDate),
-                    style: GoogleFonts.poppins(
-                      fontSize: 13.2,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.orange.shade400, Colors.deepOrange.shade600],
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        formatdate(lastDate),
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13.2,
+                          color: Colors.black54,
+                        ),
                       ),
-                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.price_change_rounded,
-                        size: 14, color: Colors.white),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    CurrencyFormatter.formatCurrency_normal(rate),
-                    style: GoogleFonts.poppins(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+
+              // 💰 Rate (icon left + text top-aligned, wraps neatly)
+              Flexible(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center, // 👈 aligns icon with top of text
+                  children: [
+                    Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.orange.shade300, Colors.deepOrange.shade400],
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.price_change_rounded,
+                          size: 14, color: Colors.white),
+                    ),
+                    const SizedBox(width: 8),
+                    // 👇 this makes sure long text wraps and stays aligned to the right
+                    Expanded(
+                      child: Text(
+                        CurrencyFormatter.formatCurrency_normal(rate),
+                        textAlign: TextAlign.right,
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
             ],
           ),
+
         ],
       ),
     ),
   );
 }
+
 
 
 String formatCurrency(

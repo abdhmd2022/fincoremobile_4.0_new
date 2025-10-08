@@ -1101,7 +1101,8 @@ class _ItemsTotalClickedVchTypeLedgerPageState extends State<ItemsTotalClickedVc
                 final card = filteredItems_Bills[index];
                 return _buildCard(
                   title: card.vchno,
-                  subtitle: "${card.Partyledger}\n${convertDateFormat(card.vchdate)}",
+                  subtitle: "${card.Partyledger}",
+                  date: card.vchdate,
                   amount: double.tryParse(card.amount) ?? 0.0,
                 );
               },
@@ -1116,7 +1117,7 @@ class _ItemsTotalClickedVchTypeLedgerPageState extends State<ItemsTotalClickedVc
                 final card = filteredItems_costcenter[index];
                 return _buildCard(
                   title: formatCostCenter(card.costcentre),
-                  subtitle: "Qty: ${card.qty}",
+                  qty: card.qty,
                   amount: double.tryParse(card.amount) ?? 0.0,
                   onTap: () {
                     Navigator.push(
@@ -1145,77 +1146,200 @@ class _ItemsTotalClickedVchTypeLedgerPageState extends State<ItemsTotalClickedVc
 
   Widget _buildCard({
     required String title,
-    required String subtitle,
+    String? subtitle,
     required double amount,
+    String? date, // for Bills
+    String? qty,  // for Ledger/VchType/CostCenter
     VoidCallback? onTap,
   }) {
+    IconData leadingIcon;
+    String? topRightLabel;
+
+    if (_isBillsListVisible) {
+      leadingIcon = Icons.receipt_long_rounded;
+      topRightLabel =
+      (date != null && date.isNotEmpty) ? convertDateFormat(date) : null;
+    } else {
+      leadingIcon = Icons.business_center_rounded;
+      topRightLabel = qty != null ? "Qty: $qty" : null;
+    }
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin:  EdgeInsets.only(top: 4,bottom:4, left: 4,right:4),
+        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 14),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.85),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: Colors.black12.withOpacity(0.08),
-              blurRadius: 12,
-              spreadRadius: 2,
-              offset:  Offset(0, 6),
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
-        padding:  EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Info section
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.poppins(
-                      fontSize: 16.5,
-                      fontWeight: FontWeight.w600,
-                      color:  Color(0xFF1A1A1A),
+            // ✅ Title row with badge
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Gradient icon
+                Container(
+                  height: 44,
+                  width: 44,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [
+                        app_color.withOpacity(0.9),
+                        app_color.withOpacity(0.5),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: app_color.withOpacity(0.25),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
-                   SizedBox(height: 6),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: Colors.black54,
-                    ),
+                  child: Icon(
+                    leadingIcon,
+                    color: Colors.white,
+                    size: 20,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 14),
+
+                // Text and badge column
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title + qty/date badge
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Title (wraps)
+                          Expanded(
+                            child: Text(
+                              title,
+                              softWrap: true,
+                              textAlign: TextAlign.start,
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15.5,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                          if (topRightLabel != null)
+                            Container(
+                              margin: const EdgeInsets.only(left: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: _isBillsListVisible
+                                      ? [
+                                    Colors.orangeAccent.withOpacity(0.9),
+                                    Colors.deepOrangeAccent.withOpacity(0.8)
+                                  ]
+                                      : [
+                                    Colors.orangeAccent.withOpacity(0.9),
+                                    Colors.deepOrangeAccent.withOpacity(0.8)
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Text(
+                                topRightLabel,
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Subtitle (wraps if present)
+                      if (subtitle != null)
+                        Text(
+                          subtitle,
+                          softWrap: true,
+                          textAlign: TextAlign.start,
+                          overflow: TextOverflow.visible,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.black54,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-             SizedBox(width: 5),
-            // Amount pill
-            Container(
-              padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color:  Color(0xFF30D5C8).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(50),
-                border: Border.all(color:  Color(0xFF30D5C8), width: 0.8),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    formatAmount(amount.toString()),
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color:  Color(0xFF1A2E35),
-                    ),
+
+            const SizedBox(height: 10),
+
+            // ✅ Amount + chevron (no overlap, fully visible)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Color(0xFF4A5568).withOpacity(0.15),
+                              Color(0xFF4A5568).withOpacity(0.05),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Color(0xFF4A5568).withOpacity(0.2), width: 1),
+                        ),
+                        child: Text(
+                          formatAmount(amount.toString()),
+                          softWrap: true,
+                          textAlign: TextAlign.start,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF4A5568).withOpacity(0.9),
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ),
+
+                    ],
                   ),
-                   SizedBox(width: 6),
-                   Icon(Icons.chevron_right, size: 18, color: Colors.black45),
-                ],
-              ),
+                ),
+                if (onTap != null)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: Icon(Icons.chevron_right_rounded,
+                        color: Colors.black45, size: 22),
+                  ),
+              ],
             ),
           ],
         ),

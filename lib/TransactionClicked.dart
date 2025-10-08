@@ -934,6 +934,7 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildRow(Icons.receipt_long_rounded, "Voucher No", widget.vchno),
           _buildRow(Icons.calendar_today, "Voucher Date", formatDate(widget.vchdate)),

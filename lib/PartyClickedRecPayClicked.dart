@@ -74,7 +74,9 @@ class _PartyTotalClickedRecPayClickedPageState extends State<PartyTotalClickedRe
 
   bool isSortVisible = false;
   ScrollController _scrollController = ScrollController();
+  late String currencysymbol = '';
 
+  late NumberFormat currencyFormat;
 
 
   String overdue_value = "",creditlimit = "0",creditperiod = "0";
@@ -519,7 +521,7 @@ class _PartyTotalClickedRecPayClickedPageState extends State<PartyTotalClickedRe
         DateTime date = DateTime.parse(dateStr);
 
         // Format the date to the desired output format
-        formattedDate = DateFormat("dd-MMM-yy").format(date);
+        formattedDate = DateFormat("dd-MMM-yyyy").format(date);
 
     // Parse the input date string
 
@@ -534,7 +536,7 @@ class _PartyTotalClickedRecPayClickedPageState extends State<PartyTotalClickedRe
     {
       DateTime date = DateTime.parse(billdate);
 
-      formattedDate = DateFormat("dd-MMM-yy").format(date);
+      formattedDate = DateFormat("dd-MMM-yyyy").format(date);
     }
     else
     {
@@ -740,6 +742,32 @@ class _PartyTotalClickedRecPayClickedPageState extends State<PartyTotalClickedRe
       username = prefs.getString('username');
       token = prefs.getString('token')!;
     });
+
+    String? currencyCode = '';
+
+    currencyCode = prefs.getString('currencycode');
+
+
+    try {
+      if (currencyCode == 'INR' || currencyCode == 'EUR' ||
+          currencyCode == 'USD' || currencyCode == 'PKR') {
+        currencyFormat = NumberFormat('#,##0');
+        NumberFormat format = NumberFormat.simpleCurrency(
+            locale: 'en', name: currencyCode);
+        currencysymbol = format.currencySymbol;
+      } else {
+        NumberFormat format = NumberFormat.currency(
+            locale: 'en', name: currencyCode);
+        currencysymbol = format.currencySymbol;
+        currencyFormat = NumberFormat('#,##0');
+      }
+    } catch (e) {
+      NumberFormat format = NumberFormat.currency(
+          locale: 'en', name: currencyCode);
+      currencysymbol = format.currencySymbol;
+      currencyFormat = NumberFormat('#,##0');
+    }
+
     try
     {
       selectedSortOption = prefs.getString('sort')!;
@@ -817,6 +845,44 @@ class _PartyTotalClickedRecPayClickedPageState extends State<PartyTotalClickedRe
       isDebit = "true";
 
     }
+
+   /* filteredItems = [
+      Data(
+        billno: 'INV-001245',
+        overdue: '12',
+        outstanding: 1540.75,
+        billdate: '2025-09-01',
+        duedate: '2025-09-15',
+      ),
+      Data(
+        billno: 'INV-001246',
+        overdue: '25',
+        outstanding: 27890.20,
+        billdate: '2025-08-25',
+        duedate: '2025-09-05',
+      ),
+      Data(
+        billno: 'INV-001247',
+        overdue: '5',
+        outstanding: 990.00,
+        billdate: '2025-09-10',
+        duedate: '2025-09-25',
+      ),
+      Data(
+        billno: 'INV-001248',
+        overdue: '60',
+        outstanding: 74500.99,
+        billdate: '2025-07-20',
+        duedate: '2025-08-05',
+      ),
+      Data(
+        billno: 'INV-001249',
+        overdue: '0',
+        outstanding: 459.45,
+        billdate: '2025-09-18',
+        duedate: '2025-10-02',
+      ),
+    ];*/
     fetchData("billno",ledger,"billno",endDateString,variable_type_2,isDebit);
 
   }
@@ -1243,77 +1309,137 @@ class _PartyTotalClickedRecPayClickedPageState extends State<PartyTotalClickedRe
                           child: Expanded(
                             child: ListView.builder(
                               controller: _scrollController,
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               itemCount: filteredItems.length,
                               itemBuilder: (context, index) {
                                 final card = filteredItems[index];
+                                final curr = currencysymbol ?? ''; // ✅ currency symbol from prefs
+
                                 return Container(
-                                  margin: EdgeInsets.only(bottom: 14),
+                                  margin: const EdgeInsets.only(bottom: 14),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
                                     color: Colors.white,
+                                    borderRadius: BorderRadius.circular(18),
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.black.withOpacity(0.05),
-                                        blurRadius: 12,
-                                        spreadRadius: 2,
-                                        offset: Offset(0, 6),
+                                        blurRadius: 10,
+                                        spreadRadius: 1,
+                                        offset: const Offset(0, 5),
                                       ),
                                     ],
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        // Bill No
-                                        Text(
-                                          card.billno,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-
-                                        // Chips Row for meta info (Date | Overdue | Due)
-                                        Wrap(
-                                          spacing: 8,
-                                          runSpacing: 6,
+                                        // 🔹 Bill Number Header
+                                        Row(
                                           children: [
-                                            _buildMetaChipWithIcon(
-                                              Icons.calendar_today_rounded,
-                                              'Bill Date: ${convertDateFormat(card.billdate)}',
-                                              Colors.blue.shade50,
-                                              Colors.blue,
+                                            Container(
+                                              width: 34,
+                                              height: 34,
+                                              decoration: const BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)], // cyan-green
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                              ),
+                                              child: const Icon(Icons.receipt_long, size: 18, color: Colors.white),
                                             ),
-                                            _buildMetaChipWithIcon(
-                                              Icons.timelapse_rounded,
-                                              'Overdue: ${card.overdue} Days',
-                                              Colors.orange.shade50,
-                                              Colors.orange,
-                                            ),
-                                            _buildMetaChipWithIcon(
-                                              Icons.event_rounded,
-                                              'Due: ${convertDueDateFormat(card.duedate, card.billdate)}',
-                                              Colors.teal.shade50,
-                                              Colors.teal,
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                              child: Text(
+                                                card.billno ?? 'N/A',
+                                                softWrap: true,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
                                             ),
                                           ],
                                         ),
 
                                         const SizedBox(height: 12),
 
-                                        // Amount aligned bottom right
+                                        // 🔹 Info Chips
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          children: [
+                                            // Bill Date Chip
+                                            _buildGradientChip(
+                                              icon: Icons.calendar_today_rounded,
+                                              label: 'Bill Date',
+                                              value: convertDateFormat(card.billdate),
+                                              colors: const [Color(0xFF56CCF2), Color(0xFF2F80ED)],
+                                            ),
+                                            // Overdue Chip
+                                            _buildGradientChip(
+                                              icon: Icons.timelapse_rounded,
+                                              label: 'Overdue',
+                                              value: '${card.overdue} Days',
+                                              colors: const [Color(0xFFFF9966), Color(0xFFFF5E62)],
+                                            ),
+
+                                            // Due Date Chip
+                                            _buildGradientChip(
+                                              icon: Icons.event_rounded,
+                                              label: 'Due',
+                                              value: convertDueDateFormat(card.duedate, card.billdate),
+                                              colors: const [Color(0xFF11998E), Color(0xFF38EF7D)],
+                                            ),
+
+                                          ],
+                                        ),
+
+                                        const SizedBox(height: 16),
+
+                                        // 🔹 Amount Section (Bottom Right)
                                         Align(
                                           alignment: Alignment.bottomRight,
-                                          child: Text(
-                                            formatAmount(card.outstanding.toString()),
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.green.shade700,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                            decoration: BoxDecoration(
+                                              gradient: const LinearGradient(
+                                                colors: [Color(0xFF43CEA2), Color(0xFF185A9D)],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius: BorderRadius.circular(20),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black12.withOpacity(0.15),
+                                                  blurRadius: 6,
+                                                  offset: const Offset(0, 3),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+
+                                                Flexible(
+                                                  child: Text(
+                                                    '${formatAmount(card.outstanding.toString())}',
+                                                    softWrap: true,
+                                                    maxLines: null,
+                                                    overflow: TextOverflow.visible,
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.w600,
+                                                      color: Colors.white,
+                                                      height: 1.4,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ),
@@ -1323,6 +1449,7 @@ class _PartyTotalClickedRecPayClickedPageState extends State<PartyTotalClickedRe
                                 );
                               },
                             ),
+
 
                           ),
                         ),
@@ -1413,3 +1540,79 @@ class _PartyTotalClickedRecPayClickedPageState extends State<PartyTotalClickedRe
   }
 
 }
+
+Widget _buildGradientChip({
+  required IconData icon,
+  required String label,
+  required String value,
+  required List<Color> colors,
+}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    decoration: BoxDecoration(
+      color: const Color(0xFFF7F8FA), // 👈 soft light grey background
+      borderRadius: BorderRadius.circular(18),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black12.withOpacity(0.05),
+          blurRadius: 4,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+      children: [
+        // 🔹 Left side: gradient icon + label
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 26,
+              height: 26,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: colors,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, size: 14, color: Colors.white),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+
+
+        // 🔹 Right side: value text
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            softWrap: true,
+            overflow: TextOverflow.visible,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87.withOpacity(0.8),
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+

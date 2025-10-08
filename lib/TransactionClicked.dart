@@ -648,11 +648,13 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
       return d;
     }
   }
+
   LinearGradient iconGradient() => const LinearGradient(
     colors: [Color(0xFF00B4DB), Color(0xFF0083B0)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+
   @override
   Widget build(BuildContext context) {
 
@@ -916,6 +918,7 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
       ),
     );
   }
+
   Widget _buildVoucherCard() {
     return Container(
       width: double.infinity,

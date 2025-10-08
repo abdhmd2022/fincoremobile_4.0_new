@@ -94,7 +94,11 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
   String email = "";
   String name = "";
 
-   ScrollController _scrollController= ScrollController();
+  late String currencysymbol = '';
+
+  late NumberFormat currencyFormat;
+
+  ScrollController _scrollController= ScrollController();
 
   TextEditingController searchController = TextEditingController();
 
@@ -723,6 +727,31 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
       username = prefs.getString('username');
       token = prefs.getString('token')!;
     });
+
+    String? currencyCode = '';
+
+    currencyCode = prefs.getString('currencycode');
+
+
+    try {
+      if (currencyCode == 'INR' || currencyCode == 'EUR' ||
+          currencyCode == 'USD' || currencyCode == 'PKR') {
+        currencyFormat = NumberFormat('#,##0');
+        NumberFormat format = NumberFormat.simpleCurrency(
+            locale: 'en', name: currencyCode);
+        currencysymbol = format.currencySymbol;
+      } else {
+        NumberFormat format = NumberFormat.currency(
+            locale: 'en', name: currencyCode);
+        currencysymbol = format.currencySymbol;
+          currencyFormat = NumberFormat('#,##0');
+      }
+    } catch (e) {
+      NumberFormat format = NumberFormat.currency(
+          locale: 'en', name: currencyCode);
+      currencysymbol = format.currencySymbol;
+      currencyFormat = NumberFormat('#,##0');
+    }
     try
     {
       selectedSortOption = prefs.getString('sort')!;
@@ -1145,99 +1174,188 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                           child: ListView.builder(
                             controller: _scrollController,
                             itemCount: filteredItems.length,
-                            padding: const EdgeInsets.only(left: 16,right:16,top:0, bottom: 12),
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                             itemBuilder: (context, index) {
                               final item = filteredItems[index];
+                              final curr = currencysymbol ?? ''; // ✅ fallback
+
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 14),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
-                                        blurRadius: 12,
-                                        spreadRadius: 2,
-                                        offset: Offset(0, 6),
-                                      ),
-                                    ],
-                                  ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(18),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 10,
+                                      spreadRadius: 1,
+                                      offset: const Offset(0, 5),
+                                    ),
+                                  ],
+                                ),
                                 child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-                                    child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // 🔹 Top Row: Voucher + Qty Badge
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
-                                          // Title Row
-                                          Row(
-                                            children: [
-                                              Icon(Icons.receipt_long, size: 20, color: Colors.teal.shade600),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                child: Text(
-                                                  item.vchno,
+                                          Container(
+                                            width: 34,
+                                            height: 34,
+                                            decoration: const BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                            ),
+                                            child: const Icon(Icons.receipt_long, size: 18, color: Colors.white),
+                                          ),
+                                          const SizedBox(width: 10),
+
+                                          // Voucher No
+                                          Expanded(
+                                            child: Text(
+                                              item.vchno ?? 'N/A',
+                                              softWrap: true,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ),
+
+                                          const SizedBox(width: 10),
+
+                                          // Qty Badge
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                            decoration: BoxDecoration(
+                                              gradient: const LinearGradient(
+                                                colors: [Color(0xFF43CEA2), Color(0xFF185A9D)],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius: BorderRadius.circular(20),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                const Icon(Icons.inventory_2_outlined, size: 14, color: Colors.white),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  'Qty: ${item.qty}',
                                                   style: GoogleFonts.poppins(
-                                                    fontSize: 16.5,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.black87,
+                                                    fontSize: 13.5,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.white,
                                                   ),
                                                 ),
-                                              ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+
+                                      const SizedBox(height: 14),
+
+                                      // 🔹 Middle Row: Date & Rate
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          // Date Info
+                                          Row(
+                                            children: [
                                               Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.teal.shade50,
-                                                  borderRadius: BorderRadius.circular(16),
+                                                width: 28,
+                                                height: 28,
+                                                decoration: const BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                  borderRadius: BorderRadius.all(Radius.circular(8)),
                                                 ),
-                                                child: Row(
-                                                  children: [
-                                                    Icon(Icons.inventory_2_outlined, size: 14, color: Colors.teal),
-                                                    const SizedBox(width: 4),
-                                                    Text(
-                                                      'Qty: ${item.qty}',
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 13.5,
-                                                        fontWeight: FontWeight.w500,
-                                                        color: Colors.teal.shade800,
-                                                      ),
-                                                    ),
-                                                  ],
+                                                child: const Icon(Icons.calendar_today_outlined,
+                                                    size: 14, color: Colors.white),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                convertDateFormat(item.vchdate),
+                                                softWrap: true,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13.5,
+                                                  color: Colors.black54,
                                                 ),
                                               ),
                                             ],
                                           ),
 
-                                          const SizedBox(height: 14),
-
-                                          // Details Row
-                                          Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Icon(Icons.calendar_today_outlined, size: 16, color: Colors.black45),
-                                                    const SizedBox(width: 6),
-                                                    Text(
-                                                      convertDateFormat(item.vchdate),
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 13.5,
-                                                        color: Colors.black54,
-                                                      ),
-                                                    ),
-                                                  ],
+                                          SizedBox(width: 12),
+                                          // Rate Info with currency symbol 💰
+                                          Flexible(
+                                            child:  Container(
+                                              margin: const EdgeInsets.only(top: 4),
+                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                              decoration: BoxDecoration(
+                                                gradient: const LinearGradient(
+                                                  colors: [Color(0xFFFF9966), Color(0xFFFF5E62)], // orange-red gradient
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
                                                 ),
-                                                Row(
-                                                  children: [
-                                                    Icon(Icons.attach_money, size: 18, color: Colors.black45),
-                                                    const SizedBox(width: 6),
-                                                    Text(
-                                                      'Rate: ${formatRate(item.rate)}',
+                                                borderRadius: BorderRadius.circular(20),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black12.withOpacity(0.1),
+                                                    blurRadius: 6,
+                                                    offset: const Offset(0, 3),
+                                                  ),
+                                                ],
+                                              ),
+                                              clipBehavior: Clip.none, // 👈 ensures overflow is visible
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Flexible(
+                                                    fit: FlexFit.loose,
+                                                    child: Text(
+                                                      'Rate: ${currencysymbol ?? ''} ${formatRate(item.rate)}',
+                                                      textAlign: TextAlign.right,
+                                                      softWrap: true,
+
+                                                      overflow: TextOverflow.visible, // 👈 makes long text fully visible
                                                       style: GoogleFonts.poppins(
                                                         fontSize: 13.5,
-                                                        color: Colors.black54,
+
+                                                        fontWeight: FontWeight.w600,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
-                                                  ],
-                                                )])])));}))],
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                          )
+
+
+
+                                        ],
+                                      ),
+
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+
+                        )],
                   ),
                 ),
               ),

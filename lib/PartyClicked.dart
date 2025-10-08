@@ -3699,7 +3699,8 @@ class SummaryExpansionCard extends StatelessWidget {
               ],
             ),
 
-            // 🔹 Total value (right aligned)
+            SizedBox(width: 12,),
+
             // 🔹 Total value (right aligned, wraps to next line if long)
             Flexible(
               child: Text(

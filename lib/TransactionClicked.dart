@@ -354,6 +354,7 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                 {
                   setState(() {
                     isTopPanelBillsVisible = false;
+                    isDueDateBillsVisible = false;
                   });
                   billtype = billtypee;
                   billamount = formatAmount(billamountt);

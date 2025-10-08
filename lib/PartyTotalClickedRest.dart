@@ -496,7 +496,7 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
     DateTime date = DateTime.parse(dateStr);
 
     // Format the date to the desired output format
-    String formattedDate = DateFormat("dd-MMM-yy").format(date);
+    String formattedDate = DateFormat("dd-MMM-yyyy").format(date);
 
     return formattedDate;
   }
@@ -1010,126 +1010,172 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                         child: Expanded(
                           child: ListView.builder(
                             controller: _scrollController,
-                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                             itemCount: filteredItems.length,
                             itemBuilder: (context, index) {
                               final card = filteredItems[index];
+
                               return Container(
-                                margin: EdgeInsets.only(bottom: 14),
+                                margin: const EdgeInsets.only(bottom: 14),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
                                   color: Colors.white,
+                                  borderRadius: BorderRadius.circular(18),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 8,
-                                      offset: Offset(0, 4),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 5),
                                     ),
                                   ],
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      // First row → VchNo + Amount
+                                      // 🔹 Big Voucher Heading
                                       Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
+                                        crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
+                                          Container(
+                                            width: 36,
+                                            height: 36,
+                                            decoration: const BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [Color(0xFF7F7FD5), Color(0xFF86A8E7)], // 💜 Soft indigo-blue
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                            ),
+                                            child: const Icon(Icons.receipt_long, size: 18, color: Colors.white),
+                                          ),
+                                          const SizedBox(width: 10),
                                           Expanded(
                                             child: Text(
                                               formatVchNo(card.vchno),
                                               style: GoogleFonts.poppins(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w600,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w700,
                                                 color: Colors.black87,
                                               ),
                                             ),
                                           ),
-                                          const SizedBox(width: 8),
-                                          Flexible( // Very important to avoid overflow!
-                                            child: Text(
-                                              formatAmount(card.amount.toString()),
-                                              textAlign: TextAlign.end,
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.green.shade700,
-                                              ),
-                                            ),
-                                          ),
                                         ],
                                       ),
 
-                                      const SizedBox(height: 6),
+                                      const SizedBox(height: 12),
 
-                                      // Second row → Date + Chips
+                                      // 🔹 Detail Row (Date + Amount)
                                       Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Expanded(
-                                            child: Text(
-                                              convertDateFormat(card.vchdate),
-                                              style: GoogleFonts.poppins(
-                                                color: Colors.black54,
-                                                fontSize: 13,
+                                          // Date with gradient icon
+                                          Row(
+                                            children: [
+                                              Container(
+                                                width: 26,
+                                                height: 26,
+                                                decoration: const BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: [Color(0xFF43C6AC), Color(0xFF191654)], // 💚 Deep teal
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                                                ),
+                                                child: const Icon(Icons.calendar_today_outlined,
+                                                    size: 14, color: Colors.white),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                convertDateFormat(card.vchdate),
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13.5,
+                                                  color: Colors.black54,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+
+                                          SizedBox(width: 8,),
+
+                                          // 💰 Gradient amount pill with full visible text (no overflow)
+                                          Flexible(
+                                            child: Container(
+                                              padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [Colors.orange.withOpacity(0.5),
+                                                    Colors.deepOrange.withOpacity(0.7)], // elegant orange → navy blend
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                                borderRadius: BorderRadius.circular(20),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black12.withOpacity(0.15),
+                                                    blurRadius: 6,
+                                                    offset: const Offset(0, 3),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Row(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.end, // 👈 aligns icon & text to the right
+                                                children: [
+
+                                                  Expanded(
+                                                    child: Text(
+                                                      '${formatAmount(card.amount.toString())}',
+                                                      softWrap: true,
+
+                                                      overflow: TextOverflow.visible,
+                                                      textAlign: TextAlign.center,
+                                                      style: GoogleFonts.poppins(
+                                                        fontSize: 13.5,
+                                                        fontWeight: FontWeight.w600,
+                                                        
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ),
-                                          // No need to put amount here anymore
+
                                         ],
                                       ),
 
-                                      const SizedBox(height: 6),
+                                      const SizedBox(height: 10),
 
-                                      // Chips for Post Dated / Optional
+                                      // 🔹 Chips for Post Dated / Optional
                                       Wrap(
-                                        spacing: 6,
-                                        runSpacing: 4,
+                                        spacing: 8,
+                                        runSpacing: 6,
                                         children: [
                                           if (card.ispostdated == "1" && isVisiblePostDated)
-                                            Container(
-                                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                              decoration: BoxDecoration(
-                                                color: Colors.blue.shade50,
-                                                borderRadius: BorderRadius.circular(12),
-                                              ),
-                                              child: Text(
-                                                'Post Dated',
-                                                style: GoogleFonts.poppins(
-                                                  color: Colors.blue,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
+                                            _buildStatusChip(
+                                              label: 'Post Dated',
+                                              colors: const [Color(0xFF3A7BD5), Color(0xFF00D2FF)], // 💙 Cool blue
                                             ),
                                           if (card.isoptional == "1" && isVisibleOptional)
-                                            Container(
-                                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                              decoration: BoxDecoration(
-                                                color: Colors.orange.shade50,
-                                                borderRadius: BorderRadius.circular(12),
-                                              ),
-                                              child: Text(
-                                                'Optional',
-                                                style: GoogleFonts.poppins(
-                                                  color: Colors.orange,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
+                                            _buildStatusChip(
+                                              label: 'Optional',
+                                              colors: const [Color(0xFFFFB347), Color(0xFFFFCC33)], // 🧡 Warm gold
                                             ),
                                         ],
                                       ),
                                     ],
                                   ),
                                 ),
-
                               );
                             },
                           ),
+
+
+
                         ),
                       ),
 
@@ -1203,3 +1249,45 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
         ],
       ),
     );}}
+
+Widget _buildStatusChip({
+  required String label,
+  required List<Color> colors,
+}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    decoration: BoxDecoration(
+      color: const Color(0xFFF7F8FA),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: colors.last.withOpacity(0.3)),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 22,
+          height: 22,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: colors,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: const Icon(Icons.check_circle_outline, size: 12, color: Colors.white),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+

@@ -3174,6 +3174,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
             );
 
             final result = await showMenu<NumberScale>(
+              color: Colors.white,
               context: context,
               position: position,
               shape: RoundedRectangleBorder(

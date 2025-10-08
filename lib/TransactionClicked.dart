@@ -128,7 +128,18 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
   List<Bills> bills_list = [];
   List<InventoryEntries> inventoryentries_list = [];
   List<CostCenter> costcenter_list = [];
+  bool isLedgerExpanded = false;
 
+  bool isInventoryExpanded = false;
+
+  bool isCostCenterExpanded = false;
+
+  bool isBillsExpanded = false;
+  int visibleLedgerCount = 3;
+  int visibleBillsCount = 3;
+
+  int visibleInventoryCount = 3;
+  int visibleCostCenterCount = 3;
   _TransactionsClickedPageState(
       {
         required this.vchtype,
@@ -629,7 +640,19 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
     _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     _initSharedPreferences();
   }
-
+  String formatDate(String d) {
+    if (d == '' || d == 'null') return 'N/A';
+    try {
+      return DateFormat('dd-MMM-yyyy').format(DateTime.parse(d));
+    } catch (_) {
+      return d;
+    }
+  }
+  LinearGradient iconGradient() => const LinearGradient(
+    colors: [Color(0xFF00B4DB), Color(0xFF0083B0)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
   @override
   Widget build(BuildContext context) {
 
@@ -696,304 +719,348 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
 
       body: Stack(
         children: [
-          Column(
-            children: [
-            Container(
-              margin: EdgeInsets.only(left: 12, right: 12,top:8,bottom:0),
-              decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12.withOpacity(0.08),
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding:  EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Voucher Type
-                  Center(
-                    child:  Container(
-                      padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      margin: EdgeInsets.only(bottom: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.shade50,
-                        border: Border.all(color: Colors.orange.shade50),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child:  Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.description_outlined, size: 16, color: Colors.orange.shade700),
-                              SizedBox(width: 6),
-                              Text(
-                                vchtype,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.orange.shade800,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ),
+          SingleChildScrollView(
+            child:  Column(
+              children: [
+                _buildVoucherCard(),
 
-                    ),
-                  ),
-
-                  // VCH No & Date
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.receipt_long_rounded, size: 18, color: Colors.teal),
-                           SizedBox(width: 6),
-                          Text(
-                            vchno,
-                            style:  GoogleFonts.poppins(color: Colors.black87),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.calendar_today_outlined, size: 16, color: Colors.teal),
-                           SizedBox(width: 6),
-                          Text(
-                            convertDateFormat(vchdate),
-                            style:  GoogleFonts.poppins(color: Colors.black87),
-                          ),
-                        ],
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
                       ),
                     ],
                   ),
+                  child: Column(
+                    children: [
+                      if (isVisibleLedgerEntry)
+                        ModernExpandableCard(
+                          title: 'Accounting Details',
+                          icon: Icons.account_balance,
+                          children: [
+                            ...ledgerentries_list
+                                .take(visibleLedgerCount)
+                                .map((entry) => buildLedgerRow(entry.ledger, formatAmount(entry.amount)))
+                                .toList(),
 
-                  // Ref No & Ref Date
-                  if (refdate != 'null' || refno != 'null') ...[
-                     SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Ref No
-                        if (refno != 'null')
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Icon(Icons.numbers, size: 16, color: Colors.teal),
-                                 SizedBox(width: 6),
-                                 Text(
-                                  'Ref No: ',
-                                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.black87),
-                                ),
-                                Expanded(
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                child: Text(
-                                  refno,
-                                  style:  GoogleFonts.poppins(color: Colors.black87),
-                                ),
-                                )
-                                ),
-                                SizedBox(width:5)
-                              ],
-                            ),
-                          ),
-
-                        // Ref Date
-                        if (refdate != 'null')
-                          Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Icon(Icons.date_range_outlined, size: 16, color: Colors.teal),
-                                 SizedBox(width: 6),
-                                 Text(
-                                  'Ref Date: ',
-                                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.black87),
-                                ),
-                                Flexible(
-                                  child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Text(
-                                  convertDateFormat(refdate),
-                                  style:  GoogleFonts.poppins(color: Colors.black87),
-                                ),
-                                )
-                                ),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-
-
-
-                  // Post Dated / Optional Tags
-                  if (ispostdated == "1" || isoptional == "1") ...[
-                     SizedBox(height: 14),
-                    Wrap(
-                      spacing: 10,
-                      children: [
-                        if (ispostdated == "1")
-                          Container(
-                            padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.teal.shade50,
-                              border: Border.all(color: Colors.teal.shade100),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.schedule, size: 14, color: Colors.teal.shade700),
-                                 SizedBox(width: 6),
-                                Text(
-                                  "Post Dated",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.teal.shade800,
+                            if (ledgerentries_list.length > 3)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Center(
+                                  child: TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        if (isLedgerExpanded) {
+                                          visibleLedgerCount = 3;
+                                          isLedgerExpanded = false;
+                                        } else {
+                                          visibleLedgerCount = ledgerentries_list.length;
+                                          isLedgerExpanded = true;
+                                        }
+                                      });
+                                    },
+                                    child: Text(
+                                      isLedgerExpanded ? 'View Less' : 'View More',
+                                      style: GoogleFonts.poppins(
+                                        color: app_color,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        if (isoptional == "1")
-                          Container(
-                            padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.teal.shade50,
-                              border: Border.all(color: Colors.teal.shade100),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
+                              ),
+                          ],
+                        ),
+
+
+
+                      if (isVisibleBills)
+                        ModernExpandableCard(
+                          title: 'Reference Details',
+                          icon: Icons.description_outlined,
+                          children: [
+                            if (isTopPanelBillsVisible)
+                              buildBillRow('Bill No', billno, Icons.receipt_long),
+                            if (isDueDateBillsVisible)
+                              buildBillRow('Due Date', billduedate, Icons.calendar_today),
+                            buildBillRow('Bill Type', billtype, Icons.label_important_outline),
+                            buildBillRow('Amount', billamount, Icons.money),
+                          ],
+                        ),
+
+                      if (isVisibleInventoryEntry)
+                        ModernExpandableCard(
+                          title: 'Item Details',
+                          icon: Icons.inventory_2_outlined,
+                          children: [
+                            ...inventoryentries_list
+                                .take(visibleInventoryCount)
+                                .map((card) => Column(
                               children: [
-                                Icon(Icons.info_outline, size: 14, color: Colors.teal.shade700),
-                                 SizedBox(width: 6),
-                                Text(
-                                  "Optional",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.teal.shade800,
+                                buildInventoryRow('Item', card.item, 'Qty', card.qty,
+                                    leftIcon: Icons.inventory_outlined, rightIcon: Icons.confirmation_num_outlined),
+                                buildInventoryRow('Rate', formatRate(card.rate), 'Disc',
+                                    "${formatNullto0(card.discount)}%",
+                                    leftIcon: Icons.price_change, rightIcon: Icons.percent),
+                                buildInventoryRow('GoDown', handleGodown(card.godown), 'Amt',
+                                    formatAmount(card.amount),
+                                    leftIcon: Icons.store, rightIcon: Icons.money),
+                                const Divider(height: 24, thickness: 0.6),
+                              ],
+                            ))
+                                .toList(),
+
+                            if (inventoryentries_list.length > 3)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Center(
+                                  child: TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        if (isInventoryExpanded) {
+                                          visibleInventoryCount = 3;
+                                          isInventoryExpanded = false;
+                                        } else {
+                                          visibleInventoryCount = inventoryentries_list.length;
+                                          isInventoryExpanded = true;
+                                        }
+                                      });
+                                    },
+                                    child: Text(
+                                      isInventoryExpanded ? 'View Less' : 'View More',
+                                      style: GoogleFonts.poppins(
+                                        color: app_color,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ],
+                              ),
+                          ],
+                        ),
+
+
+
+                      if (isVisibleCostCenter)
+                        ModernExpandableCard(
+                          title: 'Cost Centre Details',
+                          icon: Icons.account_tree_outlined,
+                          children: [
+                            ...costcenter_list
+                                .take(visibleCostCenterCount)
+                                .map((card) => buildCostCenterRow(
+                              formatCostCenter(card.costcentre),
+                              formatAmount(card.amount),
+                            ))
+                                .toList(),
+
+
+                            if (costcenter_list.length > 3)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Center(
+                                  child: TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        if (isCostCenterExpanded) {
+                                          visibleCostCenterCount = 3;
+                                          isCostCenterExpanded = false;
+                                        } else {
+                                          visibleCostCenterCount = costcenter_list.length;
+                                          isCostCenterExpanded = true;
+                                        }
+                                      });
+                                    },
+                                    child: Text(
+                                      isCostCenterExpanded ? 'View Less' : 'View More',
+                                      style: GoogleFonts.poppins(
+                                        color: app_color,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+
+
+                    ],
+                  ),
+                ),
+
+                // Add bottom spacing
+                const SizedBox(height: 20),
+              ],
+            ),
+
+          ),
+
+// Loader stays outside of scrollable content
+          if (_isLoading)
+            const Positioned.fill(
+              child: Center(
+                child: CircularProgressIndicator.adaptive(),
+              ),
+            ),
+
+        ],
+      ),
+    );
+  }
+  Widget _buildVoucherCard() {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(left: 12,right:12, top: 8,bottom:0),
+
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blueGrey.withOpacity(0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildRow(Icons.receipt_long_rounded, "Voucher No", widget.vchno),
+          _buildRow(Icons.calendar_today, "Voucher Date", formatDate(widget.vchdate)),
+          if (widget.refno != 'null')
+            _buildRow(Icons.confirmation_number_outlined, "Ref No", widget.refno),
+          if (widget.refdate != 'null')
+            _buildRow(Icons.date_range_outlined, "Ref Date", formatDate(widget.refdate)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 10,
+            children: [
+              if (widget.ispostdated == "1")
+                _chip("Post Dated", const Color(0xFF00B4DB)),
+              if (widget.isoptional == "1")
+                _chip("Optional", const Color(0xFF8E2DE2)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRow(IconData icon, String label, String value) {
+    // 🌈 Assign a unique gradient color based on the icon type
+    LinearGradient getIconGradient() {
+      if (icon == Icons.receipt_long_rounded) {
+        return const LinearGradient(
+          colors: [Color(0xFFFF9966), Color(0xFFFF5E62)], // orange-red
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      } else if (icon == Icons.calendar_today ||
+          icon == Icons.calendar_month ||
+          icon == Icons.date_range_outlined) {
+        return const LinearGradient(
+          colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)], // blue gradient
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      } else if (icon == Icons.confirmation_number_outlined) {
+        return const LinearGradient(
+          colors: [Color(0xFF00B09B), Color(0xFF96C93D)], // green gradient
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      } else {
+        return const LinearGradient(
+          colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)], // purple default
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          // 🎨 Rounded gradient icon background
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              gradient: getIconGradient(),
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12.withOpacity(0.1),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Icon(icon, size: 18, color: Colors.white),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              "$label",
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: Colors.black87,
               ),
             ),
           ),
-
-            Expanded(
-                          child:  Container(
-                              width: double.infinity,
-                              margin: EdgeInsets.only(left: 12,right:12, top: 8,bottom:16),
-                              padding:  EdgeInsets.only(left:0,right:0,top:8,bottom:4),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 10,
-                                    offset: Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children: [
-                                    if (isVisibleLedgerEntry)
-                                      ModernExpandableCard(
-                                        title: 'Accounting Details',
-                                        icon: Icons.account_balance,
-                                        children: ledgerentries_list.map((entry) {
-                                          return buildLedgerRow(entry.ledger, formatAmount(entry.amount));
-                                        }).toList(),
-                                      ),
-
-                                    if (isVisibleBills)
-                                      ModernExpandableCard(
-                                        title: 'Reference Details',
-                                        icon: Icons.description_outlined,
-                                        children: [
-                                          if (isTopPanelBillsVisible)
-                                            buildBillRow('Bill No', billno, Icons.receipt_long),
-                                          if (isDueDateBillsVisible)
-                                            buildBillRow('Due Date', billduedate, Icons.calendar_today),
-                                          buildBillRow('Bill Type', billtype, Icons.label_important_outline),
-                                          buildBillRow('Amount', billamount, Icons.money),
-                                        ],
-                                      ),
-
-                                    if (isVisibleInventoryEntry)
-                                      ModernExpandableCard(
-                                        title: 'Item Details',
-                                        icon: Icons.inventory_2_outlined,
-                                        children: inventoryentries_list.map((card) {
-                                          return Column(
-                                            children: [
-                                              buildInventoryRow('Item', card.item, 'Qty', card.qty,
-                                                  leftIcon: Icons.inventory_outlined, rightIcon: Icons.confirmation_num_outlined),
-                                              buildInventoryRow('Rate', formatRate(card.rate), 'Disc',
-                                                  "${formatNullto0(card.discount)}%",
-                                                  leftIcon: Icons.price_change, rightIcon: Icons.percent),
-                                              buildInventoryRow('GoDown', handleGodown(card.godown), 'Amt',
-                                                  formatAmount(card.amount),
-                                                  leftIcon: Icons.store, rightIcon: Icons.money),
-                                               Divider(height: 24, thickness: 0.6),
-                                            ],
-                                          );
-                                        }).toList(),
-                                      ),
-
-                                    if (isVisibleCostCenter)
-                                      ModernExpandableCard(
-                                        title: 'Cost Centre Details',
-                                        icon: Icons.account_tree_outlined,
-                                        children: costcenter_list.map((card) {
-                                          return buildCostCenterRow(
-                                            formatCostCenter(card.costcentre),
-                                            formatAmount(card.amount),
-                                          );
-                                        }).toList(),
-                                      ),
-                                  ],
-                                )
-
-                              ),
-
-                          ),
-                        ),
-            ],
+          Expanded(
+            child: Text(
+              value,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.grey[800],
+              ),
+              textAlign: TextAlign.end,
+            ),
           ),
-            Visibility(
+        ],
+      ),
+    );
+  }
 
-              visible: _isLoading,
-              child: Positioned.fill(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: CircularProgressIndicator.adaptive(),
-                ),
-              ),)
+  Widget _chip(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [color.withOpacity(0.8), color.withOpacity(0.5)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.circle, size: 8, color: Colors.white),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -1005,7 +1072,7 @@ class ModernExpandableCard extends StatefulWidget {
   final IconData icon;
   final List<Widget> children;
 
-   ModernExpandableCard({
+  const ModernExpandableCard({
     required this.title,
     required this.icon,
     required this.children,
@@ -1019,208 +1086,497 @@ class ModernExpandableCard extends StatefulWidget {
 class _ModernExpandableCardState extends State<ModernExpandableCard>
     with SingleTickerProviderStateMixin {
   bool _isExpanded = false;
+  bool _isHovered = false;
+
+  // 🌈 Unique gradient per icon type
+  LinearGradient _getIconGradient(IconData icon) {
+    if (icon == Icons.account_balance_wallet_rounded) {
+      return const LinearGradient(
+        colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)], // cyan-green
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    } else if (icon == Icons.receipt_long_rounded ||
+        icon == Icons.description_outlined) {
+      return const LinearGradient(
+        colors: [Color(0xFFFF9966), Color(0xFFFF5E62)], // orange-red
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    } else if (icon == Icons.inventory_2_outlined) {
+      return const LinearGradient(
+        colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)], // blue
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    } else if (icon == Icons.account_tree_outlined) {
+      return const LinearGradient(
+        colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)], // purple
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    } else {
+      return const LinearGradient(
+        colors: [Color(0xFF11998E), Color(0xFF38EF7D)], // green
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin:  EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow:  [
-          BoxShadow(
-            color: Color(0x1A000000),
-            blurRadius: 8,
-            offset: Offset(0, 4),
+    final LinearGradient borderGradient = _getIconGradient(widget.icon);
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        transform: Matrix4.translationValues(0, _isHovered ? -2 : 0, 0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: _isHovered
+                  ? borderGradient.colors.first.withOpacity(0.25)
+                  : Colors.black12.withOpacity(0.05),
+              blurRadius: _isHovered ? 16 : 8,
+              offset: const Offset(0, 5),
+            ),
+          ],
+          border: Border.all(
+            width: 1.3,
+            color: _isHovered
+                ? borderGradient.colors.last.withOpacity(0.5)
+                : Colors.transparent,
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () => setState(() => _isExpanded = !_isExpanded),
-            borderRadius: BorderRadius.circular(16),
-            child: Padding(
-              padding:  EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-              child: Row(
-                children: [
-                  Icon(widget.icon, color: Colors.teal),
-                   SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      widget.title,
-                      style:  GoogleFonts.poppins(
-                        fontSize: 16.5,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          splashColor: borderGradient.colors.last.withOpacity(0.08),
+          highlightColor: Colors.transparent,
+          onTap: () => setState(() => _isExpanded = !_isExpanded),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                child: Row(
+                  children: [
+                    // 🌈 Gradient background for icon
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        gradient: _getIconGradient(widget.icon),
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                            borderGradient.colors.last.withOpacity(0.25),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child:
+                      Icon(widget.icon, color: Colors.white, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        widget.title,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16.5,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
                       ),
                     ),
-                  ),
-                  AnimatedRotation(
-                    turns: _isExpanded ? 0.5 : 0,
-                    duration:  Duration(milliseconds: 200),
-                    child:  Icon(Icons.expand_more, color: Colors.black54),
-                  ),
-                ],
+                    AnimatedRotation(
+                      turns: _isExpanded ? 0.5 : 0,
+                      duration: const Duration(milliseconds: 250),
+                      child: const Icon(Icons.expand_more, color: Colors.black54),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ),
 
-          // Animated content
-          AnimatedSize(
-            duration:  Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: _isExpanded
-                  ?  BoxConstraints()
-                  :  BoxConstraints(maxHeight: 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: widget.children,
+              // 🔽 Expandable content
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: _isExpanded
+                      ? const BoxConstraints()
+                      : const BoxConstraints(maxHeight: 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: widget.children,
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
+
 Widget buildLedgerRow(String ledger, String amount) {
   return Padding(
-    padding:  EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(
-          child: Row(
-            children: [
-              Icon(Icons.account_balance_wallet_rounded, size: 18, color: Colors.teal.shade600),
-               SizedBox(width: 8),
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Text(
-                    ledger,
-                    style:  GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500),
-                  ),
-                )
-              ),
-            ],
-          ),
-        ),
-        Row(
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        double halfWidth = constraints.maxWidth / 2;
 
-
+        return Row(
           children: [
-            SizedBox(width: 8),
-            Text(
-              amount,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.green.shade800,
+            // Left side (icon + name)
+            SizedBox(
+              width: halfWidth,
+              child: Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    child: const Icon(
+                      Icons.account_balance_wallet_rounded,
+                      size: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      ledger,
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Right side (amount)
+            SizedBox(
+              width: halfWidth,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  amount,
+                  textAlign: TextAlign.right,
+                  softWrap: true,
+                  overflow: TextOverflow.visible,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.teal.shade700, // softer than green
+                  ),
+                ),
               ),
             ),
           ],
-        ),
-      ],
+        );
+      },
     ),
   );
 }
+
 Widget buildBillRow(String label, String value, IconData icon) {
+  LinearGradient gradient = const LinearGradient(
+    colors: [Color(0xFFFF9966), Color(0xFFFF5E62)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
   return Padding(
-    padding:  EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
     child: Row(
       children: [
-        Icon(icon, size: 16, color: Colors.teal),
-         SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.black54),
+        // 🔸 Icon
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            gradient: gradient,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 14, color: Colors.white),
         ),
+        const SizedBox(width: 8),
+
+        // 🔸 Label
+        Text(
+          '$label:',
+          style: GoogleFonts.poppins(
+            fontSize: 13.5,
+            fontWeight: FontWeight.w600,
+            color: Colors.black54,
+          ),
+        ),
+
+        const SizedBox(width: 8),
+
+        // 🔸 Value (right aligned, ellipsis if too long)
         Expanded(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+          child: Align(
+            alignment: Alignment.centerRight,
             child: Text(
               value,
-              style:  GoogleFonts.poppins(fontSize: 13.5, color: Colors.black87),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              textAlign: TextAlign.right,
+              style: GoogleFonts.poppins(
+                fontSize: 13.5,
+                color: Colors.black87,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          )
-        ),
-      ],
-    ),
-  );
-}
-Widget buildInventoryRow(String leftLabel, String leftValue, String rightLabel, String rightValue,
-    {IconData? leftIcon, IconData? rightIcon}) {
-  return Padding(
-    padding:  EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Row(
-            children: [
-              if (leftIcon != null) Icon(leftIcon, size: 16, color: Colors.teal),
-               SizedBox(width: 6),
-              Text(
-                '$leftLabel: ',
-                style:  GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.black54),
-              ),
-              Flexible(
-                child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Text(
-                leftValue,
-                style:  GoogleFonts.poppins(fontSize: 13.5, color: Colors.black87),
-              ),
-              )
-              ),
-            ],
           ),
         ),
-         SizedBox(width: 12),
-        Row(
-          children: [
-            if (rightIcon != null) Icon(rightIcon, size: 16, color: Colors.teal),
-             SizedBox(width: 6),
-            Text(
-              '$rightLabel: ',
-              style:  GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.black54),
-            ),
-            Text(
-              rightValue,
-              style:  GoogleFonts.poppins(fontSize: 13.5, color: Colors.black87),
-            ),
-          ],
-        ),
       ],
     ),
   );
 }
-Widget buildCostCenterRow(String costCentre, String amount) {
-  return Padding(
-    padding:  EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+Widget buildInventoryRow(
+    String leftLabel,
+    String leftValue,
+    String rightLabel,
+    String rightValue, {
+      IconData? leftIcon,
+      IconData? rightIcon,
+    }) {
+  return Container(
+    margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        // 🔹 Top Row: Left + Right info side-by-side (wraps if text is long)
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.account_tree_outlined, size: 16, color: Colors.deepPurple),
-             SizedBox(width: 6),
-            Text(costCentre, style:  GoogleFonts.poppins(fontSize: 13.5, color: Colors.black87)),
-          ],
-        ),
-        Row(
-          children: [
-            Icon(Icons.currency_rupee, size: 16, color: Colors.green),
-             SizedBox(width: 4),
-            Text(amount, style:  GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.bold)),
+            // 🔸 Left Section
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (leftIcon != null)
+                    Container(
+                      width: 30,
+                      height: 30,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                      ),
+                      child: Icon(leftIcon, size: 16, color: Colors.white),
+                    ),
+                  if (leftIcon != null) const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          leftLabel,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          leftValue,
+                          softWrap: true,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13.5,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(width: 9,),
+
+            // 🔸 Right Section
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (rightIcon != null)
+                    Container(
+                      width: 30,
+                      height: 30,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                      ),
+                      child: Icon(rightIcon, size: 16, color: Colors.white),
+                    ),
+                  if (rightIcon != null) const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          rightLabel,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          rightValue,
+                          softWrap: true,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13.5,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ],
     ),
   );
 }
+
+
+Widget buildCostCenterRow(String costCentre, String amount) {
+  return Container(
+    width: double.infinity,
+    margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black12.withOpacity(0.08),
+          blurRadius: 8,
+          offset: const Offset(0, 3),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 🔹 Top Row: Cost Centre Label with Icon
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 30,
+              height: 30,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF11998E), Color(0xFF38EF7D)], // green
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              child: const Icon(Icons.account_tree_outlined, size: 16, color: Colors.white),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                costCentre,
+                softWrap: true,
+                style: GoogleFonts.poppins(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 10),
+
+        // 🔹 Bottom Row: Amount aligned to the right
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              width: 30,
+              height: 30,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFFF9966), Color(0xFFFF5E62)], // orange
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              child: const Icon(Icons.money, size: 16, color: Colors.white),
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                amount,
+                textAlign: TextAlign.right,
+                softWrap: true,
+                style: GoogleFonts.poppins(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+
+
+

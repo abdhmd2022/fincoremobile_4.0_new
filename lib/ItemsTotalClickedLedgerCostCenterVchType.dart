@@ -871,7 +871,6 @@ class _ItemsTotalClickedLedgerCostCenterVchTypePageState extends State<ItemsTota
     });
   }
 
-
   Widget _buildContentList() {
     return Column(
       children: [
@@ -900,7 +899,6 @@ class _ItemsTotalClickedLedgerCostCenterVchTypePageState extends State<ItemsTota
               },
             ),
           ),
-
       ],
     );
   }

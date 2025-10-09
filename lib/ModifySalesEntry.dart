@@ -3247,6 +3247,7 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
       );
       
     return Scaffold(
+
       key: _scaffoldKey,
         backgroundColor: Colors.white,
         appBar: PreferredSize(

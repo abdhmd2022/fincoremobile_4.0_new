@@ -2493,6 +2493,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     );
 
     return Scaffold(
+      backgroundColor: Colors.white,
       key: _scaffoldKey,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),

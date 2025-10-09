@@ -2495,6 +2495,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
     );
     
     return Scaffold(
+      backgroundColor: Colors.white,
       key: _scaffoldKey,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),

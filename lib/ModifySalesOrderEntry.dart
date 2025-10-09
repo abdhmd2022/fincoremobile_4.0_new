@@ -3251,6 +3251,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
     "#,##0.${'0' * decimal!}",  // 👈 dynamically repeat '0' for decimal places
   );
     return Scaffold(
+        backgroundColor: Colors.white,
         key: _scaffoldKey,
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(50),

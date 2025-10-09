@@ -2461,7 +2461,7 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
     );
     return Scaffold(
       key: _scaffoldKey,
-
+      backgroundColor: Colors.white,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
         child: AppBar(

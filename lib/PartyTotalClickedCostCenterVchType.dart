@@ -1230,7 +1230,8 @@ class _PartyTotalClickedCostCenterVchTypePageState extends State<PartyTotalClick
           final card = filteredItems_items[index];
           return _buildCard(
             title: card.item,
-            subtitle: 'Qty: ${card.qty}',
+            qty: card.qty,
+            context: context,
             amount: double.tryParse(card.amount.toString()) ?? 0.0,
             onTap: () {
               Navigator.push(
@@ -1262,7 +1263,8 @@ class _PartyTotalClickedCostCenterVchTypePageState extends State<PartyTotalClick
           final card = filteredItems_Bills[index];
           return _buildCard(
             title: card.vchno,
-            subtitle: '${convertDateFormat(card.vchdate)}',
+            date: convertDateFormat(card.vchdate),
+            context: context,
             amount: double.tryParse(card.amount.toString()) ?? 0.0,
           );
         },
@@ -1272,86 +1274,181 @@ class _PartyTotalClickedCostCenterVchTypePageState extends State<PartyTotalClick
 
     return const SizedBox.shrink(); // fallback
   }
+
+// 🌟 Modern Card with Colored Chips for Qty & Date
   Widget _buildCard({
+    required BuildContext context,
     required String title,
-    required String subtitle,
+    String? qty,
+    String? date,
     required double amount,
     VoidCallback? onTap,
+    IconData? icon,
   }) {
+    final bool hasChevron = onTap != null;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(top: 4, bottom: 4, left: 4, right: 4),
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.85),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: Colors.black12.withOpacity(0.08),
-              blurRadius: 12,
-              spreadRadius: 2,
-              offset: const Offset(0, 6),
+              color: Colors.black.withOpacity(0.07),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Info section
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.poppins(
-                      fontSize: 16.5,
-                      fontWeight: FontWeight.w600,
-                      color: app_color,
-                    ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 🌈 Leading Gradient Icon
+              Container(
+                height: 45,
+                width: 45,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      app_color.withOpacity(0.9),
+                      app_color.withOpacity(0.65),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ],
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon ?? Icons.folder_open_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ),
-            ),
-            const SizedBox(width: 5),
+              const SizedBox(width: 14),
 
-            // Amount pill
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: app_color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(50),
-                border: Border.all(color: app_color, width: 0.8),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    formatAmount(amount.toString()),
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: app_color,
+              // 🔹 Text and chips layout
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top row: title + chips
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: GoogleFonts.poppins(
+                              fontSize: 15.5,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                              height: 1.3,
+                            ),
+                            softWrap: true,
+                          ),
+                        ),
+                        if (qty != null || date != null)
+                          Wrap(
+                            spacing: 6,
+                            children: [
+                              if (qty != null)
+                                _buildChip("Qty: $qty", Colors.orange),
+                              if (date != null)
+                                _buildChip(date, Colors.indigo),
+                            ],
+                          ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  const Icon(Icons.chevron_right, size: 18, color: Colors.black45),
-                ],
+                    const SizedBox(height: 12),
+
+                    // Bottom row: amount pill + chevron
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.red.withOpacity(0.18),
+                                Colors.red.withOpacity(0.05),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Text(
+                            formatAmount(amount.toString()),
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                        if (hasChevron)
+
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Icon(Icons.chevron_right_rounded,
+                                size: 20, color: Colors.grey.shade600),
+                          ),
+
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
+
+
+// 🔸 Reusable gradient chip widget (with subtle depth)
+  Widget _buildChip(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            color.withOpacity(0.15),
+            color.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.25), width: 0.6),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.poppins(
+          fontSize: 12.5,
+          fontWeight: FontWeight.w500,
+          color: color,
+        ),
+      ),
+    );
+  }
+
 
 
   void _handleSearchChange(String value) {

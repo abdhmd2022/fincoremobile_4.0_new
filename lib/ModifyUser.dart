@@ -399,56 +399,127 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
 
 
   Future<void> _showConfirmationDialogAndNavigate(BuildContext context) async {
-    await showDialog<void>(
+    final AnimationController controller = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    await showGeneralDialog(
       context: context,
-      barrierDismissible: false, // user must tap button to close dialog
-      builder: (BuildContext context)
-      {
+      barrierDismissible: true,
+      barrierLabel: "Modify User Confirmation",
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (context, anim1, anim2) => const SizedBox.shrink(),
+      transitionBuilder: (context, anim1, anim2, child) {
         return ScaleTransition(
-          scale: CurvedAnimation(
-            parent: AnimationController(
-              duration: const Duration(milliseconds: 500),
-              vsync: this,
-            )..forward(),
-            curve: Curves.fastOutSlowIn,
-          ),
-          child: AlertDialog(
-            title: Text('Confirmation'),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: <Widget>[
-                  Text('Do you really want to Modify User'),
+          scale: CurvedAnimation(parent: controller..forward(), curve: Curves.easeOutBack),
+          child: Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            backgroundColor: Colors.white,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 🧑‍💼 Icon Header
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: app_color.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.manage_accounts_rounded,
+                      size: 42,
+                      color: app_color,
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // 🧾 Title
+                  Text(
+                    'Modify User Confirmation',
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // 💬 Description
+                  Text(
+                    'Are you sure you want to modify this user\'s details?\n'
+                        'The updated information will be saved permanently.',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14.5,
+                      color: Colors.black54,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: 26),
+
+                  // 🔘 Action Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Cancel Button
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: app_color, width: 1.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: Text(
+                            'Cancel',
+                            style: GoogleFonts.poppins(
+                              color: app_color,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      // Confirm Button
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+                            modifyUser(serial_no!, fetched_email!, fetched_role!, fetched_name!);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: app_color,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: Text(
+                            'Modify',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-            actions: <Widget>[
-
-              TextButton(
-                child: Text(
-                  'No',
-                  style: TextStyle(
-                    color: Colors.grey, // Change the text color here
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-
-              TextButton(
-                child: Text(
-                  'Yes',
-                  style: TextStyle(
-                    color: app_color, // Change the text color here
-                  ),
-                ),
-                onPressed: () async {
-                  Navigator.of(context).pop();
-
-                  modifyUser(serial_no!,fetched_email!,fetched_role!,fetched_name!);
-                },
-              ),
-            ],
           ),
         );
       },

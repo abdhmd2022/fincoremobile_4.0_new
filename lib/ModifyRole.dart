@@ -242,61 +242,170 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
   }
 
   Future<void> _showConfirmationDialogAndNavigate(BuildContext context) async {
-    await showDialog<void>(
+    final AnimationController controller = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    await showGeneralDialog(
       context: context,
-      barrierDismissible: false, // user must tap button to close dialog
-      builder: (BuildContext context) {
+      barrierDismissible: true,
+      barrierLabel: "Modify Role Confirmation",
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (context, anim1, anim2) => const SizedBox.shrink(),
+      transitionBuilder: (context, anim1, anim2, child) {
         return ScaleTransition(
-          scale: CurvedAnimation(
-            parent: AnimationController(
-              duration: const Duration(milliseconds: 500),
-              vsync: this,
-            )..forward(),
-            curve: Curves.fastOutSlowIn,
-          ),
-          child: AlertDialog(
-            title: Text('Confirmation'),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: <Widget>[
-                  Text('Do you really want to Modify Role'),
+          scale: CurvedAnimation(parent: controller..forward(), curve: Curves.easeOutBack),
+          child: Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            backgroundColor: Colors.white,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 🧩 Icon header
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: app_color.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.edit_note_rounded,
+                      size: 42,
+                      color: app_color,
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // 📝 Title
+                  Text(
+                    'Modify Role Confirmation',
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // 💬 Description
+                  Text(
+                    'Are you sure you want to modify this role? '
+                        'The changes will be updated permanently.',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14.5,
+                      color: Colors.black54,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: 26),
+
+                  // 🔘 Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Cancel
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: app_color, width: 1.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: Text(
+                            'Cancel',
+                            style: GoogleFonts.poppins(
+                              color: app_color,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      // Confirm
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+
+                            modifyrolefunction(
+                              rolename,
+                              new_rolename,
+                              serial_no!,
+                              salesdashcheck,
+                              barchartdashcheck,
+                              linechartdashcheck,
+                              piechartdashcheck,
+                              receiptsdashcheck,
+                              purchasedashcheck,
+                              paymentsdashcheck,
+                              outstandingreceivabledashcheck,
+                              outstandingpayabledashcheck,
+                              cashdashcheck,
+                              allitemscheck,
+                              inactiveitemscheck,
+                              activeitemscheck,
+                              ratecheck,
+                              amountcheck,
+                              item_salescheck,
+                              item_purchasecheck,
+                              salespartycheck,
+                              receiptpartycheck,
+                              purchasepartycheck,
+                              paymentpartycheck,
+                              creditnotepartycheck,
+                              debitnotepartycheck,
+                              journalpartycheck,
+                              receivablepartycheck,
+                              payablepartycheck,
+                              pendingsalesorderpartycheck,
+                              pendingpurchaseorderpartycheck,
+                              party_supplierscheck,
+                              party_customerscheck,
+                              ledgerentriescheck,
+                              billentriescheck,
+                              inventoryentriescheck,
+                              postdatedtransactionscheck,
+                              costcentrecheck,
+                              salesentrycheck,
+                              receiptentrycheck,
+                              salesorderentrycheck,
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: app_color,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: Text(
+                            'Modify',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-            actions: <Widget>[
-
-              TextButton(
-                child: Text(
-                  'No',
-                  style: TextStyle(
-                    color: Colors.grey, // Change the text color here
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-
-              TextButton(
-                child: Text(
-                  'Yes',
-                  style: TextStyle(
-                    color: app_color, // Change the text color here
-                  ),
-                ),
-                onPressed: () async {
-                  Navigator.of(context).pop();
-
-                  modifyrolefunction(rolename,new_rolename, serial_no!,salesdashcheck,barchartdashcheck,linechartdashcheck,piechartdashcheck,receiptsdashcheck
-                      ,purchasedashcheck,paymentsdashcheck,outstandingreceivabledashcheck,outstandingpayabledashcheck,cashdashcheck
-                      ,allitemscheck,inactiveitemscheck,activeitemscheck,ratecheck,amountcheck,item_salescheck,item_purchasecheck,salespartycheck,receiptpartycheck
-                      ,purchasepartycheck,paymentpartycheck,creditnotepartycheck,debitnotepartycheck,journalpartycheck
-                      ,receivablepartycheck,payablepartycheck,pendingsalesorderpartycheck,pendingpurchaseorderpartycheck
-                      ,party_supplierscheck,party_customerscheck
-                      ,ledgerentriescheck,billentriescheck,inventoryentriescheck,postdatedtransactionscheck,costcentrecheck,salesentrycheck,receiptentrycheck,salesorderentrycheck);
-                },
-              ),
-            ],
           ),
         );
       },
@@ -1447,6 +1556,7 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
         return true;
       },
       child: Scaffold(
+        backgroundColor: Colors.white,
         key: _scaffoldKey,
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(50),
@@ -1462,8 +1572,10 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () {
-                Navigator.of(context).pop();
-              },
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => RolesView()),
+                );              },
             ),
             title: GestureDetector(
               onTap: () {

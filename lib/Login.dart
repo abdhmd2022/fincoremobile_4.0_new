@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'package:open_file/open_file.dart';
@@ -431,14 +432,20 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(
+              CircularProgressIndicator.adaptive(
                 valueColor: AlwaysStoppedAnimation<Color>(app_color), // Change the color here
               ),
               SizedBox(height: 16),
-              Text('Sending Reset Email'),
+              Text('Sending Reset Email',
+                style: GoogleFonts.poppins(
+                  color: Colors.black54,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14.5,
+                ), ),
             ],
           ),
         );
@@ -1254,7 +1261,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 </div>
                 </div>''';
     try {
-      final sendReport = await send(message, smtpServer); // send mail
+      //final sendReport = await send(message, smtpServer); // send mail
 
       /*_scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(
@@ -1403,530 +1410,33 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                                       );})]
                           ),
                         ),
-                        body:Container(
-                            height: MediaQuery.of(context).size.height,
-                            decoration:BoxDecoration(
+                          // 💫 Modern Login Body with Fade Transitions Between Forms
+                          body: Container(
+                            decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                  colors: [
-                                    app_color.withOpacity(0.1),
-                                    Colors.white,
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter
+                                colors: [app_color.withOpacity(0.1), Colors.white],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
                               ),
                             ),
-                            child: Column(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.only(top: 30,bottom: 30),
-                                    child: Image.asset(
-                                      'assets/tally_1.png',
-                                      width: 200.0,
-                                      height: 100.0,
-                                    ),
-                                  ),
+                            child: SafeArea(
+                              child: Center(
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 400),
+                                  transitionBuilder: (Widget child, Animation<double> animation) =>
+                                      FadeTransition(opacity: animation, child: child),
 
-                                  Visibility(
-                                      visible: isVisibleLoginForm,
-                                      child:Expanded(child:  Container(
-                                          padding: EdgeInsets.only(left: 32,right: 32,top : 70),
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black.withOpacity(0.1),
-                                                  spreadRadius: 0, // Spread radius
-                                                  blurRadius: 20, // Blur radius
-                                                  offset: Offset(0, -10),
-                                                ),
-                                              ],
-                                              borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(50),
-                                                  topRight: Radius.circular(50)
-                                              )
-                                          ),
-                                          child:Form(
-                                              key: _formKey,
-                                              child: ListView(
-                                                  children: [
-                                                    Container(padding: EdgeInsets.only(top: 5),
-                                                      child: TextFormField(
-                                                        controller: usernameController,
-                                                        focusNode: _usernameFocusNode,
-                                                        decoration: InputDecoration(
-                                                          labelText: 'Email Address',
-                                                          filled: true,
-                                                          enabledBorder: OutlineInputBorder(
-                                                            borderRadius: BorderRadius.circular(5.0),
-                                                            borderSide: BorderSide(
-                                                              color: Colors.black12,
-                                                            ),
-                                                          ),
-                                                          fillColor: Colors.white,
-                                                          labelStyle: TextStyle(
-                                                            color: Colors.black54, // Set the label text color to black
-                                                          ),
-                                                          focusedBorder: UnderlineInputBorder(
-                                                            borderSide: BorderSide(color: app_color),
-                                                          ),
-                                                        ),
-                                                        style: TextStyle(
-                                                          color: Colors.black,
-                                                        ),
+                                  // 🔹 Dynamically switch between forms
+                                  child: isVisibleLoginForm
+                                      ? _buildLoginForm(context)
+                                      : isVisibleResetPassForm
+                                      ? _buildResetForm(context)
+                                      : _buildOtpForm(context),
+                                ),
+                              ),
+                            ),
+                          ),
 
-                                                        validator: (value) {
-                                                          if (value == null || value.isEmpty)
-                                                          {
-                                                            return 'Please enter your email address';
-                                                          }
-                                                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value))
-                                                          {
-                                                            return 'Please enter a valid email address';
-                                                          }
-                                                          return null;
-                                                        },
-                                                        onSaved: (value) => usernamee = value!,
-                                                      ),),
-
-                                                    SizedBox(height: 16.0),
-
-                                                    TextFormField(
-                                                      controller: passwordController,
-                                                      focusNode: _passwordFocusNode,
-                                                      decoration: InputDecoration(
-                                                        enabledBorder: OutlineInputBorder(
-                                                          borderRadius: BorderRadius.circular(5.0),
-                                                          borderSide: BorderSide(
-                                                            color: Colors.black12,
-                                                          ),
-                                                        ),
-
-                                                        suffixIcon: GestureDetector(
-                                                          onTap: () {
-                                                            setState(() {
-                                                              _obscureText = !_obscureText;
-                                                            });
-                                                          },
-                                                          child: Icon(
-                                                            _obscureText ? Icons.visibility_off :  Icons.visibility,
-                                                          ),
-                                                        ),
-
-                                                        labelText: 'Password',
-                                                        filled: true,
-                                                        fillColor: Colors.white,
-                                                        labelStyle: TextStyle(
-                                                          color: Colors.black54, // Set the label text color to black
-                                                        ),
-
-                                                        focusedBorder: UnderlineInputBorder(
-                                                          borderSide: BorderSide(color: app_color),
-
-                                                        ),
-                                                      ),
-                                                      obscureText: _obscureText,
-
-                                                      validator: (value)
-                                                      {
-                                                        if (value == null || value.isEmpty)
-                                                        {
-                                                          return 'Please enter your password';
-                                                        }
-                                                        return null;
-                                                      },
-                                                      onSaved: (value) => passwordd = value!,
-                                                    ),
-
-                                                    SizedBox(height: 5), // Ad
-
-                                                    Row(
-                                                      mainAxisAlignment: MainAxisAlignment.end,
-                                                      children: [
-                                                        GestureDetector(
-                                                          onTap: () {
-                                                            // Handle "Forgot Password" tap event here
-                                                            setState(() {
-                                                              isVisibleLoginForm = false;
-                                                              resetemailController.text = usernameController.text;
-                                                              passwordController.clear();
-                                                              isVisibleResetPassForm = true;
-                                                            });
-                                                          },
-                                                          child: Text(
-                                                            'Forgot Password?',
-                                                            style: TextStyle(
-                                                              color: Colors.black54,
-                                                              /*decoration: TextDecoration.underline,*/
-                                                            )
-                                                          )
-                                                        )
-                                                      ]),
-
-                                                    Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      children: [
-                                                        Expanded(child: Row(mainAxisAlignment: MainAxisAlignment.start,children: [
-                                                          Checkbox(
-                                                            value: remember_me,
-                                                            activeColor: app_color,
-                                                            checkColor: Colors.white, // Optional: sets the color of the check icon
-                                                            onChanged: (bool? value) {
-                                                              setState(() {
-                                                                remember_me = value!;
-                                                              });
-                                                            },
-                                                          ),
-                                                          Text(
-                                                            'Remember Me',
-                                                            style: TextStyle(fontSize: 16,color: Colors.black54),
-                                                          ),
-                                                        ]))
-                                                      ],
-                                                    ),
-
-                                                    SizedBox(height: 32.0),
-
-                                                    Container(
-                                                      width: MediaQuery.of(context).size.width,
-                                                      child: _isLoading
-                                                          ? CupertinoActivityIndicator(
-                                                        radius: 20.0,
-                                                      )
-                                                          : ElevatedButton(
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor: _buttonColor,
-                                                          elevation: 5, // Adjust the elevation to make it look elevated
-                                                          shadowColor: Colors.black.withOpacity(0.5), // Optional: adjust the shadow color
-                                                        ),
-                                                        onPressed: isButtonDisabled ? null : () {
-                                                          if (_formKey.currentState != null &&
-                                                              _formKey.currentState!.validate()) {
-                                                            _formKey.currentState!.save();
-                                                            _login();
-                                                          }
-                                                        },
-                                                        child: Text('Login',
-                                                            style: TextStyle(
-                                                                color: Colors.white
-                                                            )),
-                                                      ),
-                                                    ),
-
-                                                    SizedBox(height: 5),
-
-                                                    GestureDetector(onTap: ()
-                                                    {
-                                                      navigateToPDFView(context);
-                                                    },
-                                                        child: Container(
-                                                            width: MediaQuery.of(context).size.width,
-                                                            child : Row(
-                                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                                children:[
-                                                                  Text('Not Registered?',
-                                                                      style: TextStyle(color: Colors.black54)),
-
-                                                                  Text('Click here for instructions',
-                                                                      style: TextStyle(color: Colors.black54,
-                                                                          fontWeight: FontWeight.bold,
-                                                                          decoration: TextDecoration.underline))
-                                                                ])))]))
-
-                                      ),)
-                                  ),
-
-                                  Visibility(
-                                      visible: isVisibleResetPassForm,
-                                      child:Expanded(child:Container(
-                                          padding: EdgeInsets.only(left: 32,right: 32,top: 70),
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black.withOpacity(0.1),
-                                                  spreadRadius: 0, // Spread radius
-                                                  blurRadius: 20, // Blur radius
-                                                  offset: Offset(0, -10),
-                                                ),
-                                              ],
-
-                                              borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(50),
-                                                  topRight: Radius.circular(50)
-                                              )
-                                          ),
-                                          child: Form(
-                                              key: _resetformKey,
-                                              child: ListView(
-                                                  children: [
-                                                    Container(
-                                                      padding: EdgeInsets.only(top: 5),
-                                                      child: TextFormField(
-                                                        controller: resetemailController,
-                                                        focusNode: _resetemailFocusNode,
-                                                        decoration: InputDecoration(
-                                                          labelText: 'Registered Email Address',
-                                                          filled: true,
-                                                          enabledBorder: OutlineInputBorder(
-                                                            borderRadius: BorderRadius.circular(5.0),
-                                                            borderSide: BorderSide(
-                                                              color: Colors.black12,
-                                                            ),
-                                                          ),
-                                                          fillColor: Colors.white,
-                                                          labelStyle: TextStyle(
-                                                            color: Colors.black54, // Set the label text color to black
-                                                          ),
-                                                          focusedBorder: UnderlineInputBorder(
-                                                            borderSide: BorderSide(color: app_color),
-                                                          ),
-                                                        ),
-                                                        style: TextStyle(
-                                                          color: Colors.black,
-                                                        ),
-
-                                                        validator: (value) {
-                                                          if (value == null || value.isEmpty)
-                                                          {
-                                                            return 'Please enter your email address';
-                                                          }
-                                                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value))
-                                                          {
-                                                            return 'Please enter a valid email address';
-                                                          }
-                                                          return null;
-                                                        },
-                                                        onSaved: (value) => resetemail = value!,
-                                                      ),),
-
-                                                    SizedBox(height: 32.0),
-
-                                                    Container(
-                                                      width: MediaQuery.of(context).size.width,
-                                                      child: _isLoadingResetPass
-                                                          ? CupertinoActivityIndicator(
-                                                        radius: 20.0,
-                                                      )
-                                                          : ElevatedButton(
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor: _resetbuttonColor,
-                                                          elevation: 5, // Adjust the elevation to make it look elevated
-                                                          shadowColor: Colors.black.withOpacity(0.5), // Optional: adjust the shadow color
-                                                        ),
-                                                        onPressed: isResetPassButtonDisabled ? null : () {
-                                                          if (_resetformKey.currentState != null &&
-                                                              _resetformKey.currentState!.validate()) {
-                                                            _resetformKey.currentState!.save();
-
-                                                            if(resetemailController.text.trim() == 'demouser@ca-eim.com')
-                                                            {
-                                                              _scaffoldMessengerKey.currentState?.showSnackBar(
-                                                                SnackBar(
-                                                                  content: Text('Reset password is not allowed for Demo User'),
-                                                                ),
-                                                              );
-                                                            }
-                                                            else
-                                                            {
-                                                              _resetpass();
-                                                            }
-                                                          }
-                                                        },
-                                                        child: Text('Reset Password',
-                                                            style: TextStyle(
-                                                                color: Colors.white
-                                                            )),
-                                                      ),
-                                                    ),
-
-                                                    Container(
-                                                        width: MediaQuery.of(context).size.width,
-                                                        child:ElevatedButton(
-                                                            style: ElevatedButton.styleFrom(
-                                                              backgroundColor: app_color,
-                                                              elevation: 5, // Adjust the elevation to make it look elevated
-                                                              shadowColor: Colors.black.withOpacity(0.5), // Optional: adjust the shadow color
-                                                            ),
-                                                            onPressed: () {
-
-                                                              setState(() {
-                                                                usernameController.text = resetemailController.text;
-                                                                resetemailController.clear();
-                                                                isVisibleResetPassForm = false;
-                                                                isVisibleLoginForm = true;
-                                                              });
-                                                            },
-                                                            child: Text('Cancel',
-                                                                style: TextStyle(
-                                                                    color: Colors.white
-                                                                ))))]))))),
-                                  Visibility(
-                                      visible: isVisibleOTPForm,
-                                      child:Expanded(child:Container(
-
-                                          padding: EdgeInsets.only(left: 32,right: 32,top: 30),
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black.withOpacity(0.1),
-                                                  spreadRadius: 0, // Spread radius
-                                                  blurRadius: 20, // Blur radius
-                                                  offset: Offset(0, -10),
-                                                  // Shadow position
-                                                ),
-                                              ],
-                                              borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(50),
-                                                  topRight: Radius.circular(50)
-                                              )
-                                          ),
-                                          child: Form(
-                                              key: _otpformKey,
-                                              child: ListView(
-                                                children:[
-
-                                                  Icon(Icons.mark_email_read_outlined, size: 100,
-                                                  color: app_color), // Mobile phone icon
-                                                  SizedBox(height: 20),
-                                                  Text(
-                                                    'Enter Verification Code',
-                                                    style: TextStyle(fontWeight: FontWeight.bold,
-                                                    fontSize: 18),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                  SizedBox(height: 5.0),
-                                                  Center(child: RichText(
-                                              text: TextSpan(
-                                                children: [
-                                                  TextSpan(
-                                                    text: "We've sent you an OTP on ",
-                                                    style: TextStyle(color: Colors.black54),
-
-                                                  ),
-                                                  TextSpan(
-                                                    text: maskedEmail, // The masked email value
-                                                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54), // Bold style
-                                                  ),
-                                                ],
-                                              ),
-                                            ),),
-
-                                                  Text(
-                                                      ". Please enter that code below to continue."
-                                                    ,style: TextStyle(color: Colors.black54),
-                                                    textAlign: TextAlign.center// Regular text style
-                                                  ),
-
-                                                  Padding(
-                                                    padding: EdgeInsets.only(left: 5,right: 5,top: 16),
-                                                    child: PinCodeTextField(
-                                                      appContext: context,
-                                                      pastedTextStyle: TextStyle(
-                                                        color: Colors.green.shade600,
-                                                        fontWeight: FontWeight.normal,
-                                                      ),
-                                                      length: 4, // Specify the length of OTP
-                                                      onChanged: (value) {
-                                                        currentText = value;
-                                                      },
-                                                      pinTheme: PinTheme(
-                                                          shape: PinCodeFieldShape.box,
-                                                          borderRadius: BorderRadius.circular(15),
-                                                          fieldHeight: 50,
-                                                          fieldWidth: 50,
-                                                          activeFillColor: app_color,
-                                                          inactiveFillColor: Colors.white,
-                                                          activeColor: app_color,
-                                                          inactiveColor: Colors.grey,
-                                                          borderWidth: 1,
-                                                          selectedColor: app_color
-                                                      ),
-                                                      controller: otpController,
-                                                      keyboardType: TextInputType.number,
-                                                      onCompleted: (value) {
-                                                        // OTP entry is complete
-                                                      },
-                                                      obscureText: true,
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 20),
-
-                                                  Visibility(visible: isVisibleTimer,
-                                                  child: Column(children: [
-                                                    Text(
-                                                      "Resend OTP in: $_formattedTime", // Display remaining time
-                                                      textAlign: TextAlign.center,
-                                                      style: TextStyle(fontSize: 16, color: Colors.black54),
-                                                    ),
-                                                    SizedBox(height: 20),
-
-
-                                                  ],),),
-
-                                                  Visibility(visible: _isButtonEnabled,
-                                                  child: ElevatedButton(
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor: app_color, // Change button color based on enabled state
-                                                    ),
-                                                    onPressed: () {
-                                                      sendOTP(usernamee);
-                                                      setState(() {
-                                                        _isButtonEnabled = false;
-                                                        isVisibleTimer = true;
-                                                        _startTimer();
-                                                      });
-
-                                                    }, // Disable button if not enabled
-                                                    child: Text(
-                                                      'Resend OTP',
-                                                      style: TextStyle(color: Colors.white),
-                                                    ),
-                                                  ),),
-
-                                                  SizedBox(height: 10),
-
-                                                  ElevatedButton(
-
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor: _buttonColor,
-                                                    ),
-                                                    onPressed: () {
-
-                                                      if (currentText.length == 4) {
-                                                        final generatedOTP = generatedotp;
-                                                        final enteredOTP = currentText;
-
-                                                        if (enteredOTP == generatedOTP) {
-
-                                                          socket.emit('deleteMyId', socket_data);
-
-                                                          isOTPVerified = true;
-                                                          isAnotherDevice = true;
-
-                                                          _directlogin();
-                                                        }
-                                                        else {
-                                                          isOTPVerified = false;
-                                                          isAnotherDevice = false;
-                                                          Fluttertoast.showToast(msg: 'Incorrect OTP');
-                                                        }
-                                                      }
-                                                      else
-                                                      {
-                                                        isOTPVerified = false;
-                                                        isAnotherDevice = false;
-                                                        Fluttertoast.showToast(msg: 'Please enter a 4-digit OTP');
-                                                      }
-                                                    },
-                                                    child: Text('Verify',
-                                                        style: TextStyle(
-                                                            color: Colors.white
-                                                        )),
-                                                  )
-                                                ]
-                                                  ))))),
-                                ])),
                       )));})
     ), onWillPop: () async
     {
@@ -1934,4 +1444,509 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       return true;
     });
   }
+  Widget _buildLoginForm(BuildContext context) {
+    return SingleChildScrollView(
+      key: const ValueKey('loginForm'),
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // 🖼 Logo
+          Image.asset('assets/tally_1.png', width: 150, height: 150),
+          Text(
+            "Smart Finance. Simplified.",
+            style: GoogleFonts.poppins(
+              color: Colors.black54,
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 40),
+
+          // 💠 Glass Card
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12.withOpacity(0.08),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  // 📧 Email
+                  TextFormField(
+                    controller: usernameController,
+                    focusNode: _usernameFocusNode,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.email_outlined, color: app_color),
+                      labelText: 'Email Address',
+                      labelStyle: GoogleFonts.poppins(
+                        color: Colors.black54,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14.5,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return 'Please enter email';
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                          .hasMatch(v)) return 'Invalid email';
+                      return null;
+                    },
+                    onSaved: (v) => usernamee = v!,
+                  ),
+                  const SizedBox(height: 18),
+
+                  // 🔒 Password
+                  TextFormField(
+                    controller: passwordController,
+                    focusNode: _passwordFocusNode,
+                    obscureText: _obscureText,
+
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.lock_outline, color: app_color),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureText
+                              ? Icons.visibility_off_rounded
+                              : Icons.visibility_rounded,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () =>
+                            setState(() => _obscureText = !_obscureText),
+                      ),
+                      labelText: 'Password',
+                      labelStyle: GoogleFonts.poppins(
+                        color: Colors.black54,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14.5,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    validator: (v) =>
+                    v == null || v.isEmpty ? 'Please enter password' : null,
+                    onSaved: (v) => passwordd = v!,
+                  ),
+                  const SizedBox(height: 12),
+
+                  // ✅ Remember Me + Forgot Password
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Checkbox(
+                              value: remember_me,
+                              activeColor: app_color,
+                              onChanged: (v) =>
+                                  setState(() => remember_me = v!),
+                            ),
+                            Text("Remember Me",
+                                style: GoogleFonts.poppins(
+                                    fontSize: 14, color: Colors.black54)),
+                          ],
+                        ),
+                        Center(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                isVisibleLoginForm = false;
+                                resetemailController.text =
+                                    usernameController.text;
+                                passwordController.clear();
+                                isVisibleResetPassForm = true;
+                              });
+                            },
+                            child: Text(
+                              "Forgot Password?",
+                              style: GoogleFonts.poppins(
+                                color: app_color,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.underline,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // 🔘 Login Button
+                  _isLoading
+                      ? const CupertinoActivityIndicator(radius: 18)
+                      : ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: app_color,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 14, horizontal: 80),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    onPressed: isButtonDisabled
+                        ? null
+                        : () {
+                      if (_formKey.currentState != null &&
+                          _formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                        _login();
+                      }
+                    },
+                    child: Text('Login',
+                        style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600)),
+                  ),
+
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: () => navigateToPDFView(context),
+                    child: Text.rich(
+                      TextSpan(
+                        text: 'Not Registered? ',
+                        style: GoogleFonts.poppins(
+                            color: Colors.black54, fontSize: 13),
+                        children: [
+                          TextSpan(
+                            text: 'Click here for instructions',
+                            style: GoogleFonts.poppins(
+                              color: app_color,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildResetForm(BuildContext context) {
+    return SingleChildScrollView(
+      key: const ValueKey('resetForm'),
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12.withOpacity(0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Form(
+          key: _resetformKey,
+          child: Column(
+            children: [
+              Icon(Icons.lock_reset, size: 80, color: app_color),
+              const SizedBox(height: 20),
+              Text('Reset Password',
+                  style: GoogleFonts.poppins(
+                      fontSize: 20, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 20),
+
+              TextFormField(
+                controller: resetemailController,
+                focusNode: _resetemailFocusNode,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.email_outlined, color: app_color),
+                  labelText: 'Registered Email Address',
+                  labelStyle: GoogleFonts.poppins(
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14.5,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none),
+                ),
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'Please enter email';
+                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                      .hasMatch(v)) return 'Invalid email';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 30),
+              _isLoadingResetPass
+                  ? const CupertinoActivityIndicator(radius: 18)
+                  : ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: app_color,
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 14, horizontal: 60),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: isResetPassButtonDisabled
+                    ? null
+                    : () {
+                  if (_resetformKey.currentState!.validate()) {
+                    if (resetemailController.text.trim() ==
+                        'demouser@ca-eim.com') {
+                      _scaffoldMessengerKey.currentState?.showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Reset password is not allowed for Demo User'),
+                        ),
+                      );
+                    } else {
+                      _resetpass();
+                    }
+                  }
+                },
+                child: Text('Reset Password',
+                    style: GoogleFonts.poppins(
+                        color: Colors.white, fontWeight: FontWeight.w600)),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey.shade300,
+                  padding:
+                  const EdgeInsets.symmetric(vertical: 14, horizontal: 60),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () {
+                  setState(() {
+                    usernameController.text = resetemailController.text;
+                    resetemailController.clear();
+                    isVisibleResetPassForm = false;
+                    isVisibleLoginForm = true;
+                  });
+                },
+                child: Text('Cancel',
+                    style: GoogleFonts.poppins(
+                        color: Colors.black87, fontWeight: FontWeight.w600)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  Widget _buildOtpForm(BuildContext context) {
+    return SingleChildScrollView(
+      key: const ValueKey('otpForm'),
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12.withOpacity(0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Form(
+          key: _otpformKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 🔹 Icon + Title
+              Icon(Icons.mark_email_read_outlined, size: 80, color: app_color),
+              const SizedBox(height: 16),
+              Text(
+                'Enter Verification Code',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 6),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  style: GoogleFonts.poppins(color: Colors.black54, fontSize: 14),
+                  children: [
+                    const TextSpan(text: "We've sent an OTP to "),
+                    TextSpan(
+                      text: maskedEmail,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, color: Colors.black87),
+                    ),
+                    const TextSpan(text: ". Please enter it below to continue."),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 25),
+
+              // 🔢 OTP Input Fields
+              PinCodeTextField(
+                appContext: context,
+                controller: otpController,
+                length: 4,
+                animationType: AnimationType.fade,
+                onChanged: (value) => currentText = value,
+                pinTheme: PinTheme(
+                  shape: PinCodeFieldShape.box,
+                  borderRadius: BorderRadius.circular(12),
+                  fieldHeight: 55,
+                  fieldWidth: 55,
+                  activeFillColor: app_color.withOpacity(0.15),
+                  inactiveFillColor: Colors.white,
+                  selectedFillColor: Colors.white,
+                  activeColor: app_color,
+                  inactiveColor: Colors.grey.shade400,
+                  selectedColor: app_color,
+                  borderWidth: 1.2,
+                ),
+                animationDuration: const Duration(milliseconds: 200),
+                enableActiveFill: true,
+                keyboardType: TextInputType.number,
+                obscureText: false,
+              ),
+
+              const SizedBox(height: 25),
+
+              // ⏳ Countdown timer
+              if (isVisibleTimer)
+                Column(
+                  children: [
+                    Text(
+                      "Resend OTP in: $_formattedTime",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, color: Colors.black54),
+                    ),
+                    const SizedBox(height: 18),
+                  ],
+                ),
+
+              // 🔁 Resend OTP
+              Visibility(
+                visible: _isButtonEnabled,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: app_color,
+                    padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+                  onPressed: () {
+                    sendOTP(usernamee);
+                    setState(() {
+                      _isButtonEnabled = false;
+                      isVisibleTimer = true;
+                      _startTimer();
+                    });
+                  },
+                  label: Text(
+                    'Resend OTP',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // ✅ Verify Button
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: app_color,
+                  padding:
+                  const EdgeInsets.symmetric(vertical: 14, horizontal: 60),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                icon: const Icon(Icons.verified_rounded, color: Colors.white),
+                onPressed: () {
+                  if (currentText.length == 4) {
+                    final enteredOTP = currentText;
+                    if (enteredOTP == generatedotp) {
+                      // ✅ Same backend logic as before
+                      socket.emit('deleteMyId', socket_data);
+                      isOTPVerified = true;
+                      isAnotherDevice = true;
+                      _directlogin();
+                    } else {
+                      isOTPVerified = false;
+                      isAnotherDevice = false;
+                      Fluttertoast.showToast(msg: 'Incorrect OTP');
+                    }
+                  } else {
+                    Fluttertoast.showToast(msg: 'Please enter a 4-digit OTP');
+                  }
+                },
+                label: Text(
+                  'Verify',
+                  style: GoogleFonts.poppins(
+                      color: Colors.white, fontWeight: FontWeight.w600),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // 🔙 Cancel Button
+              TextButton.icon(
+                onPressed: () {
+                  setState(() {
+                    otpController.clear();
+                    isVisibleOTPForm = false;
+                    isVisibleLoginForm = true;
+                    isVisibleTimer = false;
+                  });
+                },
+                icon: const Icon(Icons.arrow_back_rounded, color: Colors.black54),
+                label: Text(
+                  "Back to Login",
+                  style: GoogleFonts.poppins(
+                      color: Colors.black54, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
 }
+

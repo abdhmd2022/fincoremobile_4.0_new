@@ -88,55 +88,134 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
         fetchRoles(serial_no!);
       }
 
-  Future<void> _showConfirmationDialogAndNavigate(BuildContext context) async
-  {
-    await showDialog<void>(
+  Future<void> _showConfirmationDialogAndNavigate(BuildContext context) async {
+    final AnimationController controller = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    await showGeneralDialog(
       context: context,
-      barrierDismissible: false, // user must tap button to close dialog
-      builder: (BuildContext context) {
+      barrierDismissible: true,
+      barrierLabel: "Delete Role Confirmation",
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (context, anim1, anim2) => const SizedBox.shrink(),
+      transitionBuilder: (context, anim1, anim2, child) {
         return ScaleTransition(
-          scale: CurvedAnimation(
-            parent: AnimationController(
-              duration: const Duration(milliseconds: 500),
-              vsync: this,
-            )..forward(),
-            curve: Curves.fastOutSlowIn,
-          ),
-          child: AlertDialog(
-            title: Text('Removal Confirmation'),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: <Widget>[
-                  Text('Do you really want to Delete Role'),
+          scale: CurvedAnimation(parent: controller..forward(), curve: Curves.easeOutBack),
+          child: Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            backgroundColor: Colors.white,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 🔴 Warning Icon
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.warning_amber_rounded,
+                      size: 42,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // 🧾 Title
+                  Text(
+                    'Delete Role Confirmation',
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // 💬 Description
+                  Text(
+                    'Are you sure you want to permanently delete this role?\n'
+                        'This action cannot be undone.',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14.5,
+                      color: Colors.black54,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: 26),
+
+                  // 🔘 Action Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Cancel
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: app_color, width: 1.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: Text(
+                            'Cancel',
+                            style: GoogleFonts.poppins(
+                              color: app_color,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      // Delete
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+                            roledelete(serial_no!, rolename_fetched);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: Text(
+                            'Delete',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-            actions: <Widget>[
+          ),
+        );
+      },
+    );
+  }
 
-              TextButton(
-                child: Text(
-                  'No',
-                  style: GoogleFonts.poppins(
-                    color: Color(0xFF30D5C8), // Change the text color here
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-
-              TextButton(
-                child: Text(
-                  'Yes',
-                  style: GoogleFonts.poppins(
-                    color: app_color, // Change the text color here
-                  ),
-                ),
-                onPressed: () async {
-                  Navigator.of(context).pop();
-
-                  roledelete(serial_no!,rolename_fetched);
-                })]));});}
 
   Future<void> roledelete(String selectedserial,String rolename) async {
     setState(() {

@@ -706,6 +706,139 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
      });
    }
 
+   Future<void> _showConfirmationDialogAndNavigate(BuildContext context) async {
+     await showDialog<void>(
+       context: context,
+       barrierDismissible: true,
+       builder: (context) {
+         return Dialog(
+           shape: RoundedRectangleBorder(
+             borderRadius: BorderRadius.circular(24),
+           ),
+           backgroundColor: Colors.white,
+           insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+           child: Padding(
+             padding: const EdgeInsets.all(24.0),
+             child: Column(
+               mainAxisSize: MainAxisSize.min,
+               children: [
+                 // 🔹 Header Icon
+                 Container(
+                   padding: const EdgeInsets.all(16),
+                   decoration: BoxDecoration(
+                     color: app_color.withOpacity(0.1),
+                     shape: BoxShape.circle,
+                   ),
+                   child: const Icon(
+                       Icons.logout_rounded,
+                       size: 40,
+                       color: app_color
+                   ),
+                 ),
+                 const SizedBox(height: 18),
+
+                 // 📝 Title
+                 Text(
+                   'Logout Confirmation',
+                   style: GoogleFonts.poppins(
+                     fontSize: 20,
+                     fontWeight: FontWeight.w600,
+                     color: Colors.black87,
+                   ),
+                   textAlign: TextAlign.center,
+                 ),
+
+                 const SizedBox(height: 10),
+
+                 // 💬 Message
+                 Text(
+                   'Are you sure you want to log out of your account?',
+                   style: GoogleFonts.poppins(
+                     fontSize: 14.5,
+                     color: Colors.black54,
+                   ),
+                   textAlign: TextAlign.center,
+                 ),
+
+                 const SizedBox(height: 28),
+
+                 // 🔘 Action Buttons
+                 Row(
+                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                   children: [
+                     // ❌ Cancel Button
+                     Expanded(
+                       child: OutlinedButton(
+                         onPressed: () => Navigator.of(context).pop(),
+                         style: OutlinedButton.styleFrom(
+                           side: BorderSide(color: app_color),
+                           shape: RoundedRectangleBorder(
+                               borderRadius: BorderRadius.circular(12)),
+                           padding: const EdgeInsets.symmetric(vertical: 14),
+                         ),
+                         child: Text(
+                           'Cancel',
+                           style: GoogleFonts.poppins(
+                             color: app_color,
+                             fontWeight: FontWeight.w600,
+                           ),
+                         ),
+                       ),
+                     ),
+                     const SizedBox(width: 12),
+
+                     // ✅ Logout Button
+                     Expanded(
+                       child: ElevatedButton(
+                         onPressed: () async {
+                           final prefs = await SharedPreferences.getInstance();
+                           await prefs.clear();
+
+                           final jsonPayload = {
+                             'username': username_prefs,
+                             'password': password_prefs,
+                             'macId': deviceIdentifier,
+                           };
+
+                           Navigator.of(context).pop();
+                           emitDeleteMyId(jsonPayload, () {
+                             Navigator.pushReplacement(
+                               context,
+                               MaterialPageRoute(
+                                 builder: (_) => Login(
+                                   username: '',
+                                   password: '',
+                                 ),
+                               ),
+                             );
+                           });
+                         },
+                         style: ElevatedButton.styleFrom(
+                           backgroundColor: app_color,
+                           elevation: 2,
+                           shape: RoundedRectangleBorder(
+                               borderRadius: BorderRadius.circular(12)),
+                           padding: const EdgeInsets.symmetric(vertical: 14),
+                         ),
+                         child: Text(
+                           'Logout',
+                           style: GoogleFonts.poppins(
+                             color: Colors.white,
+                             fontWeight: FontWeight.w600,
+                           ),
+                         ),
+                       ),
+                     ),
+                   ],
+                 ),
+               ],
+             ),
+           ),
+         );
+       },
+     );
+   }
+
    Future<void> _showConfirmationDialogAndExit(BuildContext context) async {
      await showDialog<void>(
        context: context,
@@ -843,7 +976,10 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                 actions: [
                   IconButton(
                     icon: Icon(Icons.logout, color: Colors.white),
-                    onPressed: _showConfirmationDialogAndNavigate,
+                    onPressed:()
+                    {
+                      _showConfirmationDialogAndNavigate(context);
+                    }
                   ),
                   SizedBox(width: 5,)
                 ],
@@ -1218,7 +1354,8 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
           BillsEntriesHolder = _selectedrole[0]["isBillsEntries"] ;
           InventoryEntriesHolder = _selectedrole[0]["isInventoryEntries"] ;
           CostCentreEntriesHolder = _selectedrole[0]["isCostCentreEntries"];
-          PostDatedTransactionsHolder = _selectedrole[0]["isPostDatedTransactions"];
+          PostDatedTransactionsHolder = _selectedrole[0]["isPostDatedTransactions"]?? "True";
+
 
             prefs.setString("salesdash", SalesDashHolder);
             prefs.setString("purchasedash", PurchaseDashHolder);
@@ -1260,13 +1397,28 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
             prefs.setString("costcentreentries", CostCentreEntriesHolder);
 
 
-        Navigator.of(context).pop();
-
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Dashboard()),
+        Fluttertoast.showToast(
+          msg: "Auto-login to $company_name (Serial: $serial_no)",
+          backgroundColor: Colors.black87,
+          textColor: Colors.white,
+          fontSize: 14.0,
         );
+
+        // ✅ Fade transition to Dashboard
+        if (mounted) {
+          Navigator.of(context).pushReplacement(PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 700),
+            pageBuilder: (context, animation, secondaryAnimation) =>
+            const Dashboard(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          ));
+        }
 
       }
       else
@@ -1457,24 +1609,47 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
              fontSize: 14.0,
            );
 
-           await Future.delayed(const Duration(milliseconds: 600));
 
-           // ✅ Fade transition to Dashboard
-           if (mounted) {
-             Navigator.of(context).pushReplacement(PageRouteBuilder(
-               transitionDuration: const Duration(milliseconds: 700),
-               pageBuilder: (context, animation, secondaryAnimation) =>
-               const Dashboard(),
-               transitionsBuilder:
-                   (context, animation, secondaryAnimation, child) {
-                 return FadeTransition(
-                   opacity: animation,
-                   child: child,
-                 );
-               },
-             ));
+           if (secbtnaccess == "True") {
+             for (String key in [
+               "salesdash", "purchasedash", "barchartdash", "linechartdash", "piechartdash",
+               "salesentry", "receiptentry", "salesorderentry", "outstandingreceivabledash",
+               "outstandingpayabledash", "cashdash", "receiptsdash", "paymentsdash", "allitems",
+               "activeitems", "inactiveitems", "rate", "item_amount", "item_sales",
+               "item_purchase", "salesparty", "purchaseparty", "creditnoteparty", "journalparty",
+               "payableparty", "pendingpurchaseorderparty", "receiptparty", "paymentparty",
+               "debitnoteparty", "receivableparty", "pendingsalesorderparty", "party_suppliers",
+               "party_customers", "ledgerentries", "inventoryentries", "postdatedtransactions",
+               "billsentries", "costcentreentries"
+             ]) {
+               prefs.setString(key, "True");
+             }
+
+
+             // ✅ Fade transition to Dashboard
+             if (mounted) {
+               Navigator.of(context).pushReplacement(PageRouteBuilder(
+                 transitionDuration: const Duration(milliseconds: 700),
+                 pageBuilder: (context, animation, secondaryAnimation) =>
+                 const Dashboard(),
+                 transitionsBuilder:
+                     (context, animation, secondaryAnimation, child) {
+                   return FadeTransition(
+                     opacity: animation,
+                     child: child,
+                   );
+                 },
+               ));
+             }
+           } else {
+             if (mounted) {
+               setState(() {
+                 _isLoading = true;
+               });
+             }
+             getroledata(context, serial_no, role_id);
            }
-           return;
+
          }
        } else {
          setState(() {
@@ -1531,33 +1706,48 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
              prefs.setString("company_emirate", result['emirate'] ?? "");
              prefs.setString("company_country", result['country'] ?? "");
 
-             // ✅ Toast confirmation before redirect
-             Fluttertoast.showToast(
-               msg: "Auto-login to $company_name (Serial: $serial_no)",
-               backgroundColor: Colors.black87,
-               textColor: Colors.white,
-               fontSize: 14.0,
-             );
+             if (secbtnaccess == "True") {
+               for (String key in [
+                 "salesdash", "purchasedash", "barchartdash", "linechartdash", "piechartdash",
+                 "salesentry", "receiptentry", "salesorderentry", "outstandingreceivabledash",
+                 "outstandingpayabledash", "cashdash", "receiptsdash", "paymentsdash", "allitems",
+                 "activeitems", "inactiveitems", "rate", "item_amount", "item_sales",
+                 "item_purchase", "salesparty", "purchaseparty", "creditnoteparty", "journalparty",
+                 "payableparty", "pendingpurchaseorderparty", "receiptparty", "paymentparty",
+                 "debitnoteparty", "receivableparty", "pendingsalesorderparty", "party_suppliers",
+                 "party_customers", "ledgerentries", "inventoryentries", "postdatedtransactions",
+                 "billsentries", "costcentreentries"
+               ]) {
+                 prefs.setString(key, "True");
+               }
 
 
 
-
-             // ✅ Fade transition to Dashboard
-             if (mounted) {
-               Navigator.of(context).pushReplacement(PageRouteBuilder(
-                 transitionDuration: const Duration(milliseconds: 700),
-                 pageBuilder: (context, animation, secondaryAnimation) =>
-                 const Dashboard(),
-                 transitionsBuilder:
-                     (context, animation, secondaryAnimation, child) {
-                   return FadeTransition(
-                     opacity: animation,
-                     child: child,
-                   );
-                 },
-               ));
+               // ✅ Fade transition to Dashboard
+               if (mounted) {
+                 Navigator.of(context).pushReplacement(PageRouteBuilder(
+                   transitionDuration: const Duration(milliseconds: 700),
+                   pageBuilder: (context, animation, secondaryAnimation) =>
+                   const Dashboard(),
+                   transitionsBuilder:
+                       (context, animation, secondaryAnimation, child) {
+                     return FadeTransition(
+                       opacity: animation,
+                       child: child,
+                     );
+                   },
+                 ));
+               }
+             } else {
+               if (mounted) {
+                 setState(() {
+                   _isLoading = true;
+                 });
+               }
+               getroledata(context, serial_no, role_id);
              }
-             return;
+
+
            }
          }
        } else {
@@ -1576,94 +1766,5 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
    }
 
 
-   Future<void> _showConfirmationDialogAndNavigate() async {
-     final AnimationController controller = AnimationController(
-       duration: const Duration(milliseconds: 400),
-       vsync: tickerProvider,
-     );
-
-     await showGeneralDialog(
-       context: context,
-       barrierDismissible: true,
-       barrierLabel: "Logout Confirmation",
-       pageBuilder: (context, anim1, anim2) => SizedBox.shrink(),
-       transitionBuilder: (context, anim1, anim2, child) {
-         return ScaleTransition(
-           scale: CurvedAnimation(parent: controller..forward(), curve: Curves.easeOutBack),
-           child: AlertDialog(
-             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-             backgroundColor: Colors.white,
-             title: Text(
-               'Logout Confirmation',
-               style: GoogleFonts.poppins(
-                 fontSize: 18,
-                 fontWeight: FontWeight.bold,
-                 color: Colors.black87,
-               ),
-             ),
-             content: Text(
-               'Do you really want to logout?',
-               style: GoogleFonts.poppins(
-                 fontSize: 15,
-                 color: Colors.black54,
-               ),
-             ),
-             actions: [
-               TextButton(
-                 onPressed: () => Navigator.of(context).pop(),
-                 child: Text(
-                   'Cancel',
-                   style: GoogleFonts.poppins(
-                     fontSize: 14,
-                     fontWeight: FontWeight.w500,
-                     color: app_color,
-                   ),
-                 ),
-               ),
-               TextButton(
-                 onPressed: () async {
-                   final prefs = await SharedPreferences.getInstance();
-
-                   await prefs.remove('username_remember');
-                   await prefs.remove('password_remember');
-                   await prefs.remove('username');
-                   await prefs.remove('password');
-                   await prefs.remove('serial_no');
-                   await prefs.remove('company_name');
-                   await prefs.remove('startfrom');
-                   await prefs.remove('token');
-                   await prefs.remove('inactiveparties_days');
-
-                   final jsonPayload = {
-                     'username': username_prefs,
-                     'password': password_prefs,
-                     'macId': deviceIdentifier,
-                   };
-
-                   Navigator.of(context).pop();
-
-                   emitDeleteMyId(jsonPayload, () {
-                     Navigator.pushReplacement(
-                       context,
-                       MaterialPageRoute(builder: (_) => Login(username: '', password: '')),
-                     );
-                   });
-                 },
-                 child: Text(
-                   'Logout',
-                   style: GoogleFonts.poppins(
-                     fontSize: 14,
-                     fontWeight: FontWeight.w600,
-                     color: Colors.redAccent,
-                   ),
-                 ),
-               ),
-             ],
-           ),
-         );
-       },
-       transitionDuration: Duration(milliseconds: 400),
-     );
-   }
 
 }

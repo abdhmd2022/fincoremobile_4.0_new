@@ -182,6 +182,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body:Stack(children: [
         Center(
           child: Column(
@@ -193,10 +194,12 @@ class _SplashScreenState extends State<SplashScreen> {
                 height: 200,
               ),
               SizedBox(height: 20),
-              SpinKitFadingCube(
+              SpinKitWave(
                 color: app_color,
-                size: 30.0,
-              )])),
+                size: 40.0,
+                itemCount: 5,
+              )
+            ])),
 
         Positioned(
           bottom: 20, // Adjust this value according to your preference

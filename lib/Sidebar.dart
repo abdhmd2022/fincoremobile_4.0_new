@@ -211,34 +211,131 @@ class Sidebar extends StatelessWidget {
   Future<void> _showConfirmationDialogAndNavigate(BuildContext context) async {
     await showDialog<void>(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (context) {
-        return AlertDialog(
-          title: Text('Logout Confirmation', style: GoogleFonts.poppins()),
-          content: Text('Do you really want to Logout?', style: GoogleFonts.poppins()),
-          actions: [
-            TextButton(
-              child: Text('No', style: TextStyle(color: Color(0xFF30D5C8))),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            TextButton(
-              child: Text('Yes', style: TextStyle(color: Color(0xFF30D5C8))),
-              onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
-                prefs.clear();
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          backgroundColor: Colors.white,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 🔹 Header Icon
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: app_color.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.logout_rounded,
+                    size: 40,
+                    color: app_color
+                  ),
+                ),
+                const SizedBox(height: 18),
 
-                final jsonPayload = {
-                  'username': username_prefs,
-                  'password': password_prefs,
-                  'macId': deviceIdentifier,
-                };
-                Navigator.of(context).pop();
-                emitDeleteMyId(jsonPayload, () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Login(username: '', password: '')));
-                });
-              },
+                // 📝 Title
+                Text(
+                  'Logout Confirmation',
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 10),
+
+                // 💬 Message
+                Text(
+                  'Are you sure you want to log out of your account?',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.5,
+                    color: Colors.black54,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 28),
+
+                // 🔘 Action Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // ❌ Cancel Button
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: app_color),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: GoogleFonts.poppins(
+                            color: app_color,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    // ✅ Logout Button
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.clear();
+
+                          final jsonPayload = {
+                            'username': username_prefs,
+                            'password': password_prefs,
+                            'macId': deviceIdentifier,
+                          };
+
+                          Navigator.of(context).pop();
+                          emitDeleteMyId(jsonPayload, () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => Login(
+                                  username: '',
+                                  password: '',
+                                ),
+                              ),
+                            );
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: app_color,
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: Text(
+                          'Logout',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );

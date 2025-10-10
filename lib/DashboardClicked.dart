@@ -2353,6 +2353,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                         overflow: TextOverflow.visible,
                       ),
                     ),
+
+                    SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(

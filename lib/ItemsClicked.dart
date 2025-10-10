@@ -466,7 +466,7 @@ class _ItemsClickedPageState extends State<ItemsClicked> with TickerProviderStat
 
     String? currencyCode = '';
 
-    currencyCode = prefs.getString('currencycode');
+    currencyCode = prefs.getString('currencycode')?? "AED";
 
 
 

@@ -1807,7 +1807,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
 
       String? currencyCode = '';
 
-      currencyCode = prefs.getString('currencycode');
+      currencyCode = prefs.getString('currencycode')?? "AED";
 
 
       try {

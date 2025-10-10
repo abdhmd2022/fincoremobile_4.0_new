@@ -1116,9 +1116,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
 
     String? currencyCode = '';
 
-    currencyCode = prefs.getString('currencycode');
-
-
+    currencyCode = prefs.getString('currencycode')?? "AED";
 
     try {
       if (currencyCode == 'INR' || currencyCode == 'EUR' ||

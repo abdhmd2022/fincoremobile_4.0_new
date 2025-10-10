@@ -1033,16 +1033,16 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      // 🔹 Big Voucher Heading
+                                      // 🔹 Header Row (Voucher No + Date Chip)
                                       Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Container(
                                             width: 36,
                                             height: 36,
                                             decoration: const BoxDecoration(
                                               gradient: LinearGradient(
-                                                colors: [Color(0xFF7F7FD5), Color(0xFF86A8E7)], // 💜 Soft indigo-blue
+                                                colors: [Color(0xFF7F7FD5), Color(0xFF86A8E7)],
                                                 begin: Alignment.topLeft,
                                                 end: Alignment.bottomRight,
                                               ),
@@ -1051,6 +1051,8 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                                             child: const Icon(Icons.receipt_long, size: 18, color: Colors.white),
                                           ),
                                           const SizedBox(width: 10),
+
+                                          // Voucher Number
                                           Expanded(
                                             child: Text(
                                               formatVchNo(card.vchno),
@@ -1061,96 +1063,91 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                                               ),
                                             ),
                                           ),
+
+                                          // 📅 Date Chip (colored background)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                            decoration: BoxDecoration(
+                                              gradient:  LinearGradient(
+                                                colors: [Colors.orange.withOpacity(0.03),
+                                                  Colors.orange.withOpacity(0.1),],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius: BorderRadius.circular(20),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.orange.withOpacity(0.08),
+                                                  blurRadius: 6,
+                                                  offset: const Offset(0, 3),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                const Icon(Icons.calendar_today_outlined, size: 13, color: Colors.orange),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  convertDateFormat(card.vchdate),
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 12.5,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.orange,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ],
+                                      ),
+
+                                      const SizedBox(height: 14),
+
+                                      // 💰 Amount Chip (white background, colored border + text)
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            border: Border.all(
+                                              color: Colors.deepOrangeAccent.withOpacity(0.8),
+                                              width: 1.4,
+                                            ),
+                                            borderRadius: BorderRadius.circular(20),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.deepOrange.withOpacity(0.08),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min, // ✅ only as wide as text
+                                            children: [
+
+                                              Flexible(
+                                                child: Text(
+                                                  '${formatAmount(card.amount.toString())}',
+                                                  softWrap: true, // ✅ allows text to wrap to next line
+                                                  overflow: TextOverflow.visible, // ✅ ensures nothing gets cut off
+                                                  textAlign: TextAlign.end, // or TextAlign.center if needed
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 13.5,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.deepOrangeAccent,
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
                                       ),
 
                                       const SizedBox(height: 12),
 
-                                      // 🔹 Detail Row (Date + Amount)
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          // Date with gradient icon
-                                          Row(
-                                            children: [
-                                              Container(
-                                                width: 26,
-                                                height: 26,
-                                                decoration: const BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    colors: [Color(0xFF43C6AC), Color(0xFF191654)], // 💚 Deep teal
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                                                ),
-                                                child: const Icon(Icons.calendar_today_outlined,
-                                                    size: 14, color: Colors.white),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                convertDateFormat(card.vchdate),
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 13.5,
-                                                  color: Colors.black54,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-
-                                          SizedBox(width: 8,),
-
-                                          // 💰 Gradient amount pill with full visible text (no overflow)
-                                          Flexible(
-                                            child: Container(
-                                              padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: [Colors.orange.withOpacity(0.5),
-                                                    Colors.deepOrange.withOpacity(0.7)], // elegant orange → navy blend
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                borderRadius: BorderRadius.circular(20),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black12.withOpacity(0.15),
-                                                    blurRadius: 6,
-                                                    offset: const Offset(0, 3),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                mainAxisAlignment: MainAxisAlignment.end, // 👈 aligns icon & text to the right
-                                                children: [
-
-                                                  Expanded(
-                                                    child: Text(
-                                                      '${formatAmount(card.amount.toString())}',
-                                                      softWrap: true,
-
-                                                      overflow: TextOverflow.visible,
-                                                      textAlign: TextAlign.center,
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 13.5,
-                                                        fontWeight: FontWeight.w600,
-                                                        
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-
-                                        ],
-                                      ),
-
-                                      const SizedBox(height: 10),
-
-                                      // 🔹 Chips for Post Dated / Optional
+                                      // 🔹 Status Chips (Optional / Post Dated)
                                       Wrap(
                                         spacing: 8,
                                         runSpacing: 6,
@@ -1158,12 +1155,12 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                                           if (card.ispostdated == "1" && isVisiblePostDated)
                                             _buildStatusChip(
                                               label: 'Post Dated',
-                                              colors: const [Color(0xFF3A7BD5), Color(0xFF00D2FF)], // 💙 Cool blue
+                                              colors: const [Color(0xFF3A7BD5), Color(0xFF00D2FF)],
                                             ),
                                           if (card.isoptional == "1" && isVisibleOptional)
                                             _buildStatusChip(
                                               label: 'Optional',
-                                              colors: const [Color(0xFFFFB347), Color(0xFFFFCC33)], // 🧡 Warm gold
+                                              colors: const [Color(0xFFFFB347), Color(0xFFFFCC33)],
                                             ),
                                         ],
                                       ),
@@ -1173,6 +1170,8 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                               );
                             },
                           ),
+
+
 
 
 

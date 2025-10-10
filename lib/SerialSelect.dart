@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:url_launcher/url_launcher.dart';
 import 'constants.dart';
  // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -262,6 +263,267 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
      } catch (e) {
        return Colors.grey; // fallback color
      }
+   }
+
+
+   void _showExpiredLicenseDialog(
+       BuildContext context, String serialNo, String expiryDate) {
+     showGeneralDialog(
+       context: context,
+       barrierDismissible: true,
+       barrierLabel: '',
+       barrierColor: Colors.black.withOpacity(0.4),
+       transitionDuration: const Duration(milliseconds: 400),
+       pageBuilder: (context, anim1, anim2) => const SizedBox.shrink(),
+       transitionBuilder: (context, anim1, anim2, child) {
+         final curvedValue = Curves.easeOutBack.transform(anim1.value);
+         return Transform.scale(
+           scale: curvedValue,
+           child: Opacity(
+             opacity: anim1.value,
+             child: AlertDialog(
+               elevation: 12,
+               backgroundColor: Colors.white.withOpacity(0.9),
+               shape: RoundedRectangleBorder(
+                 borderRadius: BorderRadius.circular(24),
+               ),
+               contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+               insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+               titlePadding: EdgeInsets.zero,
+               title: Container(
+                 width: double.infinity,
+                 padding:
+                 const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                 decoration: const BoxDecoration(
+                   gradient: LinearGradient(
+                     colors: [Color(0xFFF83600), Color(0xFFFE8C00)],
+                     begin: Alignment.topLeft,
+                     end: Alignment.bottomRight,
+                   ),
+                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                 ),
+                 child: Row(
+                   children: [
+                     const Icon(Icons.warning_amber_rounded,
+                         color: Colors.white, size: 28),
+                     const SizedBox(width: 10),
+                     Text(
+                       "License Expired",
+                       style: GoogleFonts.poppins(
+                         color: Colors.white,
+                         fontSize: 18,
+                         fontWeight: FontWeight.w600,
+                       ),
+                     ),
+                   ],
+                 ),
+               ),
+               content: ClipRRect(
+                 borderRadius: BorderRadius.circular(20),
+                 child: BackdropFilter(
+                   filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                   child: Column(
+                     mainAxisSize: MainAxisSize.min,
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       const SizedBox(height: 10),
+                       Text(
+                         "Your license for Serial No:",
+                         style: GoogleFonts.poppins(
+                           fontSize: 14.5,
+                           color: Colors.black87,
+                         ),
+                       ),
+                       const SizedBox(height: 6),
+                       Row(
+                         children: [
+                           const Icon(Icons.confirmation_number_outlined,
+                               size: 18, color: Colors.deepOrange),
+                           const SizedBox(width: 6),
+                           Text(
+                             serialNo,
+                             style: GoogleFonts.poppins(
+                               fontWeight: FontWeight.w600,
+                               fontSize: 15,
+                               color: Colors.black87,
+                             ),
+                           ),
+                         ],
+                       ),
+                       const SizedBox(height: 10),
+                       Text(
+                         "Expired on:",
+                         style: GoogleFonts.poppins(
+                             fontSize: 14.5, color: Colors.black87),
+                       ),
+                       const SizedBox(height: 6),
+                       Row(
+                         children: [
+                           const Icon(Icons.calendar_month,
+                               size: 18, color: Colors.redAccent),
+                           const SizedBox(width: 6),
+                           Text(
+                             DateFormat('dd-MMM-yyyy')
+                                 .format(DateTime.parse(expiryDate)),
+                             style: GoogleFonts.poppins(
+                               fontWeight: FontWeight.w600,
+                               fontSize: 15,
+                               color: Colors.redAccent,
+                             ),
+                           ),
+                         ],
+                       ),
+                       const SizedBox(height: 18),
+                       Divider(thickness: 1, color: Colors.grey.shade300),
+                       const SizedBox(height: 12),
+                       Text(
+                         "Your license has expired. To renew your access, please contact our support team below:",
+                         style: GoogleFonts.poppins(
+                           fontSize: 14.5,
+                           color: Colors.black87,
+                         ),
+                       ),
+                       const SizedBox(height: 16),
+
+                       // ✅ Modern chips for contact options
+                       Wrap(
+                         spacing: 10,
+                         runSpacing: 10,
+                         children: [
+                           // 📧 Email Chip
+                           InkWell(
+                             borderRadius: BorderRadius.circular(30),
+                             onTap: () async {
+                               final Uri emailUri = Uri(
+                                 scheme: 'mailto',
+                                 path: 'saadan@ca-eim.com',
+                                 query:
+                                 'subject=License%20Renewal%20Request&body=Dear%20CSH%20LLC%20Support,%0A%0AMy%20license%20for%20Serial%20No%20$serialNo%20expired%20on%20$expiryDate.%20Please%20assist%20with%20renewal.%0A%0ARegards,',
+                               );
+
+                               if (await canLaunchUrl(emailUri)) {
+                                 await launchUrl(emailUri);
+                               }
+                             },
+                             child: Container(
+                               padding: const EdgeInsets.symmetric(
+
+                                   horizontal: 16, vertical: 10),
+                               decoration: BoxDecoration(
+                                 borderRadius: BorderRadius.circular(30),
+                                 border: Border.all(
+                                   width: 1.3,
+                                   color: Colors.teal.shade400,
+                                 ),
+                                 gradient: LinearGradient(
+                                   colors: [
+                                     Colors.teal.withOpacity(0.05),
+                                     Colors.teal.withOpacity(0.1)
+                                   ],
+                                   begin: Alignment.topLeft,
+                                   end: Alignment.bottomRight,
+                                 ),
+                               ),
+                               child: Row(
+                                 mainAxisSize: MainAxisSize.min,
+                                 children: [
+                                   const Icon(Icons.email_outlined,
+                                       size: 18, color: Colors.teal),
+                                   const SizedBox(width: 8),
+                                   Text(
+                                     "saadan@ca-eim.com",
+                                     style: GoogleFonts.poppins(
+                                       fontSize: 13.5,
+                                       color: Colors.teal.shade800,
+                                       fontWeight: FontWeight.w500,
+                                     ),
+                                   ),
+                                 ],
+                               ),
+                             ),
+                           ),
+
+                           // 🌐 Website Chip
+                           InkWell(
+                             borderRadius: BorderRadius.circular(30),
+                             onTap: () async {
+                               const url = "https://cshllc.ae/contact-us/";
+                               if (await canLaunchUrl(Uri.parse(url))) {
+                                 await launchUrl(Uri.parse(url),
+                                     mode: LaunchMode.externalApplication);
+                               }
+                             },
+                             child: Container(
+                               padding: const EdgeInsets.symmetric(
+                                   horizontal: 16, vertical: 10),
+                               decoration: BoxDecoration(
+                                 borderRadius: BorderRadius.circular(30),
+                                 border: Border.all(
+                                   width: 1.3,
+                                   color: Colors.deepPurple.shade400,
+                                 ),
+                                 gradient: LinearGradient(
+                                   colors: [
+                                     Colors.deepPurple.withOpacity(0.05),
+                                     Colors.deepPurple.withOpacity(0.1)
+                                   ],
+                                   begin: Alignment.topLeft,
+                                   end: Alignment.bottomRight,
+                                 ),
+                               ),
+                               child: Row(
+                                 mainAxisSize: MainAxisSize.min,
+                                 children: [
+                                   const Icon(Icons.language_rounded,
+                                       size: 18, color: Colors.deepPurple),
+                                   const SizedBox(width: 8),
+                                   Text(
+                                     "cshllc.ae/contact-us",
+                                     style: GoogleFonts.poppins(
+                                       fontSize: 13.5,
+                                       color: Colors.deepPurple.shade800,
+                                       fontWeight: FontWeight.w500,
+                                     ),
+                                   ),
+                                 ],
+                               ),
+                             ),
+                           ),
+                         ],
+                       ),
+
+                       const SizedBox(height: 26),
+                       Align(
+                         alignment: Alignment.center,
+                         child: ElevatedButton.icon(
+                           onPressed: () => Navigator.pop(context),
+                           icon: const Icon(Icons.check_circle_outline,
+                               color: Colors.white),
+                           label: Text(
+                             "Got it",
+                             style: GoogleFonts.poppins(
+                                 fontWeight: FontWeight.w500, fontSize: 15,
+                             color: Colors.white),
+                           ),
+                           style: ElevatedButton.styleFrom(
+                             backgroundColor: app_color,
+                             shape: RoundedRectangleBorder(
+                               borderRadius: BorderRadius.circular(30),
+                             ),
+                             padding: const EdgeInsets.symmetric(
+                                 horizontal: 30, vertical: 12),
+                           ),
+                         ),
+                       ),
+                     ],
+                   ),
+                 ),
+               ),
+             ),
+           ),
+         );
+       },
+     );
    }
 
 
@@ -1100,11 +1362,9 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
             }
             else
             {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("License is expired against $serial_no"),
-                ),
-              );
+              _showExpiredLicenseDialog(context, serial_no, license_expiry);
+
+
               setState(() {
                 _isVisibleCompany = false;
                 _isLoading = false;
@@ -1156,139 +1416,162 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
     }
   }
 
-  Future<void> fetchCompany(String selectedserial) async {
-    myData_company.clear();
-    final url = Uri.parse('$BASE_URL_config/api/admin/getCompany');
-
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $authTokenBase',
-      "Content-Type": "application/json"
-    };
-
-    var body = jsonEncode({
-      'serialno': selectedserial
-    });
-
-    final response = await http.post(
-        url,
-        body : body,
-        headers : headers
-    );
-
-    if (response.statusCode == 200)
-    {
-      final company_data = jsonDecode(response.body);
-      if (company_data != null) {
-        setState(() {
-          myData_company = company_data;
-          _isVisibleCompany = true;
-          _selectcompany = myData_company.first;
-        });
-    }
-    else
-    {
-        setState(() {
-          _isVisibleCompany = false;
-        });
-      throw Exception('Failed to fetch data');
-    }
-      setState(() {
-        _isLoading = false;
-      });
-  }
-    else
-    {
-      Map<String, dynamic> data = json.decode(response.body);
-      String error = '';
-
-      if (data.containsKey('error')) {
-        setState(() {
-          error = data['error'];
-        });
-      }
-      else
-      {
-        error = 'Something went wrong!!!';
-      }
-      Fluttertoast.showToast(msg: error);
-
-      setState(() {
-        _isLoading = false;
-      });
-    }
-}
-
-   Future<void> fetchAllowedCompany(String selectedserial, String email) async {
+   Future<void> fetchCompany(String selectedserial) async {
      myData_company.clear();
-     final url = Uri.parse('$BASE_URL_config/api/roles/allowed_companies?user_name=$email&serial_no=$selectedserial');
+     final url = Uri.parse('$BASE_URL_config/api/admin/getCompany');
 
-     Map<String,String> headers = {
-       'Authorization' : 'Bearer $authTokenBase',
+     Map<String, String> headers = {
+       'Authorization': 'Bearer $authTokenBase',
        "Content-Type": "application/json"
      };
 
+     var body = jsonEncode({'serialno': selectedserial});
+     final response = await http.post(url, body: body, headers: headers);
 
-
-     final response = await http.get(
-         url,
-         headers : headers
-     );
-
-     if (response.statusCode == 200)
-     {
-
-       print(response.body);
+     if (response.statusCode == 200) {
        final company_data = jsonDecode(response.body);
        if (company_data != null) {
+         setState(() {
+           myData_company = company_data;
+           _isVisibleCompany = true;
+           _selectcompany = myData_company.first;
+         });
 
+         // ✅ Auto-navigate when single serial + single company
+         if (myData.length == 1 && myData_company.length == 1) {
+           final company_name = myData_company.first['company_name'].toString();
+           Map<String, String> result =
+           await getCompanyLastSync(context, company_name, serial_no);
+
+           prefs.setString("company_name", company_name);
+           prefs.setString("serial_no", serial_no);
+           prefs.setString("company_trn", result['trn'] ?? "");
+           prefs.setString("company_address", result['address'] ?? "");
+           prefs.setString("company_emirate", result['emirate'] ?? "");
+           prefs.setString("company_country", result['country'] ?? "");
+
+           Fluttertoast.showToast(
+             msg: "Auto-login to $company_name (Serial: $serial_no)",
+             backgroundColor: Colors.black87,
+             textColor: Colors.white,
+             fontSize: 14.0,
+           );
+
+           await Future.delayed(const Duration(milliseconds: 600));
+
+           // ✅ Fade transition to Dashboard
+           if (mounted) {
+             Navigator.of(context).pushReplacement(PageRouteBuilder(
+               transitionDuration: const Duration(milliseconds: 700),
+               pageBuilder: (context, animation, secondaryAnimation) =>
+               const Dashboard(),
+               transitionsBuilder:
+                   (context, animation, secondaryAnimation, child) {
+                 return FadeTransition(
+                   opacity: animation,
+                   child: child,
+                 );
+               },
+             ));
+           }
+           return;
+         }
+       } else {
+         setState(() {
+           _isVisibleCompany = false;
+         });
+         throw Exception('Failed to fetch data');
+       }
+
+       setState(() => _isLoading = false);
+     } else {
+       Map<String, dynamic> data = json.decode(response.body);
+       String error = data['error'] ?? 'Something went wrong!!!';
+       Fluttertoast.showToast(msg: error);
+       setState(() => _isLoading = false);
+     }
+   }
+
+   Future<void> fetchAllowedCompany(String selectedserial, String email) async {
+     myData_company.clear();
+     final url = Uri.parse(
+         '$BASE_URL_config/api/roles/allowed_companies?user_name=$email&serial_no=$selectedserial');
+
+     Map<String, String> headers = {
+       'Authorization': 'Bearer $authTokenBase',
+       "Content-Type": "application/json"
+     };
+
+     final response = await http.get(url, headers: headers);
+
+     if (response.statusCode == 200) {
+       final company_data = jsonDecode(response.body);
+
+       if (company_data != null) {
          myData_company = company_data;
 
-         if(myData_company.isEmpty)
-         {
+         if (myData_company.isEmpty) {
            fetchCompany(serial_no);
-
-         }
-         else
-         {
+         } else {
            setState(() {
              _isVisibleCompany = true;
              _selectcompany = myData_company.first;
            });
+
+           // ✅ Auto-prompt to Dashboard if only one serial + one company
+           if (myData.length == 1 && myData_company.length == 1) {
+             final company_name = myData_company.first['company_name'].toString();
+             Map<String, String> result =
+             await getCompanyLastSync(context, company_name, serial_no);
+
+             prefs.setString("company_name", company_name);
+             prefs.setString("serial_no", serial_no);
+             prefs.setString("company_trn", result['trn'] ?? "");
+             prefs.setString("company_address", result['address'] ?? "");
+             prefs.setString("company_emirate", result['emirate'] ?? "");
+             prefs.setString("company_country", result['country'] ?? "");
+
+             // ✅ Toast confirmation before redirect
+             Fluttertoast.showToast(
+               msg: "Auto-login to $company_name (Serial: $serial_no)",
+               backgroundColor: Colors.black87,
+               textColor: Colors.white,
+               fontSize: 14.0,
+             );
+
+
+
+
+             // ✅ Fade transition to Dashboard
+             if (mounted) {
+               Navigator.of(context).pushReplacement(PageRouteBuilder(
+                 transitionDuration: const Duration(milliseconds: 700),
+                 pageBuilder: (context, animation, secondaryAnimation) =>
+                 const Dashboard(),
+                 transitionsBuilder:
+                     (context, animation, secondaryAnimation, child) {
+                   return FadeTransition(
+                     opacity: animation,
+                     child: child,
+                   );
+                 },
+               ));
+             }
+             return;
+           }
          }
-       }
-       else
-       {
+       } else {
          setState(() {
            _isVisibleCompany = false;
            _isLoading = false;
-
          });
-
          throw Exception('Failed to fetch data');
        }
-
-     }
-     else
-     {
+     } else {
        Map<String, dynamic> data = json.decode(response.body);
-       String error = '';
-
-       if (data.containsKey('error')) {
-         setState(() {
-           error = data['error'];
-           _isLoading = false;
-         });
-       }
-       else
-       {
-         error = 'Something went wrong!!!';
-         setState(() {
-           _isLoading = false;
-         });
-       }
+       String error = data['error'] ?? 'Something went wrong!!!';
        Fluttertoast.showToast(msg: error);
-
-
+       setState(() => _isLoading = false);
      }
    }
 

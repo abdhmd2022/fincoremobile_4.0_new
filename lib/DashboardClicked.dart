@@ -170,6 +170,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     double totalHeight = itemList.length * 50.0 + 30.0 + 50.0; // Assuming each item has a height of 50 and adding padding height
 
     showModalBottomSheet<void>(
+      backgroundColor: Colors.white,
       context: context,
       builder: (BuildContext context) {
         return Container(
@@ -1916,6 +1917,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                 .where((item) => item.toLowerCase().contains(pattern.toLowerCase()))
                 .toList();
           },
+
           builder: (context, controller, focusNode) {
             return TextField(
               controller: controller,
@@ -1980,7 +1982,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
               leading: Icon(Icons.receipt_long_outlined, color: app_color),
               title: Text(
                 suggestion,
-                style: GoogleFonts.poppins(fontSize: 14),
+                  style: GoogleFonts.poppins( // 👈 Apply Poppins style to menu items
+                    fontSize: 15,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w500,
+                  )
               ),
             );
           },

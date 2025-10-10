@@ -1545,6 +1545,7 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
 
   void showSalesInvoiceBottomSheet(BuildContext context,String trn, String address,String emirate, String country) {
     showModalBottomSheet(
+      backgroundColor: Colors.white,
       context: context,
       builder: (BuildContext context) {
         return SizedBox(

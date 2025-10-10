@@ -677,6 +677,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
   void showReceiptVoucherBottomSheet(BuildContext context) {
     showModalBottomSheet(
+      backgroundColor: Colors.white,
       context: context,
       builder: (BuildContext context) {
         return SizedBox(

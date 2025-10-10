@@ -138,6 +138,7 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
     double totalHeight = itemList.length * 50.0 + 30.0 + 50.0; // Assuming each item has a height of 50 and adding padding height
 
     showModalBottomSheet<void>(
+      backgroundColor: Colors.white,
       context: context,
       builder: (BuildContext context) {
         return Container(

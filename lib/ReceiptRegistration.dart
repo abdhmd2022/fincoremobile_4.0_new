@@ -304,6 +304,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
   void showReceiptVoucherBottomSheet(BuildContext context) {
     showModalBottomSheet(
+      backgroundColor: Colors.white,
       context: context,
       builder: (BuildContext context) {
         return SizedBox(

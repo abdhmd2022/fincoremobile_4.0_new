@@ -937,11 +937,13 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
   void showSalesInvoiceBottomSheet(BuildContext context,String trn, String address,String emirate, String country) {
     showModalBottomSheet(
+      backgroundColor: Colors.white,
       context: context,
       builder: (BuildContext context) {
         return SizedBox(
           height: MediaQuery.of(context).size.height * 0.35, // Set height as per your requirement
           child: Container(
+            color: Colors.white,
             padding: EdgeInsets.all(20.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,

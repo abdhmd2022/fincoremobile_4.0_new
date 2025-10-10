@@ -201,6 +201,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
   void _showEntriesBottomSheet(BuildContext context) {
     showModalBottomSheet(
+
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(

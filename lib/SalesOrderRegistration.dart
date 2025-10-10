@@ -957,6 +957,7 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
 
   void showSalesOrderBottomSheet(BuildContext context) {
     showModalBottomSheet(
+      backgroundColor: Colors.white,
       context: context,
       builder: (BuildContext context) {
         return SizedBox(

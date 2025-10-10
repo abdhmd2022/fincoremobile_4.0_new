@@ -1404,6 +1404,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
 
   void showSalesOrderBottomSheet(BuildContext context) {
     showModalBottomSheet(
+      backgroundColor: Colors.white,
       context: context,
       builder: (BuildContext context) {
         return SizedBox(

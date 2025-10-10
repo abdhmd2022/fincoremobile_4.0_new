@@ -703,11 +703,24 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
                             const SizedBox(height: 8),
                             DropdownButtonFormField<dynamic>(
                               value: _selectedrole,
+                              dropdownColor: Colors.white, // 👈 Set dropdown menu background to white
+                              borderRadius: BorderRadius.circular(14), // 👈 Rounded corners for menu
+
+                              isExpanded: true,
+                              style: GoogleFonts.poppins(fontSize: 15, color: Colors.black87),
+
+
                               decoration: _modernDropdownDecoration(),
                               items: myData_roles.map((item) {
                                 return DropdownMenuItem(
                                   value: item,
-                                  child: Text(item['role_name'], style: GoogleFonts.poppins()),
+                                  child: Text(item['role_name'],
+                                      style: GoogleFonts.poppins( // 👈 Apply Poppins style to menu items
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      )
+                                  ),
                                 );
                               }).toList(),
                               onChanged: (value) => setState(() => _selectedrole = value),

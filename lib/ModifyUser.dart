@@ -865,12 +865,23 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
                             const SizedBox(height: 8),
                             DropdownButtonFormField<dynamic>(
                               value: _selectedrole,
+                              dropdownColor: Colors.white, // 👈 Set dropdown menu background to white
+                              borderRadius: BorderRadius.circular(14), // 👈 Rounded corners for menu
+
+                              isExpanded: true,
+                              style: GoogleFonts.poppins(fontSize: 15, color: Colors.black87),
+
                               decoration: _modernDropdownDecoration(),
                                 items: dropdownRoles,
 
                               onChanged: (value) => setState(() => _selectedrole = value),
                               onTap: () => _updateFocus(),
-                              hint: Text('Choose a role', style: GoogleFonts.poppins()),
+                              hint: Text('Choose a role', style: GoogleFonts.poppins( // 👈 Apply Poppins style to menu items
+                                fontSize: 15,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              )
+                              ),
                             ),
 
                             const SizedBox(height: 20),

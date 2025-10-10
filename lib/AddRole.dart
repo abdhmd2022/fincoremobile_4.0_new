@@ -1838,14 +1838,22 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
                   value: selectedRole,
                   icon: const Icon(Icons.arrow_drop_down),
                   underline: const SizedBox(),
+                  dropdownColor: Colors.white, // 👈 Set dropdown menu background to white
+                  borderRadius: BorderRadius.circular(14), // 👈 Rounded corners for menu
+
+                  style: GoogleFonts.poppins(fontSize: 15, color: Colors.black87),
+
                   items: saved_roles_list.map<DropdownMenuItem<String>>((role) {
                     final roleName = role['role_name'] as String?;
                     return DropdownMenuItem<String>(
                       value: roleName,
                       child: Text(
                         roleName!,
-                        style: GoogleFonts.poppins(fontSize: 14),
-                      ),
+                          style: GoogleFonts.poppins( // 👈 Apply Poppins style to menu items
+                            fontSize: 15,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          )                      ),
                     );
                   }).toList(),
                   onChanged: (String? newValue) {

@@ -709,7 +709,6 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
                               isExpanded: true,
                               style: GoogleFonts.poppins(fontSize: 15, color: Colors.black87),
 
-
                               decoration: _modernDropdownDecoration(),
                               items: myData_roles.map((item) {
                                 return DropdownMenuItem(
@@ -788,7 +787,7 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
   );
 
-  String _generateRandomPassword({int length = 5}) {
+  String _generateRandomPassword({int length = 8}) {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final rand = Random.secure();
     return List.generate(length, (index) => chars[rand.nextInt(chars.length)]).join();

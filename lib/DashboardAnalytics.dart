@@ -84,7 +84,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
     setState(() {
 
-
       company  = prefs.getString('company_name');
       company_lowercase = company!.replaceAll(' ', '').toLowerCase();
       serial_no = prefs.getString('serial_no');

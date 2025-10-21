@@ -1,6 +1,4 @@
 import 'dart:math';
-
-import 'package:fincoremobile/SerialSelect.dart';
 import 'package:fincoremobile/utils/number_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants.dart';
-
-
 
 class AnalyticsScreen extends StatefulWidget {
   final List<Map<String, dynamic>> lineChartData;

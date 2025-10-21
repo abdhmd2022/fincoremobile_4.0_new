@@ -51,7 +51,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",SecuritybtnAcessHolder= "";
   late SharedPreferences prefs;
 
-  NumberScale selectedScale = NumberScale.thousand;
+  NumberScale selectedScale = NumberScale.million;
 
   @override
   void initState() {

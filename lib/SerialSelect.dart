@@ -1592,10 +1592,13 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
          // ✅ Auto-navigate when single serial + single company
          if (myData.length == 1 && myData_company.length == 1) {
            final company_name = myData_company.first['company_name'].toString();
+           startfrom = myData_company.first['startfrom'].toString();
+
            Map<String, String> result =
            await getCompanyLastSync(context, company_name, serial_no);
 
            prefs.setString("company_name", company_name);
+           prefs.setString("startfrom", startfrom);
            prefs.setString("serial_no", serial_no);
            prefs.setString("company_trn", result['trn'] ?? "");
            prefs.setString("company_address", result['address'] ?? "");
@@ -1696,10 +1699,12 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
            // ✅ Auto-prompt to Dashboard if only one serial + one company
            if (myData.length == 1 && myData_company.length == 1) {
              final company_name = myData_company.first['company_name'].toString();
+             startfrom = myData_company.first['startfrom'].toString();
              Map<String, String> result =
              await getCompanyLastSync(context, company_name, serial_no);
 
              prefs.setString("company_name", company_name);
+             prefs.setString("startfrom", startfrom);
              prefs.setString("serial_no", serial_no);
              prefs.setString("company_trn", result['trn'] ?? "");
              prefs.setString("company_address", result['address'] ?? "");

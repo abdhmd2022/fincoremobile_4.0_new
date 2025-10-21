@@ -2017,10 +2017,18 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
         firstDate: earliestDate,
         lastDate: DateTime(2100),
         builder: (BuildContext context, Widget? child) {
-          return Theme(
+          return  Theme(
             data: ThemeData.light().copyWith(
               colorScheme: ColorScheme.light().copyWith(
-                primary: Colors.teal,
+                primary: app_color, // main accent color
+                onPrimary: Colors.white,
+                surface: Colors.white,
+                onSurface: Colors.black87,
+              ),
+              datePickerTheme: DatePickerThemeData(
+                rangeSelectionBackgroundColor: app_color.withOpacity(0.15), // 🔹 light shade of your app_color
+                rangeSelectionOverlayColor:
+                MaterialStatePropertyAll(app_color.withOpacity(0.15)),
               ),
             ),
             child: child!,
@@ -2083,10 +2091,18 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
         firstDate: earliestDate,
         lastDate: DateTime(2100),
         builder: (BuildContext context, Widget? child) {
-          return Theme(
+          return  Theme(
             data: ThemeData.light().copyWith(
               colorScheme: ColorScheme.light().copyWith(
-                primary: Colors.teal,
+                primary: app_color, // main accent color
+                onPrimary: Colors.white,
+                surface: Colors.white,
+                onSurface: Colors.black87,
+              ),
+              datePickerTheme: DatePickerThemeData(
+                rangeSelectionBackgroundColor: app_color.withOpacity(0.15), // 🔹 light shade of your app_color
+                rangeSelectionOverlayColor:
+                MaterialStatePropertyAll(app_color.withOpacity(0.15)),
               ),
             ),
             child: child!,

@@ -1261,7 +1261,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 </div>
                 </div>''';
     try {
-      //final sendReport = await send(message, smtpServer); // send mail
+      final sendReport = await send(message, smtpServer); // send mail
 
       /*_scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(

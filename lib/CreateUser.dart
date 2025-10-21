@@ -177,7 +177,6 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
     }
   }
 
-
   Future<void> userRegistration(String selectedserial,String email,String password,String rolename, String name) async {
     setState(() {
       _isLoading = true;
@@ -186,7 +185,6 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
     try
     {
       final url = Uri.parse('$BASE_URL_config/api/login/userRegistration');
-
 
       Map<String,String> headers = {
         'Authorization' : 'Bearer $authTokenBase',

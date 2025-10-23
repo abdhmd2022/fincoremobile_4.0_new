@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:fincoremobile/Dashboard.dart';
-import 'package:fincoremobile/ModifySalesEntry.dart';
-import 'package:fincoremobile/SalesRegistration.dart';
+import 'package:FincoreGo/Dashboard.dart';
+import 'package:FincoreGo/ModifySalesEntry.dart';
+import 'package:FincoreGo/SalesRegistration.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';

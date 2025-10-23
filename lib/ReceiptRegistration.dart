@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:fincoremobile/Items.dart';
-import 'package:fincoremobile/PendingReceiptEntry.dart';
-import 'package:fincoremobile/constants.dart';
+import 'package:FincoreGo/Items.dart';
+import 'package:FincoreGo/PendingReceiptEntry.dart';
+import 'package:FincoreGo/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';

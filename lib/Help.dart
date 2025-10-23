@@ -74,7 +74,7 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
 
   void sendEmail() async
   {
-    final String subject = 'Fincore Mobile App Support'; // Replace with your desired subject
+    final String subject = 'Fincore Go App Support'; // Replace with your desired subject
     final String recipientEmail = 'saadan@ca-eim.com'; // Replace with your desired recipient email
     final List<String> ccEmails = ["praveen@ca-eim.com"];
     final String nameAndEmail = 'Name: $name\nEmail: $email\n\n';

@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
-import 'package:fincoremobile/Dashboard.dart';
-import 'package:fincoremobile/Login.dart';
+import 'package:FincoreGo/Dashboard.dart';
+import 'package:FincoreGo/Login.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -101,7 +101,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
 
      await flutterLocalNotificationsPlugin.show(
        0, // notification ID
-       'Fincore Mobile License Expiry Alert',
+       'Fincore Go License Expiry Alert',
        '$serial_no license will expire in $daysRemaining days ($license_expiry_text)',
        platformChannelSpecifics,
        payload:

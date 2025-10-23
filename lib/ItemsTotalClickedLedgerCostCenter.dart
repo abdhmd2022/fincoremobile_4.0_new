@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:fincoremobile/ItemsTotalClickedLedgerCostCenterVchType.dart';
-import 'package:fincoremobile/ItemsTotalClickedLedgerVchType.dart';
-import 'package:fincoremobile/ItemsTotalClickedLedgerVchTypeCostCenter.dart';
-import 'package:fincoremobile/currencyFormat.dart';
+import 'package:FincoreGo/ItemsTotalClickedLedgerCostCenterVchType.dart';
+import 'package:FincoreGo/ItemsTotalClickedLedgerVchType.dart';
+import 'package:FincoreGo/ItemsTotalClickedLedgerVchTypeCostCenter.dart';
+import 'package:FincoreGo/currencyFormat.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';

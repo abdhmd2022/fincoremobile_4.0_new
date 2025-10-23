@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:fincoremobile/PartyTotalClickedItemsVchType.dart';
-import 'package:fincoremobile/currencyFormat.dart';
+import 'package:FincoreGo/PartyTotalClickedItemsVchType.dart';
+import 'package:FincoreGo/currencyFormat.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';

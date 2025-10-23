@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:fincoremobile/Dashboard.dart';
+import 'package:FincoreGo/Dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';

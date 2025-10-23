@@ -108,7 +108,7 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
     final message = Message()
       ..from = Address('contact@tallyuae.ae', 'Fincore Support')
       ..recipients.add(email)
-      ..subject = 'Your Login Credentials for Fincore Mobile'
+      ..subject = 'Your Login Credentials for Fincore Go'
       ..html = '''
     <div style="border: 1px solid #ccc; padding: 30px; margin: 20px; text-align: center;">
       <a href="https://tallyuae.ae/">
@@ -117,7 +117,7 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
       <div style="text-align: center;">
         <p style="font-size: 12px; font-family: Arial, sans-serif; color: #333;">
           Hi <strong>$name</strong>,<br><br>
-          Welcome to Fincore Mobile! Your account has been successfully created. Below are your login credentials:
+          Welcome to Fincore Go! Your account has been successfully created. Below are your login credentials:
         </p>
       </div>
 

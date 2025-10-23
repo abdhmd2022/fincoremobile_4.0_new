@@ -1,5 +1,5 @@
-name: fincoremobile
-description: "A new Flutter project."
+name: FincoreGo
+description: "Tally Sync App."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -49,7 +49,6 @@ dependencies:
   share_plus:
   printing:
   google_fonts: ^6.3.2
-  flutter_launcher_icons:
   open_file:
   fl_chart: ^1.1.1
   random_color:
@@ -70,6 +69,7 @@ dependencies:
   #firebase_messaging:
   #flutter_local_notifications: ^19.4.2
   workmanager:
+  rename_app: ^1.6.5
   #firebase_in_app_messaging: ^0.9.0+2
 
   # The following adds the Cupertino Icons font to your application.
@@ -78,6 +78,11 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons:
+
+
+
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -85,6 +90,13 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/fincorego_logo_png.png"
+
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -101,6 +113,8 @@ flutter:
     - assets/fonts/
     - assets/installation.pdf
     - assets/tally_1.png
+    - assets/fincorego_logo.jpeg
+    - assets/fincorego_logo_png.png
     - assets/coins.png
     - assets/purchase.png
     - assets/receipt.png
@@ -115,6 +129,7 @@ flutter:
     - assets/ic_launcher_delete.png
     - assets/ic_launcher_group_img.png
     - assets/ic_launcher_email_img.png
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

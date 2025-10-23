@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
-import 'package:fincoremobile/Dashboard.dart';
-import 'package:fincoremobile/constants.dart';
+import 'package:FincoreGo/Dashboard.dart';
+import 'package:FincoreGo/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

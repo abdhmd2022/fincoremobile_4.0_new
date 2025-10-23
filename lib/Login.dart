@@ -287,8 +287,8 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       "3. Once installation is done, Open Tally in your PC/Server and select company which you want to add",
       "4. Once the above step is done, Open Fincore Desktop Application and click 'Register Here'",
       "5. Fill the required information and click 'Register'",
-      "6. After successful activation, you can now set up the Fincore Desktop Application and add companies in it of which you want to see data in Fincore Mobile",
-      "7. If you want to experience Fincore Mobile, you can login with the following credentials for demonstration purposes (email address: demouser@ca-eim.com, password: user1234)",
+      "6. After successful activation, you can now set up the Fincore Desktop Application and add companies in it of which you want to see data in Fincore Go",
+      "7. If you want to experience Fincore Go, you can login with the following credentials for demonstration purposes (email address: demouser@ca-eim.com, password: user1234)",
       "8. For any kind of help, you can contact our support team at saadan@ca-eim or visit our website http://tallyuae.ae"
     ];
 
@@ -472,7 +472,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
           <a href="https://tallyuae.ae/">
               <img src="https://mobile.chaturvedigroup.com/fincore_logo/tally_1.png" alt="Image" style="width: 150px; height: auto; margin-bottom: 10px;">
           </a>
-         <div style="text-align: center;"><p style="font-size: 16px; font-family: Arial, sans-serif; color: #30D5C8; font-weight: bold">Fincore Mobile Password Reset</p></div>
+         <div style="text-align: center;"><p style="font-size: 16px; font-family: Arial, sans-serif; color: #30D5C8; font-weight: bold">Fincore Go Password Reset</p></div>
          
         <div style="text-align: start;"><p style="font-size: 14px; font-family: Arial, sans-serif; color: #333;">Dear $name,</p></div>
         <div style="text-align: start;"><p style="font-size: 12px; font-family: Arial, sans-serif; color: #333;">We’ve received your request to reset your password. Please click the link below to complete the reset.</p></div>
@@ -517,7 +517,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
   /*Future<void> _sendPasswordResetEmail(String emailAddress, String token) async {
     final Email email = Email(
       body: '''
-        <p>Dear Fincore Mobile user,</p>
+        <p>Dear Fincore Go user,</p>
         <p>We’ve received your request to reset your password. Please click the link below to complete the reset.</p>
         <p><a href="http://$BASE_URL_config/setPassword?token=$token">Reset My Password</a></p>
         <p>If you need additional assistance, or you did not make this change, please contact <a href="mailto:saadan@ca-eim.com">saadan@ca-eim.com</a>.</p>
@@ -1231,7 +1231,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
     final message = Message()
       ..from = Address('contact@tallyuae.ae','noreply') // Replace with your Outlook email
       ..recipients.add(email) // Use the email entered by the user
-      ..subject = 'Your One-Time Passcode from Fincore Mobile'
+      ..subject = 'Your One-Time Passcode from Fincore Go'
       ..html =
             '''
                   <div style="border: 1px solid #ccc; padding-left: 30px; padding-right: 30px; padding-top: 30px; padding-bottom: 30px; margin-left: 20px; margin-right: 20px; margin-top: 0px; text-align: center;">
@@ -1239,7 +1239,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 <a href="https://tallyuae.ae/">
                 <img src="https://mobile.chaturvedigroup.com/fincore_logo/tally_1.png" alt="Image" style="width: 150px; height: auto; margin-bottom: 10px;">
             </a>
-                <div style="text-align: center;"><p style="font-size: 12px; font-family: Arial, sans-serif; color: #333;">Your one-time passcode (OTP) to log into the Fincore Mobile app is</p></div>
+                <div style="text-align: center;"><p style="font-size: 12px; font-family: Arial, sans-serif; color: #333;">Your one-time passcode (OTP) to log into the Fincore Go app is</p></div>
                 <br>
                 <div style="text-align: center;">
                 
@@ -1452,7 +1452,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // 🖼 Logo
-          Image.asset('assets/tally_1.png', width: 150, height: 150),
+          Image.asset('assets/fincorego_logo_png.png', width: 150, height: 150),
           Text(
             "Smart Finance. Simplified.",
             style: GoogleFonts.poppins(

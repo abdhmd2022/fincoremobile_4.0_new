@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:fincoremobile/Items.dart';
-import 'package:fincoremobile/PendingSalesEntry.dart';
+import 'package:FincoreGo/Items.dart';
+import 'package:FincoreGo/PendingSalesEntry.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';

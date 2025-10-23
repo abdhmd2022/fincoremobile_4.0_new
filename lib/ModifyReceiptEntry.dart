@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:fincoremobile/Items.dart';
-import 'package:fincoremobile/constants.dart';
+import 'package:FincoreGo/Items.dart';
+import 'package:FincoreGo/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';

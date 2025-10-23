@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:fincoremobile/AddRole.dart';
-import 'package:fincoremobile/Dashboard.dart';
+import 'package:FincoreGo/AddRole.dart';
+import 'package:FincoreGo/Dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';

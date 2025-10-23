@@ -189,7 +189,7 @@ class _SplashScreenState extends State<SplashScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/tally_1.png',
+                'assets/fincorego_logo_png.png',
                 width: 200,
                 height: 200,
               ),

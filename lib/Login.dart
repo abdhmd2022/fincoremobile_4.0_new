@@ -852,82 +852,135 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
     socket.on('idConflict', (data) {
       // show dialog
-      if(mounted)
-        {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('User Already Logged In'),
-                content: Text('This user is already logged in on another device. Do you want to continue here?'),
-                actions: <Widget>[
-                  TextButton(
-                    child: Text('No',
-                        style : TextStyle (
-                            color: app_color
-                        )),
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close the dialog
-                      // Handle the "No" option (e.g., disconnect or navigate away)
-                    },
-                  ),
-                  TextButton(
-                    child: Text('Yes',
-                    style : TextStyle (
-                      color: app_color
-                    )),
-                    onPressed: () async {
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              elevation: 12,
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: app_color,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'User Already Logged In',
 
-                      String username = usernameController.text;
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'This user is already logged in on another device. Do you want to continue here?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 15,
+                        height: 1.4,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: app_color),
+                              foregroundColor: app_color,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              // Handle "No"
+                            },
+                            child: const Text(
+                              'No',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: app_color,
+                              foregroundColor: Colors.white,
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            onPressed: () async {
+                              String username = usernameController.text;
+                              Navigator.of(context).pop();
 
-                      Navigator.of(context).pop();
+                              String entered_username = usernameController.text;
+                              String entered_password = passwordController.text;
 
-                      String entered_username = usernameController.text;
-                      String entered_password =passwordController.text;
+                              if (entered_username == 'demouser@ca-eim.com' &&
+                                  entered_password == 'user1234') {
+                                isOTPVerified = true;
+                                isAnotherDevice = true;
+                                socket.emit('deleteMyId', data);
+                                _directlogin();
+                              } else {
+                                sendOTP(username);
+                                socket_data = data;
+                                setState(() {
+                                  isVisibleLoginForm = false;
+                                  isVisibleResetPassForm = false;
+                                  _isButtonEnabled = false;
+                                  isVisibleTimer = true;
+                                  _startTimer();
+                                  isVisibleOTPForm = true;
+                                  maskedEmail = username;
+                                });
+                              }
+                            },
+                            child: const Text(
+                              'Yes, Continue',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
 
-                      /*print('username = $entered_username password = $entered_password');*/
-                      if(entered_username == 'demouser@ca-eim.com' && entered_password == 'user1234')
-                        {
-                          /*sendOTP(username);*/
-
-                          /*sendOTP('saadan@ca-eim.com');*/
-
-                          /*_showOtpDialog(data,username);*/
-
-                          isOTPVerified = true;
-                          isAnotherDevice = true;
-
-                          socket.emit('deleteMyId', data);
-
-                        _directlogin();
-                        }
-                      else
-                        {
-                          sendOTP(username);
-
-                          /*sendOTP('saadan@ca-eim.com');*/
-                          socket_data = data;
-
-                          setState(() {
-                            isVisibleLoginForm = false;
-                            isVisibleResetPassForm = false;
-                            _isButtonEnabled = false;
-                            isVisibleTimer = true;
-                            _startTimer();
-                            isVisibleOTPForm = true;
-                            maskedEmail = username;
-
-                          });
-
-                          /*_showOtpDialog(data,username);*/    // old otp dialog
-
-                       /* isOTPVerified = true;
-                       isAnotherDevice = true;
-
-                       socket.emit('deleteMyId', data);
-
-                        _directlogin();*/
-                        }})]);});}});
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      }
+    });
 
     socket.on('isValidId', (data) {
 

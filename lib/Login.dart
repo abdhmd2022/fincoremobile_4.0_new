@@ -488,7 +488,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
         <div style="text-align: start;"><p style="color: #999999; font-style: italic; font-size: 12px">This is system generated email. Do not reply.</p>
     </div>
         
-        <div style="text-align: start;"><div style="text-align: start; border-top: 1px solid #ccc; padding-top: 10px;  "><p style="font-size: 10px; font-family: Arial, sans-serif; color: #a3a2a2;">© 2024 Chaturvedi Software House LLC. All Rights Reserved</p>
+        <div style="text-align: start;"><div style="text-align: start; border-top: 1px solid #ccc; padding-top: 10px;  "><p style="font-size: 10px; font-family: Arial, sans-serif; color: #a3a2a2;">© 2023-2025 Chaturvedi Software House LLC. All Rights Reserved</p>
         <p style="font-size: 10px; font-family: Arial, sans-serif; color: #a3a2a2; padding-top: 0px">513 Al Khaleej Center Bur Dubai, Dubai United Arab Emirates, +97143258361 </p></div>
       </div>
       ''';
@@ -1308,7 +1308,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                       This is system generated email. Do not reply.</p>
                 </div>
               
-                <div style="text-align: start;"><div style="text-align: start; border-top: 1px solid #ccc; padding-top: 10px;  "><p style="font-size: 10px; font-family: Arial, sans-serif; color: #a3a2a2;">© 2024 Chaturvedi Software House LLC. All Rights Reserved</p>
+                <div style="text-align: start;"><div style="text-align: start; border-top: 1px solid #ccc; padding-top: 10px;  "><p style="font-size: 10px; font-family: Arial, sans-serif; color: #a3a2a2;">© 2023-2025 Chaturvedi Software House LLC. All Rights Reserved</p>
                 <p style="font-size: 10px; font-family: Arial, sans-serif; color: #a3a2a2; padding-top: 0px">513 Al Khaleej Center Bur Dubai, Dubai United Arab Emirates, +97143258361 </p>
                 
                 </div>

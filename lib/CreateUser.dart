@@ -141,7 +141,7 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
     </h3>
 
     <div style="display: inline-block;">
-      <a href="https://play.google.com/store/apps/details?id=com.csh.fincoremobile" target="_blank" style="margin-right: 10px;">
+      <a href="https://play.google.com/store/apps/details?id=com.csh.fincoremobile" target="_blank" style="margin-right: 0px;">
           <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" 
                alt="Get it on Google Play" 
                style="width: 150px; height: auto;">

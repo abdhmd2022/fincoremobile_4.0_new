@@ -1314,7 +1314,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 </div>
                 </div>''';
     try {
-      final sendReport = await send(message, smtpServer); // send mail
+      await send(message, smtpServer); // ✅ DO NOT assign it to a variable
 
       /*_scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(
@@ -1448,7 +1448,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                               automaticallyImplyLeading: false,
 
                               centerTitle: true,
-                              title: Text('Fincore',
+                              title: Text('Fincore Go',
                                 style: TextStyle(
                                     color: Colors.white
                                 ),),
@@ -1500,12 +1500,12 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
   Widget _buildLoginForm(BuildContext context) {
     return SingleChildScrollView(
       key: const ValueKey('loginForm'),
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // 🖼 Logo
-          Image.asset('assets/fincorego_logo_png.png', width: 150, height: 150),
+          Image.asset('assets/fincorego_logo_transparent.png', width: 350, height: 230),
           Text(
             "Smart Finance. Simplified.",
             style: GoogleFonts.poppins(

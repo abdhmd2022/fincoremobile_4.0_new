@@ -455,14 +455,16 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
   Future<void> _sendPasswordResetEmail(String emailAddress, String token,String name) async {
 
-    final smtpServer = SmtpServer('smtp.zoho.com',
-        username: 'contact@tallyuae.ae', // email id
-        password: '355dD@3988', // password
-        port: 587
+    final smtpServer = SmtpServer(
+        'smtp.hostinger.com',
+        username: 'noreply@fincoreerp.com',
+        password: '^QLNlsU8m',
+        port: 465,
+        ssl: true
     );
 
     final message = Message()
-      ..from = Address('contact@tallyuae.ae','noreply') // Replace with your Outlook email
+      ..from = Address('noreply@fincoreerp.com','Fincore Support') // Replace with your Outlook email
       ..recipients.add(emailAddress) // Use the email entered by the user
 
       ..subject = 'Password Reset Request'
@@ -1275,14 +1277,17 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
     generatedotp = '${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}'; // Generates a 4-digit random OTP
 
     print(generatedotp);
-    final smtpServer = SmtpServer('smtp.zoho.com',
-      username: 'contact@tallyuae.ae', // email id
-      password: '355dD@3988', // password
-      port: 587
+    final smtpServer = SmtpServer(
+        'smtp.hostinger.com',
+        username: 'noreply@fincoreerp.com',
+        password: '^QLNlsU8m',
+        port: 465,
+        ssl: true
+
     );
 
     final message = Message()
-      ..from = Address('contact@tallyuae.ae','noreply') // Replace with your Outlook email
+      ..from = Address('noreply@fincoreerp.com','Fincore Support') // Replace with your Outlook email
       ..recipients.add(email) // Use the email entered by the user
       ..subject = 'Your One-Time Passcode from Fincore Go'
       ..html =

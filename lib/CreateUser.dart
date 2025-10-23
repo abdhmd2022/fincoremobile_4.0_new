@@ -99,14 +99,15 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
     required String password,
   }) async {
     final smtpServer = SmtpServer(
-      'smtp.zoho.com',
-      username: 'contact@tallyuae.ae',
-      password: '355dD@3988',
-      port: 587,
+        'smtp.hostinger.com',
+        username: 'noreply@fincoreerp.com',
+        password: '^QLNlsU8m',
+        port: 465,
+        ssl: true
     );
 
     final message = Message()
-      ..from = Address('contact@tallyuae.ae', 'Fincore Support')
+      ..from = Address('noreply@fincoreerp.com', 'Fincore Support')
       ..recipients.add(email)
       ..subject = 'Your Login Credentials for Fincore Go'
       ..html = '''

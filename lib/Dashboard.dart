@@ -1059,8 +1059,6 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
       try
       {
-
-
         if (response.statusCode == 200) {
           print(dash_data);
 

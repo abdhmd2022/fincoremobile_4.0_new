@@ -21,6 +21,9 @@ class Settings extends StatefulWidget {
   String groupvalue = '';
   double vatValue = 0.0;
   int inactiveparties_days = 0;
+  String dateRangeOption = 'This Month';
+  DateTime? customStartDate;
+  DateTime? customEndDate;
   int? decimal = 1;
   String sort = '';
   final TextEditingController vatController = TextEditingController();
@@ -126,6 +129,152 @@ class Settings extends StatefulWidget {
     );
   }
 
+  void _showDateRangeDialog(BuildContext context) {
+    final options = [
+      'Today',
+      'Yesterday',
+      'This Month',
+      'Last Month',
+      'This Year',
+      'Last Year',
+      'Year To Date',
+      'Custom Date'
+    ];
+
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+          padding: EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 0),
+          child: Column(
+            children: [
+              // 🏷️ Title + Close
+              Row(
+                children: [
+                  Icon(Icons.date_range_rounded, color: app_color),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Select Date Range',
+                      style: GoogleFonts.poppins(
+                          fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black87),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close_rounded, color: Colors.black54),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(top: 4, bottom: 12),
+                  child: Text(
+                    'Selected: $dateRangeOption',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+              ),
+
+              // 📋 Options List
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.only(bottom: 8),
+                  children: options.map((option) {
+                    return RadioListTile<String>(
+                      title: Text(
+                        option,
+                        style: GoogleFonts.poppins(
+                          fontWeight: dateRangeOption == option
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      value: option,
+                      groupValue: dateRangeOption,
+                      activeColor: app_color,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      tileColor: dateRangeOption == option
+                          ? app_color.withOpacity(0.05)
+                          : null,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 4),
+                      onChanged: (val) async {
+                        Navigator.pop(context);
+
+                        if (val == 'Custom Date') {
+                          await _showCustomDatePicker(context);
+                        } else {
+                          setState(() {
+                            dateRangeOption = val!;
+                          });
+                          prefs.setString('dateRangeOption', dateRangeOption);
+                          prefs.remove('startdate');
+                          prefs.remove('enddate');
+                        }
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showCustomDatePicker(BuildContext context) async {
+    DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now().add(Duration(days: 365)),
+
+      initialDateRange: customStartDate != null && customEndDate != null
+          ? DateTimeRange(start: customStartDate!, end: customEndDate!)
+          : null,
+      builder: (BuildContext context, Widget? child) {
+        return  Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light().copyWith(
+              primary: app_color, // main accent color
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black87,
+            ),
+            datePickerTheme: DatePickerThemeData(
+              rangeSelectionBackgroundColor: app_color.withOpacity(0.15), // 🔹 light shade of your app_color
+              rangeSelectionOverlayColor:
+              MaterialStatePropertyAll(app_color.withOpacity(0.15)),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        dateRangeOption = 'Custom Date';
+        customStartDate = picked.start;
+        customEndDate = picked.end;
+      });
+      prefs.setString('dateRangeOption', 'Custom Date');
+      prefs.setString('startdate', picked.start.toIso8601String());
+      prefs.setString('enddate', picked.end.toIso8601String());
+    }
+  }
+
   void _showInactivedaysInputDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -229,7 +378,14 @@ class Settings extends StatefulWidget {
 
       vatController.text = vatValue.toString();
       inactivedaysController.text = inactiveparties_days.toString();
+      dateRangeOption = prefs.getString('dateRangeOption') ?? 'This Month';
 
+      String? start = prefs.getString('startdate');
+      String? end = prefs.getString('enddate');
+      if (start != null && end != null) {
+        customStartDate = DateTime.tryParse(start);
+        customEndDate = DateTime.tryParse(end);
+      }
 
       try
       {
@@ -389,12 +545,19 @@ class Settings extends StatefulWidget {
               );
             case 5:
               return _buildTile(
+                icon: Icons.date_range_rounded,
+                title: 'Default Date Range',
+                subtitle: 'Select default report period',
+                onTap: () => _showDateRangeDialog(context),
+              );
+            case 6:
+              return _buildTile(
                 icon: Icons.access_time,
                 title: 'Ageing Configuration',
                 subtitle: 'Customize ageing range',
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AgeingConfig())),
               );
-            case 6:
+            case 7:
               return _buildTile(
                 icon: Icons.stacked_bar_chart_rounded,
                 title: 'Fast/Slow/Inactive Items',

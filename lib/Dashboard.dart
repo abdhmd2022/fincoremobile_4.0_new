@@ -161,6 +161,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
   late String currencysymbol = '';
 
+
+
   dynamic _selecteddate = "This Month";
 
   List<String> date_range = [
@@ -2034,6 +2036,11 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
     ReceiptEntryHolder = prefs.getString('receiptentry') ?? "False";
     SalesOrderEntryHolder = prefs.getString('salesorderentry') ?? "True";
 
+    _selecteddate= prefs.getString('dateRangeOption') ?? 'This Month';
+
+    print('selected date option -> $_selecteddate');
+
+
     decimal = prefs.getInt('decimalplace') ?? 2;
 
     if(SalesEntryHolder == 'False')
@@ -2282,7 +2289,6 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       isUserVisible = false;
     }
 
-    _selecteddate = 'This Month';
 
     datetype = prefs.getString('datetype');
     if (datetype != null) {
@@ -3155,7 +3161,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                         const SizedBox(height: 16),
 
                         if (isVisibleEntriesBtn)
-                          _buildFloatingTile("Entries",Icons.input, Colors.red, () {
+                          _buildFloatingTile("Entries",Icons.receipt_long, Colors.red, () {
                             _showEntriesBottomSheet(context);
                           }),
                       ],

@@ -813,7 +813,7 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                                 buildInventoryRow('Rate', formatRate(card.rate), 'Disc',
                                     "${formatNullto0(card.discount)}%",
                                     leftIcon: Icons.price_change, rightIcon: Icons.percent),
-                                buildInventoryRow('GoDown', handleGodown(card.godown), 'Amt',
+                                buildInventoryRow('Godown', handleGodown(card.godown), 'Amt',
                                     formatAmount(card.amount),
                                     leftIcon: Icons.store, rightIcon: Icons.money),
                                 const Divider(height: 24, thickness: 0.6),

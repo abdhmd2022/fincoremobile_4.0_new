@@ -138,7 +138,7 @@ class Settings extends StatefulWidget {
       'This Year',
       'Last Year',
       'Year To Date',
-      'Custom Date'
+      // 'Custom Date'
     ];
 
     showDialog(

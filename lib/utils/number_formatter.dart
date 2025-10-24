@@ -2,7 +2,7 @@ enum NumberScale { thousand, million, billion }
 
 String formatNumberAbbreviation(
     double number, {
-      int decimalPlaces = 1,
+      int decimalPlaces = 2,
       NumberScale scale = NumberScale.thousand,
       bool showSuffix = true, // ✅ new flag
     }) {

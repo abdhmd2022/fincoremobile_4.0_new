@@ -1283,7 +1283,6 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
         password: '^QLNlsU8m',
         port: 465,
         ssl: true
-
     );
 
     final message = Message()

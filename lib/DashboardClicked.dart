@@ -2276,6 +2276,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     );
 
   }
+
+
   Widget buildModernVoucherCard(Sale_purc_cash card) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),

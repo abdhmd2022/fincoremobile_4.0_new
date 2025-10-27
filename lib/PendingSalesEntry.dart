@@ -331,7 +331,7 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
     if (response.statusCode == 200)
     {
       salesentries.clear();
-      /*print(response.body);*/
+      print(response.body);
       try
       {
         final List<dynamic> jsonList = json.decode(response.body) ;
@@ -491,8 +491,8 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
                   ),
                 ),
 
-              Expanded(
-                child:  ListView.builder(
+              if (!isVisibleNoSalesEntryFound)
+                ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
                   itemCount: salesentries.length,
                   itemBuilder: (context, index) {
@@ -505,8 +505,6 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
 
                     DateTime date = DateTime.parse(dateStr);
                     String formattedDate = DateFormat("dd-MMM-yyyy").format(date);
-
-
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 9),
@@ -638,7 +636,8 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
 
                   },
                 ),
-              ),
+
+
 
 
 

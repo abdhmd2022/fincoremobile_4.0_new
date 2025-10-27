@@ -111,6 +111,7 @@ flutter:
 
   assets:
     - assets/fonts/
+    - assets/fonts/NotoSans.ttf
     - assets/installation.pdf
     - assets/tally_1.png
     - assets/fincorego_logo.jpeg

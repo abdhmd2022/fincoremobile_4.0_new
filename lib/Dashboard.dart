@@ -2943,6 +2943,12 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                                       isVisiblePieChart: isPieChartVisible,
                                       isSalesPieChartVisible: isSalesPieChartVisible,
                                       isPurchasePieChartVisible: isPurchasePieChartVisible,
+                                      isBarChartVisible: isBarChartVisible,
+                                      salesDataList: salesDataList,
+                                      recDataList: recDataList,
+                                      selectedScale: _selectedScale,
+                                      startDateString: startDateString,
+                                      endDateString: endDateString,
                                       ),
                                     ),
                                   );
@@ -3012,104 +3018,6 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                                     )
                                   ),
 
-                                  Visibility(
-                                    visible: isChartsVisible,
-                                    child: AnimatedOpacity(
-                                      duration: const Duration(milliseconds: 500),
-                                      opacity: isChartsVisible ? 1.0 : 0.0,
-                                      curve: Curves.easeInOut,
-                                      child: Column(
-                                        children: [
-                                          // 📊 Sales vs Receipts Bar Chart
-                                          Visibility(
-                                            visible: isBarChartVisible,
-                                            child: Container(
-                                              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                              padding: const EdgeInsets.all(18),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: BorderRadius.circular(22),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black12.withOpacity(0.08),
-                                                    blurRadius: 12,
-                                                    offset: const Offset(0, 6),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  // 🔹 Header with Icon
-                                                  Row(
-                                                    children: [
-                                                      Container(
-                                                        width: 38,
-                                                        height: 38,
-                                                        decoration: BoxDecoration(
-                                                          gradient: LinearGradient(
-                                                            colors: [Colors.teal.shade400, Colors.teal.shade700],
-                                                          ),
-                                                          borderRadius: BorderRadius.circular(12),
-                                                          boxShadow: [
-                                                            BoxShadow(
-                                                              color: Colors.teal.withOpacity(0.2),
-                                                              blurRadius: 6,
-                                                              offset: const Offset(0, 3),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        child: const Icon(Icons.bar_chart_rounded,
-                                                            color: Colors.white, size: 20),
-                                                      ),
-                                                      const SizedBox(width: 12),
-                                                      Text(
-                                                        "Sales vs Receipts",
-                                                        style: GoogleFonts.poppins(
-                                                          fontSize: 18,
-                                                          fontWeight: FontWeight.w700,
-                                                          color: Colors.black87,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-
-                                                  const SizedBox(height: 18),
-
-                                                  // 🔹 Chart
-                                                  SingleChildScrollView(
-                                                    scrollDirection: Axis.horizontal,
-                                                    child: SizedBox(
-                                                      width: calculateContainerWidthBarGraph(),
-                                                      height: MediaQuery.of(context).size.height / 3.5,
-                                                      child: BarChartWidget(
-                                                        salesData: salesDataList,
-                                                        receiptData: recDataList,
-                                                        selectedScale: _selectedScale,
-                                                        decimalPlaces: decimal!,
-                                                      ),
-                                                    ),
-                                                  ),
-
-                                                  const SizedBox(height: 16),
-
-                                                  // 🔹 Legend
-                                                  Row(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    children: [
-                                                      _buildLegend(app_color, 'Sales'),
-                                                      const SizedBox(width: 20),
-                                                      _buildLegend(Colors.deepOrange, 'Receipt'),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
 
 
 
@@ -3193,7 +3101,9 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                         child: Align(
                             alignment: Alignment.center,
                             child: CircularProgressIndicator.adaptive(
-                            ))))]),
+                            )))),
+
+              ]),
 
         floatingActionButton: FloatingActionButton(
           backgroundColor: app_color,
@@ -3493,191 +3403,6 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
 }
 
-class BarChartWidget extends StatelessWidget {
-  final List<double> salesData;
-  final List<double> receiptData;
-  final NumberScale selectedScale;
-  final int decimalPlaces;
-
-  const BarChartWidget({
-    super.key,
-    required this.salesData,
-    required this.receiptData,
-    required this.selectedScale,
-    required this.decimalPlaces,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.only(left: 0, right: 0, top: 12, bottom: 0), // 👈 added bottom space
-    child: BarChart(
-      BarChartData(
-        alignment: BarChartAlignment.spaceAround,
-        maxY: getMaxValue() + (getMaxValue() * 0.1),
-        groupsSpace: 18,
-        barGroups: generateBars(),
-
-        // 🔹 Tooltip
-        barTouchData: BarTouchData(
-          enabled: true,
-          touchTooltipData: BarTouchTooltipData(
-            tooltipPadding: const EdgeInsets.all(8),
-            tooltipMargin: 8,
-            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-              final label = rodIndex == 0 ? "Sales" : "Receipt";
-              return BarTooltipItem(
-                '$label\n${formatNumberAbbreviation(
-                  rod.toY,
-                  scale: selectedScale,
-                  decimalPlaces: decimalPlaces,
-                  showSuffix: false,
-                )}',
-                GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
-              );
-            },
-
-          ),
-        ),
-
-        // 🔹 Axis Titles
-        titlesData: FlTitlesData(
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 40, // 👈 ensures full visibility
-
-              getTitlesWidget: (value, meta) {
-                int index = value.toInt();
-                if (index >= 0 && index < months_chart.length) {
-                  return Transform.rotate( // 👈 tilt for readability
-                    angle: -0.0, // about -30 degrees
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 14),
-                      child: Text(
-                        months_chart[index],
-                        style: GoogleFonts.poppins(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 62, // 👈 more room for long values
-              getTitlesWidget: (value, meta) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: Text(
-                    formatNumberAbbreviation(
-                      value,
-                      scale: selectedScale,
-                      decimalPlaces: decimalPlaces,
-                      showSuffix: false,
-                    ),
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.black54,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-
-          topTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false,
-            ),
-
-          ),
-          rightTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-        ),
-
-
-
-
-        // 🔹 Grid & Border
-        borderData: FlBorderData(show: false),
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          getDrawingHorizontalLine: (value) => FlLine(
-            color: Colors.grey.shade200,
-            strokeWidth: 1,
-          ),
-        ),
-      ),
-    ));
-  }
-
-
-  double getMaxValue() {
-    List<double> combinedData = salesData + receiptData;
-    combinedData.removeWhere((value) => value.isNaN || value.isInfinite);
-    if (combinedData.isEmpty) return 0;
-    return combinedData.reduce(max);
-  }
-
-  List<BarChartGroupData> generateBars() {
-    return List.generate(salesData.length, (i) {
-      return BarChartGroupData(
-        x: i,
-        barsSpace: 8,
-        barRods: [
-          BarChartRodData(
-            fromY: 0,
-            toY: salesData[i],
-            width: 14,
-            borderRadius: BorderRadius.circular(8),
-            gradient: LinearGradient(
-              colors: [
-                app_color.withOpacity(0.9),
-                app_color.withOpacity(0.6),
-              ],
-            ),
-            backDrawRodData: BackgroundBarChartRodData(
-              show: true,
-              toY: getMaxValue() + 10,
-              color: Colors.grey.shade100,
-            ),
-          ),
-          BarChartRodData(
-            fromY: 0,
-            toY: receiptData[i],
-            width: 14,
-            borderRadius: BorderRadius.circular(8),
-            gradient: LinearGradient(
-              colors: [
-                Colors.deepOrange,
-                Colors.deepOrangeAccent,
-              ],
-            ),
-
-            backDrawRodData: BackgroundBarChartRodData(
-              show: true,
-              toY: getMaxValue() + 10,
-              color: Colors.grey.shade100,
-            ),
-          ),
-        ],
-      );
-    });
-  }
-}
 
 
 Widget _buildFloatingTile(String label, IconData icon, Color color, VoidCallback onTap) {

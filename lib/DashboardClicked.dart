@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:FincoreGo/currencyFormat.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -590,6 +591,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   // pdf of all
   Future<void> generateAndSharePDF_SalesList() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+
     final pdf = pw.Document();
 
     final companyName = company!;
@@ -635,8 +638,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           3: const pw.FractionColumnWidth(0.4),
           4: const pw.FractionColumnWidth(0.4),
         },
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12, fontFallback: []),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font), // ✅ Use your font
+        cellStyle: pw.TextStyle(fontSize: 12, font: font), // ✅ Use your font here too
         rowDecoration: pw.BoxDecoration(
           border: pw.Border(
             top: pw.BorderSide(width: 1),

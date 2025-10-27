@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:FincoreGo/currencyFormat.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -144,6 +145,7 @@ class _PartyTotalClickedCostCenterVchTypePageState extends State<PartyTotalClick
   List<Bills> bills_list = [];
 
   Future<void> generateAndSharePDF_Items() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
     final pdf = pw.Document();
 
     final companyName = company!;
@@ -181,8 +183,8 @@ class _PartyTotalClickedCostCenterVchTypePageState extends State<PartyTotalClick
           1: pw.FractionColumnWidth(0.4),
           2: pw.FractionColumnWidth(0.4),
         },
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font),
+        cellStyle: pw.TextStyle(fontSize: 12, font: font),
         headers: headersRow3,
         data: tableSubsetRows,
       );
@@ -260,6 +262,7 @@ class _PartyTotalClickedCostCenterVchTypePageState extends State<PartyTotalClick
   }
 
   Future<void> generateAndSharePDF_Bills() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
     final pdf = pw.Document();
 
     final companyName = company!;
@@ -298,8 +301,8 @@ class _PartyTotalClickedCostCenterVchTypePageState extends State<PartyTotalClick
           1: pw.FractionColumnWidth(0.4),
           2: pw.FractionColumnWidth(0.4),
         },
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font),
+        cellStyle: pw.TextStyle(fontSize: 12, font: font),
         headers: headersRow3,
         data: tableSubsetRows,
       );

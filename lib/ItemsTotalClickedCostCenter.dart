@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:FincoreGo/currencyFormat.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -166,6 +167,7 @@ class _ItemsTotalClickedCostCenterPageState extends State<ItemsTotalClickedCostC
   List<Vouchertype> vouchertype_list = [];
 
   Future<void> generateAndSharePDF_Ledger() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
     final pdf = pw.Document();
     final companyName = company!;
     final parentname = _selectedgroup;
@@ -191,8 +193,8 @@ class _ItemsTotalClickedCostCenterPageState extends State<ItemsTotalClickedCostC
         data: rows,
         border: pw.TableBorder.all(width: 1),
         headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font),
+        cellStyle: pw.TextStyle(fontSize: 12, font: font),
       );
 
       pdf.addPage(
@@ -233,6 +235,7 @@ class _ItemsTotalClickedCostCenterPageState extends State<ItemsTotalClickedCostC
   }
 
   Future<void> generateAndSharePDF_Bills() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
     final pdf = pw.Document();
     final companyName = company!;
     final parentname = _selectedgroup;
@@ -263,8 +266,8 @@ class _ItemsTotalClickedCostCenterPageState extends State<ItemsTotalClickedCostC
         data: rows,
         border: pw.TableBorder.all(width: 1),
         headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font),
+        cellStyle: pw.TextStyle(fontSize: 12, font: font),
       );
 
       pdf.addPage(
@@ -305,6 +308,7 @@ class _ItemsTotalClickedCostCenterPageState extends State<ItemsTotalClickedCostC
   }
 
   Future<void> generateAndSharePDF_VchType() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
     final pdf = pw.Document();
     final companyName = company!;
     final parentname = _selectedgroup;
@@ -330,8 +334,8 @@ class _ItemsTotalClickedCostCenterPageState extends State<ItemsTotalClickedCostC
         data: rows,
         border: pw.TableBorder.all(width: 1),
         headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font),
+        cellStyle: pw.TextStyle(fontSize: 12, font: font),
       );
 
       pdf.addPage(

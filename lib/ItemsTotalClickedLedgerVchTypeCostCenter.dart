@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:FincoreGo/currencyFormat.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -121,6 +122,7 @@ class _ItemsTotalClickedLedgerVchTypeCostCenterPageState extends State<ItemsTota
   List<Bills> bills_list = [];
 
   Future<void> generateAndSharePDF_Bills() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
     final pdf = pw.Document();
 
     final companyName = company!;
@@ -168,8 +170,8 @@ class _ItemsTotalClickedLedgerVchTypeCostCenterPageState extends State<ItemsTota
           2: const pw.FractionColumnWidth(0.4),
           3: const pw.FractionColumnWidth(0.4),
         },
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font),
+        cellStyle: pw.TextStyle(fontSize: 12, font: font),
         rowDecoration: pw.BoxDecoration(
           border: pw.Border(
             top: const pw.BorderSide(width: 1),

@@ -522,6 +522,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
   }
 
   Future<void> generateInvoicePDF(String trn, String address, String emirate, String country) async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
     final pdf = pw.Document();
 
     int totalQuantity = 0;
@@ -580,8 +581,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                   pw.Table.fromTextArray(
                     border: pw.TableBorder.all(width: 1),
                     headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-                    headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                    cellStyle: const pw.TextStyle(fontSize: 10),
+                    headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font),
+                    cellStyle: pw.TextStyle(fontSize: 10, font: font), // ✅ Use your font here too
                     headers: ['Sr No', 'Item', 'Qty', 'Rate', 'Amount'],
                     data: [
                       for (int i = 0; i < saleItems.length; i++)

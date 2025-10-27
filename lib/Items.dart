@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:FincoreGo/Dashboard.dart';
 import 'package:FincoreGo/currencyFormat.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:csv/csv.dart';
@@ -280,6 +281,8 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
   }
 
   Future<void> generateAndSharePDF_AllItems() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+
     final pdf = pw.Document();
     final companyName = company!;
     final reportname = 'Stock Summary';
@@ -317,8 +320,8 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
         headerHeight: 30,
         cellAlignment: pw.Alignment.center,
         cellPadding: const pw.EdgeInsets.all(5),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font), // ✅ Use your font
+        cellStyle: pw.TextStyle(fontSize: 12, font: font), // ✅ Use your font here too
         headers: headersRow3,
         data: tableSubsetRows,
       );
@@ -363,6 +366,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
   }
 
   Future<void> generateAndSharePDF_FastSlowItems() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
     final pdf = pw.Document();
     final companyName = company!;
     final reportname = 'Stock Summary';
@@ -400,8 +404,8 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
         headerHeight: 30,
         cellAlignment: pw.Alignment.center,
         cellPadding: const pw.EdgeInsets.all(5),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font), // ✅ Use your font
+        cellStyle: pw.TextStyle(fontSize: 12, font: font), // ✅ Use your font here too
         headers: headersRow3,
         data: tableSubsetRows,
       );
@@ -446,6 +450,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
   }
 
   Future<void> generateAndSharePDF_InactiveItems() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
     final pdf = pw.Document();
     final companyName = company!;
     final reportname = 'Stock Summary';
@@ -484,8 +489,8 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
         headerHeight: 30,
         cellAlignment: pw.Alignment.center,
         cellPadding: const pw.EdgeInsets.all(5),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font), // ✅ Use your font
+        cellStyle: pw.TextStyle(fontSize: 12, font: font), // ✅ Use your font here too
         headers: headersRow3,
         data: tableSubsetRows,
       );

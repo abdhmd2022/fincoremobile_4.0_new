@@ -555,7 +555,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     );
   }
 
-
   Future<void> generateAndShareCSV_Outstanding() async {
     final List<List<dynamic>> csvData = [];
     final headersRow = ['Bill No', 'Bill Type', 'Due Date', 'Party Name', 'Amount'];
@@ -708,6 +707,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   }
 
   Future<void> generateAndSharePDF_Outstanding() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+
     final pdf = pw.Document();
 
     final companyName = company!;
@@ -752,8 +753,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           3: const pw.FractionColumnWidth(0.4),
           4: const pw.FractionColumnWidth(0.4),
         },
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font), // ✅ Use your font
+        cellStyle: pw.TextStyle(fontSize: 12, font: font), // ✅ Use your font here too
         rowDecoration: pw.BoxDecoration(
           border: pw.Border(
             top: pw.BorderSide(width: 1),

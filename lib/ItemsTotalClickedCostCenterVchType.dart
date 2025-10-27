@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -136,6 +137,7 @@ class _ItemsTotalClickedCostCenterVchTypePageState extends State<ItemsTotalClick
   List<Ledger> ledger_list = [];
 
   Future<void> generateAndSharePDF_Ledger() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
     final pdf = pw.Document();
 
     final companyName = company!;
@@ -165,8 +167,8 @@ class _ItemsTotalClickedCostCenterVchTypePageState extends State<ItemsTotalClick
         data: rows,
         border: pw.TableBorder.all(width: 1),
         headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font),
+        cellStyle: pw.TextStyle(fontSize: 12, font: font),
       );
 
       pdf.addPage(
@@ -210,6 +212,7 @@ class _ItemsTotalClickedCostCenterVchTypePageState extends State<ItemsTotalClick
   }
 
   Future<void> generateAndSharePDF_Bills() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
     final pdf = pw.Document();
 
     final companyName = company!;
@@ -240,8 +243,8 @@ class _ItemsTotalClickedCostCenterVchTypePageState extends State<ItemsTotalClick
         data: rows,
         border: pw.TableBorder.all(width: 1),
         headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font),
+        cellStyle: pw.TextStyle(fontSize: 12, font: font),
       );
 
       pdf.addPage(

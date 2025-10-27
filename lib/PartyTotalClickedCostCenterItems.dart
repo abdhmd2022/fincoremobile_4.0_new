@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:FincoreGo/currencyFormat.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -139,6 +140,7 @@ class _PartyTotalClickedCostCenterItemsPageState extends State<PartyTotalClicked
   List<Vouchertype> vouchertype_list = [];
 
   Future<void> generateAndSharePDF_Bills() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
     final pdf = pw.Document();
 
     final companyName = company!;
@@ -171,8 +173,8 @@ class _PartyTotalClickedCostCenterItemsPageState extends State<PartyTotalClicked
           borderRadius: pw.BorderRadius.circular(2),
           color: PdfColors.grey300,
         ),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font),
+        cellStyle: pw.TextStyle(fontSize: 12, font: font),
         headers: headersRow3,
         data: tableSubsetRows,
         cellPadding: pw.EdgeInsets.all(5),
@@ -248,6 +250,7 @@ class _PartyTotalClickedCostCenterItemsPageState extends State<PartyTotalClicked
   }
 
   Future<void> generateAndSharePDF_VchType() async {
+    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
     final pdf = pw.Document();
 
     final companyName = company!;
@@ -276,8 +279,8 @@ class _PartyTotalClickedCostCenterItemsPageState extends State<PartyTotalClicked
           borderRadius: pw.BorderRadius.circular(2),
           color: PdfColors.grey300,
         ),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        cellStyle: const pw.TextStyle(fontSize: 12),
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font),
+        cellStyle: pw.TextStyle(fontSize: 12, font: font),
         headers: headersRow3,
         data: tableSubsetRows,
         cellPadding: pw.EdgeInsets.all(5),

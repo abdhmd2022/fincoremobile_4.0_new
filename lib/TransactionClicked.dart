@@ -1586,6 +1586,7 @@ class LedgerExpandableTile extends StatefulWidget {
   final String amount;
   final List<Bills> bills;
 
+
   const LedgerExpandableTile({
     Key? key,
     required this.ledgerName,
@@ -1600,6 +1601,40 @@ class LedgerExpandableTile extends StatefulWidget {
 class _LedgerExpandableTileState extends State<LedgerExpandableTile>
     with SingleTickerProviderStateMixin {
   bool _isExpanded = false;
+  TextEditingController _searchController = TextEditingController();
+  List<Bills> _filteredBills = [];
+  @override
+  void initState() {
+    super.initState();
+    _filteredBills = widget.bills; // initialize with all bills
+    _searchController.addListener(_filterBills);
+  }
+  void _filterBills() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredBills = widget.bills
+          .where((bill) =>
+          bill.billno.toString().toLowerCase().contains(query))
+          .toList();
+
+    });
+  }
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+  @override
+  void didUpdateWidget(covariant LedgerExpandableTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // If new bills are loaded (e.g., after fetchData completes)
+    if (oldWidget.bills != widget.bills) {
+      setState(() {
+        _filteredBills = widget.bills;
+      });
+    }
+  }
   LinearGradient iconGradient(IconData icon) {
     if (icon == Icons.receipt_long) {
       return const LinearGradient(
@@ -1741,108 +1776,189 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
               child: Padding(
                 padding: const EdgeInsets.only(left: 6, top: 12, right: 6),
                 child: Column(
-                  children: widget.bills.asMap().entries.map((entry) {
-                    final index = entry.key + 1;
-                    final bill = entry.value;
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 🔍 Search Field
+                    TextField(
+                      controller: _searchController,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    prefixIcon: Icon(Icons.search, color: Colors.teal.shade600),
+                    hintText: "Search by Bill No...",
+                    hintStyle: GoogleFonts.poppins(
+                      color: Colors.grey.shade500,
+                      fontSize: 14.5,
+                    ),
+                    filled: true,
+                    fillColor: Colors.white, // soft inner background
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade400,
 
-                    // 🎨 Bill type color scheme
-                    Color chipColor;
-                    Color chipTextColor;
-                    switch (bill.billtype) {
-                      case 'New Ref':
-                        chipColor = Colors.orange.shade100;
-                        chipTextColor = Colors.orange.shade700;
-                        break;
-                      case 'Advance':
-                        chipColor = Colors.blue.shade100;
-                        chipTextColor = Colors.blue.shade700;
-                        break;
-                      case 'On Account':
-                        chipColor = Colors.green.shade100;
-                        chipTextColor = Colors.green.shade700;
-                        break;
-                      default:
-                        chipColor = Colors.grey.shade200;
-                        chipTextColor = Colors.black54;
-                    }
-
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: Colors.teal.withOpacity(0.15),
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.teal.withOpacity(0.05),
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
-                          )
-                        ],
+                        width: 1.4,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          /// Bill Header Row
-                          Row(
-                            children: [
-                              Text(
-                                "Bill #$index",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 13.8,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.teal.shade700,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: chipColor,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  bill.billtype,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: chipTextColor,
-                                  ),
-                                ),
-                              ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide:BorderSide(
+                        color: Colors.grey.shade400,
+                        width: 1.4,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: Colors.teal.shade400,
+                        width: 1.4,
+                      ),
+                    ),
+                  ),
+
+                      style: GoogleFonts.poppins(
+                        color: Colors.black87,
+                        fontSize: 14.5,
+                      ),
+
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    // 🧾 Bills List or Empty State
+                    _filteredBills.isNotEmpty
+                        ? Column(
+                      children: _filteredBills.asMap().entries.map((entry) {
+                        final index = entry.key + 1;
+                        final bill = entry.value;
+
+                        // 🎨 Bill type color scheme
+                        Color chipColor;
+                        Color chipTextColor;
+                        switch (bill.billtype) {
+                          case 'New Ref':
+                            chipColor = Colors.orange.shade100;
+                            chipTextColor = Colors.orange.shade700;
+                            break;
+                          case 'Advance':
+                            chipColor = Colors.blue.shade100;
+                            chipTextColor = Colors.blue.shade700;
+                            break;
+                          case 'On Account':
+                            chipColor = Colors.green.shade100;
+                            chipTextColor = Colors.green.shade700;
+                            break;
+                          default:
+                            chipColor = Colors.grey.shade200;
+                            chipTextColor = Colors.black54;
+                        }
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: Colors.teal.withOpacity(0.15),
+                              width: 1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.teal.withOpacity(0.05),
+                                blurRadius: 6,
+                                offset: const Offset(0, 3),
+                              )
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Bill Header
+                              Row(
+                                children: [
+                                  Text(
+                                    "Bill #$index",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 13.8,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.teal.shade700,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: chipColor,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      bill.billtype,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: chipTextColor,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
 
-                          /// Bill Details
-                          _billRow(Icons.receipt_long, 'Bill No',
-                              bill.billno),
-                          _billRow(Icons.calendar_today, 'Bill Date',
-                              DateFormat('dd-MMM-yyyy')
-                                  .format(DateTime.parse(bill.billdate))),
-                          _billRow(
-                            Icons.calendar_month,
-                            'Due Date',
-                            _getFormattedDueDate(bill.billtype, bill.billdate, bill.duedate),
+                              // Bill Details
+                              _billRow(Icons.receipt_long, 'Bill No', bill.billno),
+                              _billRow(Icons.calendar_today, 'Bill Date',
+                                  DateFormat('dd-MMM-yyyy')
+                                      .format(DateTime.parse(bill.billdate))),
+                              _billRow(Icons.calendar_month, 'Due Date',
+                                  _getFormattedDueDate(bill.billtype,
+                                      bill.billdate, bill.duedate)),
+                              _billRow(Icons.attach_money, 'Amount',
+                                  formatAmount(bill.amount)),
+                            ],
                           ),
-
-                          _billRow(Icons.attach_money, 'Amount',
-                              formatAmount(bill.amount)),
-                        ],
+                        );
+                      }).toList(),
+                    )
+                        : Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 50),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.receipt_long_outlined,
+                              size: 60,
+                              color: Colors.teal.shade300,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              "No bills found",
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "Try searching with a different Bill No.",
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  ],
                 ),
               ),
             )
                 : const SizedBox(),
-          ),
+          )
+
 
         ],
       ),

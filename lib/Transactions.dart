@@ -2120,11 +2120,12 @@ Widget _buildEmptyState() {
       children: [
         Icon(Icons.search_off_rounded, size: 80, color: Colors.grey[400]),
         SizedBox(height: 12),
-        Text("No items found",
+        Text("No Transactions found",
             style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey[600])),
       ],
     ),
   );
+
 }
 
 Widget _buildTagChip({

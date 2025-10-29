@@ -1973,7 +1973,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
     return Container(
       margin: const EdgeInsets.only(bottom: 0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white, // 👈 faint grey when off
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -2013,8 +2013,11 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
                 Switch.adaptive(
                   value: isChecked,
                   activeColor: iconColor,
+                  inactiveTrackColor: Colors.grey.shade300,
+                  inactiveThumbColor: Colors.white,
                   onChanged: onToggle,
-                )
+                ),
+
               ],
             ),
 

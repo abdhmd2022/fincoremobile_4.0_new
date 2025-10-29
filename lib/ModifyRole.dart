@@ -1847,8 +1847,10 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
                 Switch.adaptive(
                   value: isChecked,
                   activeColor: iconColor,
+                  inactiveTrackColor: Colors.grey.shade300,
+                  inactiveThumbColor: Colors.white,
                   onChanged: onToggle,
-                )
+                ),
               ],
             ),
 

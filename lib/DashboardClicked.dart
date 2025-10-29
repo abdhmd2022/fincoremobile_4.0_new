@@ -1128,7 +1128,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
       if (response.statusCode == 200)
       {
-
+        print('$vchtypes -> ${response.body}');
         Map<String, dynamic> data = jsonDecode(response.body);
         String opening = data['opening'].toString();
         setState(()

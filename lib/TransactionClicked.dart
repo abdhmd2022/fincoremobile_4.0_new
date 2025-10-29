@@ -27,7 +27,7 @@ class LedgerEntries {
 }
 
 class Bills {
-  final String billno ,amount,billtype,duedate,billdate;
+  final String billno ,amount,billtype,duedate,billdate,ledger;
 
   Bills({
 
@@ -36,6 +36,7 @@ class Bills {
     required this.billtype,
     required this.duedate,
     required this.billdate,
+    required this.ledger
 
   });
 
@@ -46,6 +47,7 @@ class Bills {
       billtype: json['billtype'].toString(),
       duedate: json['duedate'].toString(),
       billdate: json['billdate'].toString(),
+      ledger: json['ledger'].toString(),
 
     );
   }
@@ -277,6 +279,7 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
         if (response_ledgerentry.statusCode == 200) {
           final List<dynamic> values_list_ledgerentry = jsonDecode(response_ledgerentry.body);
 
+          print('ledger entries -> ${values_list_ledgerentry}');
           if (values_list_ledgerentry != null)
           {
             ledgerentries_list.addAll(values_list_ledgerentry.map((json) => LedgerEntries.fromJson(json)).toList());
@@ -336,80 +339,78 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
 
           if (response_bills.statusCode == 200) {
             List<dynamic> values_list_bills = jsonDecode(response_bills.body);
+            print('bills -> ${values_list_bills}');
 
             if (values_list_bills != null)
             {
 
             if(!values_list_bills.isEmpty)
             {
-              for (var item in values_list_bills) {
+              bills_list.addAll(values_list_bills.map((json) => Bills.fromJson(json)).toList());
+              if (bills_list.isNotEmpty) {
+                for (var item in values_list_bills) {
+                  String billnoo = item['billno'].toString();
+                  String billamountt = item['amount'].toString();
+                  String billtypee = item['billtype'].toString();
+                  String billduedatee = item['duedate'].toString();
+                  String billdatee = item['billdate'].toString();
 
-                String billnoo = item['billno'].toString();
-                String billamountt = item['amount'].toString();
-                String billtypee = item['billtype'].toString();
-                String billduedatee = item['duedate'].toString();
-                String billdatee = item['billdate'].toString();
-
-                if (billtypee == "On Account")
-                {
-                  setState(() {
-                    isTopPanelBillsVisible = false;
-                    isDueDateBillsVisible = false;
-                  });
-                  billtype = billtypee;
-                  billamount = formatAmount(billamountt);
-
-                }
-                else if(billtypee == "Advance")
-                {
-                  setState(() {
-                    isTopPanelBillsVisible = true;
-                    isDueDateBillsVisible = false;
-                  });
-                  billno = billnoo;
-                  billtype = billtypee;
-                  billamount = formatAmount(billamountt);
-                }
-                else if(billtypee == "Agst Ref" || billtypee == "New Ref")
-                {
-                  setState(() {
-                    isTopPanelBillsVisible = true;
-                    isDueDateBillsVisible = true;
-                  });
-
-                  if (billduedatee == "null")
-                  {
-                    billduedate = "N/A";
+                  if (billtypee == "On Account") {
+                    setState(() {
+                      isTopPanelBillsVisible = false;
+                      isDueDateBillsVisible = false;
+                    });
+                    billtype = billtypee;
+                    billamount = formatAmount(billamountt);
                   }
-                  else
-                  {
-                    try
-                    {
-                      int days = int.parse(billduedatee.split(' ')[0]);
-
-                      DateTime billdate_date = DateTime.parse(billdatee);
-
-                      // Add the days to the billdate
-                      DateTime dueDate = billdate_date.add(Duration(days: days));
-                      DateFormat dateFormat = DateFormat('dd-MMM-yy');
-                      String duedateafter_string = dateFormat.format(dueDate);
-
-                      billduedate = duedateafter_string;
-                    }
-                    catch (e)
-                    {
-                      billduedate  = billduedatee;
-                    }
+                  else if (billtypee == "Advance") {
+                    setState(() {
+                      isTopPanelBillsVisible = true;
+                      isDueDateBillsVisible = false;
+                    });
+                    billno = billnoo;
+                    billtype = billtypee;
+                    billamount = formatAmount(billamountt);
                   }
-                  billno = billnoo;
-                  billtype = billtypee;
-                  billamount = formatAmount(billamountt);
+                  else if (billtypee == "Agst Ref" || billtypee == "New Ref") {
+                    setState(() {
+                      isTopPanelBillsVisible = true;
+                      isDueDateBillsVisible = true;
+                    });
+
+                    if (billduedatee == "null") {
+                      billduedate = "N/A";
+                    }
+                    else {
+                      try {
+                        int days = int.parse(billduedatee.split(' ')[0]);
+
+                        DateTime billdate_date = DateTime.parse(billdatee);
+
+                        // Add the days to the billdate
+                        DateTime dueDate = billdate_date.add(
+                            Duration(days: days));
+                        DateFormat dateFormat = DateFormat('dd-MMM-yy');
+                        String duedateafter_string = dateFormat.format(dueDate);
+
+                        billduedate = duedateafter_string;
+                      }
+                      catch (e) {
+                        billduedate = billduedatee;
+                      }
+                    }
+                    billno = billnoo;
+                    billtype = billtypee;
+                    billamount = formatAmount(billamountt);
+                  }
                 }
+
+                setState(()
+                {
+                  isVisibleBills = true;
+                });
               }
-              setState(()
-              {
-                isVisibleBills = true;
-              });
+
             }
             }
             else
@@ -460,7 +461,6 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
 
           if (response_inventoryentry.statusCode == 200) {
             final List<dynamic> values_list_inventoryentry = jsonDecode(response_inventoryentry.body);
-
             if (values_list_inventoryentry != null)
             {
               inventoryentries_list.addAll(values_list_inventoryentry.map((json) => InventoryEntries.fromJson(json)).toList());
@@ -635,6 +635,27 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
     fetchData("LedgerEntry","Bills","Inventory","CostCentre",masterid);
   }
 
+  List<Widget> _buildLedgerWithBillsList() {
+    // Group bills by ledger (case-insensitive + trim)
+    final Map<String, List<Bills>> billsByLedger = {};
+
+    print('bills list -> $bills_list');
+    for (var bill in bills_list) {
+      final ledgerKey = bill.ledger.trim().toLowerCase();
+      billsByLedger.putIfAbsent(ledgerKey, () => []).add(bill);
+    }
+
+    return ledgerentries_list.map((entry) {
+      final key = entry.ledger.trim().toLowerCase();
+      final relatedBills = billsByLedger[key] ?? [];
+      return LedgerExpandableTile(
+        ledgerName: entry.ledger,
+        amount: formatAmount(entry.amount),
+        bills: relatedBills,
+      );
+    }).toList();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -744,48 +765,19 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                   ),
                   child: Column(
                     children: [
-                      if (isVisibleLedgerEntry)
-                        ModernExpandableCard(
-                          title: 'Accounting Details',
-                          icon: Icons.account_balance,
-                          children: [
-                            ...ledgerentries_list
-                                .take(visibleLedgerCount)
-                                .map((entry) => buildLedgerRow(entry.ledger, formatAmount(entry.amount)))
-                                .toList(),
-
-                            if (ledgerentries_list.length > 3)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                child: Center(
-                                  child: TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        if (isLedgerExpanded) {
-                                          visibleLedgerCount = 3;
-                                          isLedgerExpanded = false;
-                                        } else {
-                                          visibleLedgerCount = ledgerentries_list.length;
-                                          isLedgerExpanded = true;
-                                        }
-                                      });
-                                    },
-                                    child: Text(
-                                      isLedgerExpanded ? 'View Less' : 'View More',
-                                      style: GoogleFonts.poppins(
-                                        color: app_color,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
+                        if (isVisibleLedgerEntry)
+                          ModernExpandableCard(
+                            title: 'Accounting Details',
+                            icon: Icons.account_balance,
+                            children: [
+                              ..._buildLedgerWithBillsList(),
+                            ],
+                          ),
 
 
 
-                      if (isVisibleBills)
+
+                      /*if (isVisibleBills)
                         ModernExpandableCard(
                           title: 'Reference Details',
                           icon: Icons.description_outlined,
@@ -797,7 +789,7 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                             buildBillRow('Bill Type', billtype, Icons.label_important_outline),
                             buildBillRow('Amount', billamount, Icons.money),
                           ],
-                        ),
+                        ),*/
 
                       if (isVisibleInventoryEntry)
                         ModernExpandableCard(
@@ -1585,3 +1577,348 @@ Widget buildCostCenterRow(String costCentre, String amount) {
 
 
 
+class LedgerExpandableTile extends StatefulWidget {
+  final String ledgerName;
+  final String amount;
+  final List<Bills> bills;
+
+  const LedgerExpandableTile({
+    Key? key,
+    required this.ledgerName,
+    required this.amount,
+    required this.bills,
+  }) : super(key: key);
+
+  @override
+  State<LedgerExpandableTile> createState() => _LedgerExpandableTileState();
+}
+
+class _LedgerExpandableTileState extends State<LedgerExpandableTile>
+    with SingleTickerProviderStateMixin {
+  bool _isExpanded = false;
+  LinearGradient iconGradient(IconData icon) {
+    if (icon == Icons.receipt_long) {
+      return const LinearGradient(
+        colors: [Color(0xFFFF9966), Color(0xFFFF5E62)], // orange-red
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    } else if (icon == Icons.calendar_today ||
+        icon == Icons.calendar_month) {
+      return const LinearGradient(
+        colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)], // blue
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    } else if (icon == Icons.label_important_outline) {
+      return const LinearGradient(
+        colors: [Color(0xFF00B09B), Color(0xFF96C93D)], // green
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    } else {
+      return const LinearGradient(
+        colors: [Color(0xFF11998E), Color(0xFF38EF7D)], // teal-green
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    }
+  }
+  @override
+  Widget build(BuildContext context) {
+    final bool hasBills = widget.bills.isNotEmpty;
+    LinearGradient iconGradient(IconData icon) {
+      if (icon == Icons.receipt_long) {
+        return const LinearGradient(
+          colors: [Color(0xFFFF9966), Color(0xFFFF5E62)], // orange-red
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      } else if (icon == Icons.calendar_today ||
+          icon == Icons.calendar_month) {
+        return const LinearGradient(
+          colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)], // blue
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      } else if (icon == Icons.label_important_outline) {
+        return const LinearGradient(
+          colors: [Color(0xFF00B09B), Color(0xFF96C93D)], // green
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      } else {
+        return const LinearGradient(
+          colors: [Color(0xFF11998E), Color(0xFF38EF7D)], // teal-green
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      }
+    }
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12.withOpacity(0.06),
+            blurRadius: 6,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: hasBills && _isExpanded
+              ? Colors.teal.withOpacity(0.4)
+              : Colors.transparent,
+          width: 1.2,
+        ),
+      ),
+      child: Column(
+        children: [
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: hasBills ? () => setState(() => _isExpanded = !_isExpanded) : null,
+            child: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                  ),
+                  child: const Icon(Icons.account_balance_wallet_rounded,
+                      color: Colors.white, size: 16),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    widget.ledgerName,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                Text(
+                  widget.amount,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.teal.shade700,
+                  ),
+                ),
+                if (hasBills)
+                  AnimatedRotation(
+                    turns: _isExpanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 250),
+                    child: const Icon(Icons.expand_more, color: Colors.black54),
+                  ),
+              ],
+            ),
+          ),
+
+          // 🔽 Expandable bill section
+          AnimatedSize(
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeInOut,
+            child: _isExpanded
+                ? AnimatedOpacity(
+              opacity: _isExpanded ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 6, top: 12, right: 6),
+                child: Column(
+                  children: widget.bills.asMap().entries.map((entry) {
+                    final index = entry.key + 1;
+                    final bill = entry.value;
+
+                    // 🎨 Bill type color scheme
+                    Color chipColor;
+                    Color chipTextColor;
+                    switch (bill.billtype) {
+                      case 'New Ref':
+                        chipColor = Colors.orange.shade100;
+                        chipTextColor = Colors.orange.shade700;
+                        break;
+                      case 'Advance':
+                        chipColor = Colors.blue.shade100;
+                        chipTextColor = Colors.blue.shade700;
+                        break;
+                      case 'On Account':
+                        chipColor = Colors.green.shade100;
+                        chipTextColor = Colors.green.shade700;
+                        break;
+                      default:
+                        chipColor = Colors.grey.shade200;
+                        chipTextColor = Colors.black54;
+                    }
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: Colors.teal.withOpacity(0.15),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.teal.withOpacity(0.05),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          )
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          /// Bill Header Row
+                          Row(
+                            children: [
+                              Text(
+                                "Bill #$index",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13.8,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.teal.shade700,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: chipColor,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  bill.billtype,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: chipTextColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+
+                          /// Bill Details
+                          _billRow(Icons.receipt_long, 'Bill No',
+                              bill.billno),
+                          _billRow(Icons.calendar_today, 'Bill Date',
+                              DateFormat('dd-MMM-yyyy')
+                                  .format(DateTime.parse(bill.billdate))),
+                          _billRow(
+                            Icons.calendar_month,
+                            'Due Date',
+                            _getFormattedDueDate(bill.billtype, bill.billdate, bill.duedate),
+                          ),
+
+                          _billRow(Icons.attach_money, 'Amount',
+                              formatAmount(bill.amount)),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            )
+                : const SizedBox(),
+          ),
+
+        ],
+      ),
+    );
+  }
+  String _getFormattedDueDate(String billType, String billDate, String dueDate) {
+    // For "On Account" or "Advance" → No due date shown
+    if (billType == "On Account" || billType == "Advance") {
+      return "N/A";
+    }
+
+    // For "Agst Ref" or "New Ref" → calculate due date if number provided
+    if (billType == "Agst Ref" || billType == "New Ref") {
+      if (dueDate == "null" || dueDate.isEmpty) {
+        return "N/A";
+      } else {
+        try {
+          int days = int.parse(dueDate.split(' ')[0]);
+          DateTime billDateParsed = DateTime.parse(billDate);
+          DateTime due = billDateParsed.add(Duration(days: days));
+          return DateFormat('dd-MMM-yyyy').format(due);
+        } catch (e) {
+          return dueDate; // fallback to raw value if parsing fails
+        }
+      }
+    }
+
+    // Default case
+    return dueDate == "null" ? "N/A" : dueDate;
+  }
+
+  Widget _billRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // 🎨 Gradient icon
+          Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              gradient: iconGradient(icon),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 14, color: Colors.white),
+          ),
+          const SizedBox(width: 10),
+
+          // 🏷️ Label on the left
+          Expanded(
+            child: Text(
+              "$label:",
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.black54,
+              ),
+            ),
+          ),
+
+          // 💰 Value fixed to the right
+          SizedBox(
+            width: 130, // 👈 you can adjust based on your layout width
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                value,
+                overflow: TextOverflow.visible,
+                textAlign: TextAlign.right,
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

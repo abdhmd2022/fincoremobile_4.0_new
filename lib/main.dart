@@ -1,5 +1,6 @@
 // import 'package:firebase_core/firebase_core.dart';
 // import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:FincoreGo/Constants.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -159,11 +160,38 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      title: 'Fincore',
+      title: 'Fincore Go',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        // 👇 Add this block to change the global CircularProgressIndicator color
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+          color: app_color, // change to your preferred color
+          circularTrackColor: Colors.white, // optional
+        ),
+        // 👇 Change focus, cursor, splash, and highlight colors globally
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue).copyWith(
+          secondary: app_color, // for older Material widgets
+        ),
+        inputDecorationTheme: const InputDecorationTheme(
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: app_color, width: 2),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          labelStyle: TextStyle(color: Colors.black54),
+        ),
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: app_color,          // blinking cursor
+          selectionColor: Color(0x332196F3), // text highlight
+          selectionHandleColor: app_color, // handle color
+        ),
+        splashColor: app_color.withOpacity(0.2), // ripple effect
+        highlightColor: Colors.transparent,        // optional, removes default purple glow
       ),
+
+
       home:  SplashScreen(),
     );
   }

@@ -10,6 +10,7 @@ import 'package:FincoreGo/utils/number_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'utils/currency_helper.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -151,7 +152,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
           company = "",
           serial_no = "",
           company_lowercase = "",
-          username = "";
+          username = "",
+          base_currency = "";
 
   String? barchartdashprefs, linechartdashprefs,piechartdashprefs;
 
@@ -2018,7 +2020,6 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         Fluttertoast.showToast(msg: error);
       }
   }
-
   Future<void> _initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
 
@@ -2029,7 +2030,9 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
     username = prefs.getString('username');
     license_expiry = prefs.getString('license_expiry');
     token = prefs.getString('token')!;
+    base_currency = prefs.getString('base_currency')!;
 
+    print('base_currency -> $base_currency');
     SalesEntryHolder = prefs.getString('salesentry') ?? "False";
     ReceiptEntryHolder = prefs.getString('receiptentry') ?? "False";
     SalesOrderEntryHolder = prefs.getString('salesorderentry') ?? "True";
@@ -2213,10 +2216,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
     try
     {
-      currencyCode = prefs.getString('currencycode');
-      if (currencyCode == null) {
-        currencyCode = 'AED';
-      }
+      currencyCode = prefs.getString('currencycode') ?? "AED";
+
     }
     catch (e) {
       if (currencyCode == null)
@@ -2575,9 +2576,13 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
   _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
     _initSharedPreferences();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkCurrencyMismatch(context);
+    });
   }
 
   Future<void> _loadNumberScale() async {
+
     String? scale = prefs.getString("number_scale");
     if (scale != null) {
       switch (scale) {

@@ -77,7 +77,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
    dynamic _selectedserial,_selectcompany,_selectedadmin,_selectedrole;
    bool _isLoading = false;
    String serial_no = "",role_id = "",license_expiry= "",license_expiry_text="",hostname= "",token = "";
-   String secbtnaccess = "",company_name = "",startfrom = "";
+   String secbtnaccess = "",company_name = "",startfrom = "",currency="";
    late SharedPreferences prefs;
 
    /*void showNotification(int daysRemaining, String serial_no) async {
@@ -90,6 +90,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
        priority: Priority.high,
        showWhen: false,
      );
+
 
      const DarwinNotificationDetails iosPlatformChannelSpecifics =
      DarwinNotificationDetails(); // ✅ updated for iOS/macOS
@@ -188,11 +189,13 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                  Map<String, dynamic> selected_data = _selectcompany;
                  company_name = selected_data['company_name'] as String;
                  startfrom = selected_data['startfrom'] as String;
+                 currency = selected_data['base_currency'].toString();
 
                  prefs = await SharedPreferences.getInstance();
                  prefs.setString("startfrom", startfrom);
                  prefs.setString("company_name", company_name);
                  prefs.setString("serial_no", serial_no);
+                 prefs.setString("base_currency", currency);
 
                  if (secbtnaccess == "True") {
                    for (String key in [
@@ -1593,6 +1596,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
          if (myData.length == 1 && myData_company.length == 1) {
            final company_name = myData_company.first['company_name'].toString();
            startfrom = myData_company.first['startfrom'].toString();
+           currency = myData_company.first['base_currency'].toString();
 
            Map<String, String> result =
            await getCompanyLastSync(context, company_name, serial_no);
@@ -1600,10 +1604,12 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
            prefs.setString("company_name", company_name);
            prefs.setString("startfrom", startfrom);
            prefs.setString("serial_no", serial_no);
+           prefs.setString("base_currency", currency);
            prefs.setString("company_trn", result['trn'] ?? "");
            prefs.setString("company_address", result['address'] ?? "");
            prefs.setString("company_emirate", result['emirate'] ?? "");
            prefs.setString("company_country", result['country'] ?? "");
+
 
            Fluttertoast.showToast(
              msg: "Auto-login to $company_name (Serial: $serial_no)",
@@ -1700,12 +1706,15 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
            if (myData.length == 1 && myData_company.length == 1) {
              final company_name = myData_company.first['company_name'].toString();
              startfrom = myData_company.first['startfrom'].toString();
+             currency = myData_company.first['base_currency'].toString();
+
              Map<String, String> result =
              await getCompanyLastSync(context, company_name, serial_no);
 
              prefs.setString("company_name", company_name);
              prefs.setString("startfrom", startfrom);
              prefs.setString("serial_no", serial_no);
+             prefs.setString("base_currency", currency);
              prefs.setString("company_trn", result['trn'] ?? "");
              prefs.setString("company_address", result['address'] ?? "");
              prefs.setString("company_emirate", result['emirate'] ?? "");

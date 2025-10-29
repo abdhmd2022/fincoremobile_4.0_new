@@ -22,7 +22,7 @@ class AnalyticsScreen extends StatefulWidget {
   final bool isBarChartVisible;
   final List<double> salesDataList;
   final List<double> recDataList;
-  final NumberScale selectedScale;
+   final NumberScale selectedScale;
   final String startDateString;
   final String endDateString;
 
@@ -57,12 +57,12 @@ class AnalyticsScreen extends StatefulWidget {
 
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
+  late NumberScale selectedScale;
 
 
   String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",SecuritybtnAcessHolder= "";
   late SharedPreferences prefs;
 
-  NumberScale selectedScale = NumberScale.million;
 
   @override
   void initState() {
@@ -143,6 +143,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       username = prefs.getString('username');
 
       SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
+      selectedScale = widget.selectedScale; // ✅ copy incoming scale once
 
       _loadNumberScale();
   });

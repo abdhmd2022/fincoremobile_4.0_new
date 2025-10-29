@@ -1645,7 +1645,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
     fetchParentData();
 
-    if (vchtypes == "Cash" || vchtypes == "Receivable" || vchtypes == "Payable")
+    if (vchtypes == "Receivable" || vchtypes == "Payable")
     {
       setState(() {
         openingheading = 'OnAccount';

@@ -9,10 +9,13 @@ Future<void> checkCurrencyMismatch(BuildContext context) async {
 
   if (userCurrency != baseCurrency) {
     ScaffoldMessenger.of(context).showSnackBar(
+
       SnackBar(
         backgroundColor: Colors.orange.shade700,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
+
+        duration: const Duration(seconds: 6), // 👈 stays longer now
         content: Row(
           children: [
             const Icon(Icons.warning_amber_rounded, color: Colors.white),

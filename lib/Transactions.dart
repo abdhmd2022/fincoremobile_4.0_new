@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 import 'package:FincoreGo/Dashboard.dart';
+import 'package:FincoreGo/utils/currency_helper.dart';
 /*import 'package:FincoreGo/currencyFormat.dart';*/
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1363,6 +1364,9 @@ class _TransactionsPageState extends State<Transactions> with TickerProviderStat
     super.initState();
     _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     _initSharedPreferences();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkCurrencyMismatch(context);
+    });
   }
 
   @override

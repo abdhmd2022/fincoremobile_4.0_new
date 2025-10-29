@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:FincoreGo/utils/currency_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -661,6 +662,9 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
     super.initState();
     _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     _initSharedPreferences();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkCurrencyMismatch(context);
+    });
   }
   String formatDate(String d) {
     if (d == '' || d == 'null') return 'N/A';

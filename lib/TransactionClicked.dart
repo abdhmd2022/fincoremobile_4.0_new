@@ -1607,8 +1607,30 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
   void initState() {
     super.initState();
     _filteredBills = widget.bills; // initialize with all bills
+
+    print('bills -> $_filteredBills');
     _searchController.addListener(_filterBills);
   }
+  String _formatSafeDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty || dateStr == "null") {
+      return "N/A";
+    }
+    try {
+      final parsed = DateTime.tryParse(dateStr);
+      if (parsed == null) return "N/A";
+      return DateFormat('dd-MMM-yyyy').format(parsed);
+    } catch (_) {
+      return "N/A";
+    }
+  }
+
+  String _formatSafeText(String? value) {
+    if (value == null || value.isEmpty || value == "null") {
+      return "N/A";
+    }
+    return value;
+  }
+
   void _filterBills() {
     final query = _searchController.text.toLowerCase();
     setState(() {
@@ -1907,10 +1929,13 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
                               const SizedBox(height: 8),
 
                               // Bill Details
-                              _billRow(Icons.receipt_long, 'Bill No', bill.billno),
-                              _billRow(Icons.calendar_today, 'Bill Date',
-                                  DateFormat('dd-MMM-yyyy')
-                                      .format(DateTime.parse(bill.billdate))),
+                              _billRow(Icons.receipt_long, 'Bill No', _formatSafeText(bill.billno)),
+                              _billRow(
+                                Icons.calendar_today,
+                                'Bill Date',
+                                _formatSafeDate(bill.billdate),
+                              ),
+
                               _billRow(Icons.calendar_month, 'Due Date',
                                   _getFormattedDueDate(bill.billtype,
                                       bill.billdate, bill.duedate)),
@@ -1970,24 +1995,44 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
       return "N/A";
     }
 
-    // For "Agst Ref" or "New Ref" → calculate due date if number provided
+    // For "Agst Ref" or "New Ref" → calculate due date if numeric days provided
     if (billType == "Agst Ref" || billType == "New Ref") {
-      if (dueDate == "null" || dueDate.isEmpty) {
+      if (dueDate == "null" || dueDate.isEmpty || billDate == "null" || billDate.isEmpty) {
         return "N/A";
-      } else {
-        try {
-          int days = int.parse(dueDate.split(' ')[0]);
-          DateTime billDateParsed = DateTime.parse(billDate);
-          DateTime due = billDateParsed.add(Duration(days: days));
+      }
+
+      try {
+        // Check if dueDate is numeric (e.g., "30 days")
+        final parts = dueDate.split(' ');
+        final days = int.tryParse(parts[0]);
+
+        if (days != null) {
+          final billDateParsed = DateTime.tryParse(billDate);
+          if (billDateParsed == null) return "N/A";
+
+          final due = billDateParsed.add(Duration(days: days));
           return DateFormat('dd-MMM-yyyy').format(due);
-        } catch (e) {
-          return dueDate; // fallback to raw value if parsing fails
+        } else {
+          // If not numeric (maybe already a date string), try parsing it directly
+          final parsed = DateTime.tryParse(dueDate);
+          return parsed != null
+              ? DateFormat('dd-MMM-yyyy').format(parsed)
+              : dueDate;
         }
+      } catch (e) {
+        return "N/A"; // fallback on any parsing error
       }
     }
 
-    // Default case
-    return dueDate == "null" ? "N/A" : dueDate;
+    // Default case → return N/A for invalid or null
+    if (dueDate == "null" || dueDate.isEmpty) {
+      return "N/A";
+    }
+
+    final parsedDefault = DateTime.tryParse(dueDate);
+    return parsedDefault != null
+        ? DateFormat('dd-MMM-yyyy').format(parsedDefault)
+        : dueDate;
   }
 
   Widget _billRow(IconData icon, String label, String value) {

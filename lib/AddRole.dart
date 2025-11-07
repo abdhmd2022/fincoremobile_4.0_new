@@ -321,7 +321,8 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       final String pendingsalesorderpartycheck
       ,final String pendingpurchaseorderpartycheck,final String party_supplierscheck,final String party_customerscheck,
       final String ledgerentriescheck, final String billentriescheck
-      ,final String inventoryentriescheck,final String postdatedtransactionscheck, final String costcentrecheck,final salesentrycheck, final receiptentrycheck, final salesorderentrycheck) async {
+      ,final String inventoryentriescheck,final String postdatedtransactionscheck, final String costcentrecheck,final salesentrycheck, final receiptentrycheck, final salesorderentrycheck) async
+  {
     setState(() {
       _isLoading = true;
     });
@@ -346,6 +347,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       "outstandingpayablesdash" : outstandingpayabledashcheck,
       "cashdash" : cashdashcheck,
       "allitems" : allitemscheck,
+      
       "inactiveitems" : inactiveitemscheck,
       "activeitems" : activeitemscheck,
       "rate" : ratecheck,
@@ -368,7 +370,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       "ledgerentries" : ledgerentriescheck,
       "billsentries" : billentriescheck,
       "inventoryentries" : inventoryentriescheck,
-      "postdatedtransactions":  postdatedtransactionscheck,
+      "postDatedTransactions":  postdatedtransactionscheck,
       "costcentreentries" : costcentrecheck,
       "salesEntry" : salesentrycheck,
       "receiptsEntry" : receiptentrycheck,

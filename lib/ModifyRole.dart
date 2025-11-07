@@ -170,7 +170,7 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
       "ledgerentries" : ledgerentriescheck,
       "billsentries" : billentriescheck,
       "inventoryentries" : inventoryentriescheck,
-      "postdatedentries": postdatedtransactionscheck,
+      "postDatedTransactions": postdatedtransactionscheck,
       "costcentreentries" : costcentrecheck,
       "salesEntry" : salesentrycheck,
       "receiptsEntry" : receiptentrycheck,

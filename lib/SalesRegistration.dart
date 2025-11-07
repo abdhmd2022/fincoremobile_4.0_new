@@ -1216,7 +1216,6 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
   Future<void> loadLedgerData() async {
 
-
     setState(() {
       _isLoading = true;
     });

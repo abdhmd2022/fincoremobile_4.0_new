@@ -1,5 +1,7 @@
 // import 'package:firebase_core/firebase_core.dart';
 // import 'package:firebase_messaging/firebase_messaging.dart';
+import 'dart:io';
+
 import 'package:FincoreGo/Constants.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -20,8 +22,10 @@ Future<void> main() async {
 
   // await _initializeLocalNotifications();
   // await _setupFirebaseMessaging();
+  // HttpOverrides.global = new MyHttpOverrides();
 
   runApp(const MyApp());
+
 }
 
 // ✅ Local notifications setup (for Android & iOS)
@@ -146,7 +150,6 @@ void didChangeAppLifecycleState(AppLifecycleState state) async {
   }
 }
 
-// ✅ Root widget
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -196,3 +199,13 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+/*class MyHttpOverrides extends HttpOverrides{
+  @override
+  HttpClient createHttpClient(SecurityContext? context){
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int
+      port)=> true;
+  }
+}*/
+

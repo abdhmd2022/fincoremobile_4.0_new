@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'currencyFormat.dart';
 
-const String BASE_URL_config = "http://fincorego.ddns.net:5999";
+const String BASE_URL_config = "https://fincorego.ddns.net/main";
 /*const String BASE_URL_config = "http://192.168.2.185:5000";*/
 const String authTokenBase = 'KSgqL2FzZGFzZGlvQ0VEQUZfX19fIUBBUyQlYXMxOTI4MzdfX18=';
+const String SOCKET_URL = "https://fincorego.ddns.net";
 
 const Color app_color = Colors.teal;
-
-
 
 String formatAmount(String amount)
 {

@@ -932,12 +932,12 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
     super.initState();
   _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     // Initialize Socket.IO connection
-    socket = IO.io('$BASE_URL_config', <String, dynamic>{
-      'transports': ['websocket'],
+    socket = IO.io(SOCKET_URL, <String, dynamic>{
+      'transports': ['websocket','polling'],
+      'path': '/main/socket.io',
+      'secure': true,
       'autoConnect': false,
-      'auth' : {
-        'token' : '$authTokenBase'
-      }
+      'auth': {'token': authTokenBase}
     });
 
     /*socket = IO.io('http://192.168.2.80:5999', <String, dynamic>{

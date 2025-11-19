@@ -576,7 +576,6 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
           socket.emit('deleteMyId', jsonPayload);
 
-
           _directlogin();
         }
         else
@@ -616,6 +615,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
           body: body,
           headers:headers
       );
+      print('response login -> ${response_getusers.body}');
 
       if (response_getusers.statusCode == 200)
       {
@@ -675,6 +675,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
           content: Text(e.toString()),
         ),
       );
+      print(e.toString());
       setState(() {
         _isLoading = false;
       });
@@ -706,6 +707,8 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
           body: body,
           headers:headers
       );
+
+      print('response login -> ${response_getusers.body}');
       /*response_getusers = await http.post(
         Uri.parse('$BASE_URL_config/api/login/getusers'),
         body: {
@@ -823,14 +826,25 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
     });*/
 
     // Initialize Socket.IO connection
-    socket = IO.io('$BASE_URL_config', <String, dynamic>{
-      'transports': ['websocket'],
+    socket = IO.io(SOCKET_URL, <String, dynamic>{
+      'transports': ['websocket','polling'],
+      'path': '/main/socket.io',
+      'secure': true,
       'autoConnect': false,
-      'auth' : {
-        'token' : '$authTokenBase'
-      }
+      'auth': {'token': authTokenBase}
     });
 
+    socket.onConnect((_) {
+      print("🔌 Socket Connected");
+    });
+
+    socket.onConnectError((data) {
+      print("❌ Connect Error: $data");
+    });
+
+    socket.onDisconnect((_) {
+      print("⚠️ Socket Disconnected");
+    });
     /*socket = IO.io('http://192.168.2.110:5999', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,

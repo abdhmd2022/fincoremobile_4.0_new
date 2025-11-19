@@ -40,10 +40,12 @@ class Sidebar extends StatelessWidget {
     _loadSharedPreferences();
     _getDeviceIdentifier();
 
-    socket = IO.io('$BASE_URL_config', <String, dynamic>{
-      'transports': ['websocket'],
+    socket = IO.io(SOCKET_URL, <String, dynamic>{
+      'transports': ['websocket','polling'],
+      'path': '/main/socket.io',
+      'secure': true,
       'autoConnect': false,
-      'auth': {'token': '$authTokenBase'}
+      'auth': {'token': authTokenBase}
     });
 
     socket.on('connect', (_) {

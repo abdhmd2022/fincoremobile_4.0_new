@@ -689,7 +689,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       context: context,
       builder: (BuildContext context) {
         return SizedBox(
-          height: MediaQuery.of(context).size.height * 0.35, // Set height as per your requirement
+          height: MediaQuery.of(context).size.height * 0.30, // Set height as per your requirement
           child: Container(
             padding: EdgeInsets.all(20.0),
             child: Column(
@@ -768,8 +768,9 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                     ElevatedButton.icon(
                       onPressed: () async {
                         Navigator.pop(context); // Close the bottom sheet
-                        await generateVoucherPDF(context);
+                        await generateVoucherPDF();
                       },
+
                       icon: const Icon(
                         Icons.share_rounded,
                         size: 20,
@@ -806,338 +807,926 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
     );
   }
 
-  Future<void> generateVoucherPDF(BuildContext context) async {
+  Future<void> generateVoucherPDF() async {
     final pdf = pw.Document();
 
     pdf.addPage(
       pw.Page(
         build: (pw.Context context) {
+
           return pw.Stack(
-            children: [
-              pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                children: [
-                  // 🧾 Header Section
-                  pw.Header(
-                    level: 0,
-                    decoration: const pw.BoxDecoration(
-                        border: pw.Border(bottom: pw.BorderSide.none)),
-                    child: pw.Center(
-                      child: pw.Column(
-                        children: [
-                          pw.Text(
-                            company ?? '',
-                            textAlign: pw.TextAlign.center,
-                            style: const pw.TextStyle(fontSize: 18),
-                          ),
+              children:[
+
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    // Tax Invoice Heading
+                    pw.Header(
+                        level: 0,
+                        decoration: pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide.none)),
+
+                        child: pw.Center(child:pw.Column(children: [
+                          pw.Text(company!, textAlign: pw.TextAlign.center,
+                              style: pw.TextStyle(
+                                  fontSize: 18
+                              )),
                           pw.SizedBox(height: 20),
-                          pw.Text(
-                            'Receipt Voucher',
-                            textAlign: pw.TextAlign.center,
-                            style: const pw.TextStyle(fontSize: 18),
-                          )
-                        ],
-                      ),
+                          pw.Text('Receipt Voucher', textAlign: pw.TextAlign.center,
+                              style: pw.TextStyle(
+                                  fontSize: 18
+                              ))
+                        ]), )
                     ),
-                  ),
-                  pw.SizedBox(height: 10),
 
-                  // 🔹 Voucher No and Date
-                  pw.Table(
-                    border: pw.TableBorder(
-                      top: pw.BorderSide.none,
-                      bottom: pw.BorderSide.none,
-                      left: pw.BorderSide.none,
-                      right: pw.BorderSide.none,
-                    ),
-                    children: [
-                      pw.TableRow(
-                        children: [
-                          pw.Expanded(
-                            flex: 5,
-                            child: pw.Container(
-                              padding: const pw.EdgeInsets.all(5),
-                              alignment: pw.Alignment.centerLeft,
-                              child: pw.Row(
-                                children: [
-                                   pw.Text('No. : ',
-                                      style: pw.TextStyle(fontSize: 12)),
-                                  pw.Text(_vchnoController.text,
-                                      style: const pw.TextStyle(fontSize: 12)),
-                                ],
-                              ),
-                            ),
-                          ),
-                          pw.Expanded(
-                            flex: 5,
-                            child: pw.Container(
-                              padding: const pw.EdgeInsets.all(5),
-                              alignment: pw.Alignment.centerRight,
-                              child: pw.Row(
-                                mainAxisAlignment: pw.MainAxisAlignment.end,
-                                children: [
-                                   pw.Text('Dated : ',
-                                      style: pw.TextStyle(fontSize: 12)),
-                                  pw.Text(
-                                    formatlastsaledate(receiptdatestring),
-                                    style: const pw.TextStyle(fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  pw.SizedBox(height: 5),
-
-                  // 🔹 Remarks
-                  pw.Table(
-                    border: pw.TableBorder(
-                      top: pw.BorderSide.none,
-                      bottom: pw.BorderSide.none,
-                      left: pw.BorderSide.none,
-                      right: pw.BorderSide.none,
-                    ),
-                    children: [
-                      pw.TableRow(
-                        children: [
-                          pw.Container(
-                            padding:
-                             pw.EdgeInsets.fromLTRB(5, 5, 5, 15),
-                            alignment: pw.Alignment.centerLeft,
-                            child: pw.Row(
-                              children: [
-                                 pw.Text('Remarks : ',
-                                    style: pw.TextStyle(fontSize: 12)),
-                                pw.Text(controller_narration.text,
-                                    style: const pw.TextStyle(fontSize: 12)),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  // 🧮 Table Header
-                  pw.Table(
-                    border: pw.TableBorder.all(color: PdfColors.black),
-                    children: [
-                      pw.TableRow(children: [
-                        pw.Padding(
-                          padding:
-                           pw.EdgeInsets.fromLTRB(10, 2, 5, 2),
-                          child:  pw.Text('Particulars',
-                              style: pw.TextStyle(fontSize: 11)),
-                        ),
-                        pw.Padding(
-                          padding:
-                           pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
-                          child: pw.Align(
-                            alignment: pw.Alignment.centerRight,
-                            child:  pw.Text('Amount',
-                                style: pw.TextStyle(fontSize: 11)),
-                          ),
-                        ),
-                      ])
-                    ],
-                  ),
-
-                  // 🧾 Account Row
-                  pw.Table(
-                    border: pw.TableBorder.symmetric(
-                        inside:  pw.BorderSide(color: PdfColors.black)),
-                    children: [
-                      pw.TableRow(
-                        children: [
-                          pw.Padding(
-                            padding:
-                             pw.EdgeInsets.fromLTRB(5, 3, 5, 2),
-                            child:  pw.Text('Account :',
-                                style: pw.TextStyle(fontSize: 11)),
-                          ),
-                          pw.Container(),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  // 🧾 Party Row
-                  pw.Table(
-                    border: pw.TableBorder.symmetric(
-                        inside: const pw.BorderSide(color: PdfColors.black)),
-                    children: [
-                      pw.TableRow(
-                        children: [
-                          pw.Padding(
-                            padding:
-                             pw.EdgeInsets.fromLTRB(15, 3, 5, 2),
-                            child: pw.Text(_selectedparty,
-                                style:  pw.TextStyle(fontSize: 11)),
-                          ),
-                          pw.Align(
-                            alignment: pw.Alignment.centerRight,
-                            child: pw.Text(
-                              formatAmountVoucher(
-                                  roundedtotalBillAmount.toString()),
-                              style:  pw.TextStyle(fontSize: 11),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  // 🧾 Bill List
-                  pw.Table(
-                    border: pw.TableBorder.symmetric(
-                        inside:  pw.BorderSide(color: PdfColors.black)),
-                    children: [
-                      for (var bill in bills)
-                        pw.TableRow(
-                          children: [
-                            pw.Padding(
-                              padding:
-                               pw.EdgeInsets.fromLTRB(20, 2, 10, 2),
-                              child: pw.Row(
-                                children: [
-                                  pw.Text(
-                                    bill.billName,
-                                    style: pw.TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: pw.FontWeight.bold),
-                                  ),
-                                  pw.SizedBox(width: 4),
-                                  pw.Text(
-                                    formatAmountVoucher(
-                                        bill.billAmount.toString()),
-                                    style:  pw.TextStyle(fontSize: 11),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            pw.Container(),
-                          ],
-                        ),
-                    ],
-                  ),
-
-                  // 🏦 Through Section
-                  pw.SizedBox(height: 10),
-                  pw.Row(
-                    children: [
-                      pw.Text('Through: ',
-                          style:  pw.TextStyle(fontSize: 11)),
-                      pw.Text(
-                        _selectedbankcashname?['name'] ?? '',
-                        style:  pw.TextStyle(fontSize: 11),
-                      ),
-                    ],
-                  ),
-
-                  // 🧾 Cheque Section
-                  if (cheque.isNotEmpty) ...[
                     pw.SizedBox(height: 10),
-                    pw.Text('Bank Transaction Details:',
-                        style:  pw.TextStyle(fontSize: 11)),
-                    for (var c in cheque)
-                      pw.Row(
-                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                        children: [
-                          pw.Text(
-                            '${c.paymentMode} - ${formatlastsaledate(c.instdate.toString())}',
-                            style:  pw.TextStyle(fontSize: 11),
-                          ),
-                          pw.SizedBox(width: 10),
-                        ],
-                      ),
-                  ],
 
-                  // 💰 Amount in Words
-                  pw.SizedBox(height: 30),
-                  pw.Row(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Expanded(
-                        flex: 7,
-                        child: pw.Column(
-                          crossAxisAlignment: pw.CrossAxisAlignment.start,
-                          children: [
-                             pw.Text('Amount (in words):',
-                                style: pw.TextStyle(fontSize: 11)),
-                            pw.SizedBox(height: 5),
-                            pw.Text(
-                              convertAmountToWords(totalBillAmount),
-                              style:  pw.TextStyle(fontSize: 11),
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide.none,
+                            bottom: pw.BorderSide.none
+                        ),
+                        children:[
+
+                          pw.TableRow(children: [
+
+                            pw.Expanded(
+                              flex: 5,
+                              child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                  alignment: pw.Alignment.centerLeft,
+
+                                  child: pw.Row(children: [
+
+                                    pw.Text(
+                                      'No. : ',
+                                      style: pw.TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                    ),
+
+
+                                    pw.Text(
+                                      _vchnoController.text,
+                                      style: pw.TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                    ),
+
+                                  ])
+                              ),
                             ),
-                          ],
+
+
+                            pw.Expanded(
+                              flex: 5,
+                              child: pw.Container(
+
+
+                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                  alignment: pw.Alignment.centerRight,
+
+                                  child: pw.Row(
+                                      mainAxisAlignment: pw.MainAxisAlignment.end,
+                                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+                                      children: [
+
+
+
+                                        pw.Text(
+                                          'Dated : ',
+                                          style: pw.TextStyle(
+                                            fontSize: 12,
+                                          ),
+                                        ),
+
+
+                                        pw.Text(
+                                          formatlastsaledate(receiptdatestring),
+                                          style: pw.TextStyle(
+                                            fontSize: 12,
+                                          ),
+                                        ),
+
+                                      ])
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+
+                    pw.SizedBox(height:5),
+
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide.none,
+                            bottom: pw.BorderSide.none
                         ),
+                        children:[
+
+                          pw.TableRow(children: [
+
+
+
+
+                            pw.Expanded(
+                              flex: 5,
+                              child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 15),
+                                  alignment: pw.Alignment.centerLeft,
+
+                                  child: pw.Row(children: [
+
+                                    pw.Text(
+                                      'Remarks : ',
+                                      style: pw.TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                    ),
+
+                                    pw.Text(
+                                      controller_narration.text,
+                                      style: pw.TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                    )])
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+
+                    pw.SizedBox(height: 20),
+
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            bottom:  pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            top:  pw.BorderSide(color: PdfColor.fromHex('#050400'))
+                        ),
+                        children:[
+
+                          pw.TableRow(children: [
+
+                            pw.Expanded(
+                              flex:7,
+                              child: pw.Container(
+                                padding: pw.EdgeInsets.fromLTRB(10, 2, 5, 2),
+                                alignment: pw.Alignment.centerLeft,
+
+                                child: pw.Text(
+                                  'Particulars',
+                                  style: pw.TextStyle(
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            pw.Expanded(
+                              flex: 3,
+                              child: pw.Container(
+
+
+                                padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                alignment: pw.Alignment.centerRight,
+
+                                child: pw.Text(
+                                  'Amount',
+                                  style: pw.TextStyle(
+                                    fontSize: 11,
+                                  ),
+                                ),
+
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            bottom:  pw.BorderSide.none,
+                            top:  pw.BorderSide.none
+                        ),
+                        children:[
+
+                          pw.TableRow(children: [
+
+
+
+
+                            pw.Expanded(
+                              flex:7,
+                              child: pw.Container(
+                                padding: pw.EdgeInsets.fromLTRB(5, 3, 5, 2),
+                                alignment: pw.Alignment.centerLeft,
+
+                                child: pw.Text(
+                                  'Account :',
+                                  style: pw.TextStyle(
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+
+                            pw.Expanded(
+                              flex: 3,
+                              child: pw.Container(
+
+
+                                padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                alignment: pw.Alignment.centerRight,
+
+                                child: pw.Text(
+                                  '',
+                                  style: pw.TextStyle(
+                                    fontSize: 11,
+                                  ),
+                                ),
+
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            bottom:  pw.BorderSide.none,
+                            top:  pw.BorderSide.none
+                        ),
+                        children:[
+                          pw.TableRow(children: [
+                            pw.Expanded(
+                              flex:7,
+                              child: pw.Container(
+                                padding: pw.EdgeInsets.fromLTRB(15, 3, 5, 2),
+                                alignment: pw.Alignment.centerLeft,
+
+                                child: pw.Text(
+                                  _selectedparty,
+                                  style: pw.TextStyle(
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+
+                            pw.Expanded(
+                              flex: 3,
+                              child: pw.Container(
+
+
+                                padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                                alignment: pw.Alignment.centerRight,
+
+                                child: pw.Text(
+                                  formatAmountVoucher(roundedtotalBillAmount.toString()),
+                                  style: pw.TextStyle(
+                                    fontSize: 11,
+                                  ),
+                                ),
+
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            bottom:  pw.BorderSide.none,
+                            top:  pw.BorderSide.none
+                        ),
+                        children:[
+                          for(var bill in bills.asMap().entries)
+
+                            pw.TableRow(children: [
+
+
+
+
+                              pw.Expanded(
+                                flex:7,
+                                child: pw.Container(
+                                    padding: pw.EdgeInsets.fromLTRB(20, 2, 10, 2),
+                                    alignment: pw.Alignment.centerLeft,
+
+                                    child: pw.Row(children: [
+                                      pw.Text(
+                                        bill.value.billName,
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.bold
+                                        ),
+                                      ),
+                                      pw.SizedBox(width: 2),
+                                      pw.Text(
+                                        formatAmountVoucher(bill.value.billAmount.toString()),
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.bold
+                                        ),
+                                      ),
+
+                                    ])
+                                ),
+                              ),
+
+
+                              pw.Expanded(
+                                flex: 3,
+                                child: pw.Container(
+
+
+                                  padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                  alignment: pw.Alignment.centerRight,
+
+                                  child: pw.Text(
+                                    '',
+                                    style: pw.TextStyle(
+                                      fontSize: 11,
+                                    ),
+                                  ),
+
+                                ),
+                              ),
+                            ])
+                        ]
+                    ),
+
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            bottom:  pw.BorderSide.none,
+                            top:  pw.BorderSide.none
+                        ),
+                        children:[
+                          pw.TableRow(children: [
+                            pw.Expanded(
+                              flex:7,
+                              child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(20, 2, 5, 2),
+                                  alignment: pw.Alignment.centerLeft,
+
+                                  child: pw.SizedBox(height:25)
+                              ),
+                            ),
+
+
+                            pw.Expanded(
+                              flex: 3,
+                              child: pw.Container(
+
+
+                                  padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                  alignment: pw.Alignment.centerRight,
+
+                                  child: pw.SizedBox(height:25)
+
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+
+
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            bottom:  pw.BorderSide.none,
+                            top:  pw.BorderSide.none
+                        ),
+                        children:[
+                          pw.TableRow(children: [
+                            pw.Expanded(
+                              flex:7,
+                              child: pw.Container(
+                                padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                                alignment: pw.Alignment.centerLeft,
+
+                                child: pw.Text(
+                                  'Through : ',
+                                  style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal
+                                  ),
+                                ),
+                              ),
+                            ),
+
+
+                            pw.Expanded(
+                              flex: 3,
+                              child: pw.Container(
+
+
+                                padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                alignment: pw.Alignment.centerRight,
+
+                                child: pw.Text(
+                                  '',
+                                  style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal
+                                  ),
+                                ),
+
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            bottom:  pw.BorderSide.none,
+                            top:  pw.BorderSide.none
+                        ),
+                        children:[
+                          pw.TableRow(children: [
+                            pw.Expanded(
+                              flex:7,
+                              child: pw.Container(
+                                padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                                alignment: pw.Alignment.centerLeft,
+
+                                child: pw.Text(
+                                  _selectedbankcashname!['name']!,
+                                  style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal
+                                  ),
+                                ),
+                              ),
+                            ),
+
+
+                            pw.Expanded(
+                              flex: 3,
+                              child: pw.Container(
+
+
+                                padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                alignment: pw.Alignment.centerRight,
+
+                                child: pw.Text(
+                                  '',
+                                  style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal
+                                  ),
+                                ),
+
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+
+                    if(cheque.isNotEmpty)
+                      pw.Column(
+                          children: [
+                            pw.Table(
+                                border: pw.TableBorder(
+                                    horizontalInside: pw.BorderSide.none,
+                                    verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                    bottom:  pw.BorderSide.none,
+                                    top:  pw.BorderSide.none
+                                ),
+                                children:[
+                                  pw.TableRow(children: [
+                                    pw.Expanded(
+                                      flex:7,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                                        alignment: pw.Alignment.centerLeft,
+
+                                        child: pw.Text(
+                                          'Bank Transaction Details:',
+                                          style: pw.TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: pw.FontWeight.normal
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+
+                                    pw.Expanded(
+                                      flex: 3,
+                                      child: pw.Container(
+
+
+                                        padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                        alignment: pw.Alignment.centerRight,
+
+                                        child: pw.Text(
+                                          '',
+                                          style: pw.TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: pw.FontWeight.normal
+                                          ),
+                                        ),
+
+                                      ),
+                                    ),
+                                  ])
+                                ]
+                            ),
+
+                            for(var cheque in cheque.asMap().entries)
+                              pw.Table(
+                                  border: pw.TableBorder(
+                                      horizontalInside: pw.BorderSide.none,
+                                      verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                      bottom:  pw.BorderSide.none,
+                                      top:  pw.BorderSide.none
+                                  ),
+                                  children:[
+                                    pw.TableRow(children: [
+                                      pw.Expanded(
+                                        flex:7,
+                                        child: pw.Container(
+                                            padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                                            alignment: pw.Alignment.centerLeft,
+
+                                            child: pw.Row(children: [
+
+                                              pw.Text(
+                                                cheque.value.paymentMode,
+                                                style: pw.TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: pw.FontWeight.normal
+                                                ),
+                                              ),
+
+                                              pw.SizedBox(width: 10),
+
+                                              pw.Text(
+                                                formatlastsaledate(cheque.value.instdate.toString()),
+                                                style: pw.TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: pw.FontWeight.normal
+                                                ),
+                                              ),
+                                            ])
+                                        ),
+                                      ),
+
+
+                                      pw.Expanded(
+                                        flex: 3,
+                                        child: pw.Container(
+
+
+                                          padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                          alignment: pw.Alignment.centerRight,
+
+                                          child: pw.Text(
+                                            '',
+                                            style: pw.TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: pw.FontWeight.normal
+                                            ),
+                                          ),
+
+                                        ),
+                                      ),
+                                    ])
+                                  ]
+                              ),
+                          ]
                       ),
-                      pw.Expanded(
-                        flex: 3,
-                        child: pw.Container(
-                          alignment: pw.Alignment.centerRight,
-                          child: pw.Text(
-                            formatAmountVoucher(totalBillAmount.toString()),
-                            style:  pw.TextStyle(fontSize: 11),
+                    pw.Column(
+                        children: [
+                          pw.Table(
+                              border: pw.TableBorder(
+                                  horizontalInside: pw.BorderSide.none,
+                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                  bottom:  pw.BorderSide.none,
+                                  top:  pw.BorderSide.none
+                              ),
+                              children:[
+                                pw.TableRow(children: [
+                                  pw.Expanded(
+                                    flex:7,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(5, 30, 5, 2),
+                                      alignment: pw.Alignment.centerLeft,
+
+                                      child: pw.Text(
+                                        'Amount (in words) :',
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.normal
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+
+                                  pw.Expanded(
+                                    flex: 3,
+                                    child: pw.Container(
+
+
+                                      padding: pw.EdgeInsets.fromLTRB(5, 30, 10, 2),
+                                      alignment: pw.Alignment.centerRight,
+
+                                      child: pw.Text(
+                                        '',
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.normal
+                                        ),
+                                      ),
+
+                                    ),
+                                  ),
+                                ])
+                              ]
                           ),
-                        ),
+
+                          pw.Table(
+                              border: pw.TableBorder(
+                                  horizontalInside: pw.BorderSide.none,
+                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                  bottom:  pw.BorderSide.none,
+                                  top:  pw.BorderSide.none
+                              ),
+                              children:[
+                                pw.TableRow(children: [
+                                  pw.Expanded(
+                                    flex:7,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                                      alignment: pw.Alignment.centerLeft,
+
+                                      child: pw.Text(
+                                        convertAmountToWords(totalBillAmount),
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.normal
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+
+                                  pw.Expanded(
+                                    flex: 3,
+                                    child: pw.Container(
+
+
+                                      padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                      alignment: pw.Alignment.centerRight,
+
+                                      child: pw.Text(
+                                        '',
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.normal
+                                        ),
+                                      ),
+
+                                    ),
+                                  ),
+                                ])
+                              ]
+                          ),
+
+                          pw.Table(
+                              border: pw.TableBorder(
+                                  horizontalInside: pw.BorderSide.none,
+                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                  bottom:  pw.BorderSide.none,
+                                  top:  pw.BorderSide.none,
+                                  right:  pw.BorderSide.none
+                              ),
+                              children:[
+                                pw.TableRow(children: [
+                                  pw.Expanded(
+                                    flex:7,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 0),
+                                      alignment: pw.Alignment.centerLeft,
+
+                                      child: pw.Text(
+                                        '',
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.normal
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+
+                                  pw.Expanded(
+                                    flex:3,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                      alignment: pw.Alignment.centerRight,
+
+                                      child: pw.Table(
+                                          border: pw.TableBorder(
+                                              horizontalInside: pw.BorderSide.none,
+                                              verticalInside: pw.BorderSide.none,
+                                              bottom:  pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                              top:  pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                              right:  pw.BorderSide.none
+                                          ),
+                                          children:[
+                                            pw.TableRow(children: [
+
+
+
+                                              pw.Expanded(
+                                                flex:3,
+                                                child: pw.Container(
+                                                  padding: pw.EdgeInsets.fromLTRB(0, 5, 10, 5),
+                                                  alignment: pw.Alignment.centerRight,
+
+                                                  child: pw.Text(
+                                                    formatAmountVoucher(totalBillAmount.toString()),
+                                                    style: pw.TextStyle(
+                                                        fontSize: 11,
+                                                        fontWeight: pw.FontWeight.normal
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+
+
+
+                                            ])
+                                          ]
+                                      ),
+                                    ),
+                                  ),
+
+
+
+                                ])
+                              ]
+                          ),
+
+                          pw.Table(
+                              border: pw.TableBorder(
+                                  horizontalInside: pw.BorderSide.none,
+                                  verticalInside: pw.BorderSide.none,
+                                  bottom:  pw.BorderSide.none,
+                                  top:  pw.BorderSide.none,
+                                  right:  pw.BorderSide.none
+                              ),
+                              children:[
+                                pw.TableRow(children: [
+                                  pw.Expanded(
+                                    flex:7,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(5, 50, 5, 0),
+                                      alignment: pw.Alignment.centerLeft,
+
+                                      child: pw.Text(
+                                        '',
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.normal
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+
+                                  pw.Expanded(
+                                    flex:3,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(0, 50, 5, 0),
+                                      alignment: pw.Alignment.centerLeft,
+
+                                      child: pw.Text(
+                                        'Authorised Signatory',
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.normal
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+
+
+                                ])
+                              ]
+                          ),
+
+
+
+
+                        ]
+                    )
+
+
+                  ],
+                ),
+                pw.Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: pw.Container(
+                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                    alignment: pw.Alignment.center,
+                    child: pw.Text(
+                      'Created in Fincore Go',
+                      textAlign: pw.TextAlign.center,
+                      style: pw.TextStyle(
+                          fontSize: 10,
+                          color: PdfColor.fromInt(0xFFCCCCCC)
                       ),
-                    ],
-                  ),
-
-                  pw.SizedBox(height: 50),
-                  pw.Align(
-                    alignment: pw.Alignment.centerRight,
-                    child:  pw.Text('Authorised Signatory',
-                        style: pw.TextStyle(fontSize: 11)),
-                  ),
-                ],
-              ),
-
-              // 🌐 Footer
-              pw.Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: pw.Container(
-                  padding: const pw.EdgeInsets.all(5),
-                  alignment: pw.Alignment.center,
-                  child: pw.Text(
-                    'Created by https://tallyuae.ae/',
-                    textAlign: pw.TextAlign.center,
-                    style: pw.TextStyle(
-                        fontSize: 10, color: PdfColor.fromInt(0xFFCCCCCC)),
+                    ),
                   ),
                 ),
-              ),
-            ],
+
+              ]
           );
         },
       ),
     );
 
-    // 💾 Save to file
     final pdfData = await pdf.save();
     final tempDir = await getTemporaryDirectory();
     final tempFilePath = '${tempDir.path}/$_selectedparty.pdf';
-    final file = File(tempFilePath);
-    await file.writeAsBytes(pdfData);
+    await File(tempFilePath).writeAsBytes(pdfData);
 
-    // 📤 Share PDF
     await Share.shareXFiles(
       [XFile(tempFilePath)],
       text: 'Sharing Receipt Voucher for $_selectedparty',
     );
 
-    // 🔁 Navigate after sharing
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => PendingReceiptEntry()),
-    );
+
+    setState(() {
+      controller_narration.clear();
+      _textFieldFocusNodeNarration.unfocus(); // Unfocus the TextField
+
+      receiptdate = DateTime.now();
+      receiptdatestring = _dateFormat.format(receiptdate);
+      receiptdatetxt = formatlastsaledate(receiptdatestring);
+      _dateController.text = receiptdatetxt;
+      _selectedvchtypename = vchtypenamedata.first;
+      fetchvchnos(_selectedvchtypename);
+      _selectedparty = partydata.first;
+
+      _selectedbankcashname = bankcashname_data.first;
+
+      bills.clear();
+      cheque.clear();
+
+      updateChequeAmount();
+
+      totalBillAmount = bills.fold(0.0,(double previousAmount, Bills bill) {
+        return previousAmount + bill.billAmount;
+      },
+      );
+      roundedtotalBillAmount = double.parse(totalBillAmount.toStringAsFixed(decimal!));
+      NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+      String formattedtotal = formatter.format(roundedtotalBillAmount);
+      controller_totalamt.text = formattedtotal.toString();
+
+      if (bills.isEmpty)
+      {
+        isVisibleBillHeading = false;
+      }
+      else
+      {
+        isVisibleBillHeading = true;
+      }
+
+      if (cheque.isEmpty)
+      {
+        isVisibleChequeHeading = false;
+      }
+      else
+      {
+        isVisibleChequeHeading = true;
+      }
+    });
+
   }
 
   Future<void> updateEntry(int id) async {
@@ -1686,404 +2275,645 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
   }*/ // bill due date selection
 
   Future<void> _showBillsDetailsPopup(BuildContext context) async {
-    setState(()
-    {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-                title:  Text('Add Bills'),
-                content: SingleChildScrollView(
-                    child: Form(
-                      key: _billsFormkey,
-                      child: Column(
-                        children: <Widget>[
-
-                          DropdownButtonFormField<String>(
-                            isExpanded: true,
-                            decoration: InputDecoration(
-                              prefixIcon:  Icon(Icons.book),
-                              border: UnderlineInputBorder(
-                                borderSide:  BorderSide(color: Colors.black),
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide:  BorderSide(color: app_color),
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              enabledBorder: UnderlineInputBorder(
-                                borderRadius: BorderRadius.circular(5.0),
-                                borderSide:  BorderSide(color: Colors.black),
-                              ),
-                              contentPadding:  EdgeInsets.symmetric(
-                                  horizontal: 10,vertical: 10),
-                            ),
-                            value: _selectedbill,
-                            items: billsdata.map((String value) {
-                              return DropdownMenuItem(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                            onChanged: (newValue) {
-                              setState(() {
-                                _selectedbill = newValue!;
-                                if(_selectedbill == 'New Ref' || _selectedbill == 'Agst Ref')
-                                {
-                                  isVisibleDueDate = true;
-                                  isVisibleBillNo = true;
-                                }
-                                else
-                                {
-                                  isVisibleDueDate = false;
-                                  isVisibleBillNo = false;
-                                  billNoController.clear();
-                                  _billduedateController.clear();
-                                }
-                                Navigator.of(context).pop();
-                                // Refresh the dialog by dismissing and reopening it
-                                _billsFormkey = GlobalKey<FormState>();
-                                _showBillsDetailsPopup(context);
-                              });
-                            },
-                          ),
-
-                          Visibility(
-                            visible: isVisibleBillNo,
-                            child: Container(
-                              margin:  EdgeInsets.only(left: 5, right: 5),
-                              child:  TextFormField(
-                                controller: billNoController,
-                                enabled: true,
-                                validator: (value)
-                                {
-                                  if (value!.isEmpty)
-                                  {
-                                    return 'Please enter bill no';
-                                  }
-                                  return null;
-                                },
-
-                                decoration: InputDecoration(
-                                  labelText: 'Bill No',
-                                  hintText: 'Enter Bill No',
-                                  labelStyle:  GoogleFonts.poppins(
-                                    color: Colors
-                                        .black, // Set the label text color to black
-                                  ),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: app_color),
-                                  ),
-                                  prefixIcon:  Icon(Icons.discount_outlined),
-
-                                ),
-                              ),),),
-
-                          Visibility(
-                            visible: isVisibleDueDate,
-                            child: Container(
-                              margin:  EdgeInsets.only(left: 5, right: 5),
-                              child: TextFormField(
-                                controller: _billduedateController,
-                                enabled: true,
-                                keyboardType: TextInputType.number,
-                                validator: (value)
-                                {
-                                  if (value!.isEmpty)
-                                  {
-                                    return 'Please enter due date (no of days)';
-                                  }
-                                  else if (double.tryParse(value) == null) {
-                                    return 'Invalid input, please enter a number';
-                                  }
-                                  else if (double.parse(value) < 0)
-                                  {
-                                    return 'due date days cannot be negative';
-                                  }
-                                  return null;
-                                },
-                                decoration: InputDecoration(
-                                  labelText: 'Due Date (no of days)',
-                                  hintText: 'Enter due date',
-                                  labelStyle:  GoogleFonts.poppins(
-                                    color: Colors
-                                        .black, // Set the label text color to black
-                                  ),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: app_color),
-                                  ),
-                                  prefixIcon:  Icon(Icons.calendar_view_day_sharp),
-                                ),
-                              ),),),
-
-                          /*Visibility(
-                        visible: isVisibleDueDate,
-                        child: Padding(
-                        padding: EdgeInsets.only(
-                            top: 0, left: 5, right: 5, bottom: 0),
-                        child:
-                        TextFormField(
-                          controller: _billduedateController,
-                          decoration: InputDecoration(
-                            labelText: 'Due Date',
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5.0),
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                              ),
-                            ),
-                            fillColor: Colors.white38,
-                            labelStyle: GoogleFonts.poppins(
-                              color: Colors.black, // Set the label text color to black
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5.0),
-                              borderSide: BorderSide(
-                                  color: app_color
-                              ),),
-                            filled: true,
-                            prefixIcon: GestureDetector(
-
-                              onTap: () =>  _selectreceiptDate(context),
-                              child: Icon(Icons.calendar_today),
-                            ),
-                          ),
-                          readOnly: true,
-                          onTap: () =>  _selectbilldueDate(context),
-                        ),
-                      ),),*/
-
-                          Container(
-                            margin:  EdgeInsets.only(left: 5, right: 5),
-                            child: TextFormField(
-                              controller: billAmountController,
-                              enabled: true,
-                              keyboardType: TextInputType.number,
-                              validator: (value)
-                              {
-                                bool checknumeric = isNumeric(value!);
-
-                                if (value!.isEmpty)
-                                {
-                                  return 'Please enter amount';
-                                }
-                                else if (!checknumeric)
-                                {
-                                  return 'enter valid amount';
-                                }
-                                else if (double.parse(value)  == 0)
-                                {
-                                  return 'Amount should not be 0';
-                                }
-
-                                return null;
-                              },
-
-                              decoration: InputDecoration(
-                                labelText: 'Amount',
-                                hintText: '0',
-                                labelStyle:  GoogleFonts.poppins(
-                                  color: Colors.black, // Set the label text color to black
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: app_color),
-                                ),
-                                prefixIcon:  Icon(Icons.money_outlined),
-                                prefixText: '${getCurrencySymbol('$currencycode')} ', // Prefix text
-                                prefixStyle:  GoogleFonts.poppins(color: Colors.black,
-                                    fontSize: 16),
-                              ),
-                            ),),
-                        ],
-                      ),)
-                ),
-                actions: <Widget>[
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        _selectedbill = billsdata.first;
-                        if(_selectedbill == 'New Ref' || _selectedbill == 'Agst Ref') {
-                          setState(() {
-                            isVisibleDueDate = true;
-                            isVisibleBillNo = true;
-                          });
-
-                        }
-                        else {
-                          setState(() {
-                            isVisibleDueDate = false;
-                            isVisibleBillNo = false;
-                          });}
-
-                        /*billduedate = DateTime.now();
-                  billduedatestring = _dateFormat.format(billduedate);
-                  billduedatetxt = formatlastsaledate(billduedatestring);
-                  _billduedateController.text = billduedatetxt;*/
-                        _billduedateController.clear();
-                        billAmountController.clear();
-                      },
-                      child:  Text('Cancel',
-                          style: GoogleFonts.poppins(
-                              color: Colors.grey
-                          ))),
-                  TextButton(
-                      onPressed: () {
-                        if (_billsFormkey.currentState != null &&
-                            _billsFormkey.currentState!.validate()) {
-                          _billsFormkey.currentState!.save();
-                          addBill();
-                        }},
-                      child:  Text('Add Bill', // add item button text
-                          style: GoogleFonts.poppins(
-                              color: app_color
-                          )))]);});});}
-
-  Future<void> _showChequeDetailsPopup(BuildContext context) async {
-    setState(()
-    {
+    setState(() {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('$_selectedpaymentmode Details'),
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            titlePadding: EdgeInsets.zero,
+            title:
+            Column(
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    color: app_color,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [Colors.white, Colors.white],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: const Icon(Icons.receipt_long, color: app_color, size: 26),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Add Bill",
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+
             content: SingleChildScrollView(
-                child: Form(
-                  key: _chequedetailsFormkey,
-                  child: Column(children: <Widget>[
-                    Container(
-                      margin:  EdgeInsets.only(left: 0, right: 0),
-                      child: TextFormField(
-                        controller: instNoController,
-                        enabled: true,
+              child: Form(
+                key: _billsFormkey,
+                child: Column(
+                  children: <Widget>[
+                    // 🔹 Bill Type Dropdown
+                    DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: "Bill Type",
+                        hintText: "Select Bill Type",
+                        labelStyle: GoogleFonts.poppins(
+                          fontSize: 12.5,
+                          color: Colors.grey[700],
+                        ),
+                        hintStyle: GoogleFonts.poppins(
+                          fontSize: 12.5,
+                          color: Colors.grey[400],
+                        ),
+                        prefixIcon: Container(
+                          margin: const EdgeInsets.all(8), // 👈 smaller margin
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Colors.indigo, Colors.cyan],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.book, color: Colors.white, size: 16), // 👈 smaller icon
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14), // 👈 slightly tighter radius
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide(color: app_color, width: 1.3),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10, // 👈 tighter padding
+                        ),
+                      ),
+                      value: _selectedbill,
+                      items: billsdata.map((String value) {
+                        return DropdownMenuItem(
+                          value: value,
+                          child: Text(value, style: GoogleFonts.poppins(fontSize: 13)),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedbill = newValue!;
+                          if (_selectedbill == 'New Ref' || _selectedbill == 'Agst Ref') {
+                            isVisibleDueDate = true;
+                            isVisibleBillNo = true;
+                          } else {
+                            isVisibleDueDate = false;
+                            isVisibleBillNo = false;
+                            billNoController.clear();
+                            _billduedateController.clear();
+                          }
+                          Navigator.of(context).pop();
+                          _billsFormkey = GlobalKey<FormState>();
+                          _showBillsDetailsPopup(context);
+                        });
+                      },
+                    ),
 
-                        decoration: InputDecoration(
-                          labelText: 'Inst No',
-                          hintText: 'Enter Inst No',
-                          labelStyle:  GoogleFonts.poppins(
-                            color: Colors
-                                .black, // Set the label text color to black
-                          ),
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: app_color),
-                          ),
-                          prefixIcon: GestureDetector(
-                            onTap: () =>  _selectinstDate(context),
-                            child:  Icon(Icons.confirmation_number_outlined),
+
+                    // 🔹 Bill No
+                    Visibility(
+                      visible: isVisibleBillNo,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: TextFormField(
+                          controller: billNoController,
+                          validator: (value) => value!.isEmpty ? 'Please enter bill no' : null,
+                          decoration: InputDecoration(
+                            labelText: "Bill No",
+                            hintText: "Enter Bill No",
+                            labelStyle: GoogleFonts.poppins(
+                              fontSize: 12.5,
+                              color: Colors.grey[700],
+                            ),
+                            hintStyle: GoogleFonts.poppins(
+                              fontSize: 12.5,
+                              color: Colors.grey[400],
+                            ),
+                            prefixIcon: Container(
+                              margin: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Colors.orange, Colors.deepOrangeAccent],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(Icons.confirmation_num_outlined, color: Colors.white, size: 20),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(color: app_color, width: 1.5),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+
                           ),
                         ),
-                      ),),
-
-                    Padding(
-                      padding:  EdgeInsets.only(top: 0, left: 0, right: 0, bottom: 0),
-                      child:
-                      TextFormField(
-                        controller: instDateController,
-                        decoration: InputDecoration(
-                          labelText: 'Inst Date',
-                          labelStyle:  GoogleFonts.poppins(
-                            color: Colors.black, // Set the label text color to black
-                          ),
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: app_color),
-                          ),
-                          prefixIcon: GestureDetector(
-                            onTap: () =>  _selectinstDate(context),
-                            child:  Icon(Icons.calendar_today),
-                          ),
-                        ),
-                        readOnly: true,
-                        onTap: () =>  _selectinstDate(context),
                       ),
                     ),
 
-                    Padding(padding:  EdgeInsets.only(top:5 , bottom: 5),
-                        child: TypeAheadField<String>(
-                        builder: (context, controller, focusNode) {
-            return TextField(
-            controller: _banknameController,
-            focusNode: focusNode,
-            decoration: InputDecoration(
-            labelStyle: GoogleFonts.poppins(color: Colors.black),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-            labelText: selectedbankname,
-            hintText: 'Search',
-            focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: app_color),
-            ),
-            suffixIcon: const Icon(Icons.arrow_drop_down, color: Colors.black87),
-            prefixIcon: const Icon(Icons.account_balance_outlined, color: Colors.black87),
-            ),
-            );
-            },
-             suggestionsCallback: (pattern) async {
-                            return bankname_data
-                                .where((item) {
-                              final name = item.toLowerCase();
-                              return name.contains(pattern.toLowerCase());
-                            })
-                                .toList(); // ✅ convert Iterable → List
+                    // 🔹 Due Date
+                    Visibility(
+                      visible: isVisibleDueDate,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: TextFormField(
+                          controller: _billduedateController,
+                          validator: (value) {
+                            if (value!.isNotEmpty) {
+                              if (double.tryParse(value) == null) {
+                                return 'Invalid input, please enter a number';
+                              } else if (double.parse(value) < 0) {
+                                return 'Due date days cannot be negative';
+                              }
+                            }
+                            return null;
                           },
+                          decoration: InputDecoration(
+                            labelText: "Due Date (days)",
+                            hintText: "Enter due date",
+                            labelStyle: GoogleFonts.poppins(
+                              fontSize: 13,
+                              color: Colors.grey[700],
+                            ),
+                            hintStyle: GoogleFonts.poppins(
+                              fontSize: 13,
+                              color: Colors.grey[400],
+                            ),
+                            prefixIcon: Container(
+                              margin: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Colors.pinkAccent, Colors.redAccent],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(Icons.calendar_today, color: Colors.white, size: 20),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(color: app_color, width: 1.5),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
 
-                          itemBuilder: (context, suggestion) {
-                return ListTile(
-                  title: Text(suggestion),
-                );
-              },
-              onSelected: (suggestion) {
-                setState(() {
-                  selectedbankname = suggestion;
-                  _banknameController.text = selectedbankname;
-                  Navigator.of(context).pop();
-                  // Refresh dialog by dismissing and reopening
-                  _chequedetailsFormkey = GlobalKey<FormState>();
-                  _showChequeDetailsPopup(context);
-                });
-              },
-              emptyBuilder: (context) {
-                return const SizedBox(); // You can customize this placeholder
-              },
-            )
-          ),
+                          ),
+                        ),
+                      ),
+                    ),
 
-                    Container(
-                      padding: EdgeInsets.only(left: 0, right: 0),
+                    // 🔹 Amount
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
                       child: TextFormField(
-                        controller: chequeAmountController,
-                        enabled: true,
+                        controller: billAmountController,
                         keyboardType: TextInputType.number,
-                        validator: (value)
-                        {
-                          if (value!.isEmpty)
-                          {
-                            return 'Please enter amount';
-                          }
-                          else if (double.parse(value)  == 0)
-                          {
-                            return 'Amount should not be 0';
-                          }
-
+                        validator: (value) {
+                          if (value!.isEmpty) return 'Please enter amount';
+                          if (!isNumeric(value)) return 'Enter valid amount';
+                          if (double.parse(value) == 0) return 'Amount should not be 0';
                           return null;
                         },
+                        decoration: InputDecoration(
+                          labelText: "Amount",
+                          hintText: "0",
+                          labelStyle: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.grey[700],
+                          ),
+                          hintStyle: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.grey[400],
+                          ),
+                          prefix: Container(
+                            margin: const EdgeInsets.only(right: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.green, Colors.teal], // ✅ distinct from Ledger
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                            ),
+                            child: Text(
+                              getCurrencySymbol(currencycode),
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
 
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: app_color, width: 1.5),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _selectedbill = billsdata.first;
+                  isVisibleDueDate = _selectedbill == 'New Ref' || _selectedbill == 'Agst Ref';
+                  isVisibleBillNo = isVisibleDueDate;
+                  _billduedateController.clear();
+                  billAmountController.clear();
+                },
+                child: Text('Cancel',
+                  style: GoogleFonts.poppins(color: Colors.grey),
+                ),
+              ),
+
+              // ✅ Premium Add Bill button
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: app_color,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+                onPressed: () {
+                  if (_billsFormkey.currentState!.validate()) {
+                    _billsFormkey.currentState!.save();
+                    addBill();
+                  }
+                },
+                child: Text("Add Bill",
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Future<void> _showChequeDetailsPopup(BuildContext context) async {
+    setState(() {
+      showDialog(
+        context: context,
+          builder: (BuildContext context) {
+            return StatefulBuilder(
+              builder: (context, setStateDialog) {
+                return AlertDialog(
+            titlePadding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+
+            title:
+
+            Column(
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    color: app_color,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [Colors.white, Colors.white],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: const Icon(Icons.payment, color: app_color, size: 26),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "$_selectedpaymentmode Details",
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+
+
+            content: SingleChildScrollView(
+              child: Form(
+                key: _chequedetailsFormkey,
+                child: Column(
+                  children: <Widget>[
+
+                    // 🔹 Inst No
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        controller: instNoController,
+                        decoration: InputDecoration(
+                          labelText: 'Inst No',
+                          hintText: 'Enter Inst No',
+                          labelStyle: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.grey.shade700,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10, // 👈 tighter padding
+                          ),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.95),
+                          prefixIcon: Container(
+                            margin: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.orange, Colors.deepOrangeAccent],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.all(Radius.circular(12)),
+                            ),
+                            child: const Icon(Icons.confirmation_number_outlined, color: Colors.white, size: 20),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: app_color, width: 1.5),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // 🔹 Inst Date
+                    Padding(
+                      padding:  EdgeInsets.symmetric(vertical: 4),
+                      child: TextFormField(
+                        controller: instDateController,
+                        readOnly: true,
+                        onTap: () => _selectinstDate(context),
+                        decoration: InputDecoration(
+                          labelText: 'Inst Date',
+                          hintText: 'Select Date',
+                          labelStyle: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.grey.shade700,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10, // 👈 tighter padding
+                          ),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.95),
+                          prefixIcon: Container(
+                            margin: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.teal, Colors.cyan],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.all(Radius.circular(12)),
+                            ),
+                            child: const Icon(Icons.calendar_today, color: Colors.white, size: 20),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: app_color, width: 1.5),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // 🔹 Bank Name
+                    Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: TypeAheadField<String>(
+                          suggestionsCallback: (pattern) {
+                            return bankname_data.where((item) {
+                              final name = item.toString().toLowerCase();
+                              return name.contains(pattern.toLowerCase());
+                            }).toList();
+                          },
+
+                          builder: (context, controller, focusNode) {
+                            controller.text = _banknameController.text;
+
+                            return TextField(
+                              controller: controller,
+                              focusNode: focusNode,
+                              decoration: InputDecoration(
+                                labelText: "Bank",
+                                hintText: 'Search Bank',
+                                labelStyle: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade700,
+                                ),
+                                contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                filled: true,
+                                fillColor: Colors.white.withOpacity(0.95),
+                                prefixIcon: Container(
+                                  margin: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [Colors.purple, Colors.deepPurpleAccent],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                                  ),
+                                  child: const Icon(Icons.account_balance_outlined,
+                                      color: Colors.white, size: 20),
+                                ),
+                                suffixIcon: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (controller.text.isNotEmpty)
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            controller.clear();
+                                            selectedbankname = "";
+                                          });
+                                        },
+                                        child:
+                                        const Icon(Icons.close, color: Colors.grey, size: 20),
+                                      ),
+                                    const SizedBox(width: 4),
+                                    const Icon(Icons.arrow_drop_down, color: Colors.black87),
+                                    const SizedBox(width: 8),
+                                  ],
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide:
+                                  BorderSide(color: Colors.grey.shade300, width: 1),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide:
+                                  BorderSide(color: app_color, width: 1.5),
+                                ),
+                              ),
+                            );
+                          },
+
+                          itemBuilder: (context, String suggestion) {
+                            return ListTile(
+                              title: Text(
+                                suggestion,
+                                style: GoogleFonts.poppins(fontSize: 13),
+                              ),
+                            );
+                          },
+
+                          onSelected: (String suggestion) {
+                            setStateDialog(() {
+                              selectedbankname = suggestion;
+                              _banknameController.text = suggestion;
+                            });
+                          },
+
+
+
+
+                          // ✅ New API uses EmptyBuilder instead of noItemsFoundBuilder
+                          emptyBuilder: (context) => const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              'No matching bank found',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        )
+
+
+
+                    ),
+
+                    // 🔹 Amount
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: TextFormField(
+                        controller: chequeAmountController,
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value!.isEmpty) return 'Please enter amount';
+                          if (double.parse(value) == 0) return 'Amount should not be 0';
+                          return null;
+                        },
                         decoration: InputDecoration(
                           labelText: 'Amount',
                           hintText: '0',
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10, // 👈 tighter padding
+                          ),
                           labelStyle: GoogleFonts.poppins(
-                            color: Colors
-                                .black, // Set the label text color to black
+                            fontSize: 13,
+                            color: Colors.grey.shade700,
                           ),
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: app_color),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.95),
+                          prefixIcon: Container(
+                            margin:  EdgeInsets.all(8),
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              gradient:  LinearGradient(
+                                colors: [Colors.grey, Colors.brown],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              getCurrencySymbol('$currencycode'),
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
                           ),
-                          prefixIcon: Icon(Icons.money_outlined),
-                          prefixText: '${getCurrencySymbol('$currencycode')} ', // Prefix text
-                          prefixStyle: GoogleFonts.poppins(color: Colors.black,
-                              fontSize: 16),
+
+
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: app_color, width: 1.5),
+                          ),
                         ),
-                      ),),
+                      ),
+                    ),
                   ],
-                  ),)
+                ),
+              ),
             ),
+
+            // 🔹 Actions
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -2099,12 +2929,14 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                     chequeAmountController.clear();
                   });
                 },
-                child: Text('Cancel',
-                    style: GoogleFonts.poppins(
-                        color: app_color
-                    )),
+                child: Text('Cancel', style: GoogleFonts.poppins(color: Colors.grey)),
               ),
-              TextButton(
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: app_color,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                ),
                 onPressed: () {
                   if (_chequedetailsFormkey.currentState != null &&
                       _chequedetailsFormkey.currentState!.validate()) {
@@ -2112,14 +2944,14 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                     addCheque();
                   }
                 },
-                child: Text('Add $_selectedpaymentmode', // add item button text
-                  style: GoogleFonts.poppins(
-                      color: app_color
-                  ),),
+                child: Text(
+                  'Add $_selectedpaymentmode',
+                  style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600),
+                ),
               ),
             ],
           );
-        },
+        },);}
       );
     });
   }
@@ -2892,109 +3724,114 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                               Padding(
                                 padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 0),
                                 child: Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  child: TypeAheadField<String>(
-                                    // Required in v5+
-                                    suggestionsCallback: (pattern) async {
-                                      return partydata
-                                          .where((item) =>
-                                          item.toLowerCase().contains(pattern.toLowerCase()))
-                                          .toList();
-                                    },
+                                    width: MediaQuery.of(context).size.width,
+                                    child: TypeAheadField<String>(
+                                      suggestionsCallback: (pattern) {
+                                        return partydata.where((item) {
+                                          final name = item.toString().toLowerCase();
+                                          return name.contains(pattern.toLowerCase());
+                                        }).toList();
+                                      },
 
-                                    builder: (context, controller, focusNode) {
-                                      return TextField(
-                                        controller: controller,
-                                        focusNode: focusNode,
-                                        decoration: InputDecoration(
-                                          labelText: "Party",
-                                          hintText: 'Search',
-                                          hintStyle: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            color: Colors.grey.shade500,
-                                          ),
-                                          labelStyle: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.grey[700],
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.white.withOpacity(0.95),
+                                      builder: (context, controller, focusNode) {
+                                        _partyController = controller;
 
-                                          // 🌈 Gradient Prefix Icon
-                                          prefixIcon: Container(
-                                            margin: const EdgeInsets.all(8),
-                                            decoration: const BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [Colors.purple, Colors.deepOrange],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              borderRadius: BorderRadius.all(Radius.circular(12)),
+                                        return TextField(
+                                          controller: controller,
+                                          focusNode: focusNode,
+                                          decoration: InputDecoration(
+                                            labelText: "Party",
+                                            hintText: 'Search',
+                                            hintStyle: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              color: Colors.grey.shade500,
                                             ),
-                                            child: const Icon(
-                                              Icons.person_outline,
-                                              color: Colors.white,
-                                              size: 20,
+                                            labelStyle: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.grey[700],
                                             ),
-                                          ),
+                                            filled: true,
+                                            fillColor: Colors.white.withOpacity(0.95),
 
-                                          // ✖️ Clear + ⬇ dropdown icons
-                                          suffixIcon: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              if (controller.text.isNotEmpty)
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    setState(() {
-                                                      controller.clear();
-                                                      _selectedparty = "";
-                                                    });
-                                                  },
-                                                  child: const Icon(Icons.close, color: Colors.grey, size: 20),
+                                            // 🌈 Gradient Prefix Icon
+                                            prefixIcon: Container(
+                                              margin: const EdgeInsets.all(8),
+                                              decoration: const BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [Colors.purple, Colors.deepOrange],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
                                                 ),
-                                              const SizedBox(width: 4),
-                                              const Icon(Icons.arrow_drop_down, color: Colors.black87),
-                                              const SizedBox(width: 8),
-                                            ],
-                                          ),
+                                                borderRadius: BorderRadius.all(Radius.circular(12)),
+                                              ),
+                                              child: const Icon(Icons.person_outline,
+                                                  color: Colors.white, size: 20),
+                                            ),
 
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(16),
-                                            borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                                            // ✖️ Cross + ⬇ Dropdown in suffix
+                                            suffixIcon: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                if (controller.text.isNotEmpty)
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        controller.clear();
+                                                        _selectedparty = "";
+                                                      });
+                                                    },
+                                                    child:
+                                                    const Icon(Icons.close, color: Colors.grey, size: 20),
+                                                  ),
+                                                const SizedBox(width: 4),
+                                                const Icon(Icons.arrow_drop_down, color: Colors.black87),
+                                                const SizedBox(width: 8),
+                                              ],
+                                            ),
+
+                                            // Borders
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(16),
+                                              borderSide:
+                                              BorderSide(color: Colors.grey.shade300, width: 1),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(16),
+                                              borderSide:
+                                              BorderSide(color: app_color, width: 1.5),
+                                            ),
+                                            contentPadding:
+                                            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                                           ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(16),
-                                            borderSide: BorderSide(color: app_color, width: 1.5),
+                                        );
+                                      },
+
+                                      itemBuilder: (context, String suggestion) {
+                                        return ListTile(
+                                          title: Text(
+                                            suggestion,
+                                            style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
                                           ),
-                                          contentPadding:
-                                          const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                                        );
+                                      },
+
+                                      onSelected: (String suggestion) {
+                                        setState(() {
+                                          _selectedparty = suggestion;
+                                          _partyController.text = _selectedparty;
+                                        });
+                                      },
+
+                                      // ✅ new API → emptyBuilder replaces noItemsFoundBuilder
+                                      emptyBuilder: (context) => const Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text(
+                                          'No matching party found',
+                                          style: TextStyle(color: Colors.grey),
                                         ),
-                                      );
-                                    },
-
-                                    // Required in v5+
-                                    itemBuilder: (context, suggestion) {
-                                      return ListTile(
-                                        title: Text(
-                                          suggestion,
-                                          style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
-                                        ),
-                                      );
-                                    },
-
-                                    // ✅ Replaces onSuggestionSelected (now called onSelected)
-                                    onSelected: (suggestion) {
-                                      setState(() {
-                                        _selectedparty = suggestion;
-                                        _partyController.text = _selectedparty;
-                                      });
-                                    },
-
-                                    // Optional no items builder
-                                    emptyBuilder: (context) => const SizedBox(),
-                                  )
-
+                                      ),
+                                    )
 
                                 ),
                               ),
@@ -3002,144 +3839,155 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                               Padding(
                                 padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 0),
                                 child: Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  child: TypeAheadField<String>(
-                                    suggestionsCallback: (pattern) async {
-                                      return bankcashname_data
-                                          .where((ledger) {
-                                        final name = ledger['name']!.toLowerCase();
-                                        return name.contains(pattern.toLowerCase());
-                                      })
-                                          .map((ledger) => '${ledger['name']} (${ledger['type']})')
-                                          .toList();
-                                    },
+                                    width: MediaQuery.of(context).size.width,
+                                    child: TypeAheadField<String>(
+                                      suggestionsCallback: (pattern) {
+                                        return bankcashname_data
+                                            .where((ledger) {
+                                          final name = ledger['name']!.toLowerCase();
+                                          return name.contains(pattern.toLowerCase());
+                                        })
+                                            .map((ledger) => '${ledger['name']} (${ledger['type']})')
+                                            .toList();
+                                      },
 
-                                    builder: (context, controller, focusNode) {
-                                      return TextField(
-                                        controller: controller,
-                                        focusNode: focusNode,
-                                        decoration: InputDecoration(
-                                          labelText: 'Bank/Cash Name',
-                                          hintText: _selectedbankcashname != null
-                                              ? _selectedbankcashname!['name'] ?? ''
-                                              : 'Search',
-                                          hintStyle: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            color: Colors.grey.shade500,
-                                          ),
-                                          labelStyle: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.grey[700],
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.white.withOpacity(0.95),
+                                      builder: (context, controller, focusNode) {
+                                        _bankcashnameController = controller;
 
-                                          // 🌈 Gradient Prefix Icon
-                                          prefixIcon: Container(
-                                            margin: const EdgeInsets.all(8),
-                                            decoration: const BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [Colors.teal, Colors.blueAccent],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              borderRadius: BorderRadius.all(Radius.circular(12)),
+                                        return TextField(
+                                          controller: controller,
+                                          focusNode: focusNode,
+                                          decoration: InputDecoration(
+                                            labelText: 'Bank/Cash Name',
+                                            hintText: _selectedbankcashname != null
+                                                ? _selectedbankcashname!['name'] ?? ''
+                                                : 'Search',
+                                            hintStyle: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              color: Colors.grey.shade500,
                                             ),
-                                            child: const Icon(
-                                              Icons.account_balance_wallet,
-                                              color: Colors.white,
-                                              size: 20,
+                                            labelStyle: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.grey[700],
                                             ),
-                                          ),
+                                            filled: true,
+                                            fillColor: Colors.white.withOpacity(0.95),
 
-                                          // ✖️ Clear + ⬇ Dropdown
-                                          suffixIcon: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              if (controller.text.isNotEmpty)
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    setState(() {
-                                                      controller.clear();
-                                                      _selectedbankcashname = null;
-                                                    });
-                                                  },
-                                                  child: const Icon(Icons.close, color: Colors.grey, size: 20),
+                                            // 🌈 Gradient Prefix Icon
+                                            prefixIcon: Container(
+                                              margin: const EdgeInsets.all(8),
+                                              decoration: const BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [Colors.teal, Colors.blueAccent],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
                                                 ),
-                                              const SizedBox(width: 4),
-                                              const Icon(Icons.arrow_drop_down, color: Colors.black87),
-                                              const SizedBox(width: 8),
-                                            ],
-                                          ),
+                                                borderRadius: BorderRadius.all(Radius.circular(12)),
+                                              ),
+                                              child: const Icon(
+                                                Icons.account_balance_wallet,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
+                                            ),
 
-                                          // Borders
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(16),
-                                            borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(16),
-                                            borderSide: BorderSide(color: app_color, width: 1.5),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                        ),
-                                      );
-                                    },
+                                            // ✖️ Clear + ⬇ Dropdown
+                                            suffixIcon: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                if (controller.text.isNotEmpty)
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        controller.clear();
+                                                        _selectedbankcashname = null;
+                                                      });
+                                                    },
+                                                    child: const Icon(Icons.close, color: Colors.grey, size: 20),
+                                                  ),
+                                                const SizedBox(width: 4),
+                                                const Icon(Icons.arrow_drop_down, color: Colors.black87),
+                                                const SizedBox(width: 8),
+                                              ],
+                                            ),
 
-                                    itemBuilder: (context, suggestion) {
-                                      return ListTile(
-                                        title: Text(
-                                          suggestion,
-                                          style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
-                                        ),
-                                      );
-                                    },
-
-                                    onSelected: (suggestion) {
-                                      setState(() {
-                                        _selectedbankcashname = bankcashname_data.firstWhere(
-                                              (ledger) => '${ledger['name']} (${ledger['type']})' == suggestion,
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(16),
+                                              borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(16),
+                                              borderSide: BorderSide(color: app_color, width: 1.5),
+                                            ),
+                                            contentPadding:
+                                            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                                          ),
                                         );
-                                        _bankcashnameController.text = _selectedbankcashname!['name'] ?? '';
-                                      });
+                                      },
 
-                                      // 👇 existing logic preserved
-                                      if (_selectedbankcashname != null &&
-                                          _selectedbankcashname!['type'] == 'Cash-in-Hand') {
-                                        isPaymentModeVisible = false;
-                                        _selectedpaymentmode = paymentmode_data.first;
-                                        cheque.clear();
-                                        updateChequeAmount();
-                                        isVisibleChequeHeading = false;
-                                        isChequeVisible = false;
-                                      } else {
-                                        if (bills.isNotEmpty) {
-                                          if (cheque.isNotEmpty) {
-                                            isPaymentModeVisible = true;
-                                            isChequeVisible = true;
-                                            isVisibleChequeHeading = true;
+                                      itemBuilder: (context, String suggestion) {
+                                        return ListTile(
+                                          title: Text(
+                                            suggestion,
+                                            style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
+                                          ),
+                                        );
+                                      },
+
+                                      onSelected: (String suggestion) {
+                                        setState(() {
+                                          _selectedbankcashname = bankcashname_data.firstWhere(
+                                                (ledger) =>
+                                            '${ledger['name']} (${ledger['type']})' == suggestion,
+                                          );
+                                          _bankcashnameController.text =
+                                              _selectedbankcashname!['name'] ?? '';
+                                        });
+
+                                        // 👇 your original cheque/payment logic preserved
+                                        if (_selectedbankcashname != null &&
+                                            _selectedbankcashname!['type'] == 'Cash-in-Hand') {
+                                          isPaymentModeVisible = false;
+                                          _selectedpaymentmode = paymentmode_data.first;
+                                          cheque.clear();
+                                          updateChequeAmount();
+                                          isVisibleChequeHeading = false;
+                                          isChequeVisible = false;
+                                        } else {
+                                          if (bills.isNotEmpty) {
+                                            if (cheque.isNotEmpty) {
+                                              isPaymentModeVisible = true;
+                                              isChequeVisible = true;
+                                              isVisibleChequeHeading = true;
+                                            } else {
+                                              isPaymentModeVisible = true;
+                                              _selectedpaymentmode = paymentmode_data.first;
+                                              cheque.clear();
+                                              updateChequeAmount();
+                                              isVisibleChequeHeading = false;
+                                              isChequeVisible = true;
+                                            }
                                           } else {
                                             isPaymentModeVisible = true;
                                             _selectedpaymentmode = paymentmode_data.first;
                                             cheque.clear();
                                             updateChequeAmount();
                                             isVisibleChequeHeading = false;
-                                            isChequeVisible = true;
+                                            isChequeVisible = false;
                                           }
-                                        } else {
-                                          isPaymentModeVisible = true;
-                                          _selectedpaymentmode = paymentmode_data.first;
-                                          cheque.clear();
-                                          updateChequeAmount();
-                                          isVisibleChequeHeading = false;
-                                          isChequeVisible = false;
                                         }
-                                      }
-                                    },
+                                      },
 
-                                    emptyBuilder: (context) => const SizedBox(),
-                                  )
+                                      // ✅ Replaces old `noItemsFoundBuilder`
+                                      emptyBuilder: (context) => const Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text(
+                                          'No matching Bank/Cash name found',
+                                          style: TextStyle(color: Colors.grey),
+                                        ),
+                                      ),
+                                    )
 
                                 ),
                               ),

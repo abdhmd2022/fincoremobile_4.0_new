@@ -308,7 +308,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       context: context,
       builder: (BuildContext context) {
         return SizedBox(
-          height: MediaQuery.of(context).size.height * 0.35, // Set height as per your requirement
+          height: MediaQuery.of(context).size.height * 0.30, // Set height as per your requirement
           child: Container(
             padding: EdgeInsets.all(20.0),
             child: Column(
@@ -585,243 +585,857 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     pdf.addPage(
       pw.Page(
         build: (pw.Context context) {
+
           return pw.Stack(
-            children: [
-              pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                children: [
-                  // Header Section
-                  pw.Header(
-                    level: 0,
-                    decoration: pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide.none)),
-                    child: pw.Center(
-                      child: pw.Column(
-                        children: [
-                          pw.Text(company!, textAlign: pw.TextAlign.center, style: pw.TextStyle(fontSize: 18)),
+              children:[
+
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    // Tax Invoice Heading
+                    pw.Header(
+                        level: 0,
+                        decoration: pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide.none)),
+
+                        child: pw.Center(child:pw.Column(children: [
+                          pw.Text(company!, textAlign: pw.TextAlign.center,
+                              style: pw.TextStyle(
+                                  fontSize: 18
+                              )),
                           pw.SizedBox(height: 20),
-                          pw.Text('Receipt Voucher', textAlign: pw.TextAlign.center, style: pw.TextStyle(fontSize: 18)),
-                        ],
-                      ),
+                          pw.Text('Receipt Voucher', textAlign: pw.TextAlign.center,
+                              style: pw.TextStyle(
+                                  fontSize: 18
+                              ))
+                        ]), )
                     ),
-                  ),
 
-                  pw.SizedBox(height: 10),
+                    pw.SizedBox(height: 10),
 
-                  // Voucher Info Row
-                  pw.Table(
-                    border: pw.TableBorder(horizontalInside: pw.BorderSide.none, verticalInside: pw.BorderSide.none, bottom: pw.BorderSide.none),
-                    children: [
-                      pw.TableRow(
-                        children: [
-                          pw.Expanded(
-                            flex: 5,
-                            child: pw.Container(
-                              padding: pw.EdgeInsets.all(5),
-                              alignment: pw.Alignment.centerLeft,
-                              child: pw.Row(
-                                children: [
-                                  pw.Text('No. : ', style: pw.TextStyle(fontSize: 12)),
-                                  pw.Text(_vchnoController.text, style: pw.TextStyle(fontSize: 12)),
-                                ],
-                              ),
-                            ),
-                          ),
-                          pw.Expanded(
-                            flex: 5,
-                            child: pw.Container(
-                              padding: pw.EdgeInsets.all(5),
-                              alignment: pw.Alignment.centerRight,
-                              child: pw.Row(
-                                mainAxisAlignment: pw.MainAxisAlignment.end,
-                                children: [
-                                  pw.Text('Dated : ', style: pw.TextStyle(fontSize: 12)),
-                                  pw.Text(formatlastsaledate(receiptdatestring), style: pw.TextStyle(fontSize: 12)),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  pw.SizedBox(height: 5),
-
-                  // Remarks
-                  pw.Table(
-                    border: pw.TableBorder(horizontalInside: pw.BorderSide.none, verticalInside: pw.BorderSide.none, bottom: pw.BorderSide.none),
-                    children: [
-                      pw.TableRow(
-                        children: [
-                          pw.Expanded(
-                            flex: 5,
-                            child: pw.Container(
-                              padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 15),
-                              alignment: pw.Alignment.centerLeft,
-                              child: pw.Row(
-                                children: [
-                                  pw.Text('Remarks : ', style: pw.TextStyle(fontSize: 12)),
-                                  pw.Text(controller_narration.text, style: pw.TextStyle(fontSize: 12)),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  pw.SizedBox(height: 20),
-
-                  // Table Header
-                  pw.Table(
-                    border: pw.TableBorder.all(color: PdfColor.fromHex('#050400')),
-                    children: [
-                      pw.TableRow(
-                        children: [
-                          pw.Expanded(
-                            flex: 7,
-                            child: pw.Container(
-                              padding: pw.EdgeInsets.fromLTRB(10, 2, 5, 2),
-                              alignment: pw.Alignment.centerLeft,
-                              child: pw.Text('Particulars', style: pw.TextStyle(fontSize: 11)),
-                            ),
-                          ),
-                          pw.Expanded(
-                            flex: 3,
-                            child: pw.Container(
-                              padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
-                              alignment: pw.Alignment.centerRight,
-                              child: pw.Text('Amount', style: pw.TextStyle(fontSize: 11)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  // Party Info Row
-                  pw.Table(
-                    border: pw.TableBorder(verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400'))),
-                    children: [
-                      pw.TableRow(
-                        children: [
-                          pw.Expanded(
-                            flex: 7,
-                            child: pw.Container(
-                              padding: pw.EdgeInsets.fromLTRB(15, 3, 5, 2),
-                              alignment: pw.Alignment.centerLeft,
-                              child: pw.Text(_selectedparty, style: pw.TextStyle(fontSize: 11)),
-                            ),
-                          ),
-                          pw.Expanded(
-                            flex: 3,
-                            child: pw.Container(
-                              padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
-                              alignment: pw.Alignment.centerRight,
-                              child: pw.Text(formatAmountVoucher(roundedtotalBillAmount.toString()), style: pw.TextStyle(fontSize: 11)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  // Bill Entries
-                  for (var bill in bills.asMap().entries)
                     pw.Table(
-                      border: pw.TableBorder(verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400'))),
-                      children: [
-                        pw.TableRow(
-                          children: [
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide.none,
+                            bottom: pw.BorderSide.none
+                        ),
+                        children:[
+
+                          pw.TableRow(children: [
+
                             pw.Expanded(
-                              flex: 7,
+                              flex: 5,
                               child: pw.Container(
-                                padding: pw.EdgeInsets.fromLTRB(20, 2, 10, 2),
+                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                  alignment: pw.Alignment.centerLeft,
+
+                                  child: pw.Row(children: [
+
+                                    pw.Text(
+                                      'No. : ',
+                                      style: pw.TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                    ),
+
+
+                                    pw.Text(
+                                      _vchnoController.text,
+                                      style: pw.TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                    ),
+
+                                  ])
+                              ),
+                            ),
+
+
+                            pw.Expanded(
+                              flex: 5,
+                              child: pw.Container(
+
+
+                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                  alignment: pw.Alignment.centerRight,
+
+                                  child: pw.Row(
+                                      mainAxisAlignment: pw.MainAxisAlignment.end,
+                                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+                                      children: [
+
+
+
+                                        pw.Text(
+                                          'Dated : ',
+                                          style: pw.TextStyle(
+                                            fontSize: 12,
+                                          ),
+                                        ),
+
+
+                                        pw.Text(
+                                          formatlastsaledate(receiptdatestring),
+                                          style: pw.TextStyle(
+                                            fontSize: 12,
+                                          ),
+                                        ),
+
+                                      ])
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+
+                    pw.SizedBox(height:5),
+
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide.none,
+                            bottom: pw.BorderSide.none
+                        ),
+                        children:[
+
+                          pw.TableRow(children: [
+
+
+
+
+                            pw.Expanded(
+                              flex: 5,
+                              child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 15),
+                                  alignment: pw.Alignment.centerLeft,
+
+                                  child: pw.Row(children: [
+
+                                    pw.Text(
+                                      'Remarks : ',
+                                      style: pw.TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                    ),
+
+                                    pw.Text(
+                                      controller_narration.text,
+                                      style: pw.TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                    )])
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+
+                    pw.SizedBox(height: 20),
+
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            bottom:  pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            top:  pw.BorderSide(color: PdfColor.fromHex('#050400'))
+                        ),
+                        children:[
+
+                          pw.TableRow(children: [
+
+                            pw.Expanded(
+                              flex:7,
+                              child: pw.Container(
+                                padding: pw.EdgeInsets.fromLTRB(10, 2, 5, 2),
                                 alignment: pw.Alignment.centerLeft,
-                                child: pw.Row(
-                                  children: [
-                                    pw.Text(bill.value.billName, style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
-                                    pw.SizedBox(width: 2),
-                                    pw.Text(formatAmountVoucher(bill.value.billAmount.toString()), style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
-                                  ],
+
+                                child: pw.Text(
+                                  'Particulars',
+                                  style: pw.TextStyle(
+                                    fontSize: 11,
+                                  ),
                                 ),
                               ),
                             ),
-                            pw.Expanded(flex: 3, child: pw.SizedBox()),
-                          ],
-                        ),
-                      ],
-                    ),
 
-                  // Through Bank
-                  pw.Table(
-                    border: pw.TableBorder(verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400'))),
-                    children: [
-                      pw.TableRow(
-                        children: [
-                          pw.Expanded(
-                            flex: 7,
-                            child: pw.Container(
-                              padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
-                              alignment: pw.Alignment.centerLeft,
-                              child: pw.Text('Through : ${_selectedbankcashname!['name']!}', style: pw.TextStyle(fontSize: 11)),
+                            pw.Expanded(
+                              flex: 3,
+                              child: pw.Container(
+
+
+                                padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                alignment: pw.Alignment.centerRight,
+
+                                child: pw.Text(
+                                  'Amount',
+                                  style: pw.TextStyle(
+                                    fontSize: 11,
+                                  ),
+                                ),
+
+                              ),
                             ),
-                          ),
-                          pw.Expanded(flex: 3, child: pw.SizedBox()),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  // Cheque Details
-                  if (cheque.isNotEmpty)
-                    pw.Column(
-                      children: [
-                        pw.SizedBox(height: 10),
-                        pw.Text('Bank Transaction Details:', style: pw.TextStyle(fontSize: 11)),
-                        for (var c in cheque.asMap().entries)
-                          pw.Padding(
-                            padding: pw.EdgeInsets.only(top: 2),
-                            child: pw.Text('${c.value.paymentMode} — ${formatlastsaledate(c.value.instdate.toString())}', style: pw.TextStyle(fontSize: 11)),
-                          ),
-                      ],
+                          ])
+                        ]
                     ),
 
-                  // Amount in Words + Total
-                  pw.SizedBox(height: 20),
-                  pw.Row(
-                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pw.Text('Amount (in words): ${convertAmountToWords(totalBillAmount)}', style: pw.TextStyle(fontSize: 11)),
-                      pw.Text(formatAmountVoucher(totalBillAmount.toString()), style: pw.TextStyle(fontSize: 11)),
-                    ],
-                  ),
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            bottom:  pw.BorderSide.none,
+                            top:  pw.BorderSide.none
+                        ),
+                        children:[
 
-                  pw.SizedBox(height: 50),
-                  pw.Align(
-                    alignment: pw.Alignment.centerRight,
-                    child: pw.Text('Authorised Signatory', style: pw.TextStyle(fontSize: 11)),
-                  ),
-                ],
-              ),
+                          pw.TableRow(children: [
 
-              // Footer
-              pw.Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: pw.Container(
-                  alignment: pw.Alignment.center,
-                  padding: pw.EdgeInsets.all(5),
-                  child: pw.Text(
-                    'Created by https://tallyuae.ae/',
-                    textAlign: pw.TextAlign.center,
-                    style: pw.TextStyle(fontSize: 10, color: PdfColor.fromInt(0xFFCCCCCC)),
+
+
+
+                            pw.Expanded(
+                              flex:7,
+                              child: pw.Container(
+                                padding: pw.EdgeInsets.fromLTRB(5, 3, 5, 2),
+                                alignment: pw.Alignment.centerLeft,
+
+                                child: pw.Text(
+                                  'Account :',
+                                  style: pw.TextStyle(
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+
+                            pw.Expanded(
+                              flex: 3,
+                              child: pw.Container(
+
+
+                                padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                alignment: pw.Alignment.centerRight,
+
+                                child: pw.Text(
+                                  '',
+                                  style: pw.TextStyle(
+                                    fontSize: 11,
+                                  ),
+                                ),
+
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            bottom:  pw.BorderSide.none,
+                            top:  pw.BorderSide.none
+                        ),
+                        children:[
+                          pw.TableRow(children: [
+                            pw.Expanded(
+                              flex:7,
+                              child: pw.Container(
+                                padding: pw.EdgeInsets.fromLTRB(15, 3, 5, 2),
+                                alignment: pw.Alignment.centerLeft,
+
+                                child: pw.Text(
+                                  _selectedparty,
+                                  style: pw.TextStyle(
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+
+                            pw.Expanded(
+                              flex: 3,
+                              child: pw.Container(
+
+
+                                padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                                alignment: pw.Alignment.centerRight,
+
+                                child: pw.Text(
+                                  formatAmountVoucher(roundedtotalBillAmount.toString()),
+                                  style: pw.TextStyle(
+                                    fontSize: 11,
+                                  ),
+                                ),
+
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            bottom:  pw.BorderSide.none,
+                            top:  pw.BorderSide.none
+                        ),
+                        children:[
+                          for(var bill in bills.asMap().entries)
+
+                            pw.TableRow(children: [
+
+
+
+
+                              pw.Expanded(
+                                flex:7,
+                                child: pw.Container(
+                                    padding: pw.EdgeInsets.fromLTRB(20, 2, 10, 2),
+                                    alignment: pw.Alignment.centerLeft,
+
+                                    child: pw.Row(children: [
+                                      pw.Text(
+                                        bill.value.billName,
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.bold
+                                        ),
+                                      ),
+                                      pw.SizedBox(width: 2),
+                                      pw.Text(
+                                        formatAmountVoucher(bill.value.billAmount.toString()),
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.bold
+                                        ),
+                                      ),
+
+                                    ])
+                                ),
+                              ),
+
+
+                              pw.Expanded(
+                                flex: 3,
+                                child: pw.Container(
+
+
+                                  padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                  alignment: pw.Alignment.centerRight,
+
+                                  child: pw.Text(
+                                    '',
+                                    style: pw.TextStyle(
+                                      fontSize: 11,
+                                    ),
+                                  ),
+
+                                ),
+                              ),
+                            ])
+                        ]
+                    ),
+
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            bottom:  pw.BorderSide.none,
+                            top:  pw.BorderSide.none
+                        ),
+                        children:[
+                          pw.TableRow(children: [
+                            pw.Expanded(
+                              flex:7,
+                              child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(20, 2, 5, 2),
+                                  alignment: pw.Alignment.centerLeft,
+
+                                  child: pw.SizedBox(height:25)
+                              ),
+                            ),
+
+
+                            pw.Expanded(
+                              flex: 3,
+                              child: pw.Container(
+
+
+                                  padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                  alignment: pw.Alignment.centerRight,
+
+                                  child: pw.SizedBox(height:25)
+
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+
+
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            bottom:  pw.BorderSide.none,
+                            top:  pw.BorderSide.none
+                        ),
+                        children:[
+                          pw.TableRow(children: [
+                            pw.Expanded(
+                              flex:7,
+                              child: pw.Container(
+                                padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                                alignment: pw.Alignment.centerLeft,
+
+                                child: pw.Text(
+                                  'Through : ',
+                                  style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal
+                                  ),
+                                ),
+                              ),
+                            ),
+
+
+                            pw.Expanded(
+                              flex: 3,
+                              child: pw.Container(
+
+
+                                padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                alignment: pw.Alignment.centerRight,
+
+                                child: pw.Text(
+                                  '',
+                                  style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal
+                                  ),
+                                ),
+
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+                    pw.Table(
+                        border: pw.TableBorder(
+                            horizontalInside: pw.BorderSide.none,
+                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                            bottom:  pw.BorderSide.none,
+                            top:  pw.BorderSide.none
+                        ),
+                        children:[
+                          pw.TableRow(children: [
+                            pw.Expanded(
+                              flex:7,
+                              child: pw.Container(
+                                padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                                alignment: pw.Alignment.centerLeft,
+
+                                child: pw.Text(
+                                  _selectedbankcashname!['name']!,
+                                  style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal
+                                  ),
+                                ),
+                              ),
+                            ),
+
+
+                            pw.Expanded(
+                              flex: 3,
+                              child: pw.Container(
+
+
+                                padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                alignment: pw.Alignment.centerRight,
+
+                                child: pw.Text(
+                                  '',
+                                  style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal
+                                  ),
+                                ),
+
+                              ),
+                            ),
+                          ])
+                        ]
+                    ),
+
+                    if(cheque.isNotEmpty)
+                      pw.Column(
+                          children: [
+                            pw.Table(
+                                border: pw.TableBorder(
+                                    horizontalInside: pw.BorderSide.none,
+                                    verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                    bottom:  pw.BorderSide.none,
+                                    top:  pw.BorderSide.none
+                                ),
+                                children:[
+                                  pw.TableRow(children: [
+                                    pw.Expanded(
+                                      flex:7,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                                        alignment: pw.Alignment.centerLeft,
+
+                                        child: pw.Text(
+                                          'Bank Transaction Details:',
+                                          style: pw.TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: pw.FontWeight.normal
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+
+                                    pw.Expanded(
+                                      flex: 3,
+                                      child: pw.Container(
+
+
+                                        padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                        alignment: pw.Alignment.centerRight,
+
+                                        child: pw.Text(
+                                          '',
+                                          style: pw.TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: pw.FontWeight.normal
+                                          ),
+                                        ),
+
+                                      ),
+                                    ),
+                                  ])
+                                ]
+                            ),
+
+                            for(var cheque in cheque.asMap().entries)
+                              pw.Table(
+                                  border: pw.TableBorder(
+                                      horizontalInside: pw.BorderSide.none,
+                                      verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                      bottom:  pw.BorderSide.none,
+                                      top:  pw.BorderSide.none
+                                  ),
+                                  children:[
+                                    pw.TableRow(children: [
+                                      pw.Expanded(
+                                        flex:7,
+                                        child: pw.Container(
+                                            padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                                            alignment: pw.Alignment.centerLeft,
+
+                                            child: pw.Row(children: [
+
+                                              pw.Text(
+                                                cheque.value.paymentMode,
+                                                style: pw.TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: pw.FontWeight.normal
+                                                ),
+                                              ),
+
+                                              pw.SizedBox(width: 10),
+
+                                              pw.Text(
+                                                formatlastsaledate(cheque.value.instdate.toString()),
+                                                style: pw.TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: pw.FontWeight.normal
+                                                ),
+                                              ),
+                                            ])
+                                        ),
+                                      ),
+
+
+                                      pw.Expanded(
+                                        flex: 3,
+                                        child: pw.Container(
+
+
+                                          padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                          alignment: pw.Alignment.centerRight,
+
+                                          child: pw.Text(
+                                            '',
+                                            style: pw.TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: pw.FontWeight.normal
+                                            ),
+                                          ),
+
+                                        ),
+                                      ),
+                                    ])
+                                  ]
+                              ),
+                          ]
+                      ),
+                    pw.Column(
+                        children: [
+                          pw.Table(
+                              border: pw.TableBorder(
+                                  horizontalInside: pw.BorderSide.none,
+                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                  bottom:  pw.BorderSide.none,
+                                  top:  pw.BorderSide.none
+                              ),
+                              children:[
+                                pw.TableRow(children: [
+                                  pw.Expanded(
+                                    flex:7,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(5, 30, 5, 2),
+                                      alignment: pw.Alignment.centerLeft,
+
+                                      child: pw.Text(
+                                        'Amount (in words) :',
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.normal
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+
+                                  pw.Expanded(
+                                    flex: 3,
+                                    child: pw.Container(
+
+
+                                      padding: pw.EdgeInsets.fromLTRB(5, 30, 10, 2),
+                                      alignment: pw.Alignment.centerRight,
+
+                                      child: pw.Text(
+                                        '',
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.normal
+                                        ),
+                                      ),
+
+                                    ),
+                                  ),
+                                ])
+                              ]
+                          ),
+
+                          pw.Table(
+                              border: pw.TableBorder(
+                                  horizontalInside: pw.BorderSide.none,
+                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                  bottom:  pw.BorderSide.none,
+                                  top:  pw.BorderSide.none
+                              ),
+                              children:[
+                                pw.TableRow(children: [
+                                  pw.Expanded(
+                                    flex:7,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                                      alignment: pw.Alignment.centerLeft,
+
+                                      child: pw.Text(
+                                        convertAmountToWords(totalBillAmount),
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.normal
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+
+                                  pw.Expanded(
+                                    flex: 3,
+                                    child: pw.Container(
+
+
+                                      padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                                      alignment: pw.Alignment.centerRight,
+
+                                      child: pw.Text(
+                                        '',
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.normal
+                                        ),
+                                      ),
+
+                                    ),
+                                  ),
+                                ])
+                              ]
+                          ),
+
+                          pw.Table(
+                              border: pw.TableBorder(
+                                  horizontalInside: pw.BorderSide.none,
+                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                  bottom:  pw.BorderSide.none,
+                                  top:  pw.BorderSide.none,
+                                  right:  pw.BorderSide.none
+                              ),
+                              children:[
+                                pw.TableRow(children: [
+                                  pw.Expanded(
+                                    flex:7,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 0),
+                                      alignment: pw.Alignment.centerLeft,
+
+                                      child: pw.Text(
+                                        '',
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.normal
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+
+                                  pw.Expanded(
+                                    flex:3,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                      alignment: pw.Alignment.centerRight,
+
+                                      child: pw.Table(
+                                          border: pw.TableBorder(
+                                              horizontalInside: pw.BorderSide.none,
+                                              verticalInside: pw.BorderSide.none,
+                                              bottom:  pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                              top:  pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                              right:  pw.BorderSide.none
+                                          ),
+                                          children:[
+                                            pw.TableRow(children: [
+
+
+
+                                              pw.Expanded(
+                                                flex:3,
+                                                child: pw.Container(
+                                                  padding: pw.EdgeInsets.fromLTRB(0, 5, 10, 5),
+                                                  alignment: pw.Alignment.centerRight,
+
+                                                  child: pw.Text(
+                                                    formatAmountVoucher(totalBillAmount.toString()),
+                                                    style: pw.TextStyle(
+                                                        fontSize: 11,
+                                                        fontWeight: pw.FontWeight.normal
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+
+
+
+                                            ])
+                                          ]
+                                      ),
+                                    ),
+                                  ),
+
+
+
+                                ])
+                              ]
+                          ),
+
+                          pw.Table(
+                              border: pw.TableBorder(
+                                  horizontalInside: pw.BorderSide.none,
+                                  verticalInside: pw.BorderSide.none,
+                                  bottom:  pw.BorderSide.none,
+                                  top:  pw.BorderSide.none,
+                                  right:  pw.BorderSide.none
+                              ),
+                              children:[
+                                pw.TableRow(children: [
+                                  pw.Expanded(
+                                    flex:7,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(5, 50, 5, 0),
+                                      alignment: pw.Alignment.centerLeft,
+
+                                      child: pw.Text(
+                                        '',
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.normal
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+
+                                  pw.Expanded(
+                                    flex:3,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(0, 50, 5, 0),
+                                      alignment: pw.Alignment.centerLeft,
+
+                                      child: pw.Text(
+                                        'Authorised Signatory',
+                                        style: pw.TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: pw.FontWeight.normal
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+
+
+                                ])
+                              ]
+                          ),
+
+
+
+
+                        ]
+                    )
+
+
+                  ],
+                ),
+                pw.Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: pw.Container(
+                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                    alignment: pw.Alignment.center,
+                    child: pw.Text(
+                      'Created in Fincore Go',
+                      textAlign: pw.TextAlign.center,
+                      style: pw.TextStyle(
+                          fontSize: 10,
+                          color: PdfColor.fromInt(0xFFCCCCCC)
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ],
+
+              ]
           );
         },
       ),
@@ -837,10 +1451,10 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       text: 'Sharing Receipt Voucher for $_selectedparty',
     );
 
-    // Reset form state
+
     setState(() {
       controller_narration.clear();
-      _textFieldFocusNodeNarration.unfocus();
+      _textFieldFocusNodeNarration.unfocus(); // Unfocus the TextField
 
       receiptdate = DateTime.now();
       receiptdatestring = _dateFormat.format(receiptdate);
@@ -849,25 +1463,46 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       _selectedvchtypename = vchtypenamedata.first;
       fetchvchnos(_selectedvchtypename);
       _selectedparty = partydata.first;
-      _partyController.text = _selectedparty;
+
       _selectedbankcashname = bankcashname_data.first;
-      _bankcashnameController.text = _selectedbankcashname != null ? _selectedbankcashname!['name']! : "";
 
       bills.clear();
       cheque.clear();
 
       updateChequeAmount();
 
-      totalBillAmount = bills.fold(0.0, (double previousAmount, Bills bill) => previousAmount + bill.billAmount);
+      totalBillAmount = bills.fold(0.0,(double previousAmount, Bills bill) {
+        return previousAmount + bill.billAmount;
+      },
+      );
       roundedtotalBillAmount = double.parse(totalBillAmount.toStringAsFixed(decimal!));
       NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
       String formattedtotal = formatter.format(roundedtotalBillAmount);
       controller_totalamt.text = formattedtotal.toString();
 
-      isVisibleBillHeading = bills.isNotEmpty;
-      isVisibleChequeHeading = cheque.isNotEmpty;
+      if (bills.isEmpty)
+      {
+        isVisibleBillHeading = false;
+      }
+      else
+      {
+        isVisibleBillHeading = true;
+      }
+
+      if (cheque.isEmpty)
+      {
+        isVisibleChequeHeading = false;
+      }
+      else
+      {
+        isVisibleChequeHeading = true;
+      }
     });
+
   }
+
+
+
 
   void updateChequeAmount () {
     totalChequeAmount = cheque.fold(
@@ -1644,354 +2279,356 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
   Future<void> _showChequeDetailsPopup(BuildContext context) async {
     setState(() {
       showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            titlePadding: EdgeInsets.zero,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          context: context,
+          builder: (BuildContext context) {
+            return StatefulBuilder(
+              builder: (context, setStateDialog) {
+                return AlertDialog(
+                  titlePadding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
 
-            title:
+                  title:
 
-            Column(
-              children: [
-                Container(
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  decoration: BoxDecoration(
-                    color: app_color,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  ),
-                  child: Column(
+                  Column(
                     children: [
                       Container(
-                        width: 48,
-                        height: 48,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: [Colors.white, Colors.white],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        decoration: BoxDecoration(
+                          color: app_color,
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                         ),
-                        child: const Icon(Icons.payment, color: app_color, size: 26),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "$_selectedpaymentmode Details",
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  colors: [Colors.white, Colors.white],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                              child: const Icon(Icons.payment, color: app_color, size: 26),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "$_selectedpaymentmode Details",
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
 
 
 
-            content: SingleChildScrollView(
-              child: Form(
-                key: _chequedetailsFormkey,
-                child: Column(
-                  children: <Widget>[
+                  content: SingleChildScrollView(
+                    child: Form(
+                      key: _chequedetailsFormkey,
+                      child: Column(
+                        children: <Widget>[
 
-                    // 🔹 Inst No
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: TextFormField(
-                        controller: instNoController,
-                        decoration: InputDecoration(
-                          labelText: 'Inst No',
-                          hintText: 'Enter Inst No',
-                          labelStyle: GoogleFonts.poppins(
-                            fontSize: 13,
-                            color: Colors.grey.shade700,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 10, // 👈 tighter padding
-                          ),
-                          filled: true,
-                          fillColor: Colors.white.withOpacity(0.95),
-                          prefixIcon: Container(
-                            margin: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Colors.orange, Colors.deepOrangeAccent],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.all(Radius.circular(12)),
-                            ),
-                            child: const Icon(Icons.confirmation_number_outlined, color: Colors.white, size: 20),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: app_color, width: 1.5),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // 🔹 Inst Date
-                    Padding(
-                      padding:  EdgeInsets.symmetric(vertical: 4),
-                      child: TextFormField(
-                        controller: instDateController,
-                        readOnly: true,
-                        onTap: () => _selectinstDate(context),
-                        decoration: InputDecoration(
-                          labelText: 'Inst Date',
-                          hintText: 'Select Date',
-                          labelStyle: GoogleFonts.poppins(
-                            fontSize: 13,
-                            color: Colors.grey.shade700,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 10, // 👈 tighter padding
-                          ),
-                          filled: true,
-                          fillColor: Colors.white.withOpacity(0.95),
-                          prefixIcon: Container(
-                            margin: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Colors.teal, Colors.cyan],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.all(Radius.circular(12)),
-                            ),
-                            child: const Icon(Icons.calendar_today, color: Colors.white, size: 20),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: app_color, width: 1.5),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // 🔹 Bank Name
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: TypeAheadField<String>(
-                        suggestionsCallback: (pattern) {
-                          return bankname_data.where((item) {
-                            final name = item.toString().toLowerCase();
-                            return name.contains(pattern.toLowerCase());
-                          }).toList();
-                        },
-
-                        builder: (context, controller, focusNode) {
-                          _banknameController = controller;
-                          return TextField(
-                            controller: controller,
-                            focusNode: focusNode,
-                            decoration: InputDecoration(
-                              labelText: "Bank",
-                              hintText: 'Search Bank',
-                              labelStyle: GoogleFonts.poppins(
-                                fontSize: 13,
-                                color: Colors.grey.shade700,
-                              ),
-                              contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              filled: true,
-                              fillColor: Colors.white.withOpacity(0.95),
-                              prefixIcon: Container(
-                                margin: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [Colors.purple, Colors.deepPurpleAccent],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                          // 🔹 Inst No
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: TextFormField(
+                              controller: instNoController,
+                              decoration: InputDecoration(
+                                labelText: 'Inst No',
+                                hintText: 'Enter Inst No',
+                                labelStyle: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade700,
                                 ),
-                                child: const Icon(Icons.account_balance_outlined,
-                                    color: Colors.white, size: 20),
-                              ),
-                              suffixIcon: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (controller.text.isNotEmpty)
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          controller.clear();
-                                          selectedbankname = "";
-                                        });
-                                      },
-                                      child:
-                                      const Icon(Icons.close, color: Colors.grey, size: 20),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 10, // 👈 tighter padding
+                                ),
+                                filled: true,
+                                fillColor: Colors.white.withOpacity(0.95),
+                                prefixIcon: Container(
+                                  margin: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [Colors.orange, Colors.deepOrangeAccent],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                     ),
-                                  const SizedBox(width: 4),
-                                  const Icon(Icons.arrow_drop_down, color: Colors.black87),
-                                  const SizedBox(width: 8),
-                                ],
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide:
-                                BorderSide(color: Colors.grey.shade300, width: 1),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide:
-                                BorderSide(color: app_color, width: 1.5),
+                                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                                  ),
+                                  child: const Icon(Icons.confirmation_number_outlined, color: Colors.white, size: 20),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide(color: app_color, width: 1.5),
+                                ),
                               ),
                             ),
-                          );
-                        },
-
-                        itemBuilder: (context, String suggestion) {
-                          return ListTile(
-                            title: Text(
-                              suggestion,
-                              style: GoogleFonts.poppins(fontSize: 13),
-                            ),
-                          );
-                        },
-
-                        onSelected: (String suggestion) {
-                          setState(() {
-                            selectedbankname = suggestion;
-                            _banknameController.text = suggestion;
-                          });
-
-                          Navigator.of(context).pop();
-                          _chequedetailsFormkey = GlobalKey<FormState>();
-                          _showChequeDetailsPopup(context);
-                        },
-
-                        // ✅ New API uses EmptyBuilder instead of noItemsFoundBuilder
-                        emptyBuilder: (context) => const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text(
-                            'No matching bank found',
-                            style: TextStyle(color: Colors.grey),
                           ),
-                        ),
-                      )
+
+                          // 🔹 Inst Date
+                          Padding(
+                            padding:  EdgeInsets.symmetric(vertical: 4),
+                            child: TextFormField(
+                              controller: instDateController,
+                              readOnly: true,
+                              onTap: () => _selectinstDate(context),
+                              decoration: InputDecoration(
+                                labelText: 'Inst Date',
+                                hintText: 'Select Date',
+                                labelStyle: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade700,
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 10, // 👈 tighter padding
+                                ),
+                                filled: true,
+                                fillColor: Colors.white.withOpacity(0.95),
+                                prefixIcon: Container(
+                                  margin: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [Colors.teal, Colors.cyan],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                                  ),
+                                  child: const Icon(Icons.calendar_today, color: Colors.white, size: 20),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide(color: app_color, width: 1.5),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          // 🔹 Bank Name
+                          Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: TypeAheadField<String>(
+                                suggestionsCallback: (pattern) {
+                                  return bankname_data.where((item) {
+                                    final name = item.toString().toLowerCase();
+                                    return name.contains(pattern.toLowerCase());
+                                  }).toList();
+                                },
+
+                                builder: (context, controller, focusNode) {
+                                  controller.text = _banknameController.text;
+
+                                  return TextField(
+                                    controller: controller,
+                                    focusNode: focusNode,
+                                    decoration: InputDecoration(
+                                      labelText: "Bank",
+                                      hintText: 'Search Bank',
+                                      labelStyle: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                      contentPadding:
+                                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                      filled: true,
+                                      fillColor: Colors.white.withOpacity(0.95),
+                                      prefixIcon: Container(
+                                        margin: const EdgeInsets.all(8),
+                                        decoration: const BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [Colors.purple, Colors.deepPurpleAccent],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                                        ),
+                                        child: const Icon(Icons.account_balance_outlined,
+                                            color: Colors.white, size: 20),
+                                      ),
+                                      suffixIcon: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          if (controller.text.isNotEmpty)
+                                            GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  controller.clear();
+                                                  selectedbankname = "";
+                                                });
+                                              },
+                                              child:
+                                              const Icon(Icons.close, color: Colors.grey, size: 20),
+                                            ),
+                                          const SizedBox(width: 4),
+                                          const Icon(Icons.arrow_drop_down, color: Colors.black87),
+                                          const SizedBox(width: 8),
+                                        ],
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                        borderSide:
+                                        BorderSide(color: Colors.grey.shade300, width: 1),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                        borderSide:
+                                        BorderSide(color: app_color, width: 1.5),
+                                      ),
+                                    ),
+                                  );
+                                },
+
+                                itemBuilder: (context, String suggestion) {
+                                  return ListTile(
+                                    title: Text(
+                                      suggestion,
+                                      style: GoogleFonts.poppins(fontSize: 13),
+                                    ),
+                                  );
+                                },
+
+                                onSelected: (String suggestion) {
+                                  setStateDialog(() {
+                                    selectedbankname = suggestion;
+                                    _banknameController.text = suggestion;
+                                  });
+                                },
 
 
 
+
+                                // ✅ New API uses EmptyBuilder instead of noItemsFoundBuilder
+                                emptyBuilder: (context) => const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text(
+                                    'No matching bank found',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                ),
+                              )
+
+
+
+                          ),
+
+                          // 🔹 Amount
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: TextFormField(
+                              controller: chequeAmountController,
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value!.isEmpty) return 'Please enter amount';
+                                if (double.parse(value) == 0) return 'Amount should not be 0';
+                                return null;
+                              },
+                              decoration: InputDecoration(
+                                labelText: 'Amount',
+                                hintText: '0',
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 10, // 👈 tighter padding
+                                ),
+                                labelStyle: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade700,
+                                ),
+                                filled: true,
+                                fillColor: Colors.white.withOpacity(0.95),
+                                prefixIcon: Container(
+                                  margin:  EdgeInsets.all(8),
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    gradient:  LinearGradient(
+                                      colors: [Colors.grey, Colors.brown],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    getCurrencySymbol('$currencycode'),
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+
+
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide(color: app_color, width: 1.5),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                  ),
 
-                    // 🔹 Amount
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: TextFormField(
-                        controller: chequeAmountController,
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value!.isEmpty) return 'Please enter amount';
-                          if (double.parse(value) == 0) return 'Amount should not be 0';
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Amount',
-                          hintText: '0',
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 10, // 👈 tighter padding
-                          ),
-                          labelStyle: GoogleFonts.poppins(
-                            fontSize: 13,
-                            color: Colors.grey.shade700,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white.withOpacity(0.95),
-                          prefixIcon: Container(
-                            margin:  EdgeInsets.all(8),
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              gradient:  LinearGradient(
-                                colors: [Colors.grey, Colors.brown],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              getCurrencySymbol('$currencycode'),
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-
-
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: app_color, width: 1.5),
-                          ),
-                        ),
+                  // 🔹 Actions
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        setState(() {
+                          selectedbankname = bankname_data.first;
+                          _banknameController.text = selectedbankname;
+                          instNoController.clear();
+                          instdate = DateTime.now();
+                          instdatestring = _dateFormat.format(instdate);
+                          instdatetxt = formatlastsaledate(instdatestring);
+                          instDateController.text = instdatetxt;
+                          chequeAmountController.clear();
+                        });
+                      },
+                      child: Text('Cancel', style: GoogleFonts.poppins(color: Colors.grey)),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: app_color,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                      ),
+                      onPressed: () {
+                        if (_chequedetailsFormkey.currentState != null &&
+                            _chequedetailsFormkey.currentState!.validate()) {
+                          _chequedetailsFormkey.currentState!.save();
+                          addCheque();
+                        }
+                      },
+                      child: Text(
+                        'Add $_selectedpaymentmode',
+                        style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
-                ),
-              ),
-            ),
-
-            // 🔹 Actions
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  setState(() {
-                    selectedbankname = bankname_data.first;
-                    _banknameController.text = selectedbankname;
-                    instNoController.clear();
-                    instdate = DateTime.now();
-                    instdatestring = _dateFormat.format(instdate);
-                    instdatetxt = formatlastsaledate(instdatestring);
-                    instDateController.text = instdatetxt;
-                    chequeAmountController.clear();
-                  });
-                },
-                child: Text('Cancel', style: GoogleFonts.poppins(color: Colors.grey)),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: app_color,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                ),
-                onPressed: () {
-                  if (_chequedetailsFormkey.currentState != null &&
-                      _chequedetailsFormkey.currentState!.validate()) {
-                    _chequedetailsFormkey.currentState!.save();
-                    addCheque();
-                  }
-                },
-                child: Text(
-                  'Add $_selectedpaymentmode',
-                  style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          );
-        },
+                );
+              },);}
       );
     });
   }

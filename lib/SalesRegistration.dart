@@ -521,7 +521,1681 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       }
   }
 
-  Future<void> generateInvoicePDF(String trn, String address, String emirate, String country) async {
+  Future<void> generateInvoicePDF(String trn, String address,String emirate, String country) async {
+    final pdf = pw.Document();
+
+    int totalQuantity = 0;
+    double totalitemAmount = 0;
+    for (var item in saleItems) {
+
+      String qty = item.itemQuantity;
+      int qty_int = int.parse(qty);
+      totalQuantity += qty_int;
+
+      totalitemAmount += item.itemAmount;
+    }
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Stack(
+              children:[
+
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    // Tax Invoice Heading
+                    pw.Header(
+                        level: 0,
+                        decoration: pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide.none)),
+
+                        child: pw.Center(child:pw.Text('Tax Invoice', textAlign: pw.TextAlign.center,
+                            style: pw.TextStyle(
+                                fontSize: 18
+                            )), )
+                    ),
+                    pw.SizedBox(height: 5),
+
+                    pw.Container(
+                      decoration: pw.BoxDecoration(
+                        border: pw.Border(
+                            right: pw.BorderSide(
+                                width: 1.0
+                            ),
+                            top: pw.BorderSide(
+                                width: 1.0
+                            ),
+                            left: pw.BorderSide(
+                                width: 1.0
+                            ),
+                            bottom: pw.BorderSide(
+                                width: 1.0
+                            )),
+                      ),
+                      child: pw.Row(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
+                        children: [
+                          // Left column
+                          pw.Expanded(
+                              flex: 1,
+                              child: pw.Container(
+                                padding: pw.EdgeInsets.only(left: 5,top: 2,bottom: 2,right: 5),
+                                child: pw.Column(
+                                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                    mainAxisAlignment: pw.MainAxisAlignment.start,
+                                    children: [
+
+                                      pw.Text(company!),
+
+
+                                      if(company_address!="null" || company_address!="Not Available")
+                                        pw.Column(children: [
+                                          pw.SizedBox(height: 2),
+
+                                          pw.Text(company_address),
+
+                                        ],),
+
+                                      if(company_emirate!="null"  || company_emirate!="Not Available")
+                                        pw.Column(children: [
+                                          pw.SizedBox(height: 2),
+
+                                          pw.Row(children: [
+                                            pw.Text("Emirate "),
+
+                                            pw.SizedBox(width: 20),
+                                            pw.Text(company_emirate),
+
+                                          ],)
+
+                                        ],),
+
+                                      if(company_country!="null" || company_country!="Not Available")
+                                        pw.Column(children: [
+                                          pw.SizedBox(height: 2),
+
+                                          pw.Row(children: [
+                                            pw.Text("Country "),
+
+                                            pw.SizedBox(width: 20),
+                                            pw.Text(company_country),
+
+                                          ],)
+                                        ],),
+
+                                      if(company_trn!="null" || company_trn!="Not Available")
+                                        pw.Column(children: [
+                                          pw.SizedBox(height: 2),
+
+                                          pw.Row(children: [
+                                            pw.Text("TRN "),
+
+                                            pw.SizedBox(width: 35),
+                                            pw.Text(company_trn),
+
+                                          ],)
+
+                                        ],),
+
+                                      pw.SizedBox(height: 20),
+
+                                    ]
+                                ),)),
+
+
+
+                          // Right column
+                          pw.Expanded(
+                            flex: 1,
+                            child: pw.Container(
+                                decoration: pw.BoxDecoration(
+                                  border: pw.Border(
+                                    right: pw.BorderSide(
+                                        width: 1.0
+                                    ),
+                                    top: pw.BorderSide(
+                                        width: 1.0
+                                    ),
+
+                                    bottom: pw.BorderSide(
+                                        width: 1.0
+                                    ),
+                                    left:pw.BorderSide(
+                                        width: 1.0
+                                    ), ),
+                                ),
+
+                                child: pw.Column(
+                                    children: [
+                                      // first row right column
+
+                                      pw.Container(
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(width: 1
+
+                                          ),
+                                        ),
+                                        child: pw.Row(
+                                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                            mainAxisAlignment: pw.MainAxisAlignment.start,
+                                            children: [
+
+
+                                              // invoice no
+                                              pw.Expanded(child: pw.Container(
+                                                  decoration: pw.BoxDecoration(
+                                                    border: pw.Border(right: pw.BorderSide(width: 1)
+                                                    ),
+                                                  ),
+                                                  padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
+
+                                                  child: pw.Column(
+                                                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                      mainAxisAlignment: pw.MainAxisAlignment.start,
+                                                      children: [
+
+                                                        pw.Text('Invoice No:'),
+                                                        pw.SizedBox(height: 2),
+                                                        pw.Text(_vchnoController.text),
+                                                      ]
+
+
+                                                  ))
+                                              ),
+
+
+
+                                              pw.Expanded(child: pw.Container(
+                                                  decoration: pw.BoxDecoration(
+                                                    border: pw.Border(left: pw.BorderSide(width: 1)
+                                                    ),
+                                                  ),
+                                                  padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
+                                                  child: pw.Column(
+                                                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                      mainAxisAlignment: pw.MainAxisAlignment.start,
+                                                      children: [
+
+                                                        pw.Text('Dated:'),
+                                                        pw.SizedBox(height: 2),
+                                                        pw.Text(formatlastsaledate(saledatestring)),
+                                                      ]
+
+
+                                                  )
+                                              ),)
+
+                                            ]
+                                        ),
+                                      ),
+
+
+                                      //second row right column
+                                      pw.Container(
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(width: 1
+
+                                          ),
+                                        ),
+                                        child: pw.Row(
+                                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                            mainAxisAlignment: pw.MainAxisAlignment.start,
+                                            children: [
+
+                                              pw.Expanded(child: pw.Container(
+                                                  decoration: pw.BoxDecoration(
+                                                    border: pw.Border(right: pw.BorderSide(width: 1)
+                                                    ),
+                                                  ),
+                                                  padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
+
+                                                  child: pw.Column(
+                                                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                      mainAxisAlignment: pw.MainAxisAlignment.start,
+
+                                                      children: [
+
+                                                        pw.Text('Reference No:'),
+                                                        pw.SizedBox(height:2),
+                                                        pw.Text(controller_refno.text),
+                                                      ]
+
+
+                                                  ))
+                                              ),
+
+
+
+                                              pw.Expanded(child: pw.Container(
+                                                  decoration: pw.BoxDecoration(
+                                                    border: pw.Border(left: pw.BorderSide(width: 1)
+                                                    ),
+                                                  ),
+                                                  padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
+                                                  child: pw.Column(
+                                                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                      mainAxisAlignment: pw.MainAxisAlignment.start,
+                                                      children: [
+
+                                                        pw.Text('Reference Date:'),
+                                                        pw.SizedBox(height:2),
+                                                        pw.Text(formatlastsaledate(refdatestring)),
+                                                      ]
+
+
+                                                  )
+                                              ),)
+
+                                            ]
+                                        ),
+                                      ),
+
+                                      // third row right column
+
+                                      pw.Container(
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border(top: pw.BorderSide(width: 1),
+                                              left: pw.BorderSide(width: 1)
+                                          ),
+                                        ),
+                                        child: pw.Row(
+
+                                            children: [
+
+
+                                              pw.Expanded(child: pw.Container(
+
+                                                  padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
+
+                                                  child: pw.Column(
+                                                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                      children: [
+
+                                                        pw.Text('Remarks:'),
+                                                        pw.SizedBox(height: 2),
+                                                        pw.Text(controller_narration.text),
+
+                                                      ]
+
+
+
+                                                  ))
+                                              ),
+
+
+
+                                              /* pw.Expanded(child: pw.Container(
+                                            decoration: pw.BoxDecoration(
+                                              border: pw.Border(left: pw.BorderSide(width: 1)
+                                              ),
+                                            ),
+                                            padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 25,right: 5),
+                                            child: pw.Column(
+                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                children: [
+
+                                                  pw.Text('Other Reference(s)'),
+
+                                                ]
+
+
+                                            )
+                                        ),)*/
+
+                                            ]
+                                        ),
+                                      ),
+                                    ]
+                                )
+                            ),),
+
+                        ],
+                      ),
+                    ),
+
+                    pw.Container(
+                      decoration: pw.BoxDecoration(
+                        border: pw.Border(
+                            right: pw.BorderSide(
+                                width: 1.0
+                            ),
+
+                            left: pw.BorderSide(
+                                width: 1.0
+                            ),
+                            bottom: pw.BorderSide(
+                                width: 1.0
+                            )),
+                      ),
+                      child: pw.Row(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
+                        children: [
+                          // Left column
+                          pw.Expanded(
+                              flex: 1,
+                              child: pw.Container(
+                                padding: pw.EdgeInsets.only(left: 5,top: 2,bottom: 2,right: 5),
+                                child: pw.Column(
+                                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                    mainAxisAlignment: pw.MainAxisAlignment.start,
+                                    children: [
+                                      pw.Text("Buyer's Name"),
+
+                                      pw.Column(children: [
+                                        pw.SizedBox(height: 2),
+
+                                        pw.Text(
+                                          _selectedpartyledger!,
+                                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                                        ),
+
+                                      ],),
+
+                                      if(address!="null")
+                                        pw.Column(children: [
+                                          pw.SizedBox(height: 2),
+
+                                          pw.Text(address),
+
+                                        ],),
+
+                                      if(emirate!="null")
+                                        pw.Column(children: [
+                                          pw.SizedBox(height: 2),
+
+                                          pw.Row(children: [
+                                            pw.Text("Emirate "),
+
+                                            pw.SizedBox(width: 20),
+                                            pw.Text(emirate),
+
+                                          ],)
+
+                                        ],),
+
+                                      if(country!="null")
+                                        pw.Column(children: [
+                                          pw.SizedBox(height: 2),
+
+                                          pw.Row(children: [
+                                            pw.Text("Country "),
+
+                                            pw.SizedBox(width: 20),
+                                            pw.Text(country),
+
+                                          ],)
+                                        ],),
+
+                                      if(trn!="null")
+                                        pw.Column(children: [
+                                          pw.SizedBox(height: 2),
+
+                                          pw.Row(children: [
+                                            pw.Text("TRN "),
+
+                                            pw.SizedBox(width: 35),
+                                            pw.Text(trn),
+
+                                          ],)
+
+                                        ],),
+
+
+                                      pw.SizedBox(height: 20)
+
+                                    ]
+                                ),)),
+                          // Right column
+                          /*pw.Expanded(
+                      flex: 1,
+                      child: pw.Container(
+                          decoration: pw.BoxDecoration(
+                            border: pw.Border(
+                              right: pw.BorderSide(
+                                  width: 1.0
+                              ),
+                              top: pw.BorderSide(
+                                  width: 1.0
+                              ),
+
+                              bottom: pw.BorderSide(
+                                  width: 1.0
+                              ),
+                              left:pw.BorderSide(
+                                  width: 1.0
+                              ), ),
+                          ),
+
+                          child: pw.Column(
+                              children: [
+                                // first row right column
+
+                                pw.Container(
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(width: 1
+
+                                    ),
+                                  ),
+                                  child: pw.Row(
+
+                                      children: [
+
+
+                                        // invoice no
+                                        pw.Expanded(child: pw.Container(
+                                            decoration: pw.BoxDecoration(
+                                              border: pw.Border(right: pw.BorderSide(width: 1)
+                                              ),
+                                            ),
+                                            padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
+
+                                            child: pw.Column(
+                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                children: [
+
+                                                  pw.Text('Buyers Order No.'),
+                                                ]
+                                            ))
+                                        ),
+
+                                        pw.Expanded(child: pw.Container(
+                                            padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
+                                            child: pw.Column(
+                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                children: [
+                                                  pw.Text('Dated:'),
+                                                ]
+                                            )
+                                        ),)
+                                      ]
+                                  ),
+                                ),
+
+                                //second row right column
+                                pw.Container(
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(width: 1
+                                    ),
+                                  ),
+                                  child: pw.Row(
+                                      children: [
+                                        pw.Expanded(child: pw.Container(
+                                            padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
+                                            decoration: pw.BoxDecoration(
+                                              border: pw.Border(right: pw.BorderSide(width: 1)
+                                              ),
+                                            ),
+                                            child: pw.Column(
+                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                children: [
+
+                                                  pw.Text('Dispatch Document No.'),
+
+                                                ]
+
+
+                                            ))
+                                        ),
+
+
+
+                                        pw.Expanded(child: pw.Container(
+
+                                            padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
+                                            child: pw.Column(
+                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                mainAxisAlignment: pw.MainAxisAlignment.start,
+                                                children: [
+
+                                                  pw.Text('Delivery Note Date.'),
+                                                  pw.Text(''),
+                                                ]
+
+
+                                            )
+                                        ),)
+
+                                      ]
+                                  ),
+                                ),
+
+                                // third row right column
+
+                                pw.Container(
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(width: 1
+
+                                    ),
+                                  ),
+                                  child: pw.Row(
+
+                                      children: [
+
+
+                                        pw.Expanded(child: pw.Container(
+
+                                            padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 25,right: 5),
+
+                                            child: pw.Column(
+                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                children: [
+
+                                                  pw.Text('Dispatched through.'),
+
+                                                ]
+
+
+
+                                            ))
+                                        ),
+
+
+
+                                        pw.Expanded(child: pw.Container(
+                                            decoration: pw.BoxDecoration(
+                                              border: pw.Border(left: pw.BorderSide(width: 1)
+                                              ),
+                                            ),
+                                            padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 25,right: 5),
+                                            child: pw.Column(
+                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                children: [
+
+                                                  pw.Text('Destination'),
+
+                                                ]
+
+
+                                            )
+                                        ),)
+
+                                      ]
+                                  ),
+                                ),
+                              ]
+                          )
+                      ),),*/
+                        ],
+                      ),
+                    ),
+
+                    /*pw.Container(
+                decoration: pw.BoxDecoration(
+                  border: pw.Border(
+                      right: pw.BorderSide(
+                          width: 1.0
+                      ),
+
+                      left: pw.BorderSide(
+                          width: 1.0
+                      ),
+                      bottom: pw.BorderSide(
+                          width: 1.0
+                      )),
+                ),
+                child: pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                  children: [
+                    // Left column
+                    pw.Expanded(
+                        flex: 1,
+                        child: pw.Container(
+                          decoration: pw.BoxDecoration(
+                            border: pw.Border(
+                              right: pw.BorderSide(
+                                  width: 1.0
+                              ),
+                            ),
+                          ),
+                          padding: pw.EdgeInsets.only(left: 5,top: 2,bottom: 10,right: 5),
+                          child: pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.start,
+                              mainAxisAlignment: pw.MainAxisAlignment.start,
+                              children: [
+                                pw.Text('Buyer'),
+                                pw.Text(_selectedpartyledger!),
+                              ]
+                          ),)),
+
+                    // Right column
+                    pw.Expanded(
+                      flex: 1,
+                      child: pw.Container(
+                          child: pw.Expanded(child: pw.Container(
+                              decoration: pw.BoxDecoration(
+                                border: pw.Border(right: pw.BorderSide(width: 1)
+                                ),
+                              ),
+                              padding: pw.EdgeInsets.only(left: 5,top: 2,bottom: 20,right: 5),
+                              child: pw.Column(
+                                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                  children: [
+                                    pw.Text('Buyers Order No.'),
+                                  ]
+                              ))
+                          ),
+                      ),),
+                  ],
+                ),
+              ),*/
+
+                    pw.Container(
+                      decoration: pw.BoxDecoration(
+                        border: pw.Border(
+                          right: pw.BorderSide(
+                              width: 1.0
+                          ),
+                          left: pw.BorderSide(
+                              width: 1.0
+                          ),
+                          bottom: pw.BorderSide(
+                              width: 1.0
+                          ),
+                        ),
+                      ),
+                      child: pw.Expanded(
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.center,
+                          mainAxisAlignment: pw.MainAxisAlignment.start,
+                          children: [
+                            pw.Row(
+                              children: [
+                                pw.Expanded(
+                                  flex: 1,
+                                  child: pw.Container(
+                                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
+                                    alignment: pw.Alignment.center,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border(
+                                        right: pw.BorderSide(
+                                            width: 1.0
+                                        ),
+                                        bottom: pw.BorderSide(
+                                            width: 1.0
+                                        ),
+                                      ),
+                                    ),
+                                    child: pw.Text(
+                                      'Sr No.',
+                                      style: pw.TextStyle(
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                pw.Expanded(
+                                  flex: 3,
+                                  child: pw.Container(
+                                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                    alignment: pw.Alignment.center,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border(
+                                        right: pw.BorderSide(
+                                            width: 1.0
+                                        ),
+                                        bottom: pw.BorderSide(
+                                            width: 1.0
+                                        ),
+                                      ),
+                                    ),
+                                    child: pw.Text(
+                                      'Description of Goods/Services',
+                                      style: pw.TextStyle(
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                pw.Expanded(
+                                  flex: 1,
+                                  child: pw.Container(
+                                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                    alignment: pw.Alignment.center,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border(
+                                        right: pw.BorderSide(
+                                            width: 1.0
+                                        ),
+                                        bottom: pw.BorderSide(
+                                            width: 1.0
+                                        ),
+                                      ),
+                                    ),
+                                    child: pw.Text(
+                                      'Quantity',
+                                      style: pw.TextStyle(
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                pw.Expanded(
+                                  flex: 1,
+                                  child: pw.Container(
+                                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                    alignment: pw.Alignment.center,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border(
+                                        right: pw.BorderSide(
+                                            width: 1.0
+                                        ),
+                                        bottom: pw.BorderSide(
+                                            width: 1.0
+                                        ),
+                                      ),
+                                    ),
+                                    child: pw.Text(
+                                      'Rate',
+                                      style: pw.TextStyle(
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                pw.Expanded(
+                                  flex: 1,
+                                  child: pw.Container(
+                                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                    alignment: pw.Alignment.center,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border(
+                                        right: pw.BorderSide(
+                                            width: 1.0
+                                        ),
+                                        bottom: pw.BorderSide(
+                                            width: 1.0
+                                        ),
+                                      ),
+                                    ),
+                                    child: pw.Text(
+                                      'per',
+                                      style: pw.TextStyle(
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                pw.Expanded(
+                                  flex: 1,
+                                  child: pw.Container(
+                                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                    alignment: pw.Alignment.center,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border(
+                                        right: pw.BorderSide(
+                                            width: 1.0
+                                        ),
+                                        bottom: pw.BorderSide(
+                                            width: 1.0
+                                        ),
+                                      ),
+                                    ),
+                                    child: pw.Text(
+                                      'Disc. %',
+                                      style: pw.TextStyle(
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                pw.Expanded(
+                                  flex: 2,
+                                  child: pw.Container(
+                                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                    alignment: pw.Alignment.center,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border(
+                                        bottom: pw.BorderSide(
+                                            width: 1.0
+                                        ),
+                                      ),
+                                    ),
+                                    child: pw.Text(
+                                      'Amount',
+                                      style: pw.TextStyle(
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    pw.Container(
+                      decoration: pw.BoxDecoration(
+                        border: pw.Border(
+                          right: pw.BorderSide(
+                              width: 1.0
+                          ),
+                          left: pw.BorderSide(
+                              width: 1.0
+                          ),
+                          bottom: pw.BorderSide(
+                              width: 1.0
+                          ),
+                        ),
+                      ),
+                      child: pw.Expanded(
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.center,
+                          mainAxisAlignment: pw.MainAxisAlignment.start,
+                          children: [
+                            pw.Table(
+                                border: pw.TableBorder(
+                                  horizontalInside: pw.BorderSide.none,
+                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                  bottom: pw.BorderSide.none,
+                                  top: pw.BorderSide.none,),
+                                children:[
+                                  for(var item in saleItems.asMap().entries)
+                                    pw.TableRow(children: [
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
+                                          alignment: pw.Alignment.center,
+
+                                          child: pw.Text(
+                                            formatitemKey(item.key),
+                                            style: pw.TextStyle(
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+
+                                      pw.Expanded(
+                                        flex: 3,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                          alignment: pw.Alignment.center,
+
+                                          child: pw.Text(
+                                            item.value.itemName,
+                                            style: pw.TextStyle(
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                            alignment: pw.Alignment.centerRight,
+
+                                            child: pw.Row(
+                                              mainAxisAlignment: pw.MainAxisAlignment.center,
+                                              crossAxisAlignment: pw.CrossAxisAlignment.center,
+                                              children: [
+
+                                                pw.Text(
+                                                  item.value.itemQuantity,
+                                                  textAlign: pw.TextAlign.right,
+                                                  style: pw.TextStyle(
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+
+                                              ],)
+
+
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                          alignment: pw.Alignment.center,
+
+                                          child: pw.Text(
+                                            formatAmountInvoice(item.value.itemPrice.toString()),
+                                            textAlign: pw.TextAlign.center,
+                                            style: pw.TextStyle(
+                                              fontSize: 10,
+
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                          alignment: pw.Alignment.center,
+                                          child: pw.Text(
+                                            item.value.itemUnit,
+                                            textAlign: pw.TextAlign.center,
+                                            style: pw.TextStyle(
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                          alignment: pw.Alignment.center,
+                                          child: pw.Text(
+                                            '',
+                                            style: pw.TextStyle(
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 2,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                          alignment: pw.Alignment.centerRight,
+                                          child: pw.Text(
+                                            formatAmountInvoice(item.value.itemAmount.toString()),
+                                            textAlign: pw.TextAlign.right,
+                                            style: pw.TextStyle(
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ]),
+                                ]
+                            ),
+
+                            pw.Table(
+                                border: pw.TableBorder(
+                                  horizontalInside: pw.BorderSide.none,
+                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                  top: pw.BorderSide.none,
+                                  bottom: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                ),
+                                children:[
+                                  pw.TableRow(children: [
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
+                                        alignment: pw.Alignment.center,
+
+                                      ),
+                                    ),
+
+                                    pw.Expanded(
+                                      flex: 3,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                        alignment: pw.Alignment.centerRight,
+                                        child: pw.Text(
+                                          '',
+                                          style: pw.TextStyle(
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                        alignment: pw.Alignment.center,
+                                        child: pw.Text(
+                                          '',
+                                          style: pw.TextStyle(
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                        alignment: pw.Alignment.centerRight,
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                        alignment: pw.Alignment.centerRight,
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                        alignment: pw.Alignment.centerRight,
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 2,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 50, 5, 5),
+                                        alignment: pw.Alignment.centerRight,
+                                        child: pw.Text(
+                                          formatAmountInvoice(totalitemAmount.toString()),
+                                          textAlign: pw.TextAlign.right,
+                                          style: pw.TextStyle(
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ])
+                                ]
+                            ),
+
+                            if(ledgerEntries.isNotEmpty)
+                              for(var ledger  in ledgerEntries.asMap().entries)
+                                pw.Table(
+                                    border: pw.TableBorder(
+                                        horizontalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                        verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                        bottom: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                        top: pw.BorderSide.none
+                                    ),
+                                    children:[
+                                      pw.TableRow(children: [
+                                        pw.Expanded(
+                                          flex: 1,
+                                          child: pw.Container(
+                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
+                                            alignment: pw.Alignment.center,
+                                          ),
+                                        ),
+
+                                        pw.Expanded(
+                                          flex: 3,
+                                          child: pw.Container(
+                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                            alignment: pw.Alignment.centerRight,
+
+                                            child: pw.Text(
+                                              ledger.value.ledgerName,
+                                              style: pw.TextStyle(
+                                                fontSize: 10,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        pw.Expanded(
+                                          flex: 1,
+                                          child: pw.Container(
+                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                            alignment: pw.Alignment.centerRight,
+                                          ),
+                                        ),
+                                        pw.Expanded(
+                                          flex: 1,
+                                          child: pw.Container(
+                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                            alignment: pw.Alignment.centerRight,
+                                          ),
+                                        ),
+                                        pw.Expanded(
+                                          flex: 1,
+                                          child: pw.Container(
+                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                            alignment: pw.Alignment.centerRight,
+                                          ),
+                                        ),
+                                        pw.Expanded(
+                                          flex: 1,
+                                          child: pw.Container(
+                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                            alignment: pw.Alignment.centerRight,
+                                          ),
+                                        ),
+                                        pw.Expanded(
+                                          flex: 2,
+                                          child: pw.Container(
+                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                            alignment: pw.Alignment.centerRight,
+                                            child: pw.Text(
+                                              formatAmountInvoice(ledger.value.ledgerAmount.toString()),
+                                              textAlign: pw.TextAlign.right,
+                                              style: pw.TextStyle(
+                                                fontSize: 10,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ])
+                                    ]
+                                ),
+
+
+                            if(vatledgerdata.isNotEmpty && _selectedvatledger!='Not Applicable')
+                              pw.Table(
+                                  border: pw.TableBorder(
+                                      horizontalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                      verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                      bottom: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                      top: pw.BorderSide.none
+                                  ),
+                                  children:[
+                                    pw.TableRow(children: [
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
+                                          alignment: pw.Alignment.center,
+                                        ),
+                                      ),
+
+                                      pw.Expanded(
+                                        flex: 3,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                          alignment: pw.Alignment.centerRight,
+
+                                          child: pw.Text(
+                                            _selectedvatledger,
+                                            style: pw.TextStyle(
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                          alignment: pw.Alignment.centerRight,
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                          alignment: pw.Alignment.centerRight,
+
+
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                          alignment: pw.Alignment.centerRight,
+
+
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                          alignment: pw.Alignment.centerRight,
+
+
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 2,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                          alignment: pw.Alignment.centerRight,
+
+                                          child: pw.Text(
+                                            formatAmountInvoice(totalVatAmount.toString()),
+                                            textAlign: pw.TextAlign.right,
+                                            style: pw.TextStyle(
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ])
+                                  ]
+                              ),
+
+                            pw.Table(
+                                border: pw.TableBorder(
+                                    horizontalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                    verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                                    bottom: pw.BorderSide.none
+                                ),
+                                children:[
+
+                                  pw.TableRow(children: [
+
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
+                                        alignment: pw.Alignment.center,
+
+                                      ),
+                                    ),
+
+
+
+
+                                    pw.Expanded(
+                                      flex: 3,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                        alignment: pw.Alignment.centerRight,
+
+                                        child: pw.Text(
+                                          'Total',
+                                          style: pw.TextStyle(
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+
+
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                        alignment: pw.Alignment.center,
+                                        child: pw.Text(
+                                          totalQuantity.toString(),
+                                          style: pw.TextStyle(
+                                            fontSize: 10,
+                                          ),
+                                        ),
+
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                        alignment: pw.Alignment.centerRight,
+
+
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                        alignment: pw.Alignment.centerRight,
+
+
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                        alignment: pw.Alignment.centerRight,
+
+
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 2,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                        alignment: pw.Alignment.centerRight,
+
+                                        child: pw.Text(
+                                          formatAmountInvoice(roundedtotalAmount.toString()),
+                                          textAlign: pw.TextAlign.right,
+                                          style: pw.TextStyle(
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ])
+                                ]
+                            ),
+
+                            pw.Table(
+                                border: pw.TableBorder(
+                                  horizontalInside: pw.BorderSide.none,
+                                  verticalInside: pw.BorderSide.none,
+                                  bottom: pw.BorderSide.none,
+                                  top: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+
+                                ),
+                                children:[
+                                  pw.TableRow(
+                                      children: [
+                                        pw.Expanded(
+                                          flex: 1,
+                                          child: pw.Container(
+                                              padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
+                                              alignment: pw.Alignment.centerLeft,
+
+                                              child: pw.Column(
+                                                mainAxisAlignment: pw.MainAxisAlignment.start,
+                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                children: [
+
+                                                  pw.Text(
+                                                    'Amount Chargeable (in words)',
+                                                    textAlign: pw.TextAlign.left,
+                                                    style: pw.TextStyle(
+                                                      fontSize: 10,
+                                                    ),
+                                                  ),
+
+                                                  pw.Text(
+                                                    convertAmountToWords(totalAmount),
+                                                    textAlign: pw.TextAlign.left,
+                                                    style: pw.TextStyle(
+                                                      fontSize: 10,
+                                                    ),
+                                                  ),
+
+                                                  pw.SizedBox(height: 10)
+                                                ],)
+                                          ),
+                                        ),
+
+
+                                      ])
+                                ]
+                            ),
+
+                            // declaration table
+                            pw.Table(
+                                border: pw.TableBorder(
+                                  horizontalInside: pw.BorderSide.none,
+                                  verticalInside: pw.BorderSide.none,
+                                  bottom: pw.BorderSide.none,
+                                  top: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+
+                                ),
+                                children:[
+                                  pw.TableRow(
+                                      children: [
+                                        pw.Expanded(
+                                          flex: 1,
+                                          child: pw.Container(
+                                              padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
+                                              alignment: pw.Alignment.centerLeft,
+
+                                              child: pw.Column(
+                                                mainAxisAlignment: pw.MainAxisAlignment.start,
+                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                children: [
+
+                                                  pw.SizedBox(height:10),
+
+                                                  pw.Text(
+                                                    'Declaration',
+                                                    textAlign: pw.TextAlign.left,
+                                                    style: pw.TextStyle(
+                                                      fontSize: 10,
+                                                    ),
+                                                  ),
+
+                                                  pw.Text(
+                                                    'We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct',
+                                                    textAlign: pw.TextAlign.left,
+                                                    style: pw.TextStyle(
+                                                      fontSize: 10,
+                                                    ),
+                                                  ),
+
+                                                  pw.SizedBox(height: 10)
+
+                                                ],)
+
+                                          ),
+                                        ),
+
+                                        pw.Expanded(
+                                          flex: 1,
+                                          child: pw.Container(
+                                              margin: pw.EdgeInsets.only(top:30),
+                                              padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                              decoration: pw.BoxDecoration(
+                                                border: pw.Border(
+                                                  top: pw.BorderSide(
+                                                      width: 1.0
+                                                  ),
+                                                  left: pw.BorderSide(
+                                                      width: 1.0
+                                                  ),
+                                                ),
+                                              ),
+
+                                              // Left, Top, Right, Bottom
+                                              alignment: pw.Alignment.center,
+
+                                              child: pw.Column(
+                                                mainAxisAlignment: pw.MainAxisAlignment.center,
+                                                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                                                children: [
+
+                                                  pw.Text(
+                                                    'for $company',
+                                                    textAlign: pw.TextAlign.center,
+                                                    style: pw.TextStyle(
+                                                      fontSize: 10,
+                                                    ),
+                                                  ),
+
+                                                  pw.SizedBox(height:30),
+
+                                                  pw.Text(
+                                                    'Authorised Signatory',
+                                                    textAlign: pw.TextAlign.left,
+                                                    style: pw.TextStyle(
+                                                      fontSize: 10,
+                                                    ),
+                                                  ),
+
+                                                  pw.SizedBox(height: 5)
+                                                ],)
+                                          ),
+                                        ),
+                                      ])
+                                ]
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    pw.Container(
+
+                      padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
+                      alignment: pw.Alignment.center,
+
+                      child: pw.Text(
+                        'This is a System Generated Document',
+                        textAlign: pw.TextAlign.left,
+                        style: pw.TextStyle(
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                pw.Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: pw.Container(
+                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                    alignment: pw.Alignment.center,
+                    child: pw.Text(
+                      'Created in Fincore Go',
+                      textAlign: pw.TextAlign.center,
+                      style: pw.TextStyle(
+                          fontSize: 10,
+                          color: PdfColor.fromInt(0xFFCCCCCC)
+                      ),
+                    ),
+                  ),
+                ),
+
+              ]
+          );
+        },
+      ),
+    );
+
+    // 🗂 Save to temp file
+    final pdfData = await pdf.save();
+    final tempDir = await getTemporaryDirectory();
+    final tempFilePath =
+        '${tempDir.path}/SaleInvoice_${_selectedpartyledger ?? "Unknown"}.pdf';
+    final file = File(tempFilePath);
+    await file.writeAsBytes(pdfData);
+
+    // ✅ Share using ShareXFiles (modern API)
+    final xfile = XFile(tempFilePath);
+    await Share.shareXFiles(
+      [xfile],
+      text: 'Sharing Sale Invoice for $_selectedpartyledger',
+    );
+
+    setState(() {
+      controller_narration.clear();
+      controller_refno.clear();
+
+      _textFieldFocusNodeNarration.unfocus(); // Unfocus the TextField
+
+      saledate = DateTime.now();
+      saledatestring = _dateFormat.format(saledate);
+      saledatetxt = formatlastsaledate(saledatestring);
+      _dateController.text = saledatetxt;
+      refdate = DateTime.now();
+      refdatestring = _dateFormat.format(refdate);
+      refdatetxt = formatlastsaledate(refdatestring);
+      _refdateController.text = refdatetxt;
+      _selectedvchtypename = vchtypenamedata[0];
+      fetchvchnos(_selectedvchtypename);
+      _selectedpartyledger = partyledgerdata[0];
+
+      _selectedsalesledger = salesledger_data[0];
+
+      _selectedledger = ledgerdata.isNotEmpty ? ledgerdata[0]['name'] : null;
+
+      _selectedvatledger = vatledgerdata[0];
+
+      _selecteditem = '${itemdata[0]['name']}';
+      _itemController.text = _selecteditem;
+      if (locationsdata.isNotEmpty)
+      {
+        selectedLocation = locationsdata[0];
+        isVisibleLocation = true;
+      }
+      else
+      {
+        isVisibleLocation = false;
+      }
+      _updateUnitDropdown(_selecteditem);
+
+      saleItems.clear();
+      ledgerEntries.clear();
+
+      // making sales list empty and setting values
+
+      totalPriceOfItems = saleItems
+          .fold(
+          0.0, (double previousAmount,
+          SaleItem item) {
+        return previousAmount +
+            (item.itemPrice * double.parse(item.itemQuantity));
+      });
+
+      totalAmountOfLedgers = ledgerEntries
+          .fold(0.0, (double previousAmount, LedgerEntry entry) {
+        return previousAmount + entry.ledgerAmount;
+      });
+
+      if (_selectedvatledger != 'Not Applicable') {
+        double vat_perc = vatperc / 100;
+        itemsVatAmount = totalPriceOfItems * vat_perc;
+
+        totalVatAmount = itemsVatAmount + ledgerVatAmount;
+
+        roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
+        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+        String formattedVat = formatter.format(roundedtotalVatAmount);
+        controller_vatamt.text = formattedVat.toString();
+      }
+      else
+      {
+        totalVatAmount = 0;
+
+        roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
+        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+        String formattedVat = formatter.format(roundedtotalVatAmount);
+        controller_vatamt.text = formattedVat.toString();
+      }
+      if (saleItems.isEmpty)
+      {
+        isVisibleItemHeading = false;
+      }
+      else
+      {
+        isVisibleItemHeading = true;
+      }
+      // making ledger list empty and setting values
+      totalAmountForVatAppEntries = ledgerEntries.where((entry) => entry.vatApp).fold(
+          0.0, (double previousAmount,
+          LedgerEntry entry) {
+        return previousAmount +
+            entry.ledgerAmount;
+      });
+
+      if (_selectedvatledger != 'Not Applicable')
+      {
+        double vat_perc = vatperc / 100;
+        ledgerVatAmount = totalAmountForVatAppEntries * vat_perc;
+        totalVatAmount = itemsVatAmount + ledgerVatAmount;
+        roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
+        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+        String formattedVat = formatter.format(roundedtotalVatAmount);
+        controller_vatamt.text = formattedVat.toString();
+      }
+      else
+      {
+        totalVatAmount = 0;
+        roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
+        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+        String formattedVat = formatter.format(roundedtotalVatAmount);
+        controller_vatamt.text = formattedVat.toString();
+      }
+      if (ledgerEntries.isEmpty)
+      {
+        isVisibleLedgerHeading = false;
+      }
+      else
+      {
+        isVisibleLedgerHeading = true;
+      }
+      totalAmount = totalPriceOfItems +  totalAmountOfLedgers + totalVatAmount ;
+      roundedtotalAmount = double.parse(totalAmount.toStringAsFixed(decimal!));
+      NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+      String formattedtotal = formatter.format(roundedtotalAmount);
+      controller_totalamt.text = formattedtotal.toString();
+      _isFocused_vchno = false;
+      _isFocused_item = false;
+      _isFocused_unit = false;
+      _isFocused_ledger = false;
+      _isFocused_narration = false;
+      _isFocused_totalamt = false;
+      _isFocused_vatamt = false;
+    });
+  }
+
+
+  /*Future<void> generateInvoicePDF(String trn, String address, String emirate, String country) async {
     final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
     final pdf = pw.Document();
 
@@ -744,7 +2418,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       _isFocused_totalamt = false;
       _isFocused_vatamt = false;
     });
-  }
+  }*/
 
   String getCurrencySymbol(String currencyCode) {
     NumberFormat format;
@@ -950,7 +2624,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       context: context,
       builder: (BuildContext context) {
         return SizedBox(
-          height: MediaQuery.of(context).size.height * 0.35, // Set height as per your requirement
+          height: MediaQuery.of(context).size.height * 0.30, // Set height as per your requirement
           child: Container(
             color: Colors.white,
             padding: EdgeInsets.all(20.0),
@@ -1018,7 +2692,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                           _selectedledger = ledgerdata.isNotEmpty ? ledgerdata[0]['name'] : null;
                           _selectedvatledger = vatledgerdata[0];
                           _selecteditem = '${itemdata[0]['name']}';
-
+                          _itemController.text = _selecteditem;
                           if (locationsdata.isNotEmpty) {
                             selectedLocation = locationsdata[0];
                             isVisibleLocation = true;
@@ -1168,7 +2842,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
           itemdata = jsonResponse["items"];
 
           _selecteditem = '${itemdata[0]['name']}';
-
+          _itemController.text = _selecteditem;
           locationsdata = List<String>.from(jsonResponse['locations']);
           if (locationsdata.isNotEmpty)
           {
@@ -1545,356 +3219,373 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
   Future<void> _showItemDetailsPopup(BuildContext context) async {
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [Colors.teal, Colors.greenAccent],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (context, setStateDialog) {
+              return AlertDialog(
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                title: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [Colors.teal, Colors.greenAccent],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: const Icon(Icons.add_shopping_cart, color: Colors.white, size: 28),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Add Item",
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+                content: SingleChildScrollView(
+                  child: Form(
+                    key: _itemFormkey,
+                    child: Column(
+                      children: [
+
+                        // 🔍 Item Search
+                        TypeAheadField<Map<String, dynamic>>(
+                          // 🔹 Latest API requires this controller instead of inside TextFieldConfiguration
+                          controller: _itemController,
+
+                          // 🔹 Suggestion logic
+                          suggestionsCallback: (pattern) async {
+                            return itemdata
+                                .where((item) {
+                              final name = item['name']?.toString().toLowerCase() ?? '';
+                              final part = item['part']?.toString().toLowerCase() ?? '';
+                              return name.contains(pattern.toLowerCase()) ||
+                                  part.contains(pattern.toLowerCase());
+                            })
+                                .cast<Map<String, dynamic>>() // 👈 important fix
+                                .toList();
+                          },
+
+                          // 🔹 How each suggestion looks
+                          itemBuilder: (context, suggestion) {
+                            return ListTile(
+                              title: Text(
+                                suggestion['name'] ?? '',
+                                style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
+                              ),
+                              subtitle: Text(
+                                suggestion['part'] ?? '',
+                                style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                              ),
+                            );
+                          },
+
+                          // 🔹 Required in new API (replaces onSuggestionSelected)
+
+                          onSelected: (suggestion) {
+                            setStateDialog(() {
+                              _selecteditem = suggestion['name'] ?? '';
+                              _itemController.text = _selecteditem;
+
+                              if (locationsdata.isNotEmpty) {
+                                selectedLocation = locationsdata[0];
+                                isVisibleLocation = true;
+                              } else {
+                                isVisibleLocation = false;
+                              }
+
+                              _updateUnitDropdown(_selecteditem);
+                              isVisibleUnit = true;
+                            });
+                          },
+
+
+
+                          // 🔹 Main TextField builder (replaces old textFieldConfiguration)
+                          builder: (context, controller, focusNode) {
+                            return TextField(
+                              controller: controller,
+                              focusNode: focusNode,
+                              decoration: InputDecoration(
+                                labelText: "Item",
+                                hintText: "Search item",
+                                prefixIcon: Container(
+                                  margin: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [Colors.blue, Colors.lightBlueAccent],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                  child: const Icon(Icons.inventory_outlined, color: Colors.white),
+                                ),
+
+                                // 👉 Close + Dropdown icons
+                                suffixIcon: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (_itemController.text.isNotEmpty)
+                                      IconButton(
+                                        icon: const Icon(Icons.close, color: Colors.grey, size: 20),
+                                        onPressed: () {
+                                          _itemController.clear();
+                                          setStateDialog(() {
+                                            _selecteditem = "";
+                                            isVisibleLocation = false;
+                                            isVisibleUnit = false;
+                                          });
+                                        },
+                                      ),
+                                    const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                                    const SizedBox(width: 6),
+                                  ],
+                                ),
+
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(color: app_color, width: 1.5),
+                                ),
+                                contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                              ),
+                            );
+                          },
+
+                          // 🔹 Optional — shows if no match found
+                          emptyBuilder: (context) => const SizedBox.shrink(),
+                        ),
+
+
+
+
+                        const SizedBox(height: 14),
+
+                        // 📍 Location
+                        Visibility(
+                          visible: isVisibleLocation,
+                          child: DropdownButtonFormField<String>(
+                            value: selectedLocation,
+                            items: locationsdata.map((value) {
+                              return DropdownMenuItem(value: value, child: Text(value));
+                            }).toList(),
+                            onChanged: (val) => setStateDialog(() => selectedLocation = val!),
+                            decoration: InputDecoration(
+                              labelText: "Location",
+                              prefixIcon: Container(
+                                margin: const EdgeInsets.all(8),
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Colors.orange, Colors.redAccent],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                                ),
+                                child: const Icon(Icons.location_on, color: Colors.white),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: app_color, width: 1.5),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // 📦 Unit
+                        Visibility(
+                          visible: isVisibleUnit,
+                          child: DropdownButtonFormField<String>(
+                            value: _selectedunit,
+                            items: unitdata.map((u) {
+                              return DropdownMenuItem(value: u.name, child: Text(u.name));
+                            }).toList(),
+                            onChanged: (val) {
+                              setStateDialog(() {
+                                _selectedunit = val!;
+                                itemQuantityController.text = "1";
+                                selectedMultiplier = unitdata.firstWhere((u) => u.name == _selectedunit).multiplier;
+                                updateRateAndAmount();
+                              });
+                            },
+                            decoration: InputDecoration(
+                              labelText: "Unit",
+                              prefixIcon: Container(
+                                margin: const EdgeInsets.all(8),
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Colors.purple, Colors.deepPurpleAccent],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                                ),
+                                child: const Icon(Icons.straighten, color: Colors.white),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: app_color, width: 1.5),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // 🔢 Quantity
+                        TextFormField(
+                          controller: itemQuantityController,
+                          keyboardType: TextInputType.number,
+                          onChanged: (_) => updateRateAndAmount(),
+                          decoration: InputDecoration(
+                            labelText: "Quantity",
+                            prefixIcon: Container(
+                              margin: const EdgeInsets.all(8),
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Colors.green, Colors.lightGreen],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.all(Radius.circular(8)),
+                              ),
+                              child: const Icon(Icons.confirmation_num, color: Colors.white),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(color: app_color, width: 1.5),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // 💲 Rate
+                        TextFormField(
+                          controller: itemRateController,
+                          keyboardType: TextInputType.number,
+                          onChanged: (_) => updateAmount(),
+                          decoration: InputDecoration(
+                            labelText: "Rate",
+                            prefix: Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Colors.blue, Colors.blue], // ✅ distinct from Ledger
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.all(Radius.circular(8)),
+                              ),
+                              child: Text(
+                                getCurrencySymbol(currencycode),
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(color: app_color, width: 1.5),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // 💰 Amount (Disabled with Gradient Currency Symbol)
+                        TextFormField(
+                          controller: itemAmountController,
+                          enabled: false,
+                          decoration: InputDecoration(
+                            labelText: "Amount",
+                            prefix: Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Colors.green, Colors.teal], // ✅ distinct from Ledger
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.all(Radius.circular(8)),
+                              ),
+                              child: Text(
+                                getCurrencySymbol(currencycode),
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(color: app_color, width: 1.5),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                child: const Icon(Icons.add_shopping_cart, color: Colors.white, size: 28),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "Add Item",
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Form(
-              key: _itemFormkey,
-              child: Column(
-                children: [
-
-                  // 🔍 Item Search
-                  TypeAheadField<Map<String, dynamic>>(
-                    // ✅ Modern configuration
-                    suggestionsCallback: (pattern) async {
-                      return itemdata
-                          .where((item) {
-                        final name = (item['name'] ?? '').toString().toLowerCase();
-                        final part = (item['part'] ?? '').toString().toLowerCase();
-                        return name.contains(pattern.toLowerCase()) ||
-                            part.contains(pattern.toLowerCase());
-                      })
-                          .cast<Map<String, dynamic>>()
-                          .toList();
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text("Cancel", style: GoogleFonts.poppins(color: app_color)),
+                  ),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: app_color,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    ),
+                    icon: const Icon(Icons.check, color: Colors.white),
+                    label: Text("Add Item",
+                        style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600)),
+                    onPressed: () {
+                      if (_itemFormkey.currentState!.validate()) {
+                        addItem();
+                      }
                     },
-
-                    // ✅ Modern builder signature
-                    builder: (context, controller, focusNode) {
-                      return TextField(
-                        controller: _itemController,
-                        focusNode: focusNode,
-                        decoration: InputDecoration(
-                          labelText: "Item",
-                          hintText: "Search item",
-                          prefixIcon: Container(
-                            margin: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Colors.blue, Colors.blue],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.all(Radius.circular(8)),
-                            ),
-                            child: const Icon(Icons.inventory_outlined, color: Colors.white),
-                          ),
-
-                          // ❌ Clear + Dropdown icons
-                          suffixIcon: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.close, color: Colors.grey, size: 20),
-                                onPressed: () {
-                                  _itemController.clear();
-                                  setState(() {
-                                    _selecteditem = "";
-                                    isVisibleLocation = false;
-                                    isVisibleUnit = false;
-                                  });
-                                },
-                              ),
-                              const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                              const SizedBox(width: 6),
-                            ],
-                          ),
-
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: app_color, width: 1.5),
-                          ),
-                          contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                        ),
-                      );
-                    },
-
-                    // ✅ Suggestion UI
-                    itemBuilder: (context, Map<String, dynamic> suggestion) {
-                      return ListTile(
-                        title: Text(suggestion['name'] ?? ''),
-                        subtitle: Text(suggestion['part'] ?? ''),
-                      );
-                    },
-
-                    // ✅ Required parameter (replaces old `onSuggestionSelected`)
-                    onSelected: (Map<String, dynamic> suggestion) {
-                      setState(() {
-                        _selecteditem = suggestion['name'];
-                        _itemController.text = _selecteditem;
-
-                        if (locationsdata.isNotEmpty) {
-                          selectedLocation = locationsdata[0];
-                          isVisibleLocation = true;
-                        } else {
-                          isVisibleLocation = false;
-                        }
-
-                        _updateUnitDropdown(_selecteditem);
-                        isVisibleUnit = true;
-                      });
-                    },
-
-                    // ✅ Optional no-result widget
-                    emptyBuilder: (context) => const SizedBox(),
-                  ),
-
-
-
-                  const SizedBox(height: 14),
-
-                  // 📍 Location
-                  Visibility(
-                    visible: isVisibleLocation,
-                    child: DropdownButtonFormField<String>(
-                      value: selectedLocation,
-                      items: locationsdata.map((value) {
-                        return DropdownMenuItem(value: value, child: Text(value));
-                      }).toList(),
-                      onChanged: (val) => setState(() => selectedLocation = val!),
-                      decoration: InputDecoration(
-                        labelText: "Location",
-                        prefixIcon: Container(
-                          margin: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.orange, Colors.redAccent],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.all(Radius.circular(8)),
-                          ),
-                          child: const Icon(Icons.location_on, color: Colors.white),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(color: app_color, width: 1.5),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // 📦 Unit
-                  Visibility(
-                    visible: isVisibleUnit,
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedunit,
-                      items: unitdata.map((u) {
-                        return DropdownMenuItem(value: u.name, child: Text(u.name));
-                      }).toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          _selectedunit = val!;
-                          itemQuantityController.text = "1";
-                          selectedMultiplier = unitdata.firstWhere((u) => u.name == _selectedunit).multiplier;
-                          updateRateAndAmount();
-                        });
-                      },
-                      decoration: InputDecoration(
-                        labelText: "Unit",
-                        prefixIcon: Container(
-                          margin: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.purple, Colors.deepPurpleAccent],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.all(Radius.circular(8)),
-                          ),
-                          child: const Icon(Icons.straighten, color: Colors.white),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(color: app_color, width: 1.5),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // 🔢 Quantity
-                  TextFormField(
-                    controller: itemQuantityController,
-                    keyboardType: TextInputType.number,
-                    onChanged: (_) => updateRateAndAmount(),
-                    decoration: InputDecoration(
-                      labelText: "Quantity",
-                      prefixIcon: Container(
-                        margin: const EdgeInsets.all(8),
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Colors.green, Colors.lightGreen],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                        ),
-                        child: const Icon(Icons.confirmation_num, color: Colors.white),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: app_color, width: 1.5),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // 💲 Rate
-                  TextFormField(
-                    controller: itemRateController,
-                    keyboardType: TextInputType.number,
-                    onChanged: (_) => updateAmount(),
-                    decoration: InputDecoration(
-                      labelText: "Rate",
-                      prefix: Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Colors.blue, Colors.blue], // ✅ distinct from Ledger
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                        ),
-                        child: Text(
-                          getCurrencySymbol(currencycode),
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: app_color, width: 1.5),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // 💰 Amount (Disabled with Gradient Currency Symbol)
-                  TextFormField(
-                    controller: itemAmountController,
-                    enabled: false,
-                    decoration: InputDecoration(
-                      labelText: "Amount",
-                      prefix: Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Colors.green, Colors.teal], // ✅ distinct from Ledger
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                        ),
-                        child: Text(
-                          getCurrencySymbol(currencycode),
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: app_color, width: 1.5),
-                      ),
-                    ),
                   ),
                 ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text("Cancel", style: GoogleFonts.poppins(color: app_color)),
-            ),
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: app_color,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              ),
-              icon: const Icon(Icons.check, color: Colors.white),
-              label: Text("Add Item",
-                  style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600)),
-              onPressed: () {
-                if (_itemFormkey.currentState!.validate()) {
-                  addItem();
-                }
-              },
-            ),
-          ],
-        );
-      },
+              );
+
+            },);}
     );
   }
 

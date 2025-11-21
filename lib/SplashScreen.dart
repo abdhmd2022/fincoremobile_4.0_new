@@ -10,10 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:http/http.dart' as http;
-import 'package:package_info_plus/package_info_plus.dart';
 import 'Constants.dart';
 import 'Login.dart';
 
@@ -73,13 +70,13 @@ class _SplashScreenState extends State<SplashScreen> {
             SystemNavigator.pop(); // user cannot skip
           }
         } else {
-          SystemNavigator.pop(); // forced closing if update cannot be done
+          _goToLogin(username, password);
         }
       } else {
         _goToLogin(username, password);
       }
     } catch (e) {
-      SystemNavigator.pop(); // force close if something went wrong
+      _goToLogin(username, password);
     }
   }
 
@@ -283,7 +280,7 @@ class AppUpdateService {
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       final currentVersion = packageInfo.version;
 
-      final url = Uri.parse("https://apps.apple.com/lookup?id=$iosAppId");
+      final url = Uri.parse("https://itunes.apple.com/lookup?id=$iosAppId");
       final response = await http.get(url);
 
       if (response.statusCode == 200) {

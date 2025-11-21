@@ -2148,7 +2148,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                     padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
                     alignment: pw.Alignment.center,
                     child: pw.Text(
-                      'Created by https://tallyuae.ae/',
+                      'Created in Fincore Go',
                       textAlign: pw.TextAlign.center,
                       style: pw.TextStyle(
                           fontSize: 10,

@@ -1903,7 +1903,6 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
                                                       fontSize: 10,
                                                     ),
                                                   ),
-
                                                   pw.SizedBox(height: 5)
                                                 ],)
                                           ),

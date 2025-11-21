@@ -21,6 +21,24 @@ import 'dart:io';
 import 'constants.dart';
 import 'package:cross_file/cross_file.dart';
 
+class LedgerGroup {
+  final String ledger;
+  final double amount;
+
+  LedgerGroup({
+    required this.ledger,
+    required this.amount,
+  });
+
+  factory LedgerGroup.fromJson(Map<String, dynamic> json) {
+    return LedgerGroup(
+      ledger: json['ledger']?.toString() ?? '',
+      amount: double.tryParse(json['amount'].toString()) ?? 0.0,
+    );
+  }
+}
+
+
 class Sale_purc_cash {
   final String vchname;
   final String vchno;
@@ -119,7 +137,13 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   
   int counter = 0;
 
+
+
   bool _isVisibleduedate = false;
+
+  bool _isLedgerGroupVisible = false;
+  String? _selectedLedgerGroup;
+  List<LedgerGroup> ledgerGroupList = [];
 
   List<Receivable_payable> filteredItems_receivable_payable = []; // Initialize an empty list to hold the filtered items
   List<Sale_purc_cash> filteredItems_sale_purc_cash = [];
@@ -155,6 +179,77 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     _voucherController.dispose();
     super.dispose();
   }
+
+  Future<void> fetchLedgerGroups() async {
+    setState(() {
+      _isLoading = true;
+      _isLedgerGroupVisible = false;
+      _isSalesListVisible = false;
+    });
+
+    if(_selectedvoucher == "All Voucher Types")
+    {
+      _selectedvoucher = "";
+    }
+
+    try {
+      final url = Uri.parse(HttpURL_sale_purc_cash!);
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
+      };
+
+      var body = jsonEncode({
+        'ledgroup': "cash-in-hand,bank accounts",
+        'startdate': startDateString,
+        'enddate': endDateString,
+        'vchtypes': '',
+        'opening': 'true',
+        'vchname': _selectedvoucher,  // 🧠 parent dropdown
+        'isGroupByLedger': true,    // 🆕 key to trigger group mode
+      });
+
+      final response = await http.post(url, body: body, headers: headers);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> decoded = jsonDecode(response.body);
+
+        // 🧮 Extract opening and list
+        String opening = decoded['opening'].toString();
+        final List<dynamic> values = decoded['values'] ?? [];
+
+        setState(() {
+          opening_value = formatOpening(opening); // reuse your existing method
+          ledgerGroupList =
+              values.map((e) => LedgerGroup.fromJson(e)).toList();
+
+          _isLedgerGroupVisible = true;
+          _isSalesListVisible = false;
+          _isOutstandingListVisible = false;
+          isVisibleNoDataFound = false;
+        });
+      } else {
+        setState(() {
+          _isLedgerGroupVisible = false;
+          _isSalesListVisible = false;
+          _isOutstandingListVisible = false;
+          isVisibleNoDataFound = true;
+        });
+        print("❌ Ledger group API failed: ${response.statusCode}");
+      }
+    } catch (e) {
+      setState(() {
+        _isLedgerGroupVisible = false;
+        _isSalesListVisible = false;
+        _isOutstandingListVisible = false;
+        isVisibleNoDataFound = true;
+      });
+      print("⚠️ Error in fetchLedgerGroups: $e");
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
   void _showSelectionWindow(BuildContext context) {
     final List<IconData> icons = [
       Icons.sort_rounded,
@@ -849,7 +944,15 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         fetchParent(vchtypes);
       }
       setState(() {
-        _isSalesListVisible = true;
+        if(vchtypes == "Cash")
+          {
+            _isSalesListVisible = false;
+          }
+        else
+          {
+            _isSalesListVisible = true;
+          }
+
         _isOutstandingListVisible = false;
       });
     }
@@ -887,10 +990,20 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         {
           fetchSales_purchase_cash("Purchase Accounts", startDateString, endDateString, "Purchase,debitnote","true","");
         }
-        else if (vchtypes =="Cash")
+        else if (vchtypes == "Cash") {
+
+
+
+
+          // Then load ledger groups for this period
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            fetchLedgerGroups();
+          });
+        }
+        /*else if (vchtypes =="Cash")
         {
           fetchSales_purchase_cash("cash-in-hand,bank accounts", startDateString, endDateString, "","true","");
-        }
+        }*/
 
       }
       else if (vchtypes == "Receipt" || vchtypes == "Payment")
@@ -938,10 +1051,19 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
             {
               fetchSales_purchase_cash("Purchase Accounts", startDateString, endDateString, "Purchase,debitnote","true",_selectedvoucher);
             }
-            else if (vchtypes =="Cash")
+
+          else if (vchtypes =="Cash")
+          {
+            // Then load ledger groups for this period
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              fetchLedgerGroups();
+            });
+
+          }
+            /*else if (vchtypes =="Cash")
             {
               fetchSales_purchase_cash("cash-in-hand,bank accounts", startDateString, endDateString, "","true",_selectedvoucher);
-            }
+            }*/
 
           }
           else if (vchtypes == "Receipt" || vchtypes == "Payment")
@@ -1771,22 +1893,26 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // ✅ Use Flexible + ellipsis to prevent overflow
                 Flexible(
                   child: Text(
                     company ?? '',
-
-                    style: GoogleFonts.poppins(color: Colors.white, fontSize: 20,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
-                    overflow: TextOverflow.visible,
-
+                    overflow: TextOverflow.ellipsis, // ✅ shows "..."
+                    maxLines: 1,                      // ✅ keeps single line
+                    softWrap: false,                  // ✅ prevents wrapping
                   ),
                 ),
-                SizedBox(width: 4),
-                Icon(Icons.arrow_drop_down, color: Colors.white),
+                const SizedBox(width: 4),
+                const Icon(Icons.arrow_drop_down, color: Colors.white),
               ],
             ),
           ),
+
           centerTitle: true,
           actions: [
             IconButton(
@@ -2195,15 +2321,153 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                             ),
                           ),
 
-                        if (_isSalesListVisible)
+                        if (_isLedgerGroupVisible)
                           Expanded(
                             child: ListView.builder(
-                              controller: _scrollController_salelist,
-                              itemCount: filteredItems_sale_purc_cash.length,
+                              itemCount: ledgerGroupList.length,
                               itemBuilder: (context, index) {
-                                final card = filteredItems_sale_purc_cash[index];
-                                return buildModernVoucherCard(card);
+                                final group = ledgerGroupList[index];
+                                return InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedLedgerGroup = group.ledger;
+                                      _isLedgerGroupVisible = false;
+                                      _isSalesListVisible = true;
+                                    });
+
+                                    fetchSales_purchase_cash(
+                                      "cash-in-hand,bank accounts",
+                                      startDateString,
+                                      endDateString,
+                                      "",
+                                      "true",
+                                      _selectedvoucher ?? "", // ✅ from parent, not group
+                                    ).then((_) {
+                                      // Filter only matching ledger
+                                      setState(() {
+                                        filteredItems_sale_purc_cash = sales_purc_cash_list
+                                            .where((e) =>
+                                        e.ledger.toLowerCase() ==
+                                            _selectedLedgerGroup!.toLowerCase())
+                                            .toList();
+                                      });
+                                    });
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(18),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          blurRadius: 6,
+                                          offset: Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // 🧾 Ledger Name (wraps if too long)
+                                        Expanded(
+                                          child: Text(
+                                            group.ledger,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            softWrap: true,                 // ✅ allows multi-line wrapping
+                                            overflow: TextOverflow.visible, // ✅ prevents text cut-off
+                                          ),
+                                        ),
+
+                                        // 💰 Amount (stays on same row, but shrinks if needed)
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          formatAmount(group.amount.toString()),
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.teal,
+                                          ),
+                                          textAlign: TextAlign.right,
+                                          softWrap: true, // ✅ allows wrapping if really long
+                                        ),
+
+                                        const SizedBox(width: 8),
+
+                                        // ➡️ Chevron icon
+                                        Icon(
+                                          Icons.chevron_right_rounded,
+                                          color: Colors.grey.shade600,
+                                          size: 22,
+                                        ),
+                                      ],
+                                    ),
+
+
+                                  ),
+                                );
                               },
+                            ),
+                          ),
+
+
+
+                        if (_isSalesListVisible)
+                          Expanded(
+                            child: Column(
+                              children: [
+                                if (vchtypes == "Cash" && !_isLedgerGroupVisible)
+                                  Container(
+                                    margin: const EdgeInsets.only(left: 16, right: 16, top: 6, bottom: 0),
+                                    alignment: Alignment.centerLeft,
+                                    child: TextButton.icon(
+                                      onPressed: () {
+                                        setState(() {
+                                          _isSalesListVisible = false;
+                                          _isLedgerGroupVisible = true;
+                                        });
+                                      },
+                                      icon: const Icon(
+                                        Icons.arrow_back_ios_new_rounded,
+                                        size: 16,
+                                        color: app_color, // use your theme color
+                                      ),
+                                      label: Text(
+                                        "Previous",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                          color: app_color, // your app’s accent color
+                                        ),
+                                      ),
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: Colors.transparent, // no fill color
+                                        elevation: 0,
+                                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+
+                                // The existing vouchers list
+                                Expanded(
+                                  child: ListView.builder(
+                                    controller: _scrollController_salelist,
+                                    itemCount: filteredItems_sale_purc_cash.length,
+                                    itemBuilder: (context, index) {
+                                      final card = filteredItems_sale_purc_cash[index];
+                                      return buildModernVoucherCard(card);
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
 

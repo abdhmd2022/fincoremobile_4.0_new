@@ -1917,10 +1917,8 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
                     ),
 
                     pw.Container(
-
                       padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
                       alignment: pw.Alignment.center,
-
                       child: pw.Text(
                         'This is a System Generated Document',
                         textAlign: pw.TextAlign.left,
@@ -1948,7 +1946,6 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
                     ),
                   ),
                 ),
-
               ]
           );
         },

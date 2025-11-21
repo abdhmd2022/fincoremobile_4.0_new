@@ -1,214 +1,314 @@
-import'dart:async';
+import 'dart:async';
 import 'dart:io';
-// import 'package:firebase_messaging/firebase_messaging.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
-/*import 'package:in_app_update/in_app_update.dart';*/
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:in_app_update/in_app_update.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:http/http.dart' as http;
+import 'package:package_info_plus/package_info_plus.dart';
 import 'Constants.dart';
 import 'Login.dart';
 
-class SplashScreen extends StatefulWidget
-{
+class SplashScreen extends StatefulWidget {
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   late SharedPreferences prefs;
 
-  Future<void> _initSharedPreferences() async {
-  prefs = await SharedPreferences.getInstance();
-
-  String? username = prefs.getString('username_remember');
-  String? password = prefs.getString('password_remember');
-
-  /*prefs.setInt('lastActive', DateTime.now().millisecondsSinceEpoch);*/
-
-  print(DateTime.now().millisecondsSinceEpoch);
-  /*String? company = prefs.getString('company_name');
-  String? serial_no = prefs.getString('serial_no');*/
-
-  Timer(Duration(seconds: 2), ()
-  {
-    if(Platform.isAndroid)
-    {
-      /*try
-      {
-        InAppUpdate.checkForUpdate().then((updateInfo)
-        {
-          if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
-
-            if (updateInfo.immediateUpdateAllowed) {
-              // Perform immediate update
-              InAppUpdate.performImmediateUpdate().then((appUpdateResult) {
-                if (appUpdateResult == AppUpdateResult.success)
-                {
-                  if(username == null && password == null)
-                  {
-                    Navigator.pushReplacement
-                      (
-                      context,
-                      MaterialPageRoute(builder: (context) => Login(username : '',password: '')),
-                    );
-                  }
-                  else
-                  {
-                    Navigator.pushReplacement
-                      (
-                      context,
-                      MaterialPageRoute(builder: (context) => Login(username : username!,password: password!)),
-                    );
-                  }
-                }
-                else
-                {
-                  SystemNavigator.pop();
-                }
-              });
-            }
-            else if (updateInfo.flexibleUpdateAllowed)
-            {
-              //Perform flexible update
-              InAppUpdate.startFlexibleUpdate().then((appUpdateResult)
-              {
-                if (appUpdateResult == AppUpdateResult.success)
-                {
-                  //App Update successful
-                  InAppUpdate.completeFlexibleUpdate();
-                }
-                else
-                {
-                  SystemNavigator.pop();
-                }
-              });
-            }
-          }
-          else
-          {
-            if(username == null && password == null)
-            {
-              Navigator.pushReplacement
-              (
-                context,
-                MaterialPageRoute(builder: (context) => Login(username : '',password: '')),
-              );
-            }
-            else
-            {
-              Navigator.pushReplacement
-                (
-                context,
-                MaterialPageRoute(builder: (context) => Login(username : username!,password: password!)),
-              );
-            }
-          }
-        });
-      }
-      catch (e)
-      {
-        if(username == null && password == null)
-        {
-          Navigator.pushReplacement
-            (
-            context,
-            MaterialPageRoute(builder: (context) => Login(username : '',password: '')),
-          );
-        }
-
-        else
-        {
-          Navigator.pushReplacement
-            (
-            context,
-            MaterialPageRoute(builder: (context) => Login(username : username!,password: password!)),
-          );
-        }
-      }*/
-
-      if(username == null && password == null)
-      {
-        Navigator.pushReplacement
-          (
-          context,
-          MaterialPageRoute(builder: (context) => Login(username : '',password: '')),
-        );
-      }
-
-      else
-      {
-        Navigator.pushReplacement
-        (
-          context,
-          MaterialPageRoute(builder: (context) => Login(username : username!,password: password!)),
-        );
-      }
-    }
-    else
-    {
-      if(username == null && password == null)
-      {
-        Navigator.pushReplacement
-          (
-          context,
-          MaterialPageRoute(builder: (context) => Login(username : '',password: '')),
-        );
-      }
-      else
-      {
-        Navigator.pushReplacement
-          (
-          context,
-          MaterialPageRoute(builder: (context) => Login(username : username!,password: password!)),
-        );
-      }}
-    });
-}
-
   @override
-  void initState()
-  {
+  void initState() {
     super.initState();
-    /*FirebaseMessaging.instance.getToken().then((value) {
-      String? token = value;
-      print(token);
-    });*/
-    _initSharedPreferences();
+    _init();
   }
 
+  Future<void> _init() async {
+    prefs = await SharedPreferences.getInstance();
+
+    String? username = prefs.getString('username_remember');
+    String? password = prefs.getString('password_remember');
+
+    Timer(const Duration(seconds: 2), () {
+      _checkUpdates(username, password);
+    });
+  }
+
+  // -------------------------------
+  // MANDATORY UPDATE CHECK
+  // -------------------------------
+  Future<void> _checkUpdates(String? username, String? password) async {
+    if (Platform.isAndroid) {
+      await _mandatoryAndroidUpdate(username, password);
+    } else if (Platform.isIOS) {
+      await _mandatoryIOSUpdate(username, password);
+    } else {
+      _goToLogin(username, password);
+    }
+  }
+
+  // -------------------------------
+  // ANDROID — FORCED UPDATE
+  // -------------------------------
+  Future<void> _mandatoryAndroidUpdate(
+      String? username, String? password) async {
+    try {
+      final info = await InAppUpdate.checkForUpdate();
+
+      if (info.updateAvailability == UpdateAvailability.updateAvailable) {
+        if (info.immediateUpdateAllowed) {
+          final result = await InAppUpdate.performImmediateUpdate();
+
+          if (result == AppUpdateResult.success) {
+            _goToLogin(username, password);
+          } else {
+            SystemNavigator.pop(); // user cannot skip
+          }
+        } else {
+          SystemNavigator.pop(); // forced closing if update cannot be done
+        }
+      } else {
+        _goToLogin(username, password);
+      }
+    } catch (e) {
+      SystemNavigator.pop(); // force close if something went wrong
+    }
+  }
+
+  // -------------------------------
+  // iOS — FORCED UPDATE
+  // -------------------------------
+  Future<void> _mandatoryIOSUpdate(
+      String? username, String? password) async {
+    bool updateAvailable = await AppUpdateService.isIOSUpdateAvailable();
+
+    if (updateAvailable) {
+      _showForcedIOSDialog();
+    } else {
+      _goToLogin(username, password);
+    }
+  }
+
+  // -------------------------------
+  // iOS — FORCE UPDATE POPUP
+  // -------------------------------
+  void _showForcedIOSDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          backgroundColor: Colors.white,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12.withOpacity(0.05),
+                  blurRadius: 15,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+
+                // App Icon Circle
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [app_color, app_color.withOpacity(0.6)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.system_update,
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                // Title
+                Text(
+                  "Update Required",
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Message
+                Text(
+                  "A new version of FINCORE GO is available.\nYou must update to continue using the app.",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.black54,
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
+                // Update Button (Gradient)
+                GestureDetector(
+                  onTap: () async {
+                    final url = Uri.parse(
+                        "https://apps.apple.com/app/id${AppUpdateService.iosAppId}");
+
+                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      gradient: LinearGradient(
+                        colors: [app_color, app_color.withOpacity(0.7)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Update Now",
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // -------------------------------
+  // NAVIGATE TO LOGIN
+  // -------------------------------
+  void _goToLogin(String? username, String? password) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Login(
+          username: username ?? '',
+          password: password ?? '',
+        ),
+      ),
+    );
+  }
+
+  // -------------------------------
+  // UI
+  // -------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body:Stack(children: [
+      body: Stack(children: [
         Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/fincorego_logo_png.png',
-                width: 200,
-                height: 200,
-              ),
-              SizedBox(height: 20),
-              SpinKitWave(
-                color: app_color,
-                size: 40.0,
-                itemCount: 5,
-              )
-            ])),
-
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/fincorego_logo_png.png',
+                  width: 200,
+                  height: 200,
+                ),
+                const SizedBox(height: 20),
+                SpinKitWave(
+                  color: app_color,
+                  size: 40.0,
+                  itemCount: 5,
+                )
+              ],
+            )),
         Positioned(
-          bottom: 20, // Adjust this value according to your preference
+          bottom: 20,
           left: 0,
           right: 0,
           child: Center(
             child: Text(
               "© 2023-2025 CSH LLC. All Rights Reserved.",
               style: GoogleFonts.poppins(
-                color: Colors.black54, // You can adjust the color here
-                fontSize: 12, // You can adjust the font size here
-              ))))]));}}
+                color: Colors.black54,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        )
+      ]),
+    );
+  }
+}
+
+
+class AppUpdateService {
+  // CHANGE THIS to your real iOS App ID
+  static const String iosAppId = "6451186057";
+
+  // Check if an update is available on the App Store
+  static Future<bool> isIOSUpdateAvailable() async {
+    try {
+      if (!Platform.isIOS) return false;
+
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      final currentVersion = packageInfo.version;
+
+      final url = Uri.parse("https://apps.apple.com/lookup?id=$iosAppId");
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+
+        if (jsonData["resultCount"] > 0) {
+          final storeVersion = jsonData["results"][0]["version"];
+          return _isVersionGreater(storeVersion, currentVersion);
+        }
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Compare store version with installed version
+  static bool _isVersionGreater(String store, String current) {
+    final s = store.split('.').map(int.parse).toList();
+    final c = current.split('.').map(int.parse).toList();
+
+    for (int i = 0; i < s.length; i++) {
+      if (s[i] > c[i]) return true;
+      if (s[i] < c[i]) return false;
+    }
+    return false;
+  }
+}

@@ -223,6 +223,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           ledgerGroupList =
               values.map((e) => LedgerGroup.fromJson(e)).toList();
 
+          print('led group list -> ${ledgerGroupList[0]}');
+
           _isLedgerGroupVisible = true;
           _isSalesListVisible = false;
           _isOutstandingListVisible = false;
@@ -2368,32 +2370,69 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                       ],
                                     ),
                                     child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        // 🧾 Ledger Name (wraps if too long)
-                                        Expanded(
-                                          child: Text(
-                                            group.ledger,
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
+                                        // 🌈 Gradient Icon (same as other layouts)
+                                        Container(
+                                          width: 38,
+                                          height: 38,
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [Colors.indigo.shade400, Colors.indigo.shade700],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
                                             ),
-                                            softWrap: true,                 // ✅ allows multi-line wrapping
-                                            overflow: TextOverflow.visible, // ✅ prevents text cut-off
+                                            borderRadius: BorderRadius.circular(12),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.indigo.withOpacity(0.25),
+                                                blurRadius: 6,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ],
+                                          ),
+                                          child: const Icon(
+                                            Icons.account_balance_wallet_rounded,
+                                            color: Colors.white,
+                                            size: 20,
                                           ),
                                         ),
 
-                                        // 💰 Amount (stays on same row, but shrinks if needed)
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          formatAmount(group.amount.toString()),
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.teal,
+                                        const SizedBox(width: 12),
+
+                                        // 🧾 Ledger Name and Amount — same row, wraps if long
+                                        Expanded(
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              // Ledger name — wraps neatly
+                                              Expanded(
+                                                child: Text(
+                                                  group.ledger,
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                  softWrap: true,
+                                                  overflow: TextOverflow.visible,
+                                                ),
+                                              ),
+
+                                              const SizedBox(width: 8),
+
+                                              // 💰 Amount — teal, right-aligned
+                                              Text(
+                                                formatAmount(group.amount.toString()),
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Colors.teal,
+                                                ),
+                                                textAlign: TextAlign.right,
+                                                softWrap: true,
+                                              ),
+                                            ],
                                           ),
-                                          textAlign: TextAlign.right,
-                                          softWrap: true, // ✅ allows wrapping if really long
                                         ),
 
                                         const SizedBox(width: 8),
@@ -2406,6 +2445,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                         ),
                                       ],
                                     ),
+
 
 
                                   ),

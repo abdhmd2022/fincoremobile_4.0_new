@@ -3679,7 +3679,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
                     //const SizedBox(height: 6),
 
-                    // 💰 Ledger Amount
+                    /// Ledger Amount
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
                       child: TextFormField(

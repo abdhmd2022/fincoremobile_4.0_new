@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'currencyFormat.dart';
-
 const String BASE_URL_config = "https://fincorego.ddns.net/main";
 /*const String BASE_URL_config = "http://192.168.2.185:5000";*/
 const String authTokenBase = 'KSgqL2FzZGFzZGlvQ0VEQUZfX19fIUBBUyQlYXMxOTI4MzdfX18=';

@@ -248,6 +248,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 )
               ],
             )),
+
         Positioned(
           bottom: 20,
           left: 0,

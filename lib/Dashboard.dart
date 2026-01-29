@@ -2247,7 +2247,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       currencyFormat = NumberFormat('#,##0');
     }
 
-    String default_value = currencyFormat.format(0) + " CR";
+    // String default_value = currencyFormat.format(0) + " CR";
     sales_value = 0.0;
     purchase_value = 0.0;
     receipt_value = 0.0;
@@ -2287,8 +2287,6 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       isRolesVisible = false;
       isUserVisible = false;
     }
-
-
     datetype = prefs.getString('datetype');
     if (datetype != null) {
       _handleDate(datetype!);

@@ -22,7 +22,7 @@ Future<void> checkCurrencyMismatch(BuildContext context) async {
             Expanded(
               child: Text(
                 "App currency ($userCurrency) doesn’t match your Tally company’s base currency ($baseCurrency). Please review or change your settings.",
-                style: const TextStyle(color: Colors.white),
+                style:  TextStyle(color: Colors.white),
               ),
             ),
             TextButton(
@@ -30,7 +30,7 @@ Future<void> checkCurrencyMismatch(BuildContext context) async {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Settings()));
               },
-              child: const Text(
+              child: Text(
                 "Change",
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),

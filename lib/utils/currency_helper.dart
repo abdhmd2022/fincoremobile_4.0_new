@@ -14,7 +14,6 @@ Future<void> checkCurrencyMismatch(BuildContext context) async {
         backgroundColor: Colors.orange.shade700,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
-
         duration: const Duration(seconds: 6), // 👈 stays longer now
         content: Row(
           children: [

@@ -139,6 +139,7 @@ Future<void> requestPermission() async {
 */
 
 // ✅ App lifecycle tracking
+
 @override
 void didChangeAppLifecycleState(AppLifecycleState state) async {
   if (state == AppLifecycleState.hidden ||
@@ -194,18 +195,7 @@ class MyApp extends StatelessWidget {
         highlightColor: Colors.transparent,        // optional, removes default purple glow
       ),
 
-
       home:  SplashScreen(),
     );
   }
 }
-
-/*class MyHttpOverrides extends HttpOverrides{
-  @override
-  HttpClient createHttpClient(SecurityContext? context){
-    return super.createHttpClient(context)
-      ..badCertificateCallback = (X509Certificate cert, String host, int
-      port)=> true;
-  }
-}*/
-

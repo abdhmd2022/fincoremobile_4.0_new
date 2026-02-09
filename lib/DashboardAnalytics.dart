@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants.dart';
+import 'currencyFormat.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   final List<Map<String, dynamic>> lineChartData;
@@ -58,10 +59,12 @@ class AnalyticsScreen extends StatefulWidget {
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   late NumberScale selectedScale;
+  bool showPercentage = false;
 
 
   String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",SecuritybtnAcessHolder= "";
   late SharedPreferences prefs;
+  final NumberFormat commaFormat = NumberFormat("#,##0.00");
 
 
   @override
@@ -487,89 +490,183 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     ),
                   ],
                 ),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      /// Sales Pie Chart
-                      Visibility(
-                        visible: widget.isSalesPieChartVisible,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Sales",
-                              style: GoogleFonts.poppins(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Container(
-                              width: MediaQuery.of(context).size.width - 40,
-                              height: 190,
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                    flex: 1,
-                                    child: _buildPieChart_Sales(widget.pieSalesList),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Flexible(
-                                    flex: 1,
-                                    child: SingleChildScrollView(
-                                      child: _buildLegend_Sales(widget.pieSalesList),
-                                    ),
-                                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// Sales Pie Chart
+                    Visibility(
+                      visible: widget.isSalesPieChartVisible,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.white.withOpacity(0.9),
+                                  Colors.white.withOpacity(0.7),
                                 ],
                               ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                              border: Border.all(color: Colors.grey.withOpacity(0.08)),
                             ),
-                            const SizedBox(height: 20),
-                          ],
-                        ),
-                      ),
+                            child: Column(
+                              children: [
 
-                      /// Purchase Pie Chart
-                      Visibility(
-                        visible: widget.isPurchasePieChartVisible,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Purchase",
-                              style: GoogleFonts.poppins(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Container(
-                              width: MediaQuery.of(context).size.width - 40,
-                              height: 190,
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                    flex: 1,
-                                    child: _buildPieChart_Purchase(widget.piePurchaseList),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Flexible(
-                                    flex: 1,
-                                    child: SingleChildScrollView(
-                                      child: _buildLegend_Purchase(widget.piePurchaseList),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    /// LEFT SIDE — Title + subtitle feel
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Sales",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.black87,
+                                            letterSpacing: 0.2,
+                                          ),
+                                        ),
+
+                                      ],
                                     ),
+
+                                    /// RIGHT SIDE — Modern segmented toggle
+                                    Container(
+                                      padding: const EdgeInsets.all(3),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade100,
+                                        borderRadius: BorderRadius.circular(30),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.05),
+                                            blurRadius: 6,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          _buildModernToggle("123", !showPercentage),
+                                          _buildModernToggle("%", showPercentage),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Container(
+                                  width: MediaQuery.of(context).size.width - 40,
+                                  height: 190,
+                                  child: Row(
+                                    children: [
+                                      Flexible(
+                                        flex: 1,
+                                        child: _buildPieChart_Sales(widget.pieSalesList),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Flexible(
+                                        flex: 1,
+                                        child: SingleChildScrollView(
+                                          child: _buildLegend_Sales(widget.pieSalesList),
+                                        ),
+                                      ),
+                                    ],
                                   ),
+                                ),
+                              ],
+                            ),
+
+                          ),
+
+
+
+
+
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+
+                    /// Purchase Pie Chart
+                    Visibility(
+                      visible: widget.isPurchasePieChartVisible,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.white.withOpacity(0.9),
+                                  Colors.white.withOpacity(0.7),
                                 ],
                               ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                              border: Border.all(color: Colors.grey.withOpacity(0.08)),
                             ),
-                          ],
-                        ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                              children: [
+                                Text(
+                                  "Purchase",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.black87,
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Container(
+                                  width: MediaQuery.of(context).size.width - 40,
+                                  height: 190,
+                                  child: Row(
+                                    children: [
+                                      Flexible(
+                                        flex: 1,
+                                        child: _buildPieChart_Purchase(widget.piePurchaseList),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Flexible(
+                                        flex: 1,
+                                        child: SingleChildScrollView(
+                                          child: _buildLegend_Purchase(widget.piePurchaseList),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+
+
+                          ),
+
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -578,6 +675,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       ),
     );
   }
+
   Color getRandomColor() {
     return Color.fromARGB(
       255,
@@ -586,6 +684,479 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       Random().nextInt(200),
     );
   }
+
+  Widget _buildModernToggle(String text, bool active) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          showPercentage = text == "%";
+        });
+      },
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 250),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+        child: AnimatedContainer(
+          key: ValueKey(active),
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(26),
+            gradient: active
+                ? LinearGradient(
+              colors: [
+                app_color,
+                app_color.withOpacity(0.8),
+              ],
+            )
+                : null,
+            color: active ? null : Colors.transparent,
+            boxShadow: active
+                ? [
+              BoxShadow(
+                color: app_color.withOpacity(0.35),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ]
+                : [],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+             /* AnimatedScale(
+                scale: active ? 1.0 : 0.92,
+                duration: const Duration(milliseconds: 220),
+                child: Icon(
+                  text == "%" ? Icons.percent_rounded : Icons.payments,
+                  size: 14,
+                  color: active ? Colors.white : Colors.black54,
+                ),
+              ),*/
+
+              /// ONLY SHOW TEXT IF NOT %
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 220),
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: active ? Colors.white : Colors.black54,
+                ),
+                child: Text(text),
+              ),
+            ],
+          ),
+
+        ),
+      ),
+    );
+  }
+
+/// existing pie chart -> start
+  Widget _buildPieChart_Sales(List<dynamic> salesData) {
+    pieChartColors_sales.clear();
+    pieChartColors_sales = generateRandomColors(salesData.length);
+
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+
+        ),
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: PieChart(
+            PieChartData(
+              centerSpaceRadius: 0, // ✅ full solid center (filled look)
+              startDegreeOffset: -90,
+              sectionsSpace: 1.5,
+              borderData: FlBorderData(show: false),
+              sections: _generateChartData_Sales(salesData),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<PieChartSectionData> _generateChartData_Sales(List<dynamic> salesData) {
+    final total = salesData.fold<double>(
+      0,
+          (sum, item) => sum + (item['amount'] ?? 0).toDouble().abs(),
+    );
+
+    return List.generate(salesData.length, (i) {
+      final data = salesData[i];
+      final color = pieChartColors_sales[i];
+      final value = (data['amount'] ?? 0).toDouble().abs();
+
+      final ratio = total == 0 ? 0 : (value / total);
+      final isSmallSlice = ratio < 0.15;
+
+      return PieChartSectionData(
+        value: value,
+
+        /// ✅ USE SAME FORMATTER AS LINE/BAR CHART
+        title: isSmallSlice
+            ? ""
+            : showPercentage
+            ? "${((value / total) * 100).toStringAsFixed(1)}%"
+            : formatNumberAbbreviation(
+          value,
+          scale: selectedScale,
+          decimalPlaces: widget.decimalPlaces,
+          showSuffix: false,
+        ),
+
+        titleStyle: const TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+
+        radius: 85,
+
+
+
+        color: color,
+        borderSide: BorderSide.none,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color.withOpacity(0.95),
+            color.withOpacity(0.65),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildLegend_Sales(List<dynamic> data) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        maxHeight: 180,
+      ),
+      child: SingleChildScrollView(
+        child: Wrap(
+          spacing: 10,
+          runSpacing: 8,
+          children: List.generate(data.length, (i) {
+            final item = data[i];
+            String title = item['name'] ?? '';
+            double value = (item['amount'] ?? 0).toDouble().abs();
+            Color color = pieChartColors_sales[i];
+            final total = data.fold<double>(
+              0,
+                  (sum, e) => sum + (e['amount'] ?? 0).toDouble().abs(),
+            );
+
+            return Container(
+              constraints: const BoxConstraints(
+                maxWidth: 220,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withOpacity(0.9),
+                    Colors.white.withOpacity(0.6),
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+                border: Border.all(color: Colors.grey.withOpacity(0.08)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 14,
+                    height: 14,
+                    margin: const EdgeInsets.only(top: 2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          color.withOpacity(0.95),
+                          color.withOpacity(0.6),
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: color.withOpacity(0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black.withOpacity(0.75),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          showPercentage
+                              ? "${total == 0 ? 0 : ((value.abs() / total) * 100).toStringAsFixed(1)}%"
+                              : CurrencyFormatter.formatCurrency_double(value),
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black54,
+                          ),
+                        ),
+
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPieChart_Purchase(List<dynamic> purchaseData) {
+    pieChartColors_purchase.clear();
+    pieChartColors_purchase = generateRandomColors(purchaseData.length);
+
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+
+        ),
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: PieChart(
+            PieChartData(
+              centerSpaceRadius: 0, // ✅ full solid center
+              startDegreeOffset: -90,
+              sectionsSpace: 1.5,
+              borderData: FlBorderData(show: false),
+              sections: _generateChartData_Purchase(purchaseData),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<PieChartSectionData> _generateChartData_Purchase(List<dynamic> purchaseData) {
+    final total = purchaseData.fold<double>(
+      0,
+          (sum, item) => sum + (item['amount'] ?? 0).toDouble().abs(),
+    );
+
+    return List.generate(purchaseData.length, (i) {
+      final data = purchaseData[i];
+      final color = pieChartColors_purchase[i];
+      final value = (data['amount'] ?? 0).toDouble().abs();
+
+      final ratio = total == 0 ? 0 : (value / total);
+
+      return PieChartSectionData(
+        value: value,
+
+        /// 🔥 Same abbreviation logic as Sales
+        title: ratio > 0.12
+            ? showPercentage
+            ? "${(ratio * 100).toStringAsFixed(1)}%"
+            : formatNumberAbbreviation(
+          value,
+          scale: selectedScale,
+          decimalPlaces: widget.decimalPlaces,
+          showSuffix: false,
+        )
+            : "",
+
+
+        titleStyle: const TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+
+        color: color,
+        radius: 85,
+        borderSide: BorderSide.none,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color.withOpacity(0.95),
+            color.withOpacity(0.65),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildLegend_Purchase(List<dynamic> data) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        maxHeight: 180,
+      ),
+      child: SingleChildScrollView(
+        child: Wrap(
+          spacing: 10,
+          runSpacing: 8,
+          children: List.generate(data.length, (i) {
+            final item = data[i];
+            String title = item['name'] ?? '';
+            double value = (item['amount'] ?? 0).toDouble().abs();
+            Color color = pieChartColors_purchase[i];
+            final total = data.fold<double>(
+              0,
+                  (sum, e) => sum + (e['amount'] ?? 0).toDouble().abs(),
+            );
+
+            return Container(
+              constraints: const BoxConstraints(
+                maxWidth: 220,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withOpacity(0.9),
+                    Colors.white.withOpacity(0.6),
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+                border: Border.all(color: Colors.grey.withOpacity(0.08)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 14,
+                    height: 14,
+                    margin: const EdgeInsets.only(top: 2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          color.withOpacity(0.95),
+                          color.withOpacity(0.6),
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: color.withOpacity(0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          softWrap: true,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black.withOpacity(0.75),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+
+                        /// 🔥 Currency + comma separation
+                        Text(
+                          showPercentage
+                              ? "${total == 0 ? 0 : ((value.abs() / total) * 100).toStringAsFixed(1)}%"
+                              : CurrencyFormatter.formatCurrency_double(value),
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black54,
+                          ),
+                        ),
+
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+  /// existing pie chart -> end
+
+  Widget _buildToggleButton(String text, bool active) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          showPercentage = text == "%";
+        });
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: active ? app_color : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          text,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: active ? Colors.white : Colors.black54,
+          ),
+        ),
+      ),
+    );
+  }
+
+
 }
 
 Widget _buildLegend(Color color, String title) {
@@ -607,235 +1178,9 @@ Widget _buildLegend(Color color, String title) {
 
 List<Color> pieChartColors_sales = [];
 List<Color> pieChartColors_purchase =[];
-Widget _buildLegend_Sales(List<dynamic> data) {
-  return ConstrainedBox(
-    constraints: const BoxConstraints(
-      maxHeight: 180,
-    ),
-    child: SingleChildScrollView(
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 8,
-        children: data.map<Widget>((item) {
-          String title = item['name'] ?? '';
-          Color color = pieChartColors_sales[data.indexOf(item)];
 
-          return Container(
-            constraints: const BoxConstraints(
-              maxWidth: 220, // ✅ wrap width limit per chip
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withOpacity(0.9),
-                  Colors.white.withOpacity(0.6),
-                ],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-              border: Border.all(color: Colors.grey.withOpacity(0.08)),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 14,
-                  height: 14,
-                  margin: const EdgeInsets.only(top: 2),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [
-                        color.withOpacity(0.95),
-                        color.withOpacity(0.6),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: color.withOpacity(0.3),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    softWrap: true,
-                    overflow: TextOverflow.visible,
-                    style: GoogleFonts.poppins(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black.withOpacity(0.75),
-                      height: 1.3,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    ),
-  );
-}
 
-Widget _buildLegend_Purchase(List<dynamic> data) {
-  return ConstrainedBox(
-    constraints: const BoxConstraints(
-      maxHeight: 180,
-    ),
-    child: SingleChildScrollView(
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 8,
-        children: data.map<Widget>((item) {
-          String title = item['name'] ?? '';
-          Color color = pieChartColors_purchase[data.indexOf(item)];
 
-          return Container(
-            constraints: const BoxConstraints(
-              maxWidth: 220, // ✅ keeps long text nicely wrapped
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withOpacity(0.9),
-                  Colors.white.withOpacity(0.6),
-                ],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-              border: Border.all(color: Colors.grey.withOpacity(0.08)),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 14,
-                  height: 14,
-                  margin: const EdgeInsets.only(top: 2),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [
-                        color.withOpacity(0.95),
-                        color.withOpacity(0.6),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: color.withOpacity(0.3),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    softWrap: true,
-                    overflow: TextOverflow.visible,
-                    style: GoogleFonts.poppins(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black.withOpacity(0.75),
-                      height: 1.3,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    ),
-  );
-}
-Widget _buildPieChart_Purchase(List<dynamic> purchaseData) {
-  pieChartColors_purchase.clear();
-  pieChartColors_purchase = generateRandomColors(purchaseData.length);
-
-  return Center(
-    child: Container(
-      margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: PieChart(
-          PieChartData(
-            centerSpaceRadius: 0, // ✅ full solid center
-            startDegreeOffset: -90,
-            sectionsSpace: 1.5,
-            borderData: FlBorderData(show: false),
-            sections: _generateChartData_Purchase(purchaseData),
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-List<PieChartSectionData> _generateChartData_Purchase(List<dynamic> purchaseData) {
-  return purchaseData.map((data) {
-    final color = pieChartColors_purchase[purchaseData.indexOf(data)];
-
-    return PieChartSectionData(
-      value: (data['amount'] ?? 0).toDouble().abs(), // ✅ safe conversion
-      title: '',
-      color: color,
-      radius: 85, // ✅ balanced slice thickness
-      borderSide: BorderSide.none,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          color.withOpacity(0.95),
-          color.withOpacity(0.65),
-        ],
-      ),
-    );
-  }).toList();
-}
 
 List<Color> generateRandomColors(int count) {
   List<Color> colors = [];
@@ -1050,61 +1395,8 @@ class BarChartWidget extends StatelessWidget {
 }
 
 
-Widget _buildPieChart_Sales(List<dynamic> salesData) {
-  pieChartColors_sales.clear();
-  pieChartColors_sales = generateRandomColors(salesData.length);
 
-  return Center(
-    child: Container(
-      margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: PieChart(
-          PieChartData(
-            centerSpaceRadius: 0, // ✅ full solid center (filled look)
-            startDegreeOffset: -90,
-            sectionsSpace: 1.5,
-            borderData: FlBorderData(show: false),
-            sections: _generateChartData_Sales(salesData),
-          ),
-        ),
-      ),
-    ),
-  );
-}
 
-List<PieChartSectionData> _generateChartData_Sales(List<dynamic> salesData) {
-  return salesData.map((data) {
-    final color = pieChartColors_sales[salesData.indexOf(data)];
 
-    return PieChartSectionData(
-      value: (data['amount'] ?? 0).toDouble().abs(), // ✅ cleaner & safe
-      title: '',
-      color: color,
-      radius: 85, // ✅ balanced slice thickness
-      borderSide: BorderSide.none,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          color.withOpacity(0.95),
-          color.withOpacity(0.65),
-        ],
-      ),
-    );
-  }).toList();
-}
 
 

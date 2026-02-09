@@ -192,7 +192,7 @@ class Sidebar extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Text(
-              '© CSH LLC 2023-2025 • Version 4.0',
+              '© CSH LLC 2023-2026 • Version 4.0',
               style: GoogleFonts.poppins(
                 fontSize: 12,
                 color: Colors.grey.shade600,

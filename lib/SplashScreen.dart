@@ -255,7 +255,7 @@ class _SplashScreenState extends State<SplashScreen> {
           right: 0,
           child: Center(
             child: Text(
-              "© 2023-2025 CSH LLC. All Rights Reserved.",
+              "© 2023-2026 CSH LLC. All Rights Reserved.",
               style: GoogleFonts.poppins(
                 color: Colors.black54,
                 fontSize: 12,

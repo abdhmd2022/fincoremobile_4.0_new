@@ -183,7 +183,7 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
 
   <div style="border-top: 1px solid #ccc; padding-top: 10px; margin-top: 10px; text-align: center;">
     <p style="font-size: 10px; color: #a3a2a2; line-height: 1.4;">
-      © 2023-2025 Chaturvedi Software House LLC. All Rights Reserved<br>
+      © 2023-2026 Chaturvedi Software House LLC. All Rights Reserved<br>
       513 Al Khaleej Center, Bur Dubai, Dubai, United Arab Emirates | +97143258361
     </p>
   </div>

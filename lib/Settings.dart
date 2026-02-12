@@ -504,7 +504,7 @@ class Settings extends StatefulWidget {
       ),
 
       body: ListView.separated(
-        itemCount: 7,
+        itemCount: 8,
         separatorBuilder: (_, __) =>  Divider(height: 1, thickness: 0.5),
         itemBuilder: (context, index) {
           switch (index) {
@@ -558,6 +558,26 @@ class Settings extends StatefulWidget {
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AgeingConfig())),
               );
             case 7:
+              return _buildTile(
+                icon: Icons.stacked_bar_chart_rounded,
+                title: 'Fast/Slow/Inactive Items',
+                subtitle: 'Customize Fast/Slow/Inactive Items Criteria',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => FastMovingInactiveItemsCriteria(
+                        fastmoving_visible: true,
+                        slowmoving_visible: true,
+                        inactive_visible: true,
+                      ),
+                    ),
+                  );
+                },
+              );
+
+
+            case 8:
               return _buildTile(
                 icon: Icons.stacked_bar_chart_rounded,
                 title: 'Fast/Slow/Inactive Items',

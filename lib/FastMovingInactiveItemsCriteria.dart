@@ -132,6 +132,8 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
              print('$fastmovingitemsdays  $fastmovingitemsqty  $fastmovingitemsvalue  $slowmovingitemsdays  $slowmovingitemsqty  $slowmovingitemsvalue  $inactiveitemsdays');
 
              showToast('Criteria Saved');
+
+
            }
        }
      else

@@ -2164,18 +2164,20 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
       ),
     );
 
-    // 🧠 Save PDF to temp directory
-    final tempDir = await getTemporaryDirectory();
-    final tempFilePath =
-        '${tempDir.path}/${_selectedpartyledger ?? "SalesOrder"}.pdf';
-    final file = File(tempFilePath);
-    await file.writeAsBytes(await pdf.save());
+    final pdfData = await pdf.save();
 
-    // ✅ Share PDF file (latest API)
+    final dir = await getApplicationDocumentsDirectory();
+
+    final filePath = '${dir.path}/${_selectedpartyledger ?? "SalesOrder"}.pdf';
+
+    final file = File(filePath);
+    await file.writeAsBytes(pdfData);
+
     await Share.shareXFiles(
-      [XFile(tempFilePath)],
+      [XFile(filePath, mimeType: 'application/pdf')],
       text: 'Sharing Sales Order for $_selectedpartyledger',
     );
+
 
     setState(() {
       controller_narration.clear();

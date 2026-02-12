@@ -2049,18 +2049,18 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
     // 🗂 Save to temp file
     final pdfData = await pdf.save();
-    final tempDir = await getTemporaryDirectory();
-    final tempFilePath =
-        '${tempDir.path}/SaleInvoice_${_selectedpartyledger ?? "Unknown"}.pdf';
-    final file = File(tempFilePath);
+
+    final dir = await getApplicationDocumentsDirectory();
+    final filePath = '${dir.path}/SaleInvoice.pdf';
+
+    final file = File(filePath);
     await file.writeAsBytes(pdfData);
 
-    // ✅ Share using ShareXFiles (modern API)
-    final xfile = XFile(tempFilePath);
     await Share.shareXFiles(
-      [xfile],
+      [XFile(filePath, mimeType: 'application/pdf')],
       text: 'Sharing Sale Invoice for $_selectedpartyledger',
     );
+
 
     setState(() {
       controller_narration.clear();

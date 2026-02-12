@@ -1441,15 +1441,20 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       ),
     );
 
+
     final pdfData = await pdf.save();
-    final tempDir = await getTemporaryDirectory();
-    final tempFilePath = '${tempDir.path}/$_selectedparty.pdf';
-    await File(tempFilePath).writeAsBytes(pdfData);
+
+    final dir = await getApplicationDocumentsDirectory();
+    final filePath = '${dir.path}/$_selectedparty.pdf';
+
+    final file = File(filePath);
+    await file.writeAsBytes(pdfData);
 
     await Share.shareXFiles(
-      [XFile(tempFilePath)],
+      [XFile(filePath, mimeType: 'application/pdf')],
       text: 'Sharing Receipt Voucher for $_selectedparty',
     );
+
 
 
     setState(() {

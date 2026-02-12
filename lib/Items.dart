@@ -2097,7 +2097,6 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
   void _showInactiveDaysDialog(BuildContext context) {
     final TextEditingController daysController = TextEditingController();
     daysController.text = inactivedays.toString();
-
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -2201,18 +2200,14 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                         if (input.isNotEmpty && int.tryParse(input) != null) {
                           inactivedays = input;
 
-
-
                           // Call your same logic with days
                           fetchItemData('InactiveItems', _selecteditem);
-
                           Navigator.pop(ctx);
                         }
                       },
                       child: Text(
                         "Apply",
                         style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500,
-
                         color: Colors.white),
                       ),
                     ),
@@ -2225,6 +2220,4 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
       },
     );
   }
-
-
 }

@@ -2187,8 +2187,10 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                       child: const Text("Cancel"),
                     ),
                     ElevatedButton(
+
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal,
+
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -2207,9 +2209,11 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                           Navigator.pop(ctx);
                         }
                       },
-                      child: const Text(
+                      child: Text(
                         "Apply",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500,
+
+                        color: Colors.white),
                       ),
                     ),
                   ],

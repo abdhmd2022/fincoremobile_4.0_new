@@ -1691,7 +1691,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                             fontWeight: FontWeight.w600)),
                   ),
 
-                  const SizedBox(height: 12),
+                  /*const SizedBox(height: 12),
                   GestureDetector(
                     onTap: () => navigateToPDFView(context),
                     child: Text.rich(
@@ -1712,7 +1712,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                  ),
+                  ),*/
                 ],
               ),
             ),

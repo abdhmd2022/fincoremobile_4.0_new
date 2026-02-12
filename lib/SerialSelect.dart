@@ -1025,7 +1025,6 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
 
                         // Card Content
                         Container(
-                          height: 130,
                           width: double.infinity,
                           padding: EdgeInsets.all(20),
                           decoration: BoxDecoration(
@@ -1076,7 +1075,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 6),
+                              /*SizedBox(height: 6),
                               Row(
                                 children: [
                                   Icon(Icons.lock_clock, size: 18, color: Colors.white),
@@ -1095,7 +1094,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                                   ),
 
                                 ],
-                              ),
+                              ),*/
                             ],
                           ),
                         ),

@@ -1492,8 +1492,6 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
         }
         license_expiry = _selectedadmin[0]['license_expiry'].toString();
 
-
-
         if(license_expiry!= "null" || license_expiry !="") {
           DateTime expire_date = DateTime.parse(license_expiry);
           DateTime today_date = DateTime.now();

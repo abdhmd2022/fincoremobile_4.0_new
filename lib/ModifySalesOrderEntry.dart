@@ -535,12 +535,10 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
       totalVatAmount = 0,
       totalAmount = 0;
 
-
-
   late ProgressDialog progressDialog;
 
-
   double totalPriceOfItems = 0, totalAmountForVatAppEntries = 0,totalAmountOfLedgers = 0;
+
   final FocusNode _textFieldFocusNodeNarration = FocusNode();
 
   Map<String, dynamic> jsonEntryData = {
@@ -554,14 +552,12 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
     "LEDGERENTRIES.LIST": [],
   };
 
-
   bool isVisibleItemHeading = false,
       isVisibleLedgerHeading = false;
 
   bool isVisibleUnit = true;
 
   final _formKey = GlobalKey<FormState>();
-
 
   bool isVisibleLocation = false;
 
@@ -621,7 +617,6 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
       _isFocused_totalno = false,
       _isFocused_totalamt = false,
       _isFocused_orderno = false;
-
 
   String? hostname = "",
       company = "",

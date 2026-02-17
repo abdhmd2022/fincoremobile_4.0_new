@@ -82,7 +82,6 @@ class SaleItem {
   }
 }
 
-
 class Unit {
   final String name;
   final double multiplier;
@@ -124,12 +123,10 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
   Map<String, dynamic> data;
   _ModifySalesOrderEntryPageState(
       {
-
         required this.id,
         required this.isSynced,
         required this.type,
         required this.data,
-
       }
       );
 
@@ -139,8 +136,8 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
       isUserVisible = true,
       isRolesEnable = true,
       _isLoading = false,
-
       isVisibleNoUserFound = false;
+
   TextEditingController _itemController = TextEditingController();
   TextEditingController _partyLedgerController = TextEditingController();
 
@@ -281,9 +278,6 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
       }
     });
   }
-
-
-
 
   void _confirmItemDeletion(BuildContext context, int index, String itemname) {
     showDialog(
@@ -426,9 +420,6 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
       fetchvchnos(_selectedvchtypename);
     }
   }
-  
-
-
 
   Future<void> fetchvchnos(String vchname) async {
 
@@ -514,7 +505,6 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
     });
   }
 
-
   void checkVchNoExistence(String vchNo) {
 
     if(vchNo.isEmpty || vchNo == '')
@@ -539,8 +529,6 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
 
 
   }
-
-
 
   double ledgerVatAmount = 0,
       itemsVatAmount = 0,
@@ -631,7 +619,6 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
       _isFocused_narration = false,
       _isFocused_vatamt = false,
       _isFocused_totalno = false,
-
       _isFocused_totalamt = false,
       _isFocused_orderno = false;
 
@@ -4455,6 +4442,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                               ),
                               child: const Icon(Icons.calendar_today, color: Colors.white, size: 20),
                             ),
+
                             const SizedBox(width: 14),
 
                             // text column
@@ -4550,7 +4538,6 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                                         onTap: () => _selectsaleDate(context),
                                       ),
                                     ),
-
 
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
@@ -4905,7 +4892,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                                           enabled: true,
                                           controller: controller_orderno,
                                           validator: (value) {
-                                            if(value!.isEmpty || value == null)
+                                            if(value!.isEmpty)
                                             {
                                               return 'Order No value cannot be empty';
                                             }
@@ -5796,7 +5783,8 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                                           });
                                         },
                                       ),
-                                    ),],),),
+                                    ),
+                                  ],),),
 
                               Padding(
                                 padding: const EdgeInsets.only(top: 15, left: 20, right: 20, bottom: 0),

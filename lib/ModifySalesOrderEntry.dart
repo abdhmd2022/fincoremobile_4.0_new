@@ -2157,7 +2157,6 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                     ),
                   ),
                 ),
-
               ]
           );
         },

@@ -2742,7 +2742,6 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
     );
   }
 
-
   /*Future<void> saveEntry(int id) async {
 
     if (saleItems.isEmpty) {
@@ -2897,6 +2896,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
       }
     }
   }*/
+
   String extractQuantity(String inputString) {
     RegExp quantityRegex = RegExp(r'(\d+)'); // Match one or more digits
 
@@ -2911,8 +2911,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
     }
   }
 
-  Future<void> loadData() async
-  {
+  Future<void> loadData() async {
     vchtypenamedata.clear();
     itemdata.clear();
     salesledger_data.clear();
@@ -2940,7 +2939,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
         'type': "sales order",
       });
       final response = await http.post
-        (
+      (
           url,
           body:body,
           headers:headers

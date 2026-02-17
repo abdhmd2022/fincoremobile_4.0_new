@@ -1776,6 +1776,4 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
      }
    }
 
-
-
 }

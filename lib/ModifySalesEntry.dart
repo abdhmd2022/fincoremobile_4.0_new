@@ -2979,7 +2979,7 @@ _itemController.text = _selecteditem;
 
         setState(() {
 
-          showSalesInvoiceBottomSheet(context,tinValue,address,emirate, country);
+          showSalesInvoiceDialogUpdated(context,tinValue,address,emirate, country);
         });
       }
       else
@@ -3233,115 +3233,136 @@ _itemController.text = _selecteditem;
 
     });}
 
-  void showSalesInvoiceBottomSheet(BuildContext context,String trn, String address,String emirate, String country) {
-    showModalBottomSheet(
-      backgroundColor: Colors.white,
+  void showSalesInvoiceDialogUpdated(BuildContext context, String trn, String address, String emirate, String country) {
+    showGeneralDialog(
       context: context,
-      builder: (BuildContext context) {
-        return SizedBox(
-          height: MediaQuery.of(context).size.height * 0.30, // Set height as per your requirement
-          child: Container(
-            padding: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.green, // Change the color as per your requirement
-                      width: 4.0, // Change the width as per your requirement
-                    )),
-                  child: Icon(
-                    Icons.done,
-                    size: 40,
-                    color: Colors.green, // Change the color as per your requirement
-                  ),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Do you want to share the sales invoice?',
-                  style: GoogleFonts.poppins(fontSize: 18.0),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Sales Invoice Updated Successfully',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(fontSize: 16.0, fontWeight: FontWeight.bold)
-                ),
-
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => PendingSalesEntry()),
-                        );
-
-                      },
-                      icon: const Icon(
-                        Icons.close_rounded,
-                        size: 20,
-                        color: Colors.white,
-                      ),
-                      label: Text(
-                        'No, Thanks',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent, // 🔴 better contrast
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30), // pill shape
-                        ),
-                        elevation: 4,
-                        shadowColor: Colors.redAccent.withOpacity(0.3),
+      barrierDismissible: false,
+      barrierLabel: "SalesInvoiceUpdated",
+      barrierColor: Colors.black.withOpacity(0.35),
+      transitionDuration: const Duration(milliseconds: 280),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.85,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28), // rounded corners
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.green,
+                        width: 4.0,
                       ),
                     ),
-                    SizedBox(width: 20),
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        Navigator.pop(context); // Close the bottom sheet
-                        await generateInvoicePDF(trn, address, emirate, country);
-                      },
-                      icon: const Icon(
-                        Icons.share_rounded,
-                        size: 20,
-                        color: Colors.white,
-                      ),
-                      label: Text(
-                        'Share',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.poppins(
+                    child: const Icon(
+                      Icons.done,
+                      size: 40,
+                      color: Colors.green,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Do you want to share the sales invoice?',
+                    style: GoogleFonts.poppins(fontSize: 18.0),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Sales Invoice Updated Successfully',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => PendingSalesEntry()),
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          size: 20,
                           color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                        ),
+                        label: Text(
+                          'No, Thanks',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                          shadowColor: Colors.redAccent.withOpacity(0.3),
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: app_color, // ✅ your theme color
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30), // pill style
+                      const SizedBox(width: 20),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await generateInvoicePDF(trn, address, emirate, country);
+                        },
+                        icon: const Icon(
+                          Icons.share_rounded,
+                          size: 20,
+                          color: Colors.white,
                         ),
-                        elevation: 4,
-                        shadowColor: app_color.withOpacity(0.3), // subtle shadow
-                      ),
-                    )
-                  ],
-                ),
-              ],
+                        label: Text(
+                          'Share',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: app_color,
+                          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                          shadowColor: app_color.withOpacity(0.3),
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ),
             ),
+          ),
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return Transform.scale(
+          scale: Curves.easeOutBack.transform(animation.value),
+          child: Opacity(
+            opacity: animation.value,
+            child: child,
           ),
         );
       },
@@ -3588,6 +3609,7 @@ _itemController.text = _selecteditem;
           _selectedvchtypename = oldvchname;
           fetchvchnos(_selectedvchtypename);
           partyledgerdata = jsonResponse["partyLedgers"].cast<String>();
+          _partyLedgerController.text = oldpartyledger;
           _selectedpartyledger = oldpartyledger;
 
           salesledger_data = jsonResponse["salesLedgers"].cast<String>();
@@ -4190,10 +4212,25 @@ _itemController.text = _selecteditem;
                   Visibility(
                     visible: isVisibleLocation,
                     child: DropdownButtonFormField<String>(
+
+                      isExpanded: true,
+
+
                       value: selectedLocation,
                       items: locationsdata.map((value) {
-                        return DropdownMenuItem(value: value, child: Text(value));
+                        return DropdownMenuItem(
+                          value: value,
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              value,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        );
                       }).toList(),
+
                       onChanged: (val) => setState(() => selectedLocation = val!),
                       decoration: InputDecoration(
                         labelText: "Location",
@@ -5376,6 +5413,7 @@ _itemController.text = _selecteditem;
                                     child: SizedBox(
                                       width: MediaQuery.of(context).size.width,
                                       child: TypeAheadField<String>(
+                                        controller: _partyLedgerController,
                                         suggestionsCallback: (pattern) async {
                                           return partyledgerdata
                                               .where((item) => item.toLowerCase().contains(pattern.toLowerCase()))
@@ -5383,9 +5421,9 @@ _itemController.text = _selecteditem;
                                         },
 
                                         // 🔹 Modern text field builder
-                                        builder: (context, controller, focusNode) {
+                                        builder: (context, textController, focusNode) {
                                           return TextField(
-                                            controller: _partyLedgerController,
+                                            controller: textController,
                                             focusNode: focusNode,
                                             style: GoogleFonts.poppins(
                                               fontSize: 14,
@@ -5393,14 +5431,14 @@ _itemController.text = _selecteditem;
                                               color: Colors.black87,
                                             ),
                                             decoration: InputDecoration(
-                                              hintText: "Search Party Ledger",
+                                              hintText: _selectedpartyledger?.isNotEmpty == true
+                                                  ? _selectedpartyledger
+                                                  : "Select Party Ledger",
                                               hintStyle: GoogleFonts.poppins(
                                                 fontSize: 13,
                                                 color: Colors.grey[600],
                                               ),
-                                              labelText: _selectedpartyledger?.isNotEmpty == true
-                                                  ? _selectedpartyledger
-                                                  : "Select Party Ledger",
+                                              labelText: "Party Ledger",
                                               labelStyle: GoogleFonts.poppins(
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w500,
@@ -5433,10 +5471,14 @@ _itemController.text = _selecteditem;
                                                     IconButton(
                                                       icon: const Icon(Icons.close, color: Colors.grey, size: 20),
                                                       onPressed: () {
-                                                        _partyLedgerController.clear();
-                                                        setState(() => _selectedpartyledger = "");
+                                                        setState(() {
+                                                          _partyLedgerController.clear();
+                                                          _selectedpartyledger = "";
+                                                        });
+
                                                       },
                                                     ),
+
                                                   const Icon(Icons.arrow_drop_down, color: Colors.grey),
                                                   const SizedBox(width: 6),
                                                 ],
@@ -5472,6 +5514,7 @@ _itemController.text = _selecteditem;
                                           );
                                         },
 
+
                                         // 🔹 Suggestion item UI
                                         itemBuilder: (context, String suggestion) {
                                           return ListTile(
@@ -5490,9 +5533,10 @@ _itemController.text = _selecteditem;
                                         onSelected: (String suggestion) {
                                           setState(() {
                                             _selectedpartyledger = suggestion;
-                                            _partyLedgerController.text = _selectedpartyledger;
+                                            _partyLedgerController.text = suggestion;   // instead of _partyLedgerController
                                           });
                                         },
+
 
                                         // 🔹 Empty result text
                                         emptyBuilder: (context) => Padding(

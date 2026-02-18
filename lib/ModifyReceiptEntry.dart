@@ -683,124 +683,137 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
     return formattedAmount;
   }
 
-  void showReceiptVoucherBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      backgroundColor: Colors.white,
+  void showReceiptVoucherUpdatedDialog(BuildContext context) {
+    showGeneralDialog(
       context: context,
-      builder: (BuildContext context) {
-        return SizedBox(
-          height: MediaQuery.of(context).size.height * 0.30, // Set height as per your requirement
-          child: Container(
-            padding: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.green, // Change the color as per your requirement
-                      width: 4.0, // Change the width as per your requirement
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.done,
-                    size: 40,
-                    color: Colors.green, // Change the color as per your requirement
-                  ),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Do you want to share the receipt voucher?',
-                  textAlign: TextAlign.center,
-
-                  style: GoogleFonts.poppins(fontSize: 18.0),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Receipt Voucher Updated Successfully',
-                  textAlign: TextAlign.center,
-
-                  style: GoogleFonts.poppins(fontSize: 16.0, fontWeight: FontWeight.bold),
-                ),
-                // Add your sales invoice details here
-                SizedBox(height: 20),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context); // Close the bottom sheet
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => PendingReceiptEntry()),
-                        );
-                        // Action when "No Thanks" button is clicked
-                      },
-                      icon: const Icon(
-                        Icons.close_rounded,
-                        size: 20,
-                        color: Colors.white,
-                      ),
-                      label: Text(
-                        'No, Thanks',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent, // 🔴 better contrast
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30), // pill shape
-                        ),
-                        elevation: 4,
-                        shadowColor: Colors.redAccent.withOpacity(0.3),
+      barrierDismissible: false,
+      barrierLabel: "ReceiptVoucherUpdated",
+      barrierColor: Colors.black.withOpacity(0.35),
+      transitionDuration: const Duration(milliseconds: 280),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.85,
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.green,
+                        width: 4.0,
                       ),
                     ),
-
-                    SizedBox(width: 20),
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        Navigator.pop(context); // Close the bottom sheet
-                        await generateVoucherPDF();
-                      },
-
-                      icon: const Icon(
-                        Icons.share_rounded,
-                        size: 20,
-                        color: Colors.white,
-                      ),
-                      label: Text(
-                        'Share',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.poppins(
+                    child: const Icon(
+                      Icons.done,
+                      size: 40,
+                      color: Colors.green,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Do you want to share the receipt voucher?',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(fontSize: 18.0),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Receipt Voucher Updated Successfully',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => PendingReceiptEntry()),
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          size: 20,
                           color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                        ),
+                        label: Text(
+                          'No, Thanks',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                          shadowColor: Colors.redAccent.withOpacity(0.3),
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: app_color, // ✅ your theme color
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30), // pill style
+                      const SizedBox(width: 20),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await generateVoucherPDF();
+                        },
+                        icon: const Icon(
+                          Icons.share_rounded,
+                          size: 20,
+                          color: Colors.white,
                         ),
-                        elevation: 4,
-                        shadowColor: app_color.withOpacity(0.3), // subtle shadow
-                      ),
-                    )
-
-                  ],
-                ),
-
-              ],
+                        label: Text(
+                          'Share',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: app_color,
+                          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                          shadowColor: app_color.withOpacity(0.3),
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ),
             ),
+          ),
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return Transform.scale(
+          scale: Curves.easeOutBack.transform(animation.value),
+          child: Opacity(
+            opacity: animation.value,
+            child: child,
           ),
         );
       },
@@ -1851,7 +1864,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
         if (response_receiptentry.statusCode == 200) {
           if(response_receiptentry.body == 'Entry updated successfully') {
 
-            showReceiptVoucherBottomSheet(context);
+            showReceiptVoucherUpdatedDialog(context);
 
           }
           else

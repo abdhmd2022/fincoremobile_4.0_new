@@ -2061,7 +2061,6 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       text: 'Sharing Sale Invoice for $_selectedpartyledger',
     );
 
-
     setState(() {
       controller_narration.clear();
       controller_refno.clear();
@@ -2618,170 +2617,171 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
     });
   }
 
-  void showSalesInvoiceBottomSheet(BuildContext context,String trn, String address,String emirate, String country) {
-    showModalBottomSheet(
-      backgroundColor: Colors.white,
+  void showSalesInvoiceDialog(BuildContext context, String trn, String address, String emirate, String country) {
+    showGeneralDialog(
       context: context,
-      builder: (BuildContext context) {
-        return SizedBox(
-          height: MediaQuery.of(context).size.height * 0.30, // Set height as per your requirement
-          child: Container(
-            color: Colors.white,
-            padding: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.green, // Change the color as per your requirement
-                      width: 4.0, // Change the width as per your requirement
+      barrierDismissible: false,
+      barrierLabel: "SalesInvoice",
+      barrierColor: Colors.black.withOpacity(0.35),
+      transitionDuration: const Duration(milliseconds: 280),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.85,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28), // 🔥 more rounded
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.green, width: 4.0),
                     ),
+                    child: const Icon(Icons.done, size: 40, color: Colors.green),
                   ),
-                  child: Icon(
-                    Icons.done,
-                    size: 40,
-                    color: Colors.green, // Change the color as per your requirement
+                  const SizedBox(height: 20),
+                  Text(
+                    'Do you want to share the sales invoice?',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(fontSize: 18.0),
                   ),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Do you want to share the sales invoice?',
-                  textAlign: TextAlign.center,
+                  const SizedBox(height: 10),
+                  Text(
+                    'Sales Invoice Created Successfully',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(fontSize: 16.0, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            controller_narration.clear();
+                            controller_refno.clear();
+                            _textFieldFocusNodeNarration.unfocus();
 
-                  style: GoogleFonts.poppins(fontSize: 18.0),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Sales Invoice Created Successfully',
-                  textAlign: TextAlign.center,
+                            saledate = DateTime.now();
+                            saledatestring = _dateFormat.format(saledate);
+                            saledatetxt = formatlastsaledate(saledatestring);
+                            _dateController.text = saledatetxt;
 
-                  style: GoogleFonts.poppins(fontSize: 16.0, fontWeight: FontWeight.bold),
-                ),
-                // Add your sales invoice details here
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          controller_narration.clear();
-                          controller_refno.clear();
-                          _textFieldFocusNodeNarration.unfocus();
+                            refdate = DateTime.now();
+                            refdatestring = _dateFormat.format(refdate);
+                            refdatetxt = formatlastsaledate(refdatestring);
+                            _refdateController.text = refdatetxt;
 
-                          saledate = DateTime.now();
-                          saledatestring = _dateFormat.format(saledate);
-                          saledatetxt = formatlastsaledate(saledatestring);
-                          _dateController.text = saledatetxt;
+                            _selectedvchtypename = vchtypenamedata[0];
+                            fetchvchnos(_selectedvchtypename);
+                            _selectedpartyledger = partyledgerdata[0];
+                            _partyLedgerController.text = _selectedpartyledger;
+                            _selectedsalesledger = salesledger_data[0];
+                            _selectedledger = ledgerdata.isNotEmpty ? ledgerdata[0]['name'] : null;
+                            _selectedvatledger = vatledgerdata[0];
+                            _selecteditem = '${itemdata[0]['name']}';
+                            _itemController.text = _selecteditem;
 
-                          refdate = DateTime.now();
-                          refdatestring = _dateFormat.format(refdate);
-                          refdatetxt = formatlastsaledate(refdatestring);
-                          _refdateController.text = refdatetxt;
+                            if (locationsdata.isNotEmpty) {
+                              selectedLocation = locationsdata[0];
+                              isVisibleLocation = true;
+                            } else {
+                              isVisibleLocation = false;
+                            }
 
-                          _selectedvchtypename = vchtypenamedata[0];
-                          fetchvchnos(_selectedvchtypename);
-                          _selectedpartyledger = partyledgerdata[0];
-                          _partyLedgerController.text = _selectedpartyledger;
-                          _selectedsalesledger = salesledger_data[0];
-                          _selectedledger = ledgerdata.isNotEmpty ? ledgerdata[0]['name'] : null;
-                          _selectedvatledger = vatledgerdata[0];
-                          _selecteditem = '${itemdata[0]['name']}';
-                          _itemController.text = _selecteditem;
-                          if (locationsdata.isNotEmpty) {
-                            selectedLocation = locationsdata[0];
-                            isVisibleLocation = true;
-                          } else {
-                            isVisibleLocation = false;
-                          }
-                          _updateUnitDropdown(_selecteditem);
+                            _updateUnitDropdown(_selecteditem);
 
-                          saleItems.clear();
-                          ledgerEntries.clear();
+                            saleItems.clear();
+                            ledgerEntries.clear();
 
-                          // reset totals
-                          totalPriceOfItems = 0.0;
-                          totalAmountOfLedgers = 0.0;
-                          totalVatAmount = 0.0;
-                          controller_vatamt.clear();
-                          controller_totalamt.clear();
+                            totalPriceOfItems = 0.0;
+                            totalAmountOfLedgers = 0.0;
+                            totalVatAmount = 0.0;
+                            controller_vatamt.clear();
+                            controller_totalamt.clear();
 
-                          isVisibleItemHeading = false;
-                          isVisibleLedgerHeading = false;
+                            isVisibleItemHeading = false;
+                            isVisibleLedgerHeading = false;
 
-                          _isFocused_vchno = false;
-                          _isFocused_item = false;
-                          _isFocused_unit = false;
-                          _isFocused_ledger = false;
-                          _isFocused_narration = false;
-                          _isFocused_totalamt = false;
-                          _isFocused_vatamt = false;
-                        });
-                      },
-                      icon: const Icon(
-                        Icons.close_rounded,
-                        size: 20,
-                        color: Colors.white,
-                      ),
-                      label: Text(
-                        'No, Thanks',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                            _isFocused_vchno = false;
+                            _isFocused_item = false;
+                            _isFocused_unit = false;
+                            _isFocused_ledger = false;
+                            _isFocused_narration = false;
+                            _isFocused_totalamt = false;
+                            _isFocused_vatamt = false;
+                          });
+                        },
+                        icon: const Icon(Icons.close_rounded, size: 20, color: Colors.white),
+                        label: Text(
+                          'No, Thanks',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                          shadowColor: Colors.redAccent.withOpacity(0.3),
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent, // 🔴 better contrast
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30), // pill shape
+                      const SizedBox(width: 20),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await generateInvoicePDF(trn, address, emirate, country);
+                        },
+                        icon: const Icon(Icons.share_rounded, size: 20, color: Colors.white),
+                        label: Text(
+                          'Share',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
                         ),
-                        elevation: 4,
-                        shadowColor: Colors.redAccent.withOpacity(0.3),
-                      ),
-                    ),
-
-                    SizedBox(width: 20),
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        Navigator.pop(context); // Close the bottom sheet
-                        await generateInvoicePDF(trn, address, emirate, country);
-                      },
-                      icon: const Icon(
-                        Icons.share_rounded,
-                        size: 20,
-                        color: Colors.white,
-                      ),
-                      label: Text(
-                        'Share',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: app_color,
+                          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                          shadowColor: app_color.withOpacity(0.3),
                         ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: app_color, // ✅ your theme color
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30), // pill style
-                        ),
-                        elevation: 4,
-                        shadowColor: app_color.withOpacity(0.3), // subtle shadow
-                      ),
-                    )
-
-                  ],
-                ),
-              ],
+                      )
+                    ],
+                  ),
+                ],
+              ),
             ),
+          ),
+        );
+      },
+
+      // 🔥 POPUP ANIMATION
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return Transform.scale(
+          scale: Curves.easeOutBack.transform(animation.value),
+          child: Opacity(
+            opacity: animation.value,
+            child: child,
           ),
         );
       },
@@ -2934,7 +2934,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
         setState(() {
 
-          showSalesInvoiceBottomSheet(context,tinValue,address,emirate, country);
+          showSalesInvoiceDialog(context,tinValue,address,emirate, country);
         });
       }
       else
@@ -3378,9 +3378,21 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                         Visibility(
                           visible: isVisibleLocation,
                           child: DropdownButtonFormField<String>(
+                            isExpanded: true,
+
                             value: selectedLocation,
                             items: locationsdata.map((value) {
-                              return DropdownMenuItem(value: value, child: Text(value));
+                              return DropdownMenuItem(
+                                value: value,
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: Text(
+                                    value,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              );
                             }).toList(),
                             onChanged: (val) => setStateDialog(() => selectedLocation = val!),
                             decoration: InputDecoration(
@@ -4592,6 +4604,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                   child: SizedBox(
                                     width: MediaQuery.of(context).size.width,
                                     child: TypeAheadField<String>(
+
+                                      controller: _partyLedgerController,
                                       suggestionsCallback: (pattern) async {
                                         return partyledgerdata
                                             .where((item) => item.toLowerCase().contains(pattern.toLowerCase()))
@@ -4599,9 +4613,9 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                       },
 
                                       // 🔹 Modern text field builder
-                                      builder: (context, controller, focusNode) {
+                                      builder: (context, textController, focusNode) {
                                         return TextField(
-                                          controller: _partyLedgerController,
+                                          controller: textController,
                                           focusNode: focusNode,
                                           style: GoogleFonts.poppins(
                                             fontSize: 14,
@@ -4609,14 +4623,14 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                             color: Colors.black87,
                                           ),
                                           decoration: InputDecoration(
-                                            hintText: "Search Party Ledger",
+                                            hintText: _selectedpartyledger?.isNotEmpty == true
+                                                ? _selectedpartyledger
+                                                : "Select Party Ledger",
                                             hintStyle: GoogleFonts.poppins(
                                               fontSize: 13,
                                               color: Colors.grey[600],
                                             ),
-                                            labelText: _selectedpartyledger?.isNotEmpty == true
-                                                ? _selectedpartyledger
-                                                : "Select Party Ledger",
+                                            labelText: "Party Ledger",
                                             labelStyle: GoogleFonts.poppins(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w500,
@@ -4645,14 +4659,18 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                             suffixIcon: Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                if (_partyLedgerController.text.isNotEmpty)
-                                                  IconButton(
-                                                    icon: const Icon(Icons.close, color: Colors.grey, size: 20),
-                                                    onPressed: () {
-                                                      _partyLedgerController.clear();
-                                                      setState(() => _selectedpartyledger = "");
-                                                    },
-                                                  ),
+                                                  if (_partyLedgerController.text.isNotEmpty)
+                                                    IconButton(
+                                                      icon: const Icon(Icons.close, color: Colors.grey, size: 20),
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          _partyLedgerController.clear();
+                                                          _selectedpartyledger = "";
+                                                        });
+
+                                                      },
+                                                    ),
+
                                                 const Icon(Icons.arrow_drop_down, color: Colors.grey),
                                                 const SizedBox(width: 6),
                                               ],
@@ -4688,6 +4706,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                         );
                                       },
 
+
                                       // 🔹 Suggestion item UI
                                       itemBuilder: (context, String suggestion) {
                                         return ListTile(
@@ -4704,11 +4723,12 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
                                       // 🔹 On item select
                                       onSelected: (String suggestion) {
-                                        setState(() {
-                                          _selectedpartyledger = suggestion;
-                                          _partyLedgerController.text = _selectedpartyledger;
-                                        });
+                                      setState(() {
+                                      _selectedpartyledger = suggestion;
+                                      _partyLedgerController.text = suggestion;   // instead of _partyLedgerController
+                                      });
                                       },
+
 
                                       // 🔹 Empty result text
                                       emptyBuilder: (context) => Padding(

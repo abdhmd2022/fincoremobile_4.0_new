@@ -2456,20 +2456,20 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
             });
             showSalesOrderDialog(context);
           }
-
           else
           {
             setState(() {
               _isLoading = false;
-
             });
+
             Fluttertoast.showToast(msg: 'an error occoured');
           }
         }
         else
         {
           Fluttertoast.showToast(msg: response_salesentry.body);
-        }}
+        }
+      }
       catch (e) {
         setState(() {
           _isLoading = false;

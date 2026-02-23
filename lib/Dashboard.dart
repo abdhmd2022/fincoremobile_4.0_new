@@ -1918,6 +1918,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
     token = prefs.getString('token')!;
     base_currency = prefs.getString('base_currency')!;
 
+    _loadNumberScale();
+
     print('base_currency -> $base_currency');
     SalesEntryHolder = prefs.getString('salesentry') ?? "False";
     ReceiptEntryHolder = prefs.getString('receiptentry') ?? "False";
@@ -2455,11 +2457,12 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _loadNumberScale();
 
   _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
     _initSharedPreferences();
+
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       checkCurrencyMismatch(context);
     });

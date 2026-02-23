@@ -1163,7 +1163,6 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
               headers:headers_charts
           );
 
-
           if(response_charts.statusCode == 200)
           {
             if(response_charts.body == '[]')

@@ -2,6 +2,7 @@ import'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:FincoreGo/DashboardClicked.dart';
 import 'package:FincoreGo/PendingReceiptEntry.dart';
 import 'package:FincoreGo/PendingSalesEntry.dart';
@@ -32,8 +33,64 @@ List<String> months_chart_line_graph = ['Jan','Feb','Mar','Apr','May','Jun','Jul
 
 List<Map<String, dynamic>> data = [];
 
+String apiResponseTime = "";
+
 List<dynamic> piechartsaleslist = [];
 List<dynamic> piechartpurchaselist = [];
+
+class ParsedChartData {
+  final List<double> sales;
+  final List<double> receipt;
+  final bool showLine;
+
+  ParsedChartData({
+    required this.sales,
+    required this.receipt,
+    required this.showLine
+  });
+}
+
+ParsedChartData parseChartResponse(String body){
+
+  final Map<String,dynamic> responseJson =
+  jsonDecode(body);
+
+  final List<dynamic> successArray =
+  responseJson['success'];
+
+  List<double> salesList = [];
+  List<double> receiptList = [];
+  bool showLine = true;
+
+  for(var yearData in successArray){
+
+    var value = yearData['value'];
+
+    if(value.length == 1){
+      showLine = false;
+    }
+
+    for(var monthData in value){
+
+      double sales =
+          double.tryParse(monthData['sales']
+              .toString()) ?? 0;
+
+      double receipt =
+          double.tryParse(monthData['receipt']
+              .toString()) ?? 0;
+
+      salesList.add(-sales);
+      receiptList.add(receipt);
+    }
+  }
+
+  return ParsedChartData(
+      sales:salesList,
+      receipt:receiptList,
+      showLine:showLine
+  );
+}
 
 class Dashboard extends StatefulWidget
 {
@@ -165,7 +222,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
 
 
-  dynamic _selecteddate = "This Month";
+  dynamic _selecteddate = "Today";
 
   List<String> date_range = [
     'Today',
@@ -379,7 +436,6 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       ),
     );
   }
-
 
   void generateMonthsList() {
     months_chart.clear();
@@ -1051,11 +1107,21 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         'startdate': startdate,
         'enddate': enddate,
       });
+      final stopwatch = Stopwatch()..start();
+
       final response = await http.post(
           url,
           body: body,
           headers:headers
       );
+
+      stopwatch.stop();
+
+      setState(() {
+        apiResponseTime = "${stopwatch.elapsedMilliseconds} ms";
+      });
+
+      print(' response time -> $apiResponseTime');
 
       final dash_data = jsonDecode(response.body);
 
@@ -1073,8 +1139,6 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
             cash_value = double.tryParse(dash_data['cash']?.toString() ?? "0") ?? 0.0;
             outstandingreceivable_value = double.tryParse(dash_data['receivable']?.toString() ?? "0") ?? 0.0;
             outstandingpayable_value = double.tryParse(dash_data['payable']?.toString() ?? "0") ?? 0.0;
-
-
 
             /*if (sales != "null")
             {
@@ -1296,78 +1360,34 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
               recDataList.clear();
               data.clear();
 
-              Map<String, dynamic> responseJson = json.decode(response_charts.body);
+              final parsed =
+              await compute(
+                  parseChartResponse,
+                  response_charts.body
+              );
 
-              try
-              {
-                List<dynamic> successArray = responseJson['success'];
+              if (!mounted) return;
 
-                setState(() {
-                  data.addAll(successArray.cast<Map<String, dynamic>>());
+              setState(() {
 
-                  for (var yearData in data) {
+                salesDataList.clear();
+                recDataList.clear();
 
-                    var value = yearData['value'];
+                salesDataList.addAll(parsed.sales);
+                recDataList.addAll(parsed.receipt);
 
-                    int monthCount = value.length;
-                    if(monthCount == 1)
-                    {
-                      setState(() {
-                        isVisibleLineChart = false;
-                      });
-                      for (var monthData in value) {
-                        double sales = double.parse(monthData['sales'].toString());
-                        double receipt =double.parse(monthData['receipt'].toString()) ;
-
-                        /*print(response_charts.body);*/
-
-                        salesDataList.add(-sales);
-                        recDataList.add(receipt);
-                        if (barchartdashprefs == 'True') {
-                          isBarChartVisible = true;
-                        }
-                        else
-                        {
-                          isBarChartVisible = false;
-                        }
-                      }
-                    }
-                    else
-                    {
-                      setState(() {
-                        if (linechartdashprefs == 'True') {
-                          isVisibleLineChart = true;
-                        }
-                        else {
-                          isVisibleLineChart = false;
-                        }});
-                      for (var monthData in value) {
-                        double sales = double.parse(monthData['sales'].toString());
-                        double receipt =double.parse(monthData['receipt'].toString()) ;
-
-                        salesDataList.add(-sales);
-                        recDataList.add(receipt);
-
-                        if (barchartdashprefs == 'True')
-                        {
-                          isBarChartVisible = true;
-                        }
-                        else
-                        {
-                          isBarChartVisible = false;
-                        }
-                      }
-                    }
-                  }
-                });
-              }
-              catch (f) {
-                print(f);
-                setState(() {
+                if(parsed.showLine){
+                  isVisibleLineChart =
+                      linechartdashprefs == 'True';
+                }else{
                   isVisibleLineChart = false;
-                  isBarChartVisible = false;
-                });
-              }
+                }
+
+                isBarChartVisible =
+                    barchartdashprefs == 'True';
+
+              });
+
             }
             generateMonthsList();
           }
@@ -2037,7 +2057,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
     ReceiptEntryHolder = prefs.getString('receiptentry') ?? "False";
     SalesOrderEntryHolder = prefs.getString('salesorderentry') ?? "True";
 
-    _selecteddate= prefs.getString('dateRangeOption') ?? 'This Month';
+    _selecteddate= prefs.getString('dateRangeOption') ?? 'Today';
 
     print('selected date option -> $_selecteddate');
 
@@ -3021,17 +3041,15 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                                     )
                                   ),
 
-
-
-
-
                                   Visibility(
                                       visible: isVisibleNoAccess,
                                       child: Container(
+
+                                          color: Colors.white,
                                           padding: EdgeInsets.only(top: 20.0),
                                           child: Center(
                                               child: Text(
-                                                  'No Access',
+                                                  'No Access to Dashboard',
                                                   style: GoogleFonts.poppins(
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 18.0,

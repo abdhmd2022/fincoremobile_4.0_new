@@ -161,6 +161,24 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
 
   late int? decimal;
 
+  String formatAmountWithDRCR(String value){
+
+    if(value == "null" || value.isEmpty){
+      return "-";
+    }
+
+    double amount = double.tryParse(value) ?? 0;
+
+    String formatted =
+    formatAmountinDecimals(amount.abs(), decimal!);
+
+    if(amount < 0){
+      return "$currencysymbol $formatted DR";
+    }else{
+      return "$currencysymbol $formatted CR";
+    }
+  }
+
   void showToast(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
@@ -197,7 +215,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     final List<List<dynamic>> csvData = [];
     csvData.add(['Item Name', 'Qty', 'Rate', 'Last Sale Price', 'Standard Selling Price', 'Amount']);
 
-    for (final item in all_items_list) {
+    for (final item in filteredItems_all_items) {
       csvData.add([
         item.itemname,
         item.c_qty,
@@ -226,7 +244,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     final List<List<dynamic>> csvData = [];
     csvData.add(['Item Name', 'Qty', 'Rate', 'Last Sale Price', 'Standard Selling Price', 'Amount']);
 
-    for (final item in active_items_list) {
+    for (final item in filteredItems_active_items) {
       csvData.add([
         item.itemname,
         item.c_qty,
@@ -255,7 +273,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     final List<List<dynamic>> csvData = [];
     csvData.add(['Item Name', 'Inactive Since', 'Qty', 'Rate', 'Last Sale Price', 'Standard Selling Price', 'Amount']);
 
-    for (final item in inactive_items_list) {
+    for (final item in filteredItems_inactive_items) {
       csvData.add([
         item.itemname,
         formatlastsaledate(item.lastsale),
@@ -291,14 +309,14 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     final headersRow3 = ['Item Name', 'Qty', 'Rate', 'Last Sale Price', 'Standard Selling Price', 'Amount'];
 
     final itemsPerPage = 8;
-    final pageCount = (all_items_list.length / itemsPerPage).ceil();
+    final pageCount = (filteredItems_all_items.length / itemsPerPage).ceil();
 
     for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       final startIndex = pageNumber * itemsPerPage;
       final endIndex = (pageNumber + 1) * itemsPerPage;
-      final itemsSubset = all_items_list.sublist(
+      final itemsSubset = filteredItems_all_items.sublist(
         startIndex,
-        endIndex > all_items_list.length ? all_items_list.length : endIndex,
+        endIndex > filteredItems_all_items.length ? filteredItems_all_items.length : endIndex,
       );
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -375,14 +393,14 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     final headersRow3 = ['Item Name', 'Qty', 'Rate', 'Last Sale Price', 'Standard Selling Price', 'Amount'];
 
     final itemsPerPage = 8;
-    final pageCount = (active_items_list.length / itemsPerPage).ceil();
+    final pageCount = (filteredItems_active_items.length / itemsPerPage).ceil();
 
     for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       final startIndex = pageNumber * itemsPerPage;
       final endIndex = (pageNumber + 1) * itemsPerPage;
-      final itemsSubset = active_items_list.sublist(
+      final itemsSubset = filteredItems_active_items.sublist(
         startIndex,
-        endIndex > active_items_list.length ? active_items_list.length : endIndex,
+        endIndex > filteredItems_active_items.length ? filteredItems_active_items.length : endIndex,
       );
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -459,14 +477,14 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     final headersRow3 = ['Item Name', 'Inactive Since', 'Qty', 'Rate', 'Last Sale Price', 'Standard Selling Price', 'Amount'];
 
     final itemsPerPage = 8;
-    final pageCount = (inactive_items_list.length / itemsPerPage).ceil();
+    final pageCount = (filteredItems_inactive_items.length / itemsPerPage).ceil();
 
     for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       final startIndex = pageNumber * itemsPerPage;
       final endIndex = (pageNumber + 1) * itemsPerPage;
       final itemsSubset = inactive_items_list.sublist(
         startIndex,
-        endIndex > inactive_items_list.length ? inactive_items_list.length : endIndex,
+        endIndex > filteredItems_inactive_items.length ? filteredItems_inactive_items.length : endIndex,
       );
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -694,7 +712,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     }
 
     setState(() {
-      if(all_items_list.isEmpty)
+      if(filteredItems_all_items.isEmpty)
       {
         item_count = "0";
         _isInactiveList = false;
@@ -845,7 +863,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     }
 
     setState(() {
-      if(active_items_list.isEmpty)
+      if(filteredItems_active_items.isEmpty)
       {
         item_count = "0";
 
@@ -993,7 +1011,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     }
 
     setState(() {
-      if(active_items_list.isEmpty)
+      if(filteredItems_active_items.isEmpty)
       {
         item_count = "0";
 
@@ -1795,7 +1813,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                     if (amount_visibility)
                       _modernDetailRow(Icons.payments, "Amount",
                           card.c_amount != "null"
-                              ? '$currencysymbol ${formatAmountinDecimals(double.parse(card.c_amount.toString()), decimal!)}'
+                              ? formatAmountWithDRCR(card.c_amount.toString())
                               : "-"),
 
                     if (_isInactiveList)

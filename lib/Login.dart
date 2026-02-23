@@ -1332,7 +1332,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 </div>
                 </div>''';
     try {
-      await send(message, smtpServer); // ✅ DO NOT assign it to a variable
+      // await send(message, smtpServer); // ✅ DO NOT assign it to a variable
 
       /*_scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(

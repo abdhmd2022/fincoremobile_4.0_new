@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:FincoreGo/currencyFormat.dart';
 import 'package:FincoreGo/utils/currency_helper.dart';
 import 'package:csv/csv.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -115,6 +116,64 @@ class Receivable_payable {
   }
 }
 
+// --------------------
+// Background parsing helpers (NO UI code here)
+// --------------------
+
+class _SalesTotalParsed {
+  final String opening;
+  final List<Sale_purc_cash> items;
+
+  _SalesTotalParsed({
+    required this.opening,
+    required this.items,
+  });
+}
+
+class _ReceivableTotalParsed {
+  final String opening;
+  final List<Receivable_payable> items;
+
+  _ReceivableTotalParsed({
+    required this.opening,
+    required this.items,
+  });
+}
+
+// ✅ Must be top-level/static for compute()
+_SalesTotalParsed _parseSalesTotalResponse(String body) {
+  final Map<String, dynamic> data = jsonDecode(body) as Map<String, dynamic>;
+  final String opening = (data['opening'] ?? '').toString();
+
+  final List<dynamic> values = (data['values'] ?? []) as List<dynamic>;
+  final items = values
+      .map((e) => Sale_purc_cash.fromJson(e as Map<String, dynamic>))
+      .toList();
+
+  return _SalesTotalParsed(opening: opening, items: items);
+}
+
+// ✅ Must be top-level/static for compute()
+_ReceivableTotalParsed _parseReceivableTotalResponse(String body) {
+  final Map<String, dynamic> data = jsonDecode(body) as Map<String, dynamic>;
+  final String opening = (data['opening'] ?? '').toString();
+
+  final List<dynamic> values = (data['values'] ?? []) as List<dynamic>;
+  final items = values
+      .map((e) => Receivable_payable.fromJson(e as Map<String, dynamic>))
+      .toList();
+
+  return _ReceivableTotalParsed(opening: opening, items: items);
+}
+
+// ✅ Must be top-level/static for compute()
+List<Sale_purc_cash> _parseReceiptPaymentResponse(String body) {
+  final List<dynamic> values = jsonDecode(body) as List<dynamic>;
+  return values
+      .map((e) => Sale_purc_cash.fromJson(e as Map<String, dynamic>))
+      .toList();
+}
+
 class DashboardClicked extends StatefulWidget {
   final String startdate_string,enddate_string,vchtypes;
 
@@ -136,8 +195,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   String selectedSortOption = '',token = '';
   
   int counter = 0;
-
-
 
   bool _isVisibleduedate = false;
 
@@ -210,6 +267,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
       });
 
       final response = await http.post(url, body: body, headers: headers);
+      print('led group list -> ${response.body}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> decoded = jsonDecode(response.body);
@@ -1214,6 +1272,118 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     }
   }
 
+  // new function fetchSales_purchase_cash
+  Future<void> fetchSales_purchase_cash(
+      final String ledgroup,
+      final String startdate,
+      final String enddate,
+      final String vchtypes,
+      final String opening,
+      final String vchname,
+      ) async {
+    // ✅ keep same behavior: start loading + reset sort visibility
+    setState(() {
+      _isLoading = true;
+      isSortVisible = false;
+    });
+
+    // ✅ clear lists same as your existing code
+    sales_purc_cash_list.clear();
+    filteredItems_sale_purc_cash.clear();
+
+    receivable_payable_list.clear();
+    filteredItems_receivable_payable.clear();
+
+    try {
+      final url = Uri.parse(HttpURL_sale_purc_cash!);
+      final headers = <String, String>{
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      };
+
+      final body = jsonEncode({
+        'ledgroup': ledgroup,
+        'startdate': startdate,
+        'enddate': enddate,
+        'vchtypes': vchtypes,
+        'opening': opening,
+        'vchname': vchname,
+      });
+
+      final response = await http.post(url, body: body, headers: headers);
+
+      if (response.statusCode == 200) {
+        // ✅ heavy parsing moved off UI thread
+        final parsed = await compute(_parseSalesTotalResponse, response.body);
+
+        if (!mounted) return;
+
+        // ✅ single setState with final results
+        setState(() {
+          opening_value = formatOpening(parsed.opening);
+
+          sales_purc_cash_list
+            ..clear()
+            ..addAll(parsed.items);
+
+          filteredItems_sale_purc_cash = List.from(sales_purc_cash_list);
+
+          isVisibleNoDataFound = sales_purc_cash_list.isEmpty;
+          isSortVisible = sales_purc_cash_list.isNotEmpty;
+
+          _isLoading = false;
+        });
+
+        // ✅ keep exact sorting behavior (same options)
+        if (sales_purc_cash_list.isNotEmpty) {
+          switch (selectedSortOption) {
+            case 'Default':
+              sortByDefault();
+              break;
+            case 'Newest to Oldest':
+              sortByDateHightoLow();
+              break;
+            case 'Oldest to Newest':
+              sortByDateLowtoHigh();
+              break;
+            case 'A->Z':
+              sortByAlphabetAtoZ();
+              break;
+            case 'Z->A':
+              sortByAlphabetZtoA();
+              break;
+            case 'Amount High to Low':
+              sortByAmountHightoLow();
+              break;
+            case 'Amount Low to High':
+              sortByAmountLowtoHigh();
+              break;
+          }
+        }
+
+        return;
+      }
+
+      // non-200 => show no data (same end-result behavior)
+      if (!mounted) return;
+      setState(() {
+        isVisibleNoDataFound = true;
+        isSortVisible = false;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        isVisibleNoDataFound = true;
+        isSortVisible = false;
+        _isLoading = false;
+      });
+      print(e);
+    }
+  }
+
+  // old function fetchSales_purchase_cash
+/*
   Future<void> fetchSales_purchase_cash(final String ledgroup, final String startdate, final String enddate, final String vchtypes,final String opening,final String vchname) async {
     setState(()
     {
@@ -1323,8 +1493,17 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
       _isLoading = false;
     });
   }
+*/
 
-  Future<void> fetchReceivable_payable(final String orderby, final String startdate, final String enddate, final String isdebit,final String ledger) async {
+  // new function fetchReceivable_payable
+
+  Future<void> fetchReceivable_payable(
+      final String orderby,
+      final String startdate,
+      final String enddate,
+      final String isdebit,
+      final String ledger,
+      ) async {
     setState(() {
       _isLoading = true;
       isSortVisible = false;
@@ -1336,15 +1515,14 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     sales_purc_cash_list.clear();
     filteredItems_sale_purc_cash.clear();
 
-    try
-    {
+    try {
       final url = Uri.parse(HttpURL_receivable_payable!);
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      final headers = <String, String>{
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
       };
 
-      var body = jsonEncode({
+      final body = jsonEncode({
         'orderby': orderby,
         'startdate': startdate,
         'enddate': enddate,
@@ -1352,89 +1530,290 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         'ledger': ledger,
       });
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-      if (response.statusCode == 200)
-      {
-        print(response.body);
+      if (response.statusCode == 200) {
+        final parsed = await compute(_parseReceivableTotalResponse, response.body);
 
-        Map<String, dynamic> data = jsonDecode(response.body);
-        String opening = data['opening'].toString();
+        if (!mounted) return;
+
         setState(() {
-          opening_value = formatOpening(opening);
-        });
-        String values = jsonEncode(data['values']);
+          opening_value = formatOpening(parsed.opening);
 
-        final List<dynamic> values_list = jsonDecode(values);
-        if (values_list != null) {
-          isVisibleNoDataFound = false;
+          receivable_payable_list
+            ..clear()
+            ..addAll(parsed.items);
 
-          receivable_payable_list.addAll(values_list.map((json) => Receivable_payable.fromJson(json)).toList());
+          filteredItems_receivable_payable = List.from(receivable_payable_list);
 
-          filteredItems_receivable_payable = receivable_payable_list;
-        } else {
+          isVisibleNoDataFound = receivable_payable_list.isEmpty;
+          isSortVisible = receivable_payable_list.isNotEmpty;
 
-          throw Exception('Failed to fetch data');
-        }
-        setState(() {
           _isLoading = false;
         });
 
+        // ✅ keep same sorting behavior
+        if (receivable_payable_list.isNotEmpty) {
+          switch (selectedSortOption) {
+            case 'Default':
+              sortByDefault();
+              break;
+            case 'Newest to Oldest':
+              sortByDateHightoLow();
+              break;
+            case 'Oldest to Newest':
+              sortByDateLowtoHigh();
+              break;
+            case 'A->Z':
+              sortByAlphabetAtoZ();
+              break;
+            case 'Z->A':
+              sortByAlphabetZtoA();
+              break;
+            case 'Amount High to Low':
+              sortByAmountHightoLow();
+              break;
+            case 'Amount Low to High':
+              sortByAmountLowtoHigh();
+              break;
+          }
+        }
+
+        return;
       }
-    }
-    catch (e)
-    {
+
+      if (!mounted) return;
       setState(() {
+        isVisibleNoDataFound = true;
+        isSortVisible = false;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        isVisibleNoDataFound = true;
+        isSortVisible = false;
         _isLoading = false;
       });
       print(e);
     }
-
-    setState(() {
-      if(receivable_payable_list.isEmpty)
-      {
-        isVisibleNoDataFound = true;
-        isSortVisible = false;
-      }
-      else
-      {
-        isSortVisible = true;
-        switch (selectedSortOption) {
-          case 'Default':
-            sortByDefault(); // Call the sorting function
-            break;
-          case 'Newest to Oldest':
-            sortByDateHightoLow(); // Call the sorting function
-            break;
-          case 'Oldest to Newest':
-            sortByDateLowtoHigh(); // Call the sorting function
-            break;
-          case 'A->Z':
-            sortByAlphabetAtoZ(); // Call the sorting function
-            break;
-          case 'Z->A':
-            sortByAlphabetZtoA(); // Call the sorting function
-            break;
-          case 'Amount High to Low':
-            sortByAmountHightoLow(); // Call the sorting function
-            break;
-          case 'Amount Low to High':
-            sortByAmountLowtoHigh(); // Call the sorting function
-            break;
-        }
-      }
-      _isLoading = false;
-    });
-
   }
 
+  // old function fetchReceivable_payable
+  /*
+    Future<void> fetchReceivable_payable(final String orderby, final String startdate, final String enddate, final String isdebit,final String ledger) async {
+      setState(() {
+        _isLoading = true;
+        isSortVisible = false;
+      });
+
+      receivable_payable_list.clear();
+      filteredItems_receivable_payable.clear();
+
+      sales_purc_cash_list.clear();
+      filteredItems_sale_purc_cash.clear();
+
+      try
+      {
+        final url = Uri.parse(HttpURL_receivable_payable!);
+        Map<String,String> headers = {
+          'Authorization' : 'Bearer $token',
+          "Content-Type": "application/json"
+        };
+
+        var body = jsonEncode({
+          'orderby': orderby,
+          'startdate': startdate,
+          'enddate': enddate,
+          'isDebit': isdebit,
+          'ledger': ledger,
+        });
+
+        final response = await http.post(
+            url,
+            body: body,
+            headers:headers
+        );
+
+        if (response.statusCode == 200)
+        {
+          print(response.body);
+
+          Map<String, dynamic> data = jsonDecode(response.body);
+          String opening = data['opening'].toString();
+          setState(() {
+            opening_value = formatOpening(opening);
+          });
+          String values = jsonEncode(data['values']);
+
+          final List<dynamic> values_list = jsonDecode(values);
+          if (values_list != null) {
+            isVisibleNoDataFound = false;
+
+            receivable_payable_list.addAll(values_list.map((json) => Receivable_payable.fromJson(json)).toList());
+
+            filteredItems_receivable_payable = receivable_payable_list;
+          } else {
+
+            throw Exception('Failed to fetch data');
+          }
+          setState(() {
+            _isLoading = false;
+          });
+
+        }
+      }
+      catch (e)
+      {
+        setState(() {
+          _isLoading = false;
+        });
+        print(e);
+      }
+
+      setState(() {
+        if(receivable_payable_list.isEmpty)
+        {
+          isVisibleNoDataFound = true;
+          isSortVisible = false;
+        }
+        else
+        {
+          isSortVisible = true;
+          switch (selectedSortOption) {
+            case 'Default':
+              sortByDefault(); // Call the sorting function
+              break;
+            case 'Newest to Oldest':
+              sortByDateHightoLow(); // Call the sorting function
+              break;
+            case 'Oldest to Newest':
+              sortByDateLowtoHigh(); // Call the sorting function
+              break;
+            case 'A->Z':
+              sortByAlphabetAtoZ(); // Call the sorting function
+              break;
+            case 'Z->A':
+              sortByAlphabetZtoA(); // Call the sorting function
+              break;
+            case 'Amount High to Low':
+              sortByAmountHightoLow(); // Call the sorting function
+              break;
+            case 'Amount Low to High':
+              sortByAmountLowtoHigh(); // Call the sorting function
+              break;
+          }
+        }
+        _isLoading = false;
+      });
+
+    }
+  */
+
+  // new function fetchReceipt_Payment
+
+  Future<void> fetchReceipt_Payment(
+      final String startdate,
+      final String enddate,
+      final String vchtypes,
+      final String vchname,
+      ) async {
+    setState(() {
+      _isLoading = true;
+      isSortVisible = false;
+    });
+
+    sales_purc_cash_list.clear();
+    filteredItems_sale_purc_cash.clear();
+
+    receivable_payable_list.clear();
+    filteredItems_receivable_payable.clear();
+
+    try {
+      final url = Uri.parse(HttpURL_receipt_payment!);
+      final headers = <String, String>{
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      };
+
+      final body = jsonEncode({
+        'startdate': startdate,
+        'enddate': enddate,
+        'vchtypes': vchtypes,
+        'vchname': vchname,
+      });
+
+      final response = await http.post(url, body: body, headers: headers);
+
+      if (response.statusCode == 200) {
+        // ✅ heavy parsing moved off UI thread
+        final items = await compute(_parseReceiptPaymentResponse, response.body);
+
+        if (!mounted) return;
+
+        setState(() {
+          sales_purc_cash_list
+            ..clear()
+            ..addAll(items);
+
+          filteredItems_sale_purc_cash = List.from(sales_purc_cash_list);
+
+          isVisibleNoDataFound = sales_purc_cash_list.isEmpty;
+          isSortVisible = sales_purc_cash_list.isNotEmpty;
+
+          _isLoading = false;
+        });
+
+        // ✅ same sorting behavior
+        if (sales_purc_cash_list.isNotEmpty) {
+          switch (selectedSortOption) {
+            case 'Default':
+              sortByDefault();
+              break;
+            case 'Newest to Oldest':
+              sortByDateHightoLow();
+              break;
+            case 'Oldest to Newest':
+              sortByDateLowtoHigh();
+              break;
+            case 'A->Z':
+              sortByAlphabetAtoZ();
+              break;
+            case 'Z->A':
+              sortByAlphabetZtoA();
+              break;
+            case 'Amount High to Low':
+              sortByAmountHightoLow();
+              break;
+            case 'Amount Low to High':
+              sortByAmountLowtoHigh();
+              break;
+          }
+        }
+
+        return;
+      }
+
+      if (!mounted) return;
+      setState(() {
+        isVisibleNoDataFound = true;
+        isSortVisible = false;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        isVisibleNoDataFound = true;
+        isSortVisible = false;
+        _isLoading = false;
+      });
+      print(e);
+    }
+  }
+
+  // old function fetchReceipt_Payment
+/*
   Future<void> fetchReceipt_Payment(final String startdate, final String enddate, final String vchtypes,final String vchname) async {
-
-
     setState(() {
       _isLoading = true;
       isSortVisible = false;
@@ -1535,6 +1914,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     });
 
   }
+*/
 
   String formatOpening(String opening) {
     String opening_string = "";

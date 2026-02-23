@@ -1086,128 +1086,6 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
             outstandingreceivable_value = double.tryParse(dash_data['receivable']?.toString() ?? "0") ?? 0.0;
             outstandingpayable_value = double.tryParse(dash_data['payable']?.toString() ?? "0") ?? 0.0;
 
-            /*if (sales != "null")
-            {
-              if (sales.contains("-")) {
-                sales = sales.replaceAll("-", "");
-                double sales_double = double.parse(sales);
-                int sales_int = sales_double.round();
-                String sales_string = currencyFormat.format(sales_int);
-                sales_value = sales_string + " DR";
-              }
-              else {
-                double sales_double = double.parse(sales);
-                int sales_int = sales_double.round();
-                String sales_string = currencyFormat.format(sales_int);
-                sales_value = sales_string + " CR";
-              }
-            }
-            if (purchase != "null") {
-              if (purchase.contains("-")) {
-                purchase = purchase.replaceAll("-", "");
-                double purchase_double = double.parse(purchase);
-                int purchase_int = purchase_double.round();
-                String purchase_string = currencyFormat.format(purchase_int);
-                purchase_value = purchase_string + " DR";
-              }
-              else
-              {
-                double purchase_double = double.parse(purchase);
-                int purchase_int = purchase_double.round();
-                String purchase_string = currencyFormat.format(purchase_int);
-                purchase_value = purchase_string + " CR";
-              }
-            }
-            if (receipt != "null") {
-              if (receipt.contains("-")) {
-                receipt = receipt.replaceAll("-", "");
-                double receipt_double = double.parse(receipt);
-                int receipt_int = receipt_double.round();
-                String receipt_string = currencyFormat.format(receipt_int);
-                receipt_value = receipt_string + " DR";
-              }
-              else {
-                double receipt_double = double.parse(receipt);
-                int receipt_int = receipt_double.round();
-                String receipt_string = currencyFormat.format(receipt_int);
-                receipt_value = receipt_string + " CR";
-              }
-            }
-
-            if (receipt != "null") {
-              if (receipt.contains("-")) {
-                receipt = receipt.replaceAll("-", "");
-                double receipt_double = double.parse(receipt);
-                int receipt_int = receipt_double.round();
-                String receipt_string = currencyFormat.format(receipt_int);
-                receipt_value = receipt_string + " DR";
-              }
-              else {
-                double receipt_double = double.parse(receipt);
-                int receipt_int = receipt_double.round();
-                String receipt_string = currencyFormat.format(receipt_int);
-                receipt_value = receipt_string + " CR";
-              }
-            }
-            if (payment != "null") {
-              if (payment.contains("-")) {
-                payment = payment.replaceAll("-", "");
-                double payment_double = double.parse(payment);
-                int payment_int = payment_double.round();
-                String payment_string = currencyFormat.format(payment_int);
-                payment_value = payment_string + " DR";
-              }
-              else {
-                double payment_double = double.parse(payment);
-                int payment_int = payment_double.round();
-                String payment_string = currencyFormat.format(payment_int);
-                payment_value = payment_string + " CR";
-              }
-            }
-            if (receivable != "null") {
-              if (receivable.contains("-")) {
-                receivable = receivable.replaceAll("-", "");
-                double receivable_double = double.parse(receivable);
-                int receivable_int = receivable_double.round();
-                String receivable_string = currencyFormat.format(receivable_int);
-                outstandingreceivable_value = receivable_string + " DR";
-              }
-              else {
-                double receivable_double = double.parse(receivable);
-                int receivable_int = receivable_double.round();
-                String receivable_string = currencyFormat.format(receivable_int);
-                outstandingreceivable_value = receivable_string + " CR";
-              }
-            }
-            if (payable != "null") {
-              if (payable.contains("-")) {
-                payable = payable.replaceAll("-", "");
-                double payable_double = double.parse(payable);
-                int payable_int = payable_double.round();
-                String payable_string = currencyFormat.format(payable_int);
-                outstandingpayable_value = payable_string + " DR";
-              }
-              else {
-                double payable_double = double.parse(payable);
-                int payable_int = payable_double.round();
-                String payable_string = currencyFormat.format(payable_int);
-                outstandingpayable_value = payable_string + " CR";
-              }
-            }
-            if (cash.contains("-")) {
-              cash = cash.replaceAll("-", "");
-              double cash_double = double.parse(cash);
-              int cash_int = cash_double.round();
-              String cash_string = currencyFormat.format(cash_int);
-              cash_value = cash_string + " DR";
-            }
-            else {
-              double cash_double = double.parse(cash);
-              int cash_int = cash_double.round();
-              String cash_string = currencyFormat.format(cash_int);
-              cash_value = cash_string + " CR";
-            }*/
-
 
             prefs.setDouble('sales', sales_value);
             prefs.setDouble('purchase', purchase_value);
@@ -1267,7 +1145,6 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         if(linechartdashprefs == 'True' || barchartdashprefs == 'True')
         {
           final url_charts = Uri.parse(HttpURL_charts);
-
 
           Map<String,String> headers_charts = {
             'Authorization' : 'Bearer $token',

@@ -1886,8 +1886,7 @@ class _TransactionsPageState extends State<Transactions> with TickerProviderStat
 
                                       // 🔹 Currency + Decimal + CR/DR
                                       final formattedAmount =
-                                          '$currencysymbol ${amt.abs().toStringAsFixed(decimal!)} ${isDebit ? "DR" : "CR"}';
-
+                                          '$currencysymbol ${NumberFormat("#,##0.${"0" * decimal!}").format(amt.abs())} ${isDebit ? "DR" : "CR"}';
                                       return GestureDetector(
                                         onTap: () {
                                           Navigator.push(

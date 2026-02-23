@@ -38,60 +38,6 @@ String apiResponseTime = "";
 List<dynamic> piechartsaleslist = [];
 List<dynamic> piechartpurchaselist = [];
 
-class ParsedChartData {
-  final List<double> sales;
-  final List<double> receipt;
-  final bool showLine;
-
-  ParsedChartData({
-    required this.sales,
-    required this.receipt,
-    required this.showLine
-  });
-}
-
-ParsedChartData parseChartResponse(String body){
-
-  final Map<String,dynamic> responseJson =
-  jsonDecode(body);
-
-  final List<dynamic> successArray =
-  responseJson['success'];
-
-  List<double> salesList = [];
-  List<double> receiptList = [];
-  bool showLine = true;
-
-  for(var yearData in successArray){
-
-    var value = yearData['value'];
-
-    if(value.length == 1){
-      showLine = false;
-    }
-
-    for(var monthData in value){
-
-      double sales =
-          double.tryParse(monthData['sales']
-              .toString()) ?? 0;
-
-      double receipt =
-          double.tryParse(monthData['receipt']
-              .toString()) ?? 0;
-
-      salesList.add(-sales);
-      receiptList.add(receipt);
-    }
-  }
-
-  return ParsedChartData(
-      sales:salesList,
-      receipt:receiptList,
-      showLine:showLine
-  );
-}
-
 class Dashboard extends StatefulWidget
 {
   const Dashboard({Key? key}) : super(key: key);
@@ -1359,36 +1305,80 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
               salesDataList.clear();
               recDataList.clear();
               data.clear();
+              Map<String, dynamic> responseJson = json.decode(response_charts.body);
 
-              final parsed =
-              await compute(
-                  parseChartResponse,
-                  response_charts.body
-              );
+              try
+              {
+                List<dynamic> successArray = responseJson['success'];
 
-              if (!mounted) return;
+                setState(() {
+                  data.addAll(successArray.cast<Map<String, dynamic>>());
 
-              setState(() {
+                  for (var yearData in data) {
 
-                salesDataList.clear();
-                recDataList.clear();
+                    var value = yearData['value'];
 
-                salesDataList.addAll(parsed.sales);
-                recDataList.addAll(parsed.receipt);
+                    int monthCount = value.length;
+                    if(monthCount == 1)
+                    {
+                      setState(() {
+                        isVisibleLineChart = false;
+                      });
+                      for (var monthData in value) {
+                        double sales = double.parse(monthData['sales'].toString());
+                        double receipt =double.parse(monthData['receipt'].toString()) ;
 
-                if(parsed.showLine){
-                  isVisibleLineChart =
-                      linechartdashprefs == 'True';
-                }else{
+                        /*print(response_charts.body);*/
+
+                        salesDataList.add(-sales);
+                        recDataList.add(receipt);
+                        if (barchartdashprefs == 'True') {
+                          isBarChartVisible = true;
+                        }
+                        else
+                        {
+                          isBarChartVisible = false;
+                        }
+                      }
+                    }
+                    else
+                    {
+                      setState(() {
+                        if (linechartdashprefs == 'True') {
+                          isVisibleLineChart = true;
+                        }
+                        else {
+                          isVisibleLineChart = false;
+                        }});
+                      for (var monthData in value) {
+                        double sales = double.parse(monthData['sales'].toString());
+                        double receipt =double.parse(monthData['receipt'].toString()) ;
+
+                        salesDataList.add(-sales);
+                        recDataList.add(receipt);
+
+                        if (barchartdashprefs == 'True')
+                        {
+                          isBarChartVisible = true;
+                        }
+                        else
+                        {
+                          isBarChartVisible = false;
+                        }
+                      }
+                    }
+                  }
+                });
+              }
+              catch (f) {
+                print(f);
+                setState(() {
                   isVisibleLineChart = false;
-                }
-
-                isBarChartVisible =
-                    barchartdashprefs == 'True';
-
-              });
-
+                  isBarChartVisible = false;
+                });
+              }
             }
+
             generateMonthsList();
           }
           else {

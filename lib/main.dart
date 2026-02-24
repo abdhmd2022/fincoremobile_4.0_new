@@ -1,5 +1,3 @@
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:io';
 
 import 'package:FincoreGo/Constants.dart';
@@ -9,20 +7,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'SharedPreferencesService.dart';
 import 'SplashScreen.dart';
 
-// 🔔 Local Notification Plugin
-/*final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();*/
-
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPreferencesService.init();
-  /*await Firebase.initializeApp();*/
-
-  // await _initializeLocalNotifications();
-  // await _setupFirebaseMessaging();
-  // HttpOverrides.global = new MyHttpOverrides();
 
   runApp(const MyApp());
 

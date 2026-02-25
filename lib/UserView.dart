@@ -55,7 +55,6 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  late GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey;
 
   late SharedPreferences prefs;
 
@@ -249,23 +248,18 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
     if (response.statusCode == 200)
     {
       final responsee = response.body;
-      if (responsee != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(responsee),
-          ),
-        );
-          setState(()
-          {
-            _isLoading = true;
-            fetchUsers(serial_no!);
-          }
-          );
-      }
-      else
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(responsee),
+        ),
+      );
+      setState(()
       {
-        throw Exception('Failed to fetch data');
+        _isLoading = true;
+        fetchUsers(serial_no!);
       }
+      );
+
     }
     else
     {
@@ -315,17 +309,11 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
       {
         final List<dynamic> jsonList = json.decode(response.body);
 
-        if (jsonList != null)
-        {
-          isVisibleNoUserFound = false;
+        isVisibleNoUserFound = false;
 
-          users.addAll(jsonList.map((json) => UserModel.fromJson(json)).toList());
-          users.sort(compareDataObjects);
-        }
-        else
-        {
-          throw Exception('Error in data fetching');
-        }
+        users.addAll(jsonList.map((json) => UserModel.fromJson(json)).toList());
+        users.sort(compareDataObjects);
+
         setState(()
         {
           if(users.isEmpty)
@@ -355,7 +343,6 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
   void initState()
   {
     super.initState();
-    _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     _initSharedPreferences();
   }
 

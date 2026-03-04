@@ -3534,9 +3534,20 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                   Visibility(
                     visible: isVisibleLocation,
                     child: DropdownButtonFormField<String>(
+                      isExpanded: true,
                       value: selectedLocation,
                       items: locationsdata.map((value) {
-                        return DropdownMenuItem(value: value, child: Text(value));
+                        return DropdownMenuItem(
+                          value: value,
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              value,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        );
                       }).toList(),
                       onChanged: (val) => setState(() => selectedLocation = val!),
                       decoration: InputDecoration(

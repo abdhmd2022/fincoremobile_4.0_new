@@ -553,43 +553,46 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            // Gradient Icon
-                            Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [Color(0xFF66BB6A), Color(0xFF2E7D32)], // Green shades for Receipts
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.green.withOpacity(0.25),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 3),
+                        Expanded(
+                          child:  Row(
+                            children: [
+                              // Gradient Icon
+                              Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xFF66BB6A), Color(0xFF2E7D32)], // Green shades for Receipts
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
-                                ],
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.green.withOpacity(0.25),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(Icons.payment, size: 18, color: Colors.white),
                               ),
-                              child: const Icon(Icons.payment, size: 18, color: Colors.white),
-                            ),
-                            const SizedBox(width: 10),
+                              const SizedBox(width: 10),
 
-                            // Receipt Text
-                            Text(
-                              "Receipt #$vchno",
-                              style: GoogleFonts.poppins(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black87,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                              // Receipt Text
+                              Expanded(child: Text(
+                                "Receipt #$vchno",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black87,
+                                ),
+                                softWrap: true,
+                              ),)
+                            ],
+                          ),
                         ),
+
 
                         // 🔹 Action Buttons
                         Row(

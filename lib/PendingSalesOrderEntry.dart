@@ -541,7 +541,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
+                                  Expanded(child:   Row(
                                     children: [
                                       // Gradient Icon
                                       Container(
@@ -567,18 +567,20 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                                       const SizedBox(width: 10),
 
                                       // Order Text
-                                      Text(
-                                        "Order #$vchno",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.black87,
+                                      Expanded(
+                                        child: Text(
+                                          "Order #$vchno",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.black87,
+                                          ),
+                                          softWrap: true,
                                         ),
-                                        softWrap: true,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                                      )
                                     ],
-                                  ),
+                                  ),),
+
 
                                   Row(
                                     children: [

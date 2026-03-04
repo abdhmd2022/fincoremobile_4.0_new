@@ -532,54 +532,61 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    children: [
-                                      // Gradient Icon
-                                      Container(
-                                        width: 32,
-                                        height: 32,
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius: BorderRadius.circular(10),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.blue.withOpacity(0.25),
-                                              blurRadius: 6,
-                                              offset: const Offset(0, 3),
-                                            ),
-                                          ],
-                                        ),
-                                        child: const Icon(Icons.receipt_long, size: 18, color: Colors.white),
-                                      ),
-                                      const SizedBox(width: 10),
 
-                                      // Invoice Text (⚡ remove Expanded/Flexible here)
-                                      Text(
-                                        "Invoice #$vchno",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.black87,
+                                  // LEFT SIDE (ICON + INVOICE)
+                                  Expanded(
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        // Gradient Icon
+                                        Container(
+                                          width: 32,
+                                          height: 32,
+                                          decoration: BoxDecoration(
+                                            gradient: const LinearGradient(
+                                              colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.circular(10),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.blue.withOpacity(0.25),
+                                                blurRadius: 6,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ],
+                                          ),
+                                          child: const Icon(Icons.receipt_long, size: 18, color: Colors.white),
                                         ),
-                                        softWrap: true,
-                                        overflow: TextOverflow.ellipsis, // to handle overflow safely
-                                      ),
-                                    ],
+                                        const SizedBox(width: 10),
+
+                                        // Invoice Text
+                                        Expanded(
+                                          child: Text(
+                                            "Invoice #$vchno",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.black87,
+                                            ),
+                                            softWrap: true,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
 
+                                  const SizedBox(width: 8),
 
+                                  // RIGHT SIDE ACTIONS
                                   Row(
                                     children: [
-                                      // Edit
                                       _buildGradientAction(
                                         icon: Icons.edit,
-                                        colors: [const Color(0xFF42A5F5), const Color(0xFF1E88E5)],
+                                        colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
                                         onTap: () {
                                           Navigator.pushReplacement(
                                             context,
@@ -595,16 +602,15 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
                                         },
                                       ),
                                       const SizedBox(width: 10),
-                                      // Delete
                                       _buildGradientAction(
                                         icon: Icons.delete_outline,
-                                        colors: [const Color(0xFFEF5350), const Color(0xFFD32F2F)],
+                                        colors: [Color(0xFFEF5350), Color(0xFFD32F2F)],
                                         onTap: () {
                                           _showConfirmationDialogAndNavigate(context, card.id);
                                         },
                                       ),
                                     ],
-                                  )
+                                  ),
                                 ],
                               ),
                             ),

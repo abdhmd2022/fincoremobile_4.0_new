@@ -1595,6 +1595,20 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
   Future<void> saveEntry() async {
 
+    // ❌ Prevent save if party not selected
+    if (_selectedparty == null || _selectedparty.toString().trim().isEmpty) {
+      Fluttertoast.showToast(msg: "Please select Party");
+      return;
+    }
+
+    // ❌ Prevent save if bank/cash not selected
+    if (_selectedbankcashname == null ||
+        _selectedbankcashname!['name'] == null ||
+        _selectedbankcashname!['name']!.trim().isEmpty) {
+      Fluttertoast.showToast(msg: "Please select Bank / Cash Ledger");
+      return;
+    }
+
     if (bills.isEmpty)
     {
       ScaffoldMessenger.of(context).showSnackBar(

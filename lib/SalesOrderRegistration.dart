@@ -2120,6 +2120,13 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
 
   Future<void> saveEntry() async {
 
+    // ❌ Prevent save if Party Ledger not selected
+    if (_selectedpartyledger == null || _selectedpartyledger.toString().trim().isEmpty) {
+      Fluttertoast.showToast(msg: "Please select Party Ledger");
+
+      return;
+    }
+
     if (saleItems.isEmpty)
     {
       ScaffoldMessenger.of(context).showSnackBar(

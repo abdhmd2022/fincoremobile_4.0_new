@@ -2444,9 +2444,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
     // ❌ Prevent save if Party Ledger not selected
     if (_selectedpartyledger == null || _selectedpartyledger.toString().trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select Party Ledger')),
-      );
+      Fluttertoast.showToast(msg: "Please select Party Ledger");
+
       return;
     }
 

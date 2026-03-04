@@ -1748,6 +1748,20 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
   }
 
   Future<void> updateEntry(int id) async {
+    // ❌ Prevent save if party not selected
+    if (_selectedparty == null || _selectedparty.toString().trim().isEmpty) {
+      Fluttertoast.showToast(msg: "Please select Party");
+      return;
+    }
+
+    // ❌ Prevent save if bank/cash not selected
+    if (_selectedbankcashname == null ||
+        _selectedbankcashname!['name'] == null ||
+        _selectedbankcashname!['name']!.trim().isEmpty) {
+      Fluttertoast.showToast(msg: "Please select Bank / Cash Ledger");
+      return;
+    }
+
     if (bills.isEmpty)
     {
       ScaffoldMessenger.of(context).showSnackBar(

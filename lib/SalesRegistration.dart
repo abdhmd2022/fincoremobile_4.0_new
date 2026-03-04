@@ -2442,6 +2442,15 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
   Future<void> saveEntry() async {
 
+    // ❌ Prevent save if Party Ledger not selected
+    if (_selectedpartyledger == null || _selectedpartyledger.toString().trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select Party Ledger')),
+      );
+      return;
+    }
+
+
     if (saleItems.isEmpty)
     {
       ScaffoldMessenger.of(context).showSnackBar(

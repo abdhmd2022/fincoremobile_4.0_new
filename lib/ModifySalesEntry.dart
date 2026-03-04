@@ -3064,6 +3064,14 @@ _itemController.text = _selecteditem;
 
   Future<void> updateEntry(int id) async
   {
+    // ❌ Prevent save if Party Ledger not selected
+    if (_selectedpartyledger == null || _selectedpartyledger.toString().trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select Party Ledger')),
+      );
+      return;
+    }
+
     if (saleItems.isEmpty)
     {
       ScaffoldMessenger.of(context).showSnackBar(

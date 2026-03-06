@@ -1788,7 +1788,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       final List<Map<String, dynamic>> nonOnAccountBills = bills.where((bill) => bill.billName != "On Account").map((bill) {
         final Map<String, dynamic> billData = {
           "BILLTYPE": bill.billName,
-          "AMOUNT": bill.billAmount,
+          "AMOUNT": bill.billAmount.toStringAsFixed(decimal!),
         };
 
         // Conditionally add BILLNO and BILL CREDIT PERIOD if BILLTYPE is not "On Account"

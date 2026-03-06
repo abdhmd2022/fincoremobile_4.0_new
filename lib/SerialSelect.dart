@@ -1493,15 +1493,18 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
         license_expiry = _selectedadmin[0]['license_expiry'].toString();
 
         if(license_expiry!= "null" || license_expiry !="") {
-          DateTime expire_date = DateTime.parse(license_expiry);
-          DateTime today_date = DateTime.now();
+          DateTime today = DateTime.now();
+          DateTime expiry = DateTime.parse(license_expiry);
+
+          DateTime todayDate = DateTime(today.year, today.month, today.day);
+          DateTime expiryDate = DateTime(expiry.year, expiry.month, expiry.day);
 
           if(token != null && token != "" && token.isNotEmpty && token != 'null') // checking if token is not empty
           {
             myData_company.clear();
             prefs.setString("token", token);
 
-            if (today_date.isBefore(expire_date))
+            if (!todayDate.isAfter(expiryDate))
             {
 
               fetchAllowedCompany(serial_no,username_prefs!);

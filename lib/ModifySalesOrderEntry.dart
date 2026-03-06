@@ -227,7 +227,8 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
             totalAmountForVatAppEntries *
                 vat_perc;
 
-        itemsVatAmount = totalPriceOfItems * vat_perc;
+        itemsVatAmount = double.parse(
+            (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
 
         totalVatAmount =
             itemsVatAmount +
@@ -342,7 +343,8 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
 
       if (_selectedvatledger != 'Not Applicable') {
         double vat_perc = vatperc / 100;
-        itemsVatAmount = totalPriceOfItems * vat_perc;
+        itemsVatAmount = double.parse(
+            (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
         ledgerVatAmount = totalAmountForVatAppEntries * vat_perc;
 
         totalVatAmount = itemsVatAmount + ledgerVatAmount;
@@ -2214,8 +2216,8 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
 
       if (_selectedvatledger != 'Not Applicable') {
         double vat_perc = vatperc / 100;
-        itemsVatAmount = totalPriceOfItems * vat_perc;
-
+        itemsVatAmount = double.parse(
+            (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
         totalVatAmount = itemsVatAmount + ledgerVatAmount;
 
         roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
@@ -2590,7 +2592,8 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
 
                             if (_selectedvatledger != 'Not Applicable') {
                               double vat_perc = vatperc / 100;
-                              itemsVatAmount = totalPriceOfItems * vat_perc;
+                              itemsVatAmount = double.parse(
+                                  (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
                               totalVatAmount = itemsVatAmount + ledgerVatAmount;
                             } else {
                               totalVatAmount = 0;
@@ -4011,8 +4014,8 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
         if (_selectedvatledger != 'Not Applicable') {
 
           double vat_perc = vatperc / 100;
-          itemsVatAmount = totalPriceOfItems * vat_perc;
-
+          itemsVatAmount = double.parse(
+              (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
           totalAmountForVatAppEntries = ledgerEntries
               .where((entry) => entry.vatApp)
               .fold(0.0, (double previousAmount, LedgerEntry entry) {
@@ -4138,8 +4141,8 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
 
           double vat_perc = vatperc / 100;
 
-          itemsVatAmount = totalPriceOfItems * vat_perc;
-
+          itemsVatAmount = double.parse(
+              (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
           ledgerVatAmount = totalAmountForVatAppEntries * vat_perc;
 
           /*print('Total Ledger Amount for VAT-Applicable Entries: $totalAmountForVatAppEntries');
@@ -4295,8 +4298,8 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
       });
 
       ledgerVatAmount = totalAmountForVatAppEntries * vatPerc;
-      itemsVatAmount = totalPriceOfItems * vatPerc;
-
+      itemsVatAmount = double.parse(
+          (totalPriceOfItems * vatPerc).toStringAsFixed(decimal!));
       totalVatAmount = itemsVatAmount + ledgerVatAmount;
 
       roundedtotalVatAmount =
@@ -5601,7 +5604,8 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                                                             (double prev, LedgerEntry entry) => prev + entry.ledgerAmount);
 
                                                     double vat_perc = vatperc / 100;
-                                                    itemsVatAmount = totalPriceOfItems * vat_perc;
+                                                    itemsVatAmount = double.parse(
+                                                        (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
                                                     ledgerVatAmount = totalAmountForLedgerVatAppEntries * vat_perc;
                                                     totalVatAmount = itemsVatAmount + ledgerVatAmount;
 

@@ -348,6 +348,11 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
 
           isVisibleNoSalesOrderEntryFound = false;
           salesorderentries.addAll(jsonList.map((json) => SalesOrderModel.fromJson(json)).toList());
+          salesorderentries.sort((a, b) {
+            DateTime dateA = DateTime.parse(a.data['DATE']);
+            DateTime dateB = DateTime.parse(b.data['DATE']);
+            return dateB.compareTo(dateA); // descending
+          });
         }
         else
         {

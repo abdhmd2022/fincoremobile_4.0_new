@@ -250,7 +250,8 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
 
       if (_selectedvatledger != 'Not Applicable') {
         double vat_perc = vatperc / 100;
-        itemsVatAmount = totalPriceOfItems * vat_perc;
+        itemsVatAmount = double.parse(
+            (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
 
         totalVatAmount = itemsVatAmount + ledgerVatAmount;
         roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
@@ -2021,7 +2022,8 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
 
       if (_selectedvatledger != 'Not Applicable') {
         double vat_perc = vatperc / 100;
-        itemsVatAmount = totalPriceOfItems * vat_perc;
+        itemsVatAmount = double.parse(
+            (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
 
         totalVatAmount = itemsVatAmount + ledgerVatAmount;
 
@@ -2398,7 +2400,8 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
 
                             if (_selectedvatledger != 'Not Applicable') {
                               double vat_perc = vatperc / 100;
-                              itemsVatAmount = totalPriceOfItems * vat_perc;
+                              itemsVatAmount = double.parse(
+                                  (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
                               totalVatAmount = itemsVatAmount + ledgerVatAmount;
                             } else {
                               totalVatAmount = 0;
@@ -3498,7 +3501,8 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
 
           ledgerVatAmount = totalAmountForVatAppEntries * vat_perc;
 
-          itemsVatAmount = totalPriceOfItems * vat_perc;
+          itemsVatAmount = double.parse(
+              (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
 
           totalVatAmount = itemsVatAmount + ledgerVatAmount;
 
@@ -3614,7 +3618,8 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
 
           double vat_perc = vatperc / 100;
 
-          itemsVatAmount = totalPriceOfItems * vat_perc;
+          itemsVatAmount = double.parse(
+              (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
 
           ledgerVatAmount = totalAmountForVatAppEntries * vat_perc;
 
@@ -3767,7 +3772,8 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
       });
 
       ledgerVatAmount = totalAmountForVatAppEntries * vatPerc;
-      itemsVatAmount = totalPriceOfItems * vatPerc;
+      itemsVatAmount = double.parse(
+          (totalPriceOfItems * vatPerc).toStringAsFixed(decimal!));
 
       totalVatAmount = itemsVatAmount + ledgerVatAmount;
 
@@ -5064,7 +5070,8 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
                                                             (double prev, LedgerEntry entry) => prev + entry.ledgerAmount);
 
                                                     double vat_perc = vatperc / 100;
-                                                    itemsVatAmount = totalPriceOfItems * vat_perc;
+                                                    itemsVatAmount = double.parse(
+                                                        (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
                                                     ledgerVatAmount = totalAmountForLedgerVatAppEntries * vat_perc;
                                                     totalVatAmount = itemsVatAmount + ledgerVatAmount;
 

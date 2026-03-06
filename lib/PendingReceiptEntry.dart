@@ -355,6 +355,11 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
           isVisibleNoReceiptEntryFound = false;
 
           receiptentries.addAll(jsonList.map((json) => ReceiptModel.fromJson(json)).toList());
+          receiptentries.sort((a, b) {
+            DateTime dateA = DateTime.parse(a.data['DATE']);
+            DateTime dateB = DateTime.parse(b.data['DATE']);
+            return dateB.compareTo(dateA); // descending
+          });
 
         } else {
 

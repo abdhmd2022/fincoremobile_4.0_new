@@ -184,8 +184,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
       if (_selectedvatledger != 'Not Applicable') {
         double vat_perc = vatperc / 100;
-        itemsVatAmount = totalPriceOfItems * vat_perc;
-
+        itemsVatAmount = double.parse(
+            (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
         totalVatAmount = itemsVatAmount + ledgerVatAmount;
         roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
         NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
@@ -2118,8 +2118,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
       if (_selectedvatledger != 'Not Applicable') {
         double vat_perc = vatperc / 100;
-        itemsVatAmount = totalPriceOfItems * vat_perc;
-
+        itemsVatAmount = double.parse(
+            (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
         totalVatAmount = itemsVatAmount + ledgerVatAmount;
 
         roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
@@ -2500,7 +2500,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
           "STOCKITEMNAME": item.itemName,
             "ISDEEMEDPOSITIVE": "No",
             "RATE": "${item.itemPrice}/${item.itemUnit}",
-            "AMOUNT": item.itemAmount,
+            "AMOUNT": item.itemAmount.toStringAsFixed(decimal!),
             "ACTUALQTY": "${item.itemQuantity} ${item.itemUnit}",
             "BILLEDQTY":"${item.itemQuantity} ${item.itemUnit}",
             "BATCHALLOCATIONS.LIST" : item.batchAllocationList,
@@ -3813,8 +3813,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       });
 
       ledgerVatAmount = totalAmountForVatAppEntries * vatPerc;
-      itemsVatAmount = totalPriceOfItems * vatPerc;
-
+      itemsVatAmount = double.parse(
+          (totalPriceOfItems * vatPerc).toStringAsFixed(decimal!));
       totalVatAmount = itemsVatAmount + ledgerVatAmount;
 
       roundedtotalVatAmount =
@@ -3931,8 +3931,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
           ledgerVatAmount = totalAmountForVatAppEntries * vat_perc;
 
-          itemsVatAmount = totalPriceOfItems * vat_perc;
-
+          itemsVatAmount = double.parse(
+              (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
         totalVatAmount = itemsVatAmount + ledgerVatAmount;
 
         roundedtotalVatAmount = double.parse(
@@ -4046,8 +4046,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
           double vat_perc = vatperc / 100;
 
-          itemsVatAmount = totalPriceOfItems * vat_perc;
-
+          itemsVatAmount = double.parse(
+              (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
           ledgerVatAmount = totalAmountForVatAppEntries * vat_perc;
 
           /*print('Total Ledger Amount for VAT-Applicable Entries: $totalAmountForVatAppEntries');
@@ -5547,7 +5547,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                                         (double prev, LedgerEntry entry) => prev + entry.ledgerAmount);
 
                                                 double vat_perc = vatperc / 100;
-                                                itemsVatAmount = totalPriceOfItems * vat_perc;
+                                                itemsVatAmount = double.parse(
+                                                    (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
                                                 ledgerVatAmount = totalAmountForLedgerVatAppEntries * vat_perc;
                                                 totalVatAmount = itemsVatAmount + ledgerVatAmount;
 

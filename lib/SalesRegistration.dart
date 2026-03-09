@@ -179,7 +179,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
       // Calculate the total price of items
       totalPriceOfItems = saleItems.fold(0.0, (double previousAmount, SaleItem item) {
-        return previousAmount + (item.itemPrice * double.parse(item.itemQuantity));
+        return previousAmount + (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity));
       });
 
       if (_selectedvatledger != 'Not Applicable') {
@@ -532,7 +532,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       int qty_int = int.parse(qty);
       totalQuantity += qty_int;
 
-      totalitemAmount += item.itemAmount;
+      totalitemAmount += double.parse(item.itemAmount.toStringAsFixed(decimal!));
     }
 
     pdf.addPage(
@@ -2108,7 +2108,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
           0.0, (double previousAmount,
           SaleItem item) {
         return previousAmount +
-            (item.itemPrice * double.parse(item.itemQuantity));
+            (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity));
       });
 
       totalAmountOfLedgers = ledgerEntries
@@ -3798,7 +3798,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
     totalPriceOfItems = saleItems.fold(
       0.0,
           (double previousAmount, SaleItem item) {
-        return previousAmount + (item.itemPrice * double.parse(item.itemQuantity));
+        return previousAmount + (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity));
       },
     );
 
@@ -3874,7 +3874,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       // Check if the item already exists in the list with the same name and price
       int existingIndex = saleItems.indexWhere((item) =>
       item.itemName == itemName &&
-          item.itemPrice == parsedPrice &&
+          double.parse(item.itemPrice.toStringAsFixed(decimal!)) == parsedPrice &&
           item.itemUnit == itemUnit);
       if (existingIndex != -1) {
         // Item already exists with the same name, price, and unit, update its quantity and amount
@@ -3915,7 +3915,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
         totalPriceOfItems = saleItems.fold(
             0.0, (double previousAmount, SaleItem item) {
           return previousAmount +
-              (item.itemPrice * double.parse(item.itemQuantity));
+              (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity));
         });
 
         if (_selectedvatledger != 'Not Applicable') {
@@ -4033,7 +4033,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
         totalPriceOfItems = saleItems.fold(
             0.0, (double previousAmount, SaleItem item) {
           return previousAmount +
-              (item.itemPrice * double.parse(item.itemQuantity));
+              (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity));
         });
 
         if (_selectedvatledger != 'Not Applicable') {
@@ -5525,7 +5525,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                               totalPriceOfItems = saleItems.fold(
                                                 0.0,
                                                     (double prev, SaleItem item) =>
-                                                prev + (item.itemPrice * double.parse(item.itemQuantity)),
+                                                prev + (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity)),
                                               );
 
                                               totalAmountOfLedgers = ledgerEntries.fold(

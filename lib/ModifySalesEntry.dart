@@ -203,7 +203,7 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
           0.0, (double previousAmount,
           SaleItem item) {
         return previousAmount +
-            (item.itemPrice * double.parse(item.itemQuantity));
+            (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity));
       });
 
       totalAmountForVatAppEntries = ledgerEntries
@@ -1268,7 +1268,7 @@ _itemController.text = _selecteditem;
       int qty_int = int.parse(qty);
       totalQuantity += qty_int;
 
-      totalitemAmount += item.itemAmount;
+      totalitemAmount += double.parse(item.itemAmount.toStringAsFixed(decimal!));
     }
 
     pdf.addPage(
@@ -2856,7 +2856,7 @@ _itemController.text = _selecteditem;
 
       totalAmountOfLedgers = ledgerEntries
           .fold(0.0, (double previousAmount, LedgerEntry entry) {
-        return previousAmount + entry.ledgerAmount;
+        return previousAmount + double.parse(entry.ledgerAmount.toStringAsFixed(decimal!));
       });
 
       if (_selectedvatledger != 'Not Applicable') {
@@ -3809,7 +3809,7 @@ _itemController.text = _selecteditem;
                   double itemAmount;
                   try
                   {
-                    itemAmount = double.parse(itemData["AMOUNT"].toString());
+                    itemAmount = double.parse(itemData["AMOUNT"].toStringAsFixed(decimal!));
                   } catch (e)
                   {
                     try
@@ -4659,7 +4659,7 @@ _itemController.text = _selecteditem;
       // Check if the item already exists in the list with the same name and price
       int existingIndex = saleItems.indexWhere((item) =>
       item.itemName == itemName &&
-          item.itemPrice == parsedPrice &&
+          double.parse(item.itemPrice.toStringAsFixed(decimal!)) == parsedPrice &&
           item.itemUnit == itemUnit);
       if (existingIndex != -1) {
         // Item already exists with the same name, price, and unit, update its quantity and amount
@@ -4700,7 +4700,7 @@ _itemController.text = _selecteditem;
         totalPriceOfItems = saleItems.fold(
             0.0, (double previousAmount, SaleItem item) {
           return previousAmount +
-              (item.itemPrice * double.parse(item.itemQuantity));
+              (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity));
         });
 
 
@@ -4821,7 +4821,7 @@ _itemController.text = _selecteditem;
         totalPriceOfItems = saleItems.fold(
             0.0, (double previousAmount, SaleItem item) {
           return previousAmount +
-              (item.itemPrice * double.parse(item.itemQuantity));
+              (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity));
         });
 
         if (_selectedvatledger != 'Not Applicable') {
@@ -6362,7 +6362,7 @@ _itemController.text = _selecteditem;
                                                 totalPriceOfItems = saleItems.fold(
                                                   0.0,
                                                       (double prev, SaleItem item) =>
-                                                  prev + (item.itemPrice * double.parse(item.itemQuantity)),
+                                                  prev + (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity)),
                                                 );
 
                                                 totalAmountOfLedgers = ledgerEntries.fold(

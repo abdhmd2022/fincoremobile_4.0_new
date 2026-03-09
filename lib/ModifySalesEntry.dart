@@ -3090,6 +3090,7 @@ _itemController.text = _selecteditem;
       roundedtotalAmount = double.parse(totalAmount.toStringAsFixed(decimal!));
 
 
+
       jsonEntryData["DATE"] = saledatestring;
       jsonEntryData["VOUCHERTYPENAME"] = _selectedvchtypename;
       jsonEntryData["PARTYLEDGERNAME"] = _selectedpartyledger;
@@ -3133,12 +3134,11 @@ _itemController.text = _selecteditem;
 
       for (LedgerEntry ledger in ledgerEntries) { // calculating total ledger amount
         totalLedgerAmount +=
-            ledger.ledgerAmount; // calculating ledger amounts total
+            double.parse(ledger.ledgerAmount.toStringAsFixed(decimal!)); // calculating ledger amounts total
       }
 
-      double partyLedgerAmount = totalVatAmount + totalItemAmount +
-          totalLedgerAmount ??
-          0.0; // adding vat total, items total, ledgers total
+      double partyLedgerAmount = double.parse((totalVatAmount + totalItemAmount + totalLedgerAmount).toStringAsFixed(decimal!)); // adding vat total, items total, ledgers total
+
 
 
       partyLedgerAmount = double.parse(

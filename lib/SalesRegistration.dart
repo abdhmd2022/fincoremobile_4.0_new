@@ -2479,7 +2479,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
         for (SaleItem item in saleItems)
         {
-          totalItemAmount += item.itemAmount; // calculating item amounts total
+          totalItemAmount += double.parse(item.itemAmount.toStringAsFixed(decimal!)); // calculating item amounts total
         }
 
         for (var saleItem in saleItems)
@@ -2512,10 +2512,10 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
         for (LedgerEntry ledger in ledgerEntries) { // calculating total ledger amount
           totalLedgerAmount +=
-              ledger.ledgerAmount; // calculating ledger amounts total
+              double.parse(ledger.ledgerAmount.toStringAsFixed(decimal!)); // calculating ledger amounts total
         }
 
-      double partyLedgerAmount = totalVatAmount + totalItemAmount + totalLedgerAmount; // adding vat total, items total, ledgers total
+      double partyLedgerAmount = double.parse((totalVatAmount + totalItemAmount + totalLedgerAmount).toStringAsFixed(decimal!)); // adding vat total, items total, ledgers total
 
       partyLedgerAmount = partyLedgerAmount * -1;
 

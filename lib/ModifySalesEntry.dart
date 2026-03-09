@@ -3137,9 +3137,7 @@ _itemController.text = _selecteditem;
             double.parse(ledger.ledgerAmount.toStringAsFixed(decimal!)); // calculating ledger amounts total
       }
 
-      double partyLedgerAmount = double.parse((totalVatAmount + totalItemAmount + totalLedgerAmount).toStringAsFixed(decimal!)); // adding vat total, items total, ledgers total
-
-
+      double partyLedgerAmount = double.parse((double.parse(totalVatAmount.toStringAsFixed(decimal!)) + double.parse(totalItemAmount.toStringAsFixed(decimal!)) + double.parse(totalLedgerAmount.toStringAsFixed(decimal!))).toStringAsFixed(decimal!)); // adding vat total, items total, ledgers total
 
       partyLedgerAmount = double.parse(
           partyLedgerAmount.toStringAsFixed(decimal!)) * -1;
@@ -6103,7 +6101,7 @@ _itemController.text = _selecteditem;
                                                             border: Border.all(color: Colors.grey.shade400),
                                                           ),
                                                           child: Text(
-                                                            "${getCurrencySymbol(currencycode)} ${currencyFormat.format(item.itemPrice)}",
+                                                            "${getCurrencySymbol(currencycode)} ${currencyFormat.format(double.parse(item.itemPrice.toStringAsFixed(decimal!)))}",
                                                             style: GoogleFonts.poppins(
                                                               fontSize: 14,
                                                               fontWeight: FontWeight.w600,

@@ -1498,7 +1498,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                           padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
                                           alignment: pw.Alignment.centerRight,
                                           child: pw.Text(
-                                            formatAmountInvoice(item.value.itemAmount.toString()),
+                                            formatAmountInvoice(item.value.itemAmount.toStringAsFixed(decimal!)),
                                             textAlign: pw.TextAlign.right,
                                             style: pw.TextStyle(
                                               fontSize: 10,
@@ -1582,7 +1582,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                         padding: pw.EdgeInsets.fromLTRB(5, 50, 5, 5),
                                         alignment: pw.Alignment.centerRight,
                                         child: pw.Text(
-                                          formatAmountInvoice(totalitemAmount.toString()),
+                                          formatAmountInvoice(totalitemAmount.toStringAsFixed(decimal!)),
                                           textAlign: pw.TextAlign.right,
                                           style: pw.TextStyle(
                                             fontSize: 10,
@@ -2499,7 +2499,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
           return {
           "STOCKITEMNAME": item.itemName,
             "ISDEEMEDPOSITIVE": "No",
-            "RATE": "${item.itemPrice}/${item.itemUnit}",
+            "RATE": "${item.itemPrice.toStringAsFixed(decimal!)}/${item.itemUnit}",
             "AMOUNT": item.itemAmount.toStringAsFixed(decimal!),
             "ACTUALQTY": "${item.itemQuantity} ${item.itemUnit}",
             "BILLEDQTY":"${item.itemQuantity} ${item.itemUnit}",
@@ -2515,7 +2515,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
               double.parse(ledger.ledgerAmount.toStringAsFixed(decimal!)); // calculating ledger amounts total
         }
 
-      double partyLedgerAmount = double.parse((totalVatAmount + totalItemAmount + totalLedgerAmount).toStringAsFixed(decimal!)); // adding vat total, items total, ledgers total
+      double partyLedgerAmount = double.parse((double.parse(totalVatAmount.toStringAsFixed(decimal!)) + double.parse(totalItemAmount.toStringAsFixed(decimal!)) + double.parse(totalLedgerAmount.toStringAsFixed(decimal!))).toStringAsFixed(decimal!)); // adding vat total, items total, ledgers total
 
       partyLedgerAmount = partyLedgerAmount * -1;
 
@@ -5266,7 +5266,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
     border: Border.all(color: Colors.grey.shade400),
     ),
     child: Text(
-    "${getCurrencySymbol(currencycode)} ${currencyFormat.format(item.itemPrice)}",
+    "${getCurrencySymbol(currencycode)} ${currencyFormat.format(double.parse(item.itemPrice.toStringAsFixed(decimal!)))}",
     style: GoogleFonts.poppins(
     fontSize: 14,
     fontWeight: FontWeight.w600,

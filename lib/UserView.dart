@@ -55,7 +55,6 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-
   late SharedPreferences prefs;
 
   String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";

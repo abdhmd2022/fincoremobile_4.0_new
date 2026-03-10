@@ -2465,11 +2465,12 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
         String vchnoValue = _vchnoController.text;
 
       String refnoValue = controller_refno.text;
+      roundedtotalAmount = double.parse(totalAmount.toStringAsFixed(decimal!));
 
         jsonEntryData["DATE"] = saledatestring;
         jsonEntryData["VOUCHERTYPENAME"] = _selectedvchtypename;
         jsonEntryData["PARTYLEDGERNAME"] = _selectedpartyledger;
-        jsonEntryData["totalAmount"] = roundedtotalAmount;
+        jsonEntryData["totalAmount"] = roundedtotalAmount.toStringAsFixed(decimal!);
         jsonEntryData["NARRATION"] = narrationValue;
       jsonEntryData["VOUCHERNUMBER"] = vchnoValue;
     jsonEntryData["REFERENCE"] = refnoValue;

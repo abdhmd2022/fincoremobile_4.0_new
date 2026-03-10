@@ -3089,12 +3089,10 @@ _itemController.text = _selecteditem;
       String vchnoValue = _vchnoController.text;
       roundedtotalAmount = double.parse(totalAmount.toStringAsFixed(decimal!));
 
-
-
       jsonEntryData["DATE"] = saledatestring;
       jsonEntryData["VOUCHERTYPENAME"] = _selectedvchtypename;
       jsonEntryData["PARTYLEDGERNAME"] = _selectedpartyledger;
-      jsonEntryData["totalAmount"] = roundedtotalAmount;
+      jsonEntryData["totalAmount"] = roundedtotalAmount.toStringAsFixed(decimal!);
       jsonEntryData["NARRATION"] = narrationValue;
       jsonEntryData["VOUCHERNUMBER"] = vchnoValue;
       jsonEntryData["REFERENCE"] = refnoValue;

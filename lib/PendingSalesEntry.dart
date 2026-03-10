@@ -105,11 +105,17 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
       String? email_nav = prefs.getString('email_nav');
       String? name_nav = prefs.getString('name_nav');
 
-      HttpURL_loadData = '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales&isSynced=false';
+      // full list
+      // HttpURL_loadData = '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales';
+
+      // not synced only list
+       HttpURL_loadData = '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales&&isSynced=false';
+
       HttpURL_deleteEntry = '$hostname/api/entry/deleteEntry/$company_lowercase/$serial_no';
       if (email_nav!=null && name_nav!= null)
       {
         name = name_nav;
+
         email = email_nav;
       }
 
@@ -125,6 +131,49 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
       }
     });
     fetchSalesEntries();
+  }
+
+
+  Widget _buildSyncChip(int isSynced) {
+    final bool synced = isSynced == 1;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          colors: synced
+              ? [Colors.green.shade400, Colors.green.shade700]
+              : [Colors.orange.shade400, Colors.deepOrange.shade600],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (synced ? Colors.green : Colors.orange).withOpacity(0.3),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            synced ? Icons.cloud_done : Icons.cloud_upload_outlined,
+            size: 14,
+            color: Colors.white,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            synced ? "Synced" : "Pending Sync",
+            style: GoogleFonts.poppins(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _showConfirmationDialogAndNavigate(BuildContext context, int id) async {
@@ -580,6 +629,7 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
                                             softWrap: true,
                                           ),
                                         ),
+
                                       ],
                                     ),
                                   ),
@@ -614,14 +664,25 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
                                           _showConfirmationDialogAndNavigate(context, card.id);
                                         },
                                       ),
+
+
                                     ],
                                   ),
                                 ],
                               ),
                             ),
 
-                            const SizedBox(height: 12),
+                            /*const SizedBox(height: 8),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Row(
+                                children: [
+                                  _buildSyncChip(card.isSynced),
+                                ],
+                              ),
+                            ),*/
 
+                            const SizedBox(height: 12),
                             // 🔹 Detail Rows
                             DetailRowTile(
                               label: "Party Ledger",

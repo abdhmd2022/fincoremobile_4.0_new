@@ -2565,7 +2565,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
       String jsonDataString = jsonEncode(jsonData);
 
-      /*print(jsonDataString);*/
+      print(jsonDataString);
 
       try
       {

@@ -124,6 +124,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
     super.dispose();
   }
 
+
   List<Map<String, dynamic>> get dashboardPermissions => [
     {'label': 'Sales', 'value': isSalesAccessCheck, 'onChanged': (v) => _updateAccess('sales', v)},
     {'label': 'Purchase', 'value': isPurchaseAccessCheck, 'onChanged': (v) => _updateAccess('purchase', v)},

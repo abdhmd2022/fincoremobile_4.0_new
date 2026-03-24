@@ -19,6 +19,7 @@ String formatAmount(String amount)
     amount_string = CurrencyFormatter.formatCurrency_double(amount_double);
     amount_string = amount_string + " DR";
   }
+
   else
   {
     if(amount == "null")

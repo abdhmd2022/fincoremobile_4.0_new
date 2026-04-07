@@ -466,7 +466,6 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
     final message = Message()
       ..from = Address('noreply@fincoreerp.com','Fincore Support') // Replace with your Outlook email
       ..recipients.add(emailAddress) // Use the email entered by the user
-
       ..subject = 'Password Reset Request'
       ..html = '''
          <div style="border: 1px solid #ccc; padding-left: 30px; padding-right: 30px; padding-top: 30px; padding-bottom: 30px; margin-left: 20px; margin-right: 20px; margin-top: 0px; text-align: center;">

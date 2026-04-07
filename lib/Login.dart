@@ -150,7 +150,8 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SnackBar(
                 content: Text('An error occured.'),
-              ));}});}}
+              ));}});}
+  }
 
   Future<void> _showConfirmationDialogAndExit(BuildContext context) async {
     await showDialog<void>(
@@ -1172,6 +1173,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
     generatedotp = '${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}'; // Generates a 4-digit random OTP
 
     print(generatedotp);
+
     final smtpServer = SmtpServer(
         'smtp.hostinger.com',
         username: 'noreply@fincoreerp.com',
@@ -1214,7 +1216,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 </div>''';
     try {
 
-      await send(message, smtpServer); // ✅ DO NOT assign it to a variable
+      await send(message, smtpServer);
 
       /*_scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(

@@ -128,6 +128,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         case "billion":
           selectedScale = NumberScale.billion;
           break;
+        case "full":
+          selectedScale = NumberScale.full;
+          break;
         default:
           selectedScale = NumberScale.thousand;
       }

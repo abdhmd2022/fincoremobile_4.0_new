@@ -2715,7 +2715,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                             ),
                           ),
 
-
                         // if (_isSearchViewVisible)
 
                         if(sales_purc_cash_list.isNotEmpty || receivable_payable_list.isNotEmpty || ledgerGroupList.isNotEmpty)

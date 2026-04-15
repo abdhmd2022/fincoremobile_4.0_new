@@ -1827,6 +1827,10 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         'vchname': vchname,
       });
 
+      print('url ->> $url');
+      print('token ->> $token');
+      print('body ->> $body');
+
       final response = await http.post(url, body: body, headers: headers);
 
       if (response.statusCode == 200) {
@@ -1841,7 +1845,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
             ..addAll(items);
 
           filteredItems_sale_purc_cash = List.from(sales_purc_cash_list);
-          print('list ->>> ${response.body}');
+          // print('list ->>> ${response.body}');
 
           isVisibleNoDataFound = filteredItems_sale_purc_cash.isEmpty;
           isSortVisible = filteredItems_sale_purc_cash.isNotEmpty;

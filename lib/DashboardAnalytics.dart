@@ -27,8 +27,6 @@ class AnalyticsScreen extends StatefulWidget {
   final String startDateString;
   final String endDateString;
 
-
-
   const AnalyticsScreen({
     super.key,
     required this.lineChartData,

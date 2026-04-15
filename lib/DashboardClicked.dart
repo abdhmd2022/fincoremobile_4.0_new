@@ -2781,6 +2781,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                 return InkWell(
                                   onTap: () {
                                     setState(() {
+                                      searchController.clear();
+                                      FocusScope.of(context).unfocus();
                                       _selectedLedgerGroup = group.ledger;
                                       _isLedgerGroupVisible = false;
                                       _isSalesListVisible = true;
@@ -2918,6 +2920,9 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                         setState(() {
                                           _isSalesListVisible = false;
                                           _isLedgerGroupVisible = true;
+                                          searchController.clear();
+                                          FocusScope.of(context).unfocus();
+                                          filteredLedgerGroupList = ledgerGroupList;
                                         });
                                       },
                                       icon: const Icon(

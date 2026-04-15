@@ -1409,6 +1409,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
           filteredItems_sale_purc_cash = List.from(sales_purc_cash_list);
 
+          print('list ->>> ${response.body}');
+
           isVisibleNoDataFound = filteredItems_sale_purc_cash.isEmpty;
           isSortVisible = filteredItems_sale_purc_cash.isNotEmpty;
 
@@ -1626,6 +1628,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
             ..addAll(parsed.items);
 
           filteredItems_receivable_payable = List.from(receivable_payable_list);
+          print('list ->>> ${response.body}');
 
           isVisibleNoDataFound = filteredItems_receivable_payable.isEmpty;
           isSortVisible = filteredItems_receivable_payable.isNotEmpty;
@@ -1838,6 +1841,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
             ..addAll(items);
 
           filteredItems_sale_purc_cash = List.from(sales_purc_cash_list);
+          print('list ->>> ${response.body}');
 
           isVisibleNoDataFound = filteredItems_sale_purc_cash.isEmpty;
           isSortVisible = filteredItems_sale_purc_cash.isNotEmpty;

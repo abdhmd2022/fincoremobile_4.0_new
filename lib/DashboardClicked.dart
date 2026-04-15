@@ -233,7 +233,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   bool isSortVisible = false;
 
-  // 🔍 SEARCH LOGIC
+// 🔍 SEARCH LOGIC
   void _onSearchChanged(String query) {
     final q = query.toLowerCase();
 

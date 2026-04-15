@@ -320,19 +320,24 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   }
   double getTotalAmount() {
     if (vchtypes == "Receivable" || vchtypes == "Payable") {
-      return filteredItems_receivable_payable.fold(
-          0.0, (sum, item) => sum + item.outstanding);
+      return filteredItems_receivable_payable.fold(0.0, (sum, item) {
+        print("Adding Outstanding: ${item.outstanding}");
+        return sum + item.outstanding;
+      });
     }
     else if (vchtypes == "Cash" && _isLedgerGroupVisible) {
-      return filteredLedgerGroupList.fold(
-          0.0, (sum, item) => sum + item.amount);
+      return filteredLedgerGroupList.fold(0.0, (sum, item) {
+        print("Adding Amount (Ledger): ${item.amount}");
+        return sum + item.amount;
+      });
     }
     else {
-      return filteredItems_sale_purc_cash.fold(
-          0.0, (sum, item) => sum + item.amount);
+      return filteredItems_sale_purc_cash.fold(0.0, (sum, item) {
+        print("Adding Amount: ${item.amount}");
+        return sum + item.amount;
+      });
     }
   }
-
   String getFormattedTotal() {
     double total = getTotalAmount();
     return formatAmount(total.toString()); // you already have this
@@ -607,16 +612,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   void sortByDateLowtoHigh() {
     setState(() {
-      if(filteredItems_sale_purc_cash.isNotEmpty)
-      {
-        filteredItems_sale_purc_cash.sort((a, b) => a.vchdate.compareTo(b.vchdate));
-        _scrollController_salelist.animateTo(
-          0.0,
-          duration: Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-      }
-      else if (filteredItems_receivable_payable.isNotEmpty) {
+      if (filteredItems_receivable_payable.isNotEmpty) {
         filteredItems_receivable_payable.sort((a, b) =>
             DateTime.parse(a.billdate).compareTo(DateTime.parse(b.billdate)));
 
@@ -631,16 +627,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   void sortByDateHightoLow() {
     setState(() {
-      if(filteredItems_sale_purc_cash.isNotEmpty)
-      {
-        filteredItems_sale_purc_cash.sort((a, b) => b.vchdate.compareTo(a.vchdate));
-        _scrollController_salelist.animateTo(
-          0.0,
-          duration: Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-      }
-      else if (filteredItems_receivable_payable.isNotEmpty) {
+      if (filteredItems_receivable_payable.isNotEmpty) {
         filteredItems_receivable_payable.sort((a, b) =>
             DateTime.parse(b.billdate).compareTo(DateTime.parse(a.billdate)));
 
@@ -2153,7 +2140,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
               formattedDate = billdate_date.add(Duration(days: nodays));
 
             }
-
           }
           else
           {
@@ -2357,19 +2343,20 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
 
   Widget _buildTotalBar() {
-    if (_isLoading) return SizedBox();
+    if (_isLoading) return const SizedBox();
 
     double total = getTotalAmount();
+    if (total.abs() < 0.0001) {
+      total = 0.0;
+    }
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-      margin: EdgeInsets.only(bottom: 24,left: 20,right: 20),
-
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      margin: const EdgeInsets.only(bottom: 24, left: 20, right: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-
         color: Colors.white,
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black12,
             blurRadius: 8,
@@ -2377,7 +2364,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             "Total",
@@ -2386,23 +2373,30 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
               fontWeight: FontWeight.w600,
             ),
           ),
-          Text(
-            formatAmount(total.toString()),
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: app_color,
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Text(
+              formatAmount(total.toString()),
+              textAlign: TextAlign.right,
+              softWrap: true,
+              maxLines: 2,
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: app_color,
+              ),
             ),
           ),
         ],
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // bottomNavigationBar: _buildTotalBar(),
+      bottomNavigationBar: _buildTotalBar(),
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       appBar:PreferredSize(
@@ -2755,7 +2749,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                     ),
                     child: Column(
                       children: [
-                       /* if (_isopeningVisible)
+                        if (_isopeningVisible)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 12,left:10,right:10),
                             child: Row(
@@ -2785,7 +2779,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                               ],
                             ),
                           ),
-*/
+
                         // if (_isSearchViewVisible)
 
                         if(sales_purc_cash_list.isNotEmpty || receivable_payable_list.isNotEmpty || ledgerGroupList.isNotEmpty)
@@ -2849,6 +2843,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                               itemCount: filteredLedgerGroupList.length,
                               itemBuilder: (context, index) {
                                 final group = filteredLedgerGroupList[index];
+                                double amount = group.amount;
+
+                                if (amount.abs() < 0.0001) {
+                                  amount = 0.0;
+                                }
                                 return InkWell(
                                   onTap: () {
                                     setState(() {
@@ -2922,36 +2921,33 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
                                         const SizedBox(width: 12),
 
-                                        // 🧾 Ledger Name and Amount — same row, wraps if long
                                         Expanded(
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              // Ledger name — wraps neatly
-                                              Expanded(
-                                                child: Text(
-                                                  group.ledger,
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                  softWrap: true,
-                                                  overflow: TextOverflow.visible,
+                                              // ✅ Ledger full width (no restriction)
+                                              Text(
+                                                group.ledger,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
                                                 ),
                                               ),
 
-                                              const SizedBox(width: 8),
+                                              const SizedBox(height: 4),
 
-                                              // 💰 Amount — teal, right-aligned
-                                              Text(
-                                                formatAmount(group.amount.toString()),
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: Colors.teal,
+                                              // ✅ Amount below, right aligned
+                                              Align(
+                                                alignment: Alignment.centerRight,
+                                                child: Text(
+                                                  textAlign: TextAlign.end,
+                                                  formatAmount(amount.toString()),
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Colors.teal,
+                                                  ),
                                                 ),
-                                                textAlign: TextAlign.right,
-                                                softWrap: true,
                                               ),
                                             ],
                                           ),
@@ -3050,9 +3046,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                               },
                             ),
                           ),
-
-
-
                       ],
                     ),
                   ),
@@ -3062,11 +3055,9 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
               ],
             ),
 
-
-
             Visibility(
               visible: isSortVisible,
-              child: Padding(padding: EdgeInsets.only(bottom: 100),
+              child: Padding(padding: EdgeInsets.only(bottom: 50),
               child: Align(
                   alignment: Alignment.bottomCenter,
                   child: SizedBox(
@@ -3108,14 +3099,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                   alignment: Alignment.center,
                   child: CircularProgressIndicator.adaptive(),
                 ),
-              ),),
-
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: isSortVisible ? 32 : 16, // 👈 adjust based on sort button
-              child: _buildFloatingTotalBar(),
-            ),
+              ),)
           ],
         ),
       ),
@@ -3125,46 +3109,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   }
 
-  Widget _buildFloatingTotalBar() {
-    if (_isLoading) return SizedBox();
 
-    double total = getTotalAmount();
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.white.withOpacity(1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 16,
-            offset: Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            "Total",
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          Text(
-            formatAmount(getTotalAmount().toString()),
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: app_color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
   Widget buildModernVoucherCard(Sale_purc_cash card) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),

@@ -2402,7 +2402,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: _buildTotalBar(),
+      // bottomNavigationBar: _buildTotalBar(),
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       appBar:PreferredSize(
@@ -2755,7 +2755,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                     ),
                     child: Column(
                       children: [
-                        if (_isopeningVisible)
+                       /* if (_isopeningVisible)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 12,left:10,right:10),
                             child: Row(
@@ -2785,7 +2785,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                               ],
                             ),
                           ),
-
+*/
                         // if (_isSearchViewVisible)
 
                         if(sales_purc_cash_list.isNotEmpty || receivable_payable_list.isNotEmpty || ledgerGroupList.isNotEmpty)
@@ -3050,6 +3050,9 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                               },
                             ),
                           ),
+
+
+
                       ],
                     ),
                   ),
@@ -3059,9 +3062,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
               ],
             ),
 
+
+
             Visibility(
               visible: isSortVisible,
-              child: Padding(padding: EdgeInsets.only(bottom: 50),
+              child: Padding(padding: EdgeInsets.only(bottom: 100),
               child: Align(
                   alignment: Alignment.bottomCenter,
                   child: SizedBox(
@@ -3103,7 +3108,14 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                   alignment: Alignment.center,
                   child: CircularProgressIndicator.adaptive(),
                 ),
-              ),)
+              ),),
+
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: isSortVisible ? 32 : 16, // 👈 adjust based on sort button
+              child: _buildFloatingTotalBar(),
+            ),
           ],
         ),
       ),
@@ -3113,7 +3125,46 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   }
 
+  Widget _buildFloatingTotalBar() {
+    if (_isLoading) return SizedBox();
 
+    double total = getTotalAmount();
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white.withOpacity(1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 16,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "Total",
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            formatAmount(getTotalAmount().toString()),
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: app_color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   Widget buildModernVoucherCard(Sale_purc_cash card) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),

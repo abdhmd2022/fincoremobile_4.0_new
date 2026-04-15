@@ -1243,9 +1243,61 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin{
                     child: Column(
                       children: [
 
+                        // 🔍 Modern Search Bar
+                        Padding( padding:  EdgeInsets.only(left: 18,right:18, top:10,bottom:5 ),
+                          child: Material(
+                            elevation: 2,
+                            borderRadius: BorderRadius.circular(20),
+                            shadowColor: Colors.black12,
+
+                            child: TextField(
+                              controller: searchController,
+                              onChanged: (value) {
+                                value = value.toLowerCase();
+                                setState(() {
+                                  filteredItems_parties = value.isEmpty
+                                      ? parties_list
+                                      : parties_list.where((item) {
+                                    return item.partyname.toLowerCase().contains(value);
+                                  }).toList();
+
+                                  party_count = filteredItems_parties.length.toString();
+                                  if(int.parse(party_count)<2)
+                                  {
+                                    party_text = "Party";
+                                  }
+                                  else
+                                  {
+                                    party_text="Parties";
+                                  }
+                                });
+                              },
+                              decoration: InputDecoration(
+                                hintText: "Search Parties...",
+                                hintStyle: GoogleFonts.poppins(fontSize: 13),
+                                prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
+
+
+
+                                filled: true,
+                                fillColor: Colors.white,
+                                contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  borderSide: BorderSide(color: Colors.grey.shade400),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  borderSide: const BorderSide(color: app_color, width: 1.5),
+                                ),
+                                border: InputBorder.none,
+                              ),
+
+                            ),
+                          ),),
                         // 📊 Party Count
                           Padding(
-                            padding: const EdgeInsets.only(left: 16,right:16, top:10,bottom: 0),
+                            padding: const EdgeInsets.only(left: 16,right:16, top:5,bottom: 0),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(20),
                               child: BackdropFilter(
@@ -1312,58 +1364,7 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin{
                               ),
                             ),
                           ),
-                        // 🔍 Modern Search Bar
-                        Padding( padding:  EdgeInsets.only(left: 18,right:18, top:10,bottom:5 ),
-                          child: Material(
-                            elevation: 2,
-                            borderRadius: BorderRadius.circular(20),
-                            shadowColor: Colors.black12,
 
-                            child: TextField(
-                              controller: searchController,
-                              onChanged: (value) {
-                                value = value.toLowerCase();
-                                setState(() {
-                                  filteredItems_parties = value.isEmpty
-                                      ? parties_list
-                                      : parties_list.where((item) {
-                                    return item.partyname.toLowerCase().contains(value);
-                                  }).toList();
-
-                                  party_count = filteredItems_parties.length.toString();
-                                  if(int.parse(party_count)<2)
-                                  {
-                                    party_text = "Party";
-                                  }
-                                  else
-                                  {
-                                    party_text="Parties";
-                                  }
-                                });
-                              },
-                              decoration: InputDecoration(
-                                hintText: "Search Parties...",
-                                hintStyle: GoogleFonts.poppins(fontSize: 13),
-                                prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
-
-
-
-                                filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: BorderSide(color: Colors.grey.shade400),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: const BorderSide(color: app_color, width: 1.5),
-                                ),
-                                border: InputBorder.none,
-                              ),
-
-                            ),
-                          ),),
 
 
                         // ⚠️ No Data Found

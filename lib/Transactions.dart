@@ -1421,7 +1421,7 @@ class _TransactionsPageState extends State<Transactions> with TickerProviderStat
           ),
           centerTitle: true,
           actions: [
-            IconButton(
+            /*IconButton(
               onPressed: () {
                 counter++;
 
@@ -1439,7 +1439,7 @@ class _TransactionsPageState extends State<Transactions> with TickerProviderStat
                 color: Colors.white,
                 size: 30,
               ),
-            ),
+            ),*/
             IconButton(
               onPressed: () {
                 final RenderBox button = context.findRenderObject() as RenderBox;
@@ -1720,65 +1720,58 @@ class _TransactionsPageState extends State<Transactions> with TickerProviderStat
                             child: Column(
                               children: [
 
-                                Visibility(
-                                  visible: _isSearchViewVisible,
-                                  child:
 
+                                Padding( padding:  EdgeInsets.only(left: 12,right:12, top:5 ),
+                                  child: Material(
+                                    elevation: 2,
+                                    borderRadius: BorderRadius.circular(20),
+                                    shadowColor: Colors.black12,
 
+                                    child: TextField(
+                                      controller: searchController,
+                                      onChanged: (value) {
 
-                                  Padding( padding:  EdgeInsets.only(left: 12,right:12, top:12 ),
-                                    child: Material(
-                                      elevation: 2,
-                                      borderRadius: BorderRadius.circular(14),
-                                      shadowColor: Colors.black12,
+                                        value = value.toLowerCase();
 
-                                      child: TextField(
-                                        controller: searchController,
-                                        onChanged: (value) {
+                                        if(value.isEmpty || value == '')
+                                        {
+                                          setState(() {
+                                            filteredItems_transactions = transactions_list;
+                                            transactions_count = filteredItems_transactions.length.toString();
 
-                                          value = value.toLowerCase();
+                                          });
+                                        }
+                                        else
+                                        {
+                                          setState(() {
+                                            filteredItems_transactions = transactions_list.where((item) {
+                                              // Filter items based on the search query and the ledgerName property
+                                              final query = value.toLowerCase();
+                                              return item.vchno.toLowerCase().contains(query);
+                                            }).toList();
+                                            transactions_count = filteredItems_transactions.length.toString();
 
-                                          if(value.isEmpty || value == '')
-                                          {
-                                            setState(() {
-                                              filteredItems_transactions = transactions_list;
-                                              transactions_count = filteredItems_transactions.length.toString();
-
-                                            });
-                                          }
-                                          else
-                                          {
-                                            setState(() {
-                                              filteredItems_transactions = transactions_list.where((item) {
-                                                // Filter items based on the search query and the ledgerName property
-                                                final query = value.toLowerCase();
-                                                return item.vchno.toLowerCase().contains(query);
-                                              }).toList();
-                                              transactions_count = filteredItems_transactions.length.toString();
-
-                                            });
-                                          }} ,
-                                        decoration: InputDecoration(
-                                          hintText: 'Search...',
-                                          prefixIcon: const Icon(Icons.search, color: Colors.black54),
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: BorderSide(color: Colors.grey.shade200),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: const BorderSide(color: app_color, width: 1.5),
-                                          ),
+                                          });
+                                        }} ,
+                                      decoration: InputDecoration(
+                                        hintText: "Search by voucher no...",
+                                        hintStyle: GoogleFonts.poppins(fontSize: 13),
+                                        prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(20),
+                                          borderSide: BorderSide(color: Colors.grey.shade400),
                                         ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(20),
+                                          borderSide: const BorderSide(color: app_color, width: 1.5),
+                                        ),
+                                        border: InputBorder.none,
                                       ),
-                                    ),),
-
-
-
-                              ),
+                                    ),
+                                  ),),
 
                                 if(transactions_count !="0")
                                   Padding(

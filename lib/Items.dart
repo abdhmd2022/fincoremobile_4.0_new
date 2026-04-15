@@ -1529,7 +1529,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                           padding: const EdgeInsets.only(left: 0, right: 0, top: 15, bottom: 0  ),
                           child: Material(
                             elevation: 2,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(20),
                             shadowColor: Colors.black12,
                             child: TextField(
                               controller: searchController,
@@ -1546,11 +1546,11 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                                 fillColor: Colors.white,
                                 contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(20),
                                   borderSide: BorderSide(color: Colors.grey.shade400),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(20),
                                   borderSide: const BorderSide(color: app_color, width: 1.5),
                                 ),
                                 border: InputBorder.none,

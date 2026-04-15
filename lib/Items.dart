@@ -145,7 +145,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
 
   String? SecuritybtnAcessHolder;
   bool isDashEnable = true,isRolesEnable = true,isUserEnable = true,isRolesVisible = true,
-      isUserVisible = true,_isSearchViewVisible = false,_isAllList = false,_isInactiveList = false,_isActiveList = false;
+      isUserVisible = true,_isSearchViewVisible = true,_isAllList = false,_isInactiveList = false,_isActiveList = false;
 
   bool allitems_visibility = false, fastmovingitems_visibility = false, inactiveitems_visibility = false, rate_visibility = false,
   amount_visibility = false;
@@ -1355,10 +1355,10 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
             onPressed: () => Navigator.pop(context),
           ),
           actions: [
-            IconButton(
+            /*IconButton(
               icon: Icon(Icons.search, color: Colors.white, size: 26),
               onPressed: () => setState(() => _isSearchViewVisible = !_isSearchViewVisible),
-            ),
+            ),*/
             IconButton(
               icon: Icon(Icons.share_outlined, color: Colors.white, size: 26),
               onPressed: () {
@@ -1523,32 +1523,48 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                           ],
                         ),
                       ),
+
+                      if (_isSearchViewVisible)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 0, right: 0, top: 15, bottom: 0  ),
+                          child: Material(
+                            elevation: 2,
+                            borderRadius: BorderRadius.circular(14),
+                            shadowColor: Colors.black12,
+                            child: TextField(
+                              controller: searchController,
+                              onChanged: _onSearchChanged,
+                              style: GoogleFonts.poppins(fontSize: 14),
+                              decoration: InputDecoration(
+                                hintText: "Search items...",
+                                hintStyle: GoogleFonts.poppins(fontSize: 13),
+                                prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
+
+
+
+                                filled: true,
+                                fillColor: Colors.white,
+                                contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide(color: Colors.grey.shade400),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: const BorderSide(color: app_color, width: 1.5),
+                                ),
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
 
-              // 🔹 Search bar
-              if (_isSearchViewVisible)
-                Container(
-                  margin: EdgeInsets.only(left: 16,right:16,bottom:4),
-                  padding: EdgeInsets.symmetric(horizontal: 16,vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
-                  ),
-                  child: TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      hintText: "Search items...",
-                      border: InputBorder.none,
-                      icon: Icon(Icons.search, color: Colors.grey[600]),
-                    ),
-                    onChanged: _onSearchChanged,
-                  ),
-                ),
 
-              SizedBox(height: 0),
+
+
 
               // 🔹 List / Empty State
               Expanded(

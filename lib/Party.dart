@@ -65,7 +65,7 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin{
 
   int counter = 0;
 
-  String party_text ="Parties";
+  String party_text ="Party";
   
   List<party> filteredItems_parties = []; // Initialize an empty list to hold the filtered items
 
@@ -131,14 +131,14 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin{
     final headersRow3 = ['Party Name', 'Alias', 'Email Address', 'Contact No'];
 
     final itemsPerPage = 10;
-    final pageCount = (parties_list.length / itemsPerPage).ceil();
+    final pageCount = (filteredItems_parties.length / itemsPerPage).ceil();
 
     for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       final startIndex = pageNumber * itemsPerPage;
       final endIndex = (pageNumber + 1) * itemsPerPage;
-      final itemsSubset = parties_list.sublist(
+      final itemsSubset = filteredItems_parties.sublist(
         startIndex,
-        endIndex > parties_list.length ? parties_list.length : endIndex,
+        endIndex > filteredItems_parties.length ? filteredItems_parties.length : endIndex,
       );
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -218,14 +218,14 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin{
     final headersRow3 = ['Party Name', 'Alias', 'Email Address', 'Contact No'];
 
     final itemsPerPage = 10;
-    final pageCount = (parties_list.length / itemsPerPage).ceil();
+    final pageCount = (filteredItems_parties.length / itemsPerPage).ceil();
 
     for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       final startIndex = pageNumber * itemsPerPage;
       final endIndex = (pageNumber + 1) * itemsPerPage;
-      final itemsSubset = parties_list.sublist(
+      final itemsSubset = filteredItems_parties.sublist(
         startIndex,
-        endIndex > parties_list.length ? parties_list.length : endIndex,
+        endIndex > filteredItems_parties.length ? filteredItems_parties.length : endIndex,
       );
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -318,7 +318,7 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin{
     final headersRow = ['Party Name', 'Alias', 'Email Address', 'Contact No'];
     csvData.add(headersRow);
 
-    for (final item in parties_list) {
+    for (final item in filteredItems_parties) {
       final rowData = [
         item.partyname,
         formatAlias_Report(item.alias),
@@ -975,7 +975,7 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin{
           ),
           centerTitle: true,
           actions: [
-            IconButton(
+            /*IconButton(
               onPressed: () {
 
                 setState(() {
@@ -1006,7 +1006,7 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin{
                 color: Colors.white,
                 size: 30,
               ),
-            ),
+            ),*/
             IconButton(
               onPressed: () {
 
@@ -1242,15 +1242,81 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin{
                     ),
                     child: Column(
                       children: [
-                        // 🔍 Modern Search Bar
-                        Visibility(
-                          visible: _isSearchViewVisible,
-                          child:
 
-                          Padding( padding:  EdgeInsets.only(left: 12,right:12, top:12 ),
+                        // 📊 Party Count
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16,right:16, top:10,bottom: 0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.65),
+                                    borderRadius: BorderRadius.circular(30),
+                                    border: Border.all(color: app_color, width: 1.4),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.04),
+                                        blurRadius: 10,
+                                        offset: Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  padding:  EdgeInsets.only(left: 10,right:10, top:5,bottom: 5),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      // 🔵 Icon
+                                      Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color:app_color.withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.people_alt_rounded,
+                                          size: 16,
+                                          color: app_color,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+
+                                      // 🔢 Count Text
+                                      RichText(
+                                        text:  TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: "${party_count} ", // <-- Replace dynamically with $party_count
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: app_color,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: party_text,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w500,
+                                                color: app_color,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        // 🔍 Modern Search Bar
+                        Padding( padding:  EdgeInsets.only(left: 18,right:18, top:10,bottom:5 ),
                           child: Material(
                             elevation: 2,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(20),
                             shadowColor: Colors.black12,
 
                             child: TextField(
@@ -1276,94 +1342,29 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin{
                                 });
                               },
                               decoration: InputDecoration(
-                                hintText: 'Search...',
-                                prefixIcon: const Icon(Icons.search, color: Colors.black54),
+                                hintText: "Search Parties...",
+                                hintStyle: GoogleFonts.poppins(fontSize: 13),
+                                prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
+
+
+
                                 filled: true,
                                 fillColor: Colors.white,
                                 contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: Colors.grey.shade200),
+                                  borderRadius: BorderRadius.circular(20),
+                                  borderSide: BorderSide(color: Colors.grey.shade400),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(20),
                                   borderSide: const BorderSide(color: app_color, width: 1.5),
                                 ),
+                                border: InputBorder.none,
                               ),
-                            ),
-                          ),)
-                        ),
 
-                        // 📊 Party Count
-                        if(party_count !="0")
-                        Padding(
-                        padding: const EdgeInsets.only(left: 16,right:16, top:10,bottom: 10),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                            child: Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.65),
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(color: app_color, width: 1.4),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.04),
-                                    blurRadius: 10,
-                                    offset: Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              padding:  EdgeInsets.only(left: 10,right:10, top:5,bottom: 5),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // 🔵 Icon
-                                  Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color:app_color.withOpacity(0.1),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.people_alt_rounded,
-                                      size: 16,
-                                      color: app_color,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-
-                                  // 🔢 Count Text
-                                  RichText(
-                                    text:  TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: "${party_count} ", // <-- Replace dynamically with $party_count
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: app_color,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: party_text,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w500,
-                                            color: app_color,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ),
-                          ),
-                        ),
-                      ),
+                          ),),
+
 
                         // ⚠️ No Data Found
                         Visibility(
@@ -1559,7 +1560,7 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin{
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.45, // width limit
-          minHeight: 56, // 👈 fixed min height for all buttons
+          minHeight: 48, // 👈 fixed min height for all buttons
         ),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),

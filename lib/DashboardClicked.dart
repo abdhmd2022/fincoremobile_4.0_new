@@ -312,65 +312,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     });
   }
 
-  Widget _buildSearchField() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: TextField(
-        controller: searchController,
-        onChanged: _onSearchChanged,
-
-        style: GoogleFonts.poppins(fontSize: 14),
-        decoration: InputDecoration(
-          hintText: "Search by Voucher No, Party, Ledger...",
-          hintStyle: GoogleFonts.poppins(fontSize: 13),
-          prefixIcon: const Icon(Icons.search, color: Colors.black54),
-
-          suffixIcon: searchController.text.isNotEmpty
-              ? IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              searchController.clear();
-              _resetSearch();
-              setState(() {});
-            },
-          )
-              : null,
-
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 14),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptySearch() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search_off, size: 60, color: Colors.grey),
-          const SizedBox(height: 10),
-          Text(
-            "No results found",
-            style: GoogleFonts.poppins(fontSize: 16),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            "Try different keywords",
-            style: GoogleFonts.poppins(
-              fontSize: 12,
-              color: Colors.grey,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   void dispose() {
     _voucherController.dispose();
@@ -2787,6 +2728,16 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                 decoration: InputDecoration(
                                   hintText: 'Search...',
                                   prefixIcon: const Icon(Icons.search, color: Colors.black54),
+                                  suffixIcon: searchController.text.isNotEmpty
+                                      ? IconButton(
+                                    icon: const Icon(Icons.close),
+                                    onPressed: () {
+                                      searchController.clear();
+                                      _resetSearch();
+                                      setState(() {});
+                                    },
+                                  )
+                                      : null,
                                   filled: true,
                                   fillColor: Colors.white,
                                   contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),

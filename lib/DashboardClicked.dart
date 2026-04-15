@@ -140,6 +140,7 @@ class _ReceivableTotalParsed {
   });
 }
 
+
 // ✅ Must be top-level/static for compute()
 _SalesTotalParsed _parseSalesTotalResponse(String body) {
   final Map<String, dynamic> data = jsonDecode(body) as Map<String, dynamic>;
@@ -316,6 +317,25 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   void dispose() {
     _voucherController.dispose();
     super.dispose();
+  }
+  double getTotalAmount() {
+    if (vchtypes == "Receivable" || vchtypes == "Payable") {
+      return filteredItems_receivable_payable.fold(
+          0.0, (sum, item) => sum + item.outstanding);
+    }
+    else if (vchtypes == "Cash" && _isLedgerGroupVisible) {
+      return filteredLedgerGroupList.fold(
+          0.0, (sum, item) => sum + item.amount);
+    }
+    else {
+      return filteredItems_sale_purc_cash.fold(
+          0.0, (sum, item) => sum + item.amount);
+    }
+  }
+
+  String getFormattedTotal() {
+    double total = getTotalAmount();
+    return formatAmount(total.toString()); // you already have this
   }
 
   Future<void> fetchLedgerGroups() async {
@@ -2333,9 +2353,53 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   }
 
 
+  Widget _buildTotalBar() {
+    if (_isLoading) return SizedBox();
+
+    double total = getTotalAmount();
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+      margin: EdgeInsets.only(bottom: 24,left: 20,right: 20),
+
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+          )
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "Total",
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            formatAmount(total.toString()),
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: app_color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: _buildTotalBar(),
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       appBar:PreferredSize(

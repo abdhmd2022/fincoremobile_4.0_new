@@ -196,6 +196,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   
   int counter = 0;
 
+
   bool _isVisibleduedate = false;
 
   bool _isLedgerGroupVisible = false;
@@ -205,6 +206,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   List<Receivable_payable> filteredItems_receivable_payable = []; // Initialize an empty list to hold the filtered items
   List<Sale_purc_cash> filteredItems_sale_purc_cash = [];
 
+  List<LedgerGroup> filteredLedgerGroupList = [];
   ScrollController _scrollController_salelist = ScrollController();
   ScrollController _scrollController_receivablellist = ScrollController();
   TextEditingController _voucherController = TextEditingController();
@@ -230,6 +232,144 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
 
   bool isSortVisible = false;
+
+  // 🔍 SEARCH LOGIC
+  void _onSearchChanged(String query) {
+    final q = query.toLowerCase();
+
+    if (vchtypes == "Cash" && _isLedgerGroupVisible) {
+      setState(() {
+        filteredLedgerGroupList = ledgerGroupList.where((item) {
+          return item.ledger.toLowerCase().contains(q);
+        }).toList();
+      });
+    }
+
+    // 🟢 STEP 2: SELECTED LEDGER VOUCHERS SEARCH
+    else if (vchtypes == "Cash" && !_isLedgerGroupVisible) {
+      setState(() {
+        filteredItems_sale_purc_cash =
+            sales_purc_cash_list.where((item) {
+              return item.ledger.toLowerCase() == _selectedLedgerGroup?.toLowerCase() &&
+                  (
+                      item.vchno.toLowerCase().contains(q) ||
+                          item.vchname.toLowerCase().contains(q) ||
+                          item.ledger.toLowerCase().contains(q)
+                  );
+            }).toList();
+      });
+    }
+    else if (vchtypes == "Receivable" || vchtypes == "Payable") {
+      setState(() {
+        filteredItems_receivable_payable =
+            receivable_payable_list.where((item) {
+              return item.ledger.toLowerCase().contains(q) ||
+                  item.billno.toLowerCase().contains(q) ||
+                  item.billtype.toLowerCase().contains(q);
+            }).toList();
+      });
+    }
+    else if (vchtypes == "Cash") {
+      setState(() {
+        filteredLedgerGroupList = ledgerGroupList.where((item) {
+          return item.ledger.toLowerCase().contains(q);
+        }).toList();
+      });
+    }
+    else {
+      setState(() {
+        filteredItems_sale_purc_cash =
+            sales_purc_cash_list.where((item) {
+              return item.vchno.toLowerCase().contains(q) ||
+                  item.vchname.toLowerCase().contains(q) ||
+                  item.ledger.toLowerCase().contains(q);
+            }).toList();
+      });
+    }
+  }
+
+// 🔄 RESET SEARCH
+  void _resetSearch() {
+    setState(() {
+      if (vchtypes == "Receivable" || vchtypes == "Payable") {
+        filteredItems_receivable_payable =
+            List.from(receivable_payable_list);
+      }
+      else if (vchtypes == "Cash" && _isLedgerGroupVisible) {
+        filteredLedgerGroupList = List.from(ledgerGroupList);
+      }
+      else if (vchtypes == "Cash" && !_isLedgerGroupVisible) {
+        filteredItems_sale_purc_cash = sales_purc_cash_list
+            .where((item) =>
+        item.ledger.toLowerCase() ==
+            _selectedLedgerGroup?.toLowerCase())
+            .toList();
+      }
+      else {
+        filteredItems_sale_purc_cash =
+            List.from(sales_purc_cash_list);
+      }
+    });
+  }
+
+  Widget _buildSearchField() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: TextField(
+        controller: searchController,
+        onChanged: _onSearchChanged,
+
+        style: GoogleFonts.poppins(fontSize: 14),
+        decoration: InputDecoration(
+          hintText: "Search by Voucher No, Party, Ledger...",
+          hintStyle: GoogleFonts.poppins(fontSize: 13),
+          prefixIcon: const Icon(Icons.search, color: Colors.black54),
+
+          suffixIcon: searchController.text.isNotEmpty
+              ? IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              searchController.clear();
+              _resetSearch();
+              setState(() {});
+            },
+          )
+              : null,
+
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptySearch() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search_off, size: 60, color: Colors.grey),
+          const SizedBox(height: 10),
+          Text(
+            "No results found",
+            style: GoogleFonts.poppins(fontSize: 16),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "Try different keywords",
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -280,7 +420,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           opening_value = formatOpening(opening); // reuse your existing method
           ledgerGroupList =
               values.map((e) => LedgerGroup.fromJson(e)).toList();
-
+          filteredLedgerGroupList = ledgerGroupList;
           print('led group list -> ${ledgerGroupList[0]}');
 
           _isLedgerGroupVisible = true;
@@ -683,7 +823,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     final headersRow = ['Vch No', 'Vch Name', 'Vch Date', 'Party Name', 'Amount'];
     csvData.add(headersRow);
 
-    for (final item in sales_purc_cash_list) {
+    for (final item in filteredItems_sale_purc_cash) {
       final rowData = [
         item.vchno,
         item.vchname,
@@ -716,7 +856,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     final headersRow = ['Bill No', 'Bill Type', 'Due Date', 'Party Name', 'Amount'];
     csvData.add(headersRow);
 
-    for (final item in receivable_payable_list) {
+    for (final item in filteredItems_receivable_payable) {
       final rowData = [
         item.billno,
         item.billtype,
@@ -757,14 +897,14 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     final headersRow3 = ['Vch No', 'Vch Name', 'Vch Date', 'Party Name', 'Amount'];
 
     final itemsPerPage = 8; // Adjust this value as needed
-    final pageCount = (sales_purc_cash_list.length / itemsPerPage).ceil();
+    final pageCount = (filteredItems_sale_purc_cash.length / itemsPerPage).ceil();
 
     for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       final startIndex = pageNumber * itemsPerPage;
       final endIndex = (pageNumber + 1) * itemsPerPage;
-      final itemsSubset = sales_purc_cash_list.sublist(
+      final itemsSubset = filteredItems_sale_purc_cash.sublist(
         startIndex,
-        endIndex > sales_purc_cash_list.length ? sales_purc_cash_list.length : endIndex,
+        endIndex > filteredItems_sale_purc_cash.length ? filteredItems_sale_purc_cash.length : endIndex,
       );
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -873,14 +1013,14 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
     final headersRow3 = ['Bill No', 'Bill Type', 'Due Date', 'Party Name', 'Amount'];
     final itemsPerPage = 8;
-    final pageCount = (receivable_payable_list.length / itemsPerPage).ceil();
+    final pageCount = (filteredItems_receivable_payable.length / itemsPerPage).ceil();
 
     for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       final startIndex = pageNumber * itemsPerPage;
       final endIndex = (pageNumber + 1) * itemsPerPage;
-      final itemsSubset = receivable_payable_list.sublist(
+      final itemsSubset = filteredItems_receivable_payable.sublist(
         startIndex,
-        endIndex > receivable_payable_list.length ? receivable_payable_list.length : endIndex,
+        endIndex > filteredItems_receivable_payable.length ? filteredItems_receivable_payable.length : endIndex,
       );
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -1328,14 +1468,14 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
           filteredItems_sale_purc_cash = List.from(sales_purc_cash_list);
 
-          isVisibleNoDataFound = sales_purc_cash_list.isEmpty;
-          isSortVisible = sales_purc_cash_list.isNotEmpty;
+          isVisibleNoDataFound = filteredItems_sale_purc_cash.isEmpty;
+          isSortVisible = filteredItems_sale_purc_cash.isNotEmpty;
 
           _isLoading = false;
         });
 
         // ✅ keep exact sorting behavior (same options)
-        if (sales_purc_cash_list.isNotEmpty) {
+        if (filteredItems_sale_purc_cash.isNotEmpty) {
           switch (selectedSortOption) {
             case 'Default':
               sortByDefault();
@@ -1546,14 +1686,14 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
           filteredItems_receivable_payable = List.from(receivable_payable_list);
 
-          isVisibleNoDataFound = receivable_payable_list.isEmpty;
-          isSortVisible = receivable_payable_list.isNotEmpty;
+          isVisibleNoDataFound = filteredItems_receivable_payable.isEmpty;
+          isSortVisible = filteredItems_receivable_payable.isNotEmpty;
 
           _isLoading = false;
         });
 
         // ✅ keep same sorting behavior
-        if (receivable_payable_list.isNotEmpty) {
+        if (filteredItems_receivable_payable.isNotEmpty) {
           switch (selectedSortOption) {
             case 'Default':
               sortByDefault();
@@ -1758,14 +1898,14 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
           filteredItems_sale_purc_cash = List.from(sales_purc_cash_list);
 
-          isVisibleNoDataFound = sales_purc_cash_list.isEmpty;
-          isSortVisible = sales_purc_cash_list.isNotEmpty;
+          isVisibleNoDataFound = filteredItems_sale_purc_cash.isEmpty;
+          isSortVisible = filteredItems_sale_purc_cash.isNotEmpty;
 
           _isLoading = false;
         });
 
         // ✅ same sorting behavior
-        if (sales_purc_cash_list.isNotEmpty) {
+        if (filteredItems_sale_purc_cash.isNotEmpty) {
           switch (selectedSortOption) {
             case 'Default':
               sortByDefault();
@@ -2243,6 +2383,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2297,7 +2438,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
           centerTitle: true,
           actions: [
-            IconButton(
+            /*IconButton(
               onPressed: () {
                 counter++;
                 setState(() {
@@ -2314,7 +2455,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                 });
               },
               icon: Icon(Icons.search, color: Colors.white, size: 26),
-            ),
+            ),*/
             IconButton(
               onPressed: () {
                 final RenderBox button = context.findRenderObject() as RenderBox;
@@ -2334,9 +2475,9 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                       child: GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
-                          if (_isSalesListVisible && sales_purc_cash_list.isNotEmpty) {
+                          if (_isSalesListVisible && filteredItems_sale_purc_cash.isNotEmpty) {
                             generateAndSharePDF_SalesList();
-                          } else if (_isOutstandingListVisible && receivable_payable_list.isNotEmpty) {
+                          } else if (_isOutstandingListVisible && filteredItems_receivable_payable.isNotEmpty) {
                             generateAndSharePDF_Outstanding();
                           } else {
                             showToast('Data Not Found');
@@ -2355,9 +2496,9 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                       child: GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
-                          if (_isSalesListVisible && sales_purc_cash_list.isNotEmpty) {
+                          if (_isSalesListVisible && filteredItems_sale_purc_cash.isNotEmpty) {
                             generateAndShareCSV_SalesList();
-                          } else if (_isOutstandingListVisible && receivable_payable_list.isNotEmpty) {
+                          } else if (_isOutstandingListVisible && filteredItems_receivable_payable.isNotEmpty) {
                             generateAndShareCSV_Outstanding();
                           } else {
                             showToast('Data Not Found');
@@ -2629,8 +2770,10 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                             ),
                           ),
 
-                        if (_isSearchViewVisible)
 
+                        // if (_isSearchViewVisible)
+
+                        if(sales_purc_cash_list.isNotEmpty || receivable_payable_list.isNotEmpty || ledgerGroupList.isNotEmpty)
                           Padding( padding:  EdgeInsets.only(left: 12,right:12, top:5,bottom:10),
                             child:  Material(
                               elevation: 2,
@@ -2638,30 +2781,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                               shadowColor: Colors.black12,
                               child: TextField(
                                 controller: searchController,
-                                onChanged: (value) {
-                                  if (value.isEmpty) {
-                                    setState(() {
-                                      if (vchtypes == "Receivable" || vchtypes == "Payable") {
-                                        filteredItems_receivable_payable = receivable_payable_list;
-                                      } else {
-                                        filteredItems_sale_purc_cash = sales_purc_cash_list;
-                                      }
-                                    });
-                                  } else {
-                                    setState(() {
-                                      final query = value.toLowerCase();
-                                      if (vchtypes == "Receivable" || vchtypes == "Payable") {
-                                        filteredItems_receivable_payable = receivable_payable_list
-                                            .where((item) => item.ledger.toLowerCase().contains(query))
-                                            .toList();
-                                      } else {
-                                        filteredItems_sale_purc_cash = sales_purc_cash_list
-                                            .where((item) => item.ledger.toLowerCase().contains(query))
-                                            .toList();
-                                      }
-                                    });
-                                  }
-                                },
+                                onChanged: _onSearchChanged,
 
                                 style:  GoogleFonts.poppins(fontSize: 15),
                                 decoration: InputDecoration(
@@ -2672,7 +2792,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                   contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(color: Colors.grey.shade200),
+                                    borderSide: BorderSide(color: Colors.grey.shade400),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
@@ -2682,7 +2802,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                               ),
                             ),
                           ),
-
 
 
 
@@ -2706,9 +2825,9 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                         if (_isLedgerGroupVisible)
                           Expanded(
                             child: ListView.builder(
-                              itemCount: ledgerGroupList.length,
+                              itemCount: filteredLedgerGroupList.length,
                               itemBuilder: (context, index) {
-                                final group = ledgerGroupList[index];
+                                final group = filteredLedgerGroupList[index];
                                 return InkWell(
                                   onTap: () {
                                     setState(() {
@@ -2877,6 +2996,9 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
 
                                 // The existing vouchers list
+
+
+
                                 Expanded(
                                   child: ListView.builder(
                                     controller: _scrollController_salelist,
@@ -3301,10 +3423,17 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                 const SizedBox(height: 12),
 
                 // 🔹 Bill No row (Blue)
-                _modernDetailRowReceivable(Icons.confirmation_number_outlined, "Bill No",
+                _modernDetailRowReceivable(Icons.confirmation_number_outlined, "Bill No.",
                     card.billno != "null" ? card.billno : "-",
                     gradient: LinearGradient(
                       colors: [Colors.blue.shade400, Colors.blue.shade700],
+                    )),
+
+                // 🔹 Bill No row (Blue)
+                _modernDetailRowReceivable(Icons.date_range, "Bill Date",
+                  card.billdate != "null" ? formatdate(card.billdate) : "-",
+                    gradient: LinearGradient(
+                      colors: [Colors.brown.shade400, Colors.brown.shade500],
                     )),
 
                 // 🔹 Bill Type row (Purple)

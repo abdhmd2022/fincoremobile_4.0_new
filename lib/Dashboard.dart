@@ -203,7 +203,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
   late int? decimal = 2;
 
 
-  NumberScale _selectedScale = NumberScale.million;
+  NumberScale _selectedScale = NumberScale.thousand;
 
 
   void _showEntriesBottomSheet(BuildContext context) {
@@ -2482,9 +2482,12 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         case "billion":
           _selectedScale = NumberScale.billion;
           break;
+        case "full":
+          _selectedScale = NumberScale.full;
+          break;
 
         default:
-          _selectedScale = NumberScale.million;
+          _selectedScale = NumberScale.thousand;
       }
     }
     setState(() {});
@@ -2501,6 +2504,9 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
   break;
   case NumberScale.billion:
   prefs.setString("number_scale", "billion");
+  break;
+  case NumberScale.full:
+  prefs.setString("number_scale", "full");
   break;
   default:
   prefs.setString("number_scale", "thousand");
@@ -3018,6 +3024,21 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(12),
               ),
               items: [
+                PopupMenuItem(
+                  value: NumberScale.full,
+                  child: Row(
+
+                    children: [
+                      const Icon(Icons.pin, color: Colors.blue),
+                      const SizedBox(width: 8),
+                      const Text("Full Value"),
+                      if (_selectedScale == NumberScale.full)
+                        const Spacer(),
+                      if (_selectedScale == NumberScale.full)
+                        const Icon(Icons.check, color: Colors.green),
+                    ],
+                  ),
+                ),
                 PopupMenuItem(
                   value: NumberScale.thousand,
                   child: Row(

@@ -1,4 +1,6 @@
-enum NumberScale { thousand, million, billion }
+import 'package:intl/intl.dart';
+
+enum NumberScale { thousand, million, billion,full }
 
 String formatNumberAbbreviation(
     double number, {
@@ -32,6 +34,10 @@ String formatNumberAbbreviation(
           .toStringAsFixed(decimalPlaces)
           .replaceAll(RegExp(r"\.0+$"), "") +
           "B";
+      break;
+    case NumberScale.full:
+      formatted = NumberFormat('#,##0')
+          .format(absNumber); // full value with commas
       break;
   }
 

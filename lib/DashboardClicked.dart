@@ -519,12 +519,27 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     setState(() {
       if(filteredItems_sale_purc_cash.isNotEmpty)
         {
-          filteredItems_sale_purc_cash = List.from(sales_purc_cash_list);
-          _scrollController_salelist.animateTo(
-            0.0,
-            duration: Duration(milliseconds: 500),
-            curve: Curves.easeInOut,
-          );
+          if(vchtypes == "Cash")
+            {
+              setState(() {
+                filteredItems_sale_purc_cash = sales_purc_cash_list
+                    .where((e) =>
+                e.ledger.toLowerCase() ==
+                    _selectedLedgerGroup!.toLowerCase())
+                    .toList();
+              });
+            }
+          else
+            {
+
+              filteredItems_sale_purc_cash = List.from(sales_purc_cash_list);
+              _scrollController_salelist.animateTo(
+                0.0,
+                duration: Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+              );
+            }
+
         }
       else if (filteredItems_receivable_payable.isNotEmpty)
         {
@@ -612,7 +627,17 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   void sortByDateLowtoHigh() {
     setState(() {
-      if (filteredItems_receivable_payable.isNotEmpty) {
+
+      if(filteredItems_sale_purc_cash.isNotEmpty)
+      {
+        filteredItems_sale_purc_cash.sort((a, b) => a.vchdate.compareTo(b.vchdate));
+        _scrollController_salelist.animateTo(
+          0.0,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+      else if (filteredItems_receivable_payable.isNotEmpty) {
         filteredItems_receivable_payable.sort((a, b) =>
             DateTime.parse(a.billdate).compareTo(DateTime.parse(b.billdate)));
 
@@ -627,7 +652,16 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   void sortByDateHightoLow() {
     setState(() {
-      if (filteredItems_receivable_payable.isNotEmpty) {
+      if(filteredItems_sale_purc_cash.isNotEmpty)
+      {
+        filteredItems_sale_purc_cash.sort((a, b) => b.vchdate.compareTo(a.vchdate));
+        _scrollController_salelist.animateTo(
+          0.0,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+      else if (filteredItems_receivable_payable.isNotEmpty) {
         filteredItems_receivable_payable.sort((a, b) =>
             DateTime.parse(b.billdate).compareTo(DateTime.parse(a.billdate)));
 

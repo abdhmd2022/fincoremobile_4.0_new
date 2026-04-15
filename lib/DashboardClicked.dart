@@ -616,15 +616,16 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           curve: Curves.easeInOut,
         );
       }
-      else if (filteredItems_receivable_payable.isNotEmpty)
-        {
-          filteredItems_receivable_payable.sort((a, b) => formatDueDate_Sort(a.billdate,a.billtype,a.duedate).compareTo(formatDueDate_Sort(b.billdate,b.billtype,b.duedate)));
-          _scrollController_receivablellist.animateTo(
-            0.0,
-            duration: Duration(milliseconds: 500),
-            curve: Curves.easeInOut,
-          );
-        }
+      else if (filteredItems_receivable_payable.isNotEmpty) {
+        filteredItems_receivable_payable.sort((a, b) =>
+            DateTime.parse(a.billdate).compareTo(DateTime.parse(b.billdate)));
+
+        _scrollController_receivablellist.animateTo(
+          0.0,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
     });
   }
 
@@ -639,9 +640,10 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           curve: Curves.easeInOut,
         );
       }
-      else if (filteredItems_receivable_payable.isNotEmpty)
-      {
-        filteredItems_receivable_payable.sort((a, b) => formatDueDate(b.billdate,b.billtype,b.duedate).compareTo(formatDueDate(a.billdate,a.billtype,a.duedate)));
+      else if (filteredItems_receivable_payable.isNotEmpty) {
+        filteredItems_receivable_payable.sort((a, b) =>
+            DateTime.parse(b.billdate).compareTo(DateTime.parse(a.billdate)));
+
         _scrollController_receivablellist.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
@@ -2151,6 +2153,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
               formattedDate = billdate_date.add(Duration(days: nodays));
 
             }
+
           }
           else
           {

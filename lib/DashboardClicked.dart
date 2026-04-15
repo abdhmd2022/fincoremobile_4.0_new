@@ -2758,10 +2758,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                             ),
                           ),
 
-
-
-
-
                         if (isVisibleNoDataFound)
                           Center(
                             child: Column(

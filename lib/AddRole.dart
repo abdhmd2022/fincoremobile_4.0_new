@@ -1665,7 +1665,6 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
                     children: _buildPermissionList(dashboardPermissions),
                   ),
 
-
                   const SizedBox(height: 10),
 
                   // Items Access

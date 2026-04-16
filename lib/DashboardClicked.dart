@@ -220,7 +220,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   
   int counter = 0;
 
-
   bool _isVisibleduedate = false;
 
   bool _isLedgerGroupVisible = false;
@@ -254,7 +253,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   bool isVisibleNoDataFound = false,_isopeningVisible = true;
 
-
   bool isSortVisible = false;
 
   int getExtraLedgerCount(List<LedgerEntry>? ledgers, String mainLedger) {
@@ -264,8 +262,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         .where((l) => l.ledgername.toLowerCase() != mainLedger.toLowerCase())
         .length;
   }
-
-
 
 // 🔍 SEARCH LOGIC
   void _onSearchChanged(String query) {
@@ -351,6 +347,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     _voucherController.dispose();
     super.dispose();
   }
+
   double getTotalAmount() {
     if (vchtypes == "Receivable" || vchtypes == "Payable") {
       double billsTotal = filteredItems_receivable_payable.fold(0.0, (sum, item) {
@@ -394,12 +391,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
       });
     }
   }
+
   String getFormattedTotal() {
     double total = getTotalAmount();
     return formatAmount(total.toString()); // you already have this
   }
-
-
 
   Future<void> fetchLedgerGroups() async {
     setState(() {
@@ -1462,7 +1458,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
       final String vchtypes,
       final String opening,
       final String vchname,
-      ) async {
+      )
+  async {
     // ✅ keep same behavior: start loading + reset sort visibility
     setState(() {
       _isLoading = true;
@@ -1763,7 +1760,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
               break;
           }
         }
-
         return;
       }
 
@@ -2002,7 +1998,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   }
 
   // old function fetchReceipt_Payment
-/*
+  /*
   Future<void> fetchReceipt_Payment(final String startdate, final String enddate, final String vchtypes,final String vchname) async {
     setState(() {
       _isLoading = true;
@@ -2433,7 +2429,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     });
   }
 
-
   Widget _buildTotalBar() {
     if (_isLoading) return const SizedBox();
 
@@ -2485,6 +2480,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2518,7 +2514,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // ✅ Use Flexible + ellipsis to prevent overflow
                 Flexible(
                   child: Text(
                     company ?? '',
@@ -3196,11 +3191,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         ),
       ),
 
-
     );
-
   }
-
 
   Widget buildModernVoucherCard(Sale_purc_cash card) {
     final extraCount = getExtraLedgerCount(card.ledgers, card.ledger);
@@ -3484,7 +3476,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     );
   }
 
-
 // 🔹 Receivable/Payable Card
   Widget buildReceivableCard(Receivable_payable card) {
     return Container(
@@ -3682,8 +3673,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     );
   }
 
-
 }
+
 Color getDueDateColor(String dueDateStr, String type) {
   try {
     final due = DateFormat("dd-MMM-yy").parse(dueDateStr);
@@ -3701,6 +3692,7 @@ Color getDueDateColor(String dueDateStr, String type) {
     return Colors.grey.shade600;
   }
 }
+
 Color getAmountColor(String type) {
   switch (type) {
     case 'Receivable':

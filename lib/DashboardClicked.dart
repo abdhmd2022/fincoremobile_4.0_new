@@ -3672,7 +3672,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
       ),
     );
   }
-
 }
 
 Color getDueDateColor(String dueDateStr, String type) {

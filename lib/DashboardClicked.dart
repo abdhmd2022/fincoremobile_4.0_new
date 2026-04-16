@@ -51,6 +51,7 @@ class Sale_purc_cash {
   final String refno;
   final String refdate;
   final String masterid;
+  final List<LedgerEntry> ledgers;
 
   Sale_purc_cash({
 
@@ -64,6 +65,7 @@ class Sale_purc_cash {
     required this.refno,
     required this.refdate,
     required this.masterid,
+    required this.ledgers,
 
   });
 
@@ -73,7 +75,7 @@ class Sale_purc_cash {
     return Sale_purc_cash(
       vchname: json['vchname'].toString(),
       vchno: json['vchno'].toString(),
-      amount: double.tryParse(json['amount'].toString()) ?? 0,
+      amount: json['received'] != null ? double.tryParse(json['received'].toString()) ?? 0.0 : double.tryParse(json['amount'].toString()) ?? 0.0,
       vchdate: json['vchdate'].toString(),
       ledger: json['ledger'].toString(),
       isoptional: json['isoptional'].toString(),
@@ -81,11 +83,32 @@ class Sale_purc_cash {
       refno: json['refno'].toString(),
       refdate: json['refdate'].toString(),
       masterid: json['masterid'].toString(),
+      ledgers: (json['ledgers'] as List<dynamic>?)
+          ?.map((e) => LedgerEntry.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+          [],
 
     );
   }
 
  }
+
+class LedgerEntry {
+  final String ledgername;
+  final double amount;
+
+  LedgerEntry({
+    required this.ledgername,
+    required this.amount,
+  });
+
+  factory LedgerEntry.fromJson(Map<String, dynamic> json) {
+    return LedgerEntry(
+      ledgername: json['ledgername']?.toString() ?? '',
+      amount: double.tryParse(json['amount'].toString()) ?? 0.0,
+    );
+  }
+}
 
 class Receivable_payable {
 
@@ -234,6 +257,16 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   bool isSortVisible = false;
 
+  int getExtraLedgerCount(List<LedgerEntry>? ledgers, String mainLedger) {
+    if (ledgers == null || ledgers.isEmpty) return 0;
+
+    return ledgers
+        .where((l) => l.ledgername.toLowerCase() != mainLedger.toLowerCase())
+        .length;
+  }
+
+
+
 // 🔍 SEARCH LOGIC
   void _onSearchChanged(String query) {
     final q = query.toLowerCase();
@@ -342,6 +375,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     double total = getTotalAmount();
     return formatAmount(total.toString()); // you already have this
   }
+
+
 
   Future<void> fetchLedgerGroups() async {
     setState(() {
@@ -3145,6 +3180,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
 
   Widget buildModernVoucherCard(Sale_purc_cash card) {
+    final extraCount = getExtraLedgerCount(card.ledgers, card.ledger);
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
       child: InkWell(
@@ -3225,14 +3262,39 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text(
-                        card.ledger,
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
-                        overflow: TextOverflow.visible,
+                      child: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          // 🔹 Ledger Name
+                          Text(
+                            card.ledger,
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
+
+                          // 🔹 +X more badge
+                          if (extraCount > 0)
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                "+$extraCount more",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
 

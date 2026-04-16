@@ -383,7 +383,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
       });
 
-
       print("Opening (On Account): $opening");
 
       return voucherTotal + opening;

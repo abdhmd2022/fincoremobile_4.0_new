@@ -2620,7 +2620,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         ),
       ),
 
-        drawer: Sidebar(
+      drawer: Sidebar(
           isDashEnable: isDashEnable,
           isRolesVisible: isRolesVisible,
           isRolesEnable: isRolesEnable,

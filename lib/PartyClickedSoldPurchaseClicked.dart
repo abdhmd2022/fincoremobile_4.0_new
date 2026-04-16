@@ -734,7 +734,7 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
 
     String? currencyCode = '';
 
-    currencyCode = prefs.getString('currencycode');
+    currencyCode = prefs.getString('currencycode') ?? "AED";
 
 
     try {

@@ -353,10 +353,22 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   }
   double getTotalAmount() {
     if (vchtypes == "Receivable" || vchtypes == "Payable") {
-      return filteredItems_receivable_payable.fold(0.0, (sum, item) {
+      double billsTotal = filteredItems_receivable_payable.fold(0.0, (sum, item) {
         print("Adding Outstanding: ${item.outstanding}");
         return sum + item.outstanding;
       });
+      double opening = 0.0;
+      setState(() {
+        print("Opening value $opening_value: $opening");
+
+        opening = double.tryParse(opening_value ?? "0") ?? 0.0;
+
+      });
+
+
+      print("Opening (On Account): $opening");
+
+      return billsTotal + opening;
     }
     else if (vchtypes == "Cash" && _isLedgerGroupVisible) {
       return filteredLedgerGroupList.fold(0.0, (sum, item) {
@@ -418,7 +430,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         final List<dynamic> values = decoded['values'] ?? [];
 
         setState(() {
-          opening_value = formatOpening(opening); // reuse your existing method
+          opening_value = opening; // reuse your existing method
           ledgerGroupList =
               values.map((e) => LedgerGroup.fromJson(e)).toList();
           filteredLedgerGroupList = ledgerGroupList;
@@ -1479,7 +1491,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
         // ✅ single setState with final results
         setState(() {
-          opening_value = formatOpening(parsed.opening);
+          opening_value = parsed.opening;
 
           sales_purc_cash_list
             ..clear()
@@ -1699,7 +1711,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         if (!mounted) return;
 
         setState(() {
-          opening_value = formatOpening(parsed.opening);
+          opening_value = parsed.opening;
 
           receivable_payable_list
             ..clear()
@@ -2836,7 +2848,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                 ),
                                 Expanded(
                                   child: Text(
-                                    opening_value ?? '',
+                                   formatOpening(opening_value!)  ?? '',
                                     textAlign: TextAlign.right,
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,

@@ -399,6 +399,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   Future<void> fetchLedgerGroups() async {
     setState(() {
+      filteredLedgerGroupList.clear();
+      ledgerGroupList.clear();
       _isLoading = true;
       _isLedgerGroupVisible = false;
       _isSalesListVisible = false;
@@ -1225,11 +1227,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
       {
         if(vchtypes == "Sales")
         {
-          fetchSales_purchase_cash("Sales Accounts", startDateString, endDateString, "Sales,creditNote","true","");
+          fetchSales_purchase_cash("Sales Accounts", startDateString, endDateString, "Sales,creditNote","true","","");
         }
         else if (vchtypes == "Purchase")
         {
-          fetchSales_purchase_cash("Purchase Accounts", startDateString, endDateString, "Purchase,debitnote","true","");
+          fetchSales_purchase_cash("Purchase Accounts", startDateString, endDateString, "Purchase,debitnote","true","","");
         }
         else if (vchtypes == "Cash") {
 
@@ -1283,11 +1285,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           {
             if(vchtypes == "Sales")
             {
-              fetchSales_purchase_cash("Sales Accounts", startDateString, endDateString, "Sales,creditNote","true",_selectedvoucher);
+              fetchSales_purchase_cash("Sales Accounts", startDateString, endDateString, "Sales,creditNote","true",_selectedvoucher,"");
             }
             else if (vchtypes == "Purchase")
             {
-              fetchSales_purchase_cash("Purchase Accounts", startDateString, endDateString, "Purchase,debitnote","true",_selectedvoucher);
+              fetchSales_purchase_cash("Purchase Accounts", startDateString, endDateString, "Purchase,debitnote","true",_selectedvoucher,"");
             }
 
           else if (vchtypes =="Cash")
@@ -1458,6 +1460,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
       final String vchtypes,
       final String opening,
       final String vchname,
+      final String ledger
       )
   async {
     // ✅ keep same behavior: start loading + reset sort visibility
@@ -1487,6 +1490,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         'vchtypes': vchtypes,
         'opening': opening,
         'vchname': vchname,
+        'ledger' : ledger
       });
 
       final response = await http.post(url, body: body, headers: headers);
@@ -2952,7 +2956,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                       "",
                                       "true",
                                       _selectedvoucher ?? "",
-                                    ).then((_) {
+                                        _selectedLedgerGroup!
+                                    );/*.then((_) {
                                       // Filter only matching ledger
                                       setState(() {
                                         filteredItems_sale_purc_cash = sales_purc_cash_list
@@ -2961,7 +2966,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                             _selectedLedgerGroup!.toLowerCase())
                                             .toList();
                                       });
-                                    });
+                                    });*/
                                   },
                                   child: Container(
                                     margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
@@ -3076,7 +3081,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                           _isLedgerGroupVisible = true;
                                           searchController.clear();
                                           FocusScope.of(context).unfocus();
-                                          filteredLedgerGroupList = ledgerGroupList;
+                                          fetchLedgerGroups();
+                                          // filteredLedgerGroupList = ledgerGroupList;
                                         });
                                       },
                                       icon: const Icon(

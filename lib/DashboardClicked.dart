@@ -356,7 +356,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
       });
       double opening = 0.0;
       setState(() {
-        print("Opening value $opening_value: $opening");
+        // print("Opening value $opening_value");
 
         opening = double.tryParse(opening_value ?? "0") ?? 0.0;
 
@@ -374,13 +374,13 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
       });
       double opening = 0.0;
       setState(() {
-        print("Opening value $opening_value: $opening");
+        // print("Opening value $opening_value");
 
         opening = double.tryParse(opening_value ?? "0") ?? 0.0;
 
       });
 
-      print("Opening (On Account): $opening");
+      print("Opening (Cash): $opening");
 
       return voucherTotal + opening;
     }
@@ -422,8 +422,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         'enddate': endDateString,
         'vchtypes': '',
         'opening': 'true',
-        'vchname': _selectedvoucher,  // 🧠 parent dropdown
-        'isGroupByLedger': true,    // 🆕 key to trigger group mode
+        'vchname': _selectedvoucher,  // parent dropdown
+        'isGroupByLedger': true,    // key to trigger group mode
       });
 
       final response = await http.post(url, body: body, headers: headers);
@@ -1165,14 +1165,17 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         _isopeningVisible= true;
         if(vchtypes == "Sales")
         {
+          _isopeningVisible= false;
           fetchParent("sales,creditnote");
         }
         else if (vchtypes == "Purchase")
         {
+          _isopeningVisible= false;
           fetchParent("purchase,debitnote");
         }
         else if (vchtypes =="Cash")
         {
+          _isopeningVisible= true;
           fetchParent("");
         }
 
@@ -1229,9 +1232,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           fetchSales_purchase_cash("Purchase Accounts", startDateString, endDateString, "Purchase,debitnote","true","");
         }
         else if (vchtypes == "Cash") {
-
-
-
 
           // Then load ledger groups for this period
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2951,7 +2951,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                       endDateString,
                                       "",
                                       "true",
-                                      _selectedvoucher ?? "", // ✅ from parent, not group
+                                      _selectedvoucher ?? "",
                                     ).then((_) {
                                       // Filter only matching ledger
                                       setState(() {

@@ -384,7 +384,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
       return voucherTotal + opening;
     }
-    else if (vchtypes == "Cash" && !_isLedgerGroupVisible)
+    /*else if (vchtypes == "Cash" && !_isLedgerGroupVisible)
       {
         double voucherTotal = filteredItems_sale_purc_cash.fold(0.0, (sum, item) {
           print("Adding Amount (Ledger): ${item.amount}");
@@ -401,7 +401,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         print("Opening (Cash): $opening");
 
         return voucherTotal + opening;
-      }
+      }*/
     else {
       return filteredItems_sale_purc_cash.fold(0.0, (sum, item) {
         print("Adding Amount: ${item.amount}");

@@ -147,6 +147,8 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
 
   String errorMessageVchNo = '';
 
+  bool isVchEditable = false; // state variable
+
   late DateTime now = DateTime.now();
 
   // Current year start date
@@ -4543,14 +4545,21 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
                                       child: TextFormField(
                                         controller: _vchnoController,
+
+                                        readOnly: !isVchEditable, // 👈 MAIN CHANGE
+                                        enableInteractiveSelection: isVchEditable, // 👈 ADD THIS
                                         onChanged: (value) {
-                                          checkVchNoExistence(value);
+                                          if (isVchEditable) {
+                                            checkVchNoExistence(value);
+                                          }
                                         },
+
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
-                                          color: Colors.black87,
+                                          color: isVchEditable ? Colors.black87 : Colors.grey, // 👈 visual hint
                                         ),
+
                                         decoration: InputDecoration(
                                           labelText: "Voucher No.",
                                           labelStyle: GoogleFonts.poppins(
@@ -4558,9 +4567,13 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                                             fontWeight: FontWeight.w500,
                                             color: Colors.grey[700],
                                           ),
-                                          errorText: errorMessageVchNo.isNotEmpty ? errorMessageVchNo : null,
+
+                                          errorText:
+                                          errorMessageVchNo.isNotEmpty ? errorMessageVchNo : null,
+
                                           filled: true,
                                           fillColor: Colors.white.withOpacity(0.95),
+
                                           prefixIcon: Container(
                                             margin: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
@@ -4578,7 +4591,17 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                                             ),
                                           ),
 
-                                          // 👇 unfocused grey border
+                                          // 👇 EDIT BUTTON
+                                          suffixIcon: IconButton(
+                                            icon: Icon(
+                                              Icons.lock_outline,
+                                              color: app_color,
+                                            ),
+                                            onPressed: () {
+
+                                            },
+                                          ),
+
                                           enabledBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(16),
                                             borderSide: BorderSide(
@@ -4587,7 +4610,6 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                                             ),
                                           ),
 
-                                          // 👇 focused border with app_color
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(16),
                                             borderSide: BorderSide(
@@ -4596,7 +4618,6 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                                             ),
                                           ),
 
-                                          // 👇 error border (red)
                                           errorBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(16),
                                             borderSide: const BorderSide(
@@ -4605,7 +4626,6 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                                             ),
                                           ),
 
-                                          // 👇 same rounded border when error+focused
                                           focusedErrorBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(16),
                                             borderSide: const BorderSide(
@@ -4614,9 +4634,9 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                                             ),
                                           ),
 
-                                          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                                          contentPadding:
+                                          const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
                                         ),
-                                        readOnly: false,
                                       ),
                                     ),
 

@@ -113,6 +113,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       _isLoading = false,
       isVisibleNoUserFound = false;
 
+  bool isVchEditable = false; // state variable
+
   TextEditingController _itemController = TextEditingController();
   TextEditingController _partyLedgerController = TextEditingController();
 
@@ -519,6 +521,68 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
           });
         }
       }
+  }
+
+  String generateNextVchNo(List<String> vchnos) {
+    if (vchnos.isEmpty) return "1";
+
+    RegExp regExp = RegExp(r'(\d+)(?!.*\d)');
+
+    Map<String, List<Map<String, dynamic>>> patternGroups = {};
+
+    for (String vch in vchnos) {
+      Match? match = regExp.firstMatch(vch);
+
+      if (match != null) {
+        String numberPart = match.group(0)!;
+        int number = int.tryParse(numberPart) ?? 0;
+
+        // prefix + suffix detection
+        String prefix = vch.substring(0, match.start);
+        String suffix = vch.substring(match.end);
+
+        String patternKey = prefix + "#" + suffix;
+
+        patternGroups.putIfAbsent(patternKey, () => []);
+
+        patternGroups[patternKey]!.add({
+          "original": vch,
+          "number": number,
+          "length": numberPart.length,
+        });
+      }
+    }
+
+    // ❌ No numeric pattern at all
+    if (patternGroups.isEmpty) {
+      return vchnos.last + "1";
+    }
+
+    // ✅ Find dominant pattern (most used)
+    String selectedPattern = patternGroups.entries
+        .reduce((a, b) => a.value.length > b.value.length ? a : b)
+        .key;
+
+    List<Map<String, dynamic>> selectedList =
+    patternGroups[selectedPattern]!;
+
+    // ✅ Find highest number in that pattern
+    Map<String, dynamic> highest = selectedList.reduce((a, b) {
+      return a["number"] > b["number"] ? a : b;
+    });
+
+    int nextNumber = highest["number"] + 1;
+    int length = highest["length"];
+
+    String newNumber =
+    nextNumber.toString().padLeft(length, '0');
+
+    // reconstruct using prefix + number + suffix
+    List<String> parts = selectedPattern.split("#");
+    String prefix = parts[0];
+    String suffix = parts[1];
+
+    return prefix + newNumber + suffix;
   }
 
   Future<void> generateInvoicePDF(String trn, String address,String emirate, String country) async {
@@ -2996,7 +3060,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       Map<String, dynamic> jsonDatabody = {
         "to": formattedEndDateVchNo,
         "from": formattedStartDateVchNo,
-        "vchname" : vchname
+        "vchname" : vchname,
       };
 
       String jsonDatabodyString = jsonEncode(jsonDatabody);
@@ -3012,7 +3076,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       if (response.statusCode == 200)
       {
         /*print(response.body);*/
-        setState(() {
+      /*  setState(() {
           final Map<String, dynamic> jsonResponse = json.decode(response.body);
 
           final List<dynamic> vchnosJson = jsonResponse['vchnos'];
@@ -3022,6 +3086,27 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
           _vchnoController.clear();
           checkVchNoExistence(_vchnoController.text);
+        });*/
+
+        setState(() {
+          final Map<String, dynamic> jsonResponse = json.decode(response.body);
+          final List<dynamic> vchnosJson = jsonResponse['vchnos'];
+
+         print(response.body);
+          vchnos = vchnosJson.cast<String>();
+
+          // SORT first
+          vchnos.sort((a, b) {
+            RegExp regExp = RegExp(r'(\d+)(?!.*\d)');
+            int numA = int.tryParse(regExp.firstMatch(a)?.group(0) ?? '0') ?? 0;
+            int numB = int.tryParse(regExp.firstMatch(b)?.group(0) ?? '0') ?? 0;
+            return numA.compareTo(numB);
+          });
+
+          // GENERATE NEXT
+          String nextVch = generateNextVchNo(vchnos);
+
+          _vchnoController.text = nextVch;
         });
       }
       else
@@ -4399,86 +4484,106 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
     ),
 
 
-    Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-    child: TextFormField(
-    controller: _vchnoController,
-    onChanged: (value) {
-    checkVchNoExistence(value);
-    },
-    style: GoogleFonts.poppins(
-    fontSize: 14,
-    fontWeight: FontWeight.w500,
-    color: Colors.black87,
-    ),
-    decoration: InputDecoration(
-    labelText: "Voucher No.",
-    labelStyle: GoogleFonts.poppins(
-    fontSize: 13,
-    fontWeight: FontWeight.w500,
-    color: Colors.grey[700],
-    ),
-    errorText: errorMessageVchNo.isNotEmpty ? errorMessageVchNo : null,
-    filled: true,
-    fillColor: Colors.white.withOpacity(0.95),
-    prefixIcon: Container(
-    margin: const EdgeInsets.all(8),
-    decoration: BoxDecoration(
-    gradient: const LinearGradient(
-    colors: [Colors.deepOrangeAccent, Colors.orangeAccent],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    ),
-    borderRadius: BorderRadius.all(Radius.circular(12)),
-    ),
-    child: const Icon(
-    Icons.confirmation_num_outlined,
-    color: Colors.white,
-    size: 20,
-    ),
-    ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                                  child: TextFormField(
+                                    controller: _vchnoController,
 
-    // 👇 unfocused grey border
-    enabledBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(16),
-    borderSide: BorderSide(
-    color: Colors.grey.shade300,
-    width: 1,
-    ),
-    ),
+                                    readOnly: !isVchEditable, // 👈 MAIN CHANGE
+                                    enableInteractiveSelection: isVchEditable, // 👈 ADD THIS
+                                    onChanged: (value) {
+                                      if (isVchEditable) {
+                                        checkVchNoExistence(value);
+                                      }
+                                    },
 
-    // 👇 focused border with app_color
-    focusedBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(16),
-    borderSide: BorderSide(
-    color: app_color,
-    width: 1.5,
-    ),
-    ),
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: isVchEditable ? Colors.black87 : Colors.grey, // 👈 visual hint
+                                    ),
 
-    // 👇 error border (red)
-    errorBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(16),
-    borderSide: const BorderSide(
-    color: Colors.redAccent,
-    width: 1.5,
-    ),
-    ),
+                                    decoration: InputDecoration(
+                                      labelText: "Voucher No.",
+                                      labelStyle: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey[700],
+                                      ),
 
-    // 👇 same rounded border when error+focused
-    focusedErrorBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(16),
-    borderSide: const BorderSide(
-    color: Colors.redAccent,
-    width: 1.5,
-    ),
-    ),
+                                      errorText:
+                                      errorMessageVchNo.isNotEmpty ? errorMessageVchNo : null,
 
-    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
-    ),
-    readOnly: false,
-    ),
-    ),
+                                      filled: true,
+                                      fillColor: Colors.white.withOpacity(0.95),
+
+                                      prefixIcon: Container(
+                                        margin: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [Colors.deepOrangeAccent, Colors.orangeAccent],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                                        ),
+                                        child: const Icon(
+                                          Icons.confirmation_num_outlined,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                      ),
+
+                                      // 👇 EDIT BUTTON
+                                      suffixIcon: IconButton(
+                                        icon: Icon(
+                                          isVchEditable ? Icons.lock_open : Icons.edit,
+                                          color: app_color,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            isVchEditable = !isVchEditable;
+                                          });
+                                        },
+                                      ),
+
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                        borderSide: BorderSide(
+                                          color: Colors.grey.shade300,
+                                          width: 1,
+                                        ),
+                                      ),
+
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                        borderSide: BorderSide(
+                                          color: app_color,
+                                          width: 1.5,
+                                        ),
+                                      ),
+
+                                      errorBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                        borderSide: const BorderSide(
+                                          color: Colors.redAccent,
+                                          width: 1.5,
+                                        ),
+                                      ),
+
+                                      focusedErrorBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                        borderSide: const BorderSide(
+                                          color: Colors.redAccent,
+                                          width: 1.5,
+                                        ),
+                                      ),
+
+                                      contentPadding:
+                                      const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                                    ),
+                                  ),
+                                ),
 
 
 

@@ -113,6 +113,9 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
       _isLoading = false,
       isVisibleNoUserFound = false;
 
+  bool isVchEditable = false; // state variable
+
+
   TextEditingController _itemController = TextEditingController();
   TextEditingController _partyLedgerController = TextEditingController();
 
@@ -159,6 +162,69 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
       },
     );
   }
+
+  String generateNextVchNo(List<String> vchnos) {
+    if (vchnos.isEmpty) return "1";
+
+    RegExp regExp = RegExp(r'(\d+)(?!.*\d)');
+
+    Map<String, List<Map<String, dynamic>>> patternGroups = {};
+
+    for (String vch in vchnos) {
+      Match? match = regExp.firstMatch(vch);
+
+      if (match != null) {
+        String numberPart = match.group(0)!;
+        int number = int.tryParse(numberPart) ?? 0;
+
+        // prefix + suffix detection
+        String prefix = vch.substring(0, match.start);
+        String suffix = vch.substring(match.end);
+
+        String patternKey = prefix + "#" + suffix;
+
+        patternGroups.putIfAbsent(patternKey, () => []);
+
+        patternGroups[patternKey]!.add({
+          "original": vch,
+          "number": number,
+          "length": numberPart.length,
+        });
+      }
+    }
+
+    // ❌ No numeric pattern at all
+    if (patternGroups.isEmpty) {
+      return vchnos.last + "1";
+    }
+
+    // ✅ Find dominant pattern (most used)
+    String selectedPattern = patternGroups.entries
+        .reduce((a, b) => a.value.length > b.value.length ? a : b)
+        .key;
+
+    List<Map<String, dynamic>> selectedList =
+    patternGroups[selectedPattern]!;
+
+    // ✅ Find highest number in that pattern
+    Map<String, dynamic> highest = selectedList.reduce((a, b) {
+      return a["number"] > b["number"] ? a : b;
+    });
+
+    int nextNumber = highest["number"] + 1;
+    int length = highest["length"];
+
+    String newNumber =
+    nextNumber.toString().padLeft(length, '0');
+
+    // reconstruct using prefix + number + suffix
+    List<String> parts = selectedPattern.split("#");
+    String prefix = parts[0];
+    String suffix = parts[1];
+
+    return prefix + newNumber + suffix;
+  }
+
 
   void _deleteLedger(int index) {
     setState(() {
@@ -2654,7 +2720,7 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
       Map<String, dynamic> jsonDatabody = {
         "to": formattedEndDateVchNo,
         "from": formattedStartDateVchNo,
-        "vchname" : vchname
+        "vchname" : vchname,
       };
 
       String jsonDatabodyString = jsonEncode(jsonDatabody);
@@ -2670,7 +2736,7 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
       if (response.statusCode == 200)
       {
         /*print(response.body);*/
-        setState(() {
+        /*setState(() {
           final Map<String, dynamic> jsonResponse = json.decode(response.body);
 
           final List<dynamic> vchnosJson = jsonResponse['vchnos'];
@@ -2680,6 +2746,27 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
 
           _vchnoController.clear();
           checkVchNoExistence(_vchnoController.text);
+        });*/
+
+        setState(() {
+          final Map<String, dynamic> jsonResponse = json.decode(response.body);
+          final List<dynamic> vchnosJson = jsonResponse['vchnos'];
+
+          print(response.body);
+          vchnos = vchnosJson.cast<String>();
+
+          // SORT first
+          vchnos.sort((a, b) {
+            RegExp regExp = RegExp(r'(\d+)(?!.*\d)');
+            int numA = int.tryParse(regExp.firstMatch(a)?.group(0) ?? '0') ?? 0;
+            int numB = int.tryParse(regExp.firstMatch(b)?.group(0) ?? '0') ?? 0;
+            return numA.compareTo(numB);
+          });
+
+          // GENERATE NEXT
+          String nextVch = generateNextVchNo(vchnos);
+
+          _vchnoController.text = nextVch;
         });
       }
       else
@@ -4016,14 +4103,21 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
                                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
                                       child: TextFormField(
                                         controller: _vchnoController,
+
+                                        readOnly: !isVchEditable, // 👈 MAIN CHANGE
+                                        enableInteractiveSelection: isVchEditable, // 👈 ADD THIS
                                         onChanged: (value) {
-                                          checkVchNoExistence(value);
+                                          if (isVchEditable) {
+                                            checkVchNoExistence(value);
+                                          }
                                         },
+
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
-                                          color: Colors.black87,
+                                          color: isVchEditable ? Colors.black87 : Colors.grey, // 👈 visual hint
                                         ),
+
                                         decoration: InputDecoration(
                                           labelText: "Voucher No.",
                                           labelStyle: GoogleFonts.poppins(
@@ -4031,9 +4125,13 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
                                             fontWeight: FontWeight.w500,
                                             color: Colors.grey[700],
                                           ),
-                                          errorText: errorMessageVchNo.isNotEmpty ? errorMessageVchNo : null,
+
+                                          errorText:
+                                          errorMessageVchNo.isNotEmpty ? errorMessageVchNo : null,
+
                                           filled: true,
                                           fillColor: Colors.white.withOpacity(0.95),
+
                                           prefixIcon: Container(
                                             margin: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
@@ -4051,7 +4149,19 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
                                             ),
                                           ),
 
-                                          // 👇 unfocused grey border
+                                          // 👇 EDIT BUTTON
+                                          suffixIcon: IconButton(
+                                            icon: Icon(
+                                              isVchEditable ? Icons.lock_open : Icons.edit,
+                                              color: app_color,
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                isVchEditable = !isVchEditable;
+                                              });
+                                            },
+                                          ),
+
                                           enabledBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(16),
                                             borderSide: BorderSide(
@@ -4060,7 +4170,6 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
                                             ),
                                           ),
 
-                                          // 👇 focused border with app_color
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(16),
                                             borderSide: BorderSide(
@@ -4069,7 +4178,6 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
                                             ),
                                           ),
 
-                                          // 👇 error border (red)
                                           errorBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(16),
                                             borderSide: const BorderSide(
@@ -4078,7 +4186,6 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
                                             ),
                                           ),
 
-                                          // 👇 same rounded border when error+focused
                                           focusedErrorBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(16),
                                             borderSide: const BorderSide(
@@ -4087,9 +4194,9 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
                                             ),
                                           ),
 
-                                          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                                          contentPadding:
+                                          const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
                                         ),
-                                        readOnly: false,
                                       ),
                                     ),
 

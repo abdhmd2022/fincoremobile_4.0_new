@@ -474,8 +474,9 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
           int q = vchnos.length;
           print('vchno list containes $q nos whos values are $vchnos');
 
-          checkVchNoExistence(_vchnoController.text);
-
+          if (isVchEditable) {
+            checkVchNoExistence(_vchnoController.text);
+          }
 
         });
       }
@@ -3080,7 +3081,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
           }
           try
           {
-            totalAmount = data['totalAmount'] ;
+            totalAmount = double.tryParse(data['totalAmount'].toString().replaceAll(',', '')) ?? 0.0;
           }
           catch (e)
           {

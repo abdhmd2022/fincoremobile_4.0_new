@@ -244,7 +244,9 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
           int q = vchnos.length;
           print('vchno list containes $q nos whos values are $vchnos');
 
-          checkVchNoExistence(_vchnoController.text);
+          if (isVchEditable) {
+            checkVchNoExistence(_vchnoController.text);
+          }
 
         });
       }

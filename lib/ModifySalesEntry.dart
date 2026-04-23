@@ -465,7 +465,6 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
       if (response.statusCode == 200)
       {
 
-
         /*print(response.body);*/
         setState(() {
           final Map<String, dynamic> jsonResponse = json.decode(response.body);
@@ -475,8 +474,9 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
           int q = vchnos.length;
           print('vchno list containes $q nos whos values are $vchnos');
 
-          checkVchNoExistence(_vchnoController.text);
-
+          if (isVchEditable) {
+            checkVchNoExistence(_vchnoController.text);
+          }
 
         });
       }
@@ -3631,11 +3631,17 @@ _itemController.text = _selecteditem;
           if (data.containsKey("INVENTORYENTRIES.LIST") && data["INVENTORYENTRIES.LIST"] is List) {             // setting items list in SaleItem objects
 
             dynamic itemData = data['INVENTORYENTRIES.LIST'][0];
-              if (itemData is Map<String, dynamic>) {
+
+            print('INVENTORYENTRIES.LIST ${itemData}');
+
+            if (itemData is Map<String, dynamic>) {
                 Map<String, dynamic> accountingAllocationList = itemData["ACCOUNTINGALLOCATIONS.LIST"];
                 String saleLedgerName = accountingAllocationList['LEDGERNAME'];
                 _selectedsalesledger = saleLedgerName; // setting sales ledger from first item data
               }
+
+            print('_selectedsalesledger ${_selectedsalesledger}');
+
           }
 
           ledgerdata = List<Map<String, dynamic>>.from(jsonResponse['otherLedgers']);
@@ -3747,7 +3753,8 @@ _itemController.text = _selecteditem;
           }
           try
           {
-            totalAmount = data['totalAmount'] ;
+            totalAmount = double.tryParse(data['totalAmount'].toString().replaceAll(',', '')) ?? 0.0;
+
           }
           catch (e)
           {

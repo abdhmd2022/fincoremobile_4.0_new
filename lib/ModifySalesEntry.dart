@@ -5333,111 +5333,94 @@ _itemController.text = _selecteditem;
                                     ),
                                   ),
 
-                                  Container(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        // Label
-                                        Padding(
-                                          padding: const EdgeInsets.only(top: 10, left: 20),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 12, left: 20, right: 20, bottom: 0),
+                                    child: DropdownButtonFormField<String>(
+                                      isExpanded: true,
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white.withOpacity(0.95),
+                                        labelText: "Voucher Type",   // 👈 This makes it a heading
+                                        labelStyle: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Colors.grey[700],
+                                        ),
+                                        // Prefix icon with gradient bg (different color)
+                                        prefixIcon: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            gradient: const LinearGradient(
+                                              colors: [Colors.purpleAccent, Colors.deepPurple],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.all(Radius.circular(12)),
+                                          ),
+                                          child: const Icon(
+                                            Icons.discount_outlined,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+
+                                        // Borders
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.shade300,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: const BorderSide(
+                                            color: Colors.redAccent,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                                      ),
+                                      hint: Text(
+                                        "Voucher Type",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                      value: _selectedvchtypename,
+                                      items: vchtypenamedata.map((item) {
+                                        return DropdownMenuItem<String>(
+                                          value: item,
                                           child: Text(
-                                            "Voucher Type",
+                                            item,
                                             style: GoogleFonts.poppins(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 14,
-                                              color: Colors.grey[800],
+                                              fontSize: 13,
+                                              color: Colors.black87,
                                             ),
                                           ),
-                                        ),
-
-                                        // Dropdown
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              top: 4, left: 20, right: 20, bottom: 0),
-                                          child: DropdownButtonFormField<String>(
-                                            isExpanded: true,
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.white.withOpacity(0.95),
-
-                                              // Prefix icon with gradient bg (different color)
-                                              prefixIcon: Container(
-                                                margin: const EdgeInsets.all(8),
-                                                decoration: BoxDecoration(
-                                                  gradient: const LinearGradient(
-                                                    colors: [Colors.purpleAccent, Colors.deepPurple],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                                                ),
-                                                child: const Icon(
-                                                  Icons.discount_outlined,
-                                                  color: Colors.white,
-                                                  size: 20,
-                                                ),
-                                              ),
-
-                                              // Borders
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: BorderSide(
-                                                  color: Colors.grey.shade300,
-                                                  width: 1,
-                                                ),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: BorderSide(
-                                                  color: app_color,
-                                                  width: 1.5,
-                                                ),
-                                              ),
-                                              errorBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: const BorderSide(
-                                                  color: Colors.redAccent,
-                                                  width: 1.5,
-                                                ),
-                                              ),
-                                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                            ),
-                                            hint: Text(
-                                              "Voucher Type Name",
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 13,
-                                                color: Colors.grey[600],
-                                              ),
-                                            ),
-                                            value: _selectedvchtypename,
-                                            items: vchtypenamedata.map((item) {
-                                              return DropdownMenuItem<String>(
-                                                value: item,
-                                                child: Text(
-                                                  item,
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 13,
-                                                    color: Colors.black87,
-                                                  ),
-                                                ),
-                                              );
-                                            }).toList(),
-                                            onChanged: (value) async {
-                                              setState(() {
-                                                _selectedvchtypename = value!;
-                                                fetchvchnos(_selectedvchtypename);
-                                              });
-                                            },
-                                            onTap: () {
-                                              setState(() {
-                                                _isFocused_vchno = false;
-                                                _isFocused_narration = false;
-                                                _isFocused_totalamt = false;
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ],
+                                        );
+                                      }).toList(),
+                                      onChanged: (value) async {
+                                        setState(() {
+                                          _selectedvchtypename = value!;
+                                          fetchvchnos(_selectedvchtypename);
+                                        });
+                                      },
+                                      onTap: () {
+                                        setState(() {
+                                          _isFocused_vchno = false;
+                                          _isFocused_narration = false;
+                                          _isFocused_totalamt = false;
+                                        });
+                                      },
                                     ),
                                   ),
 
@@ -5592,111 +5575,94 @@ _itemController.text = _selecteditem;
 
 
 
-                                  Container(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        // Label
-                                        Padding(
-                                          padding: const EdgeInsets.only(top: 10, left: 20),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 0),
+                                    child: DropdownButtonFormField<String>(
+                                      isExpanded: true,
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white.withOpacity(0.95),
+                                        labelText: "Sales Ledger",   // 👈 This makes it a heading
+                                        labelStyle: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Colors.grey[700],
+                                        ),
+                                        // Prefix icon with gradient (blue)
+                                        prefixIcon: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [Colors.blueAccent, Colors.indigo],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.all(Radius.circular(12)),
+                                          ),
+                                          child: const Icon(
+                                            Icons.sell_outlined,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+
+                                        // Borders
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.shade300,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: const BorderSide(
+                                            color: Colors.redAccent,
+                                            width: 1.5,
+                                          ),
+                                        ),
+
+                                        contentPadding:
+                                        const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                                      ),
+                                      hint: Text(
+                                        "Sales Ledger",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                      value: _selectedsalesledger,
+                                      items: salesledger_data.map((item) {
+                                        return DropdownMenuItem<String>(
+                                          value: item.toString(),
                                           child: Text(
-                                            "Sales Ledger",
+                                            item.toString(),
                                             style: GoogleFonts.poppins(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 14,
-                                              color: Colors.grey[800],
+                                              fontSize: 13,
+                                              color: Colors.black87,
                                             ),
                                           ),
-                                        ),
-
-                                        // Dropdown
-                                        Padding(
-                                          padding: const EdgeInsets.only(top: 6, left: 20, right: 20, bottom: 0),
-                                          child: DropdownButtonFormField<String>(
-                                            isExpanded: true,
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.white.withOpacity(0.95),
-
-                                              // Prefix icon with gradient (blue)
-                                              prefixIcon: Container(
-                                                margin: const EdgeInsets.all(8),
-                                                decoration: const BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    colors: [Colors.blueAccent, Colors.indigo],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                                                ),
-                                                child: const Icon(
-                                                  Icons.sell_outlined,
-                                                  color: Colors.white,
-                                                  size: 20,
-                                                ),
-                                              ),
-
-                                              // Borders
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: BorderSide(
-                                                  color: Colors.grey.shade300,
-                                                  width: 1,
-                                                ),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: BorderSide(
-                                                  color: app_color,
-                                                  width: 1.5,
-                                                ),
-                                              ),
-                                              errorBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: const BorderSide(
-                                                  color: Colors.redAccent,
-                                                  width: 1.5,
-                                                ),
-                                              ),
-
-                                              contentPadding:
-                                              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                            ),
-                                            hint: Text(
-                                              "Sales Ledger",
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 13,
-                                                color: Colors.grey[600],
-                                              ),
-                                            ),
-                                            value: _selectedsalesledger,
-                                            items: salesledger_data.map((item) {
-                                              return DropdownMenuItem<String>(
-                                                value: item.toString(),
-                                                child: Text(
-                                                  item.toString(),
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 13,
-                                                    color: Colors.black87,
-                                                  ),
-                                                ),
-                                              );
-                                            }).toList(),
-                                            onChanged: (value) async {
-                                              setState(() {
-                                                _selectedsalesledger = value!;
-                                              });
-                                            },
-                                            onTap: () {
-                                              setState(() {
-                                                _isFocused_vchno = false;
-                                                _isFocused_narration = false;
-                                                _isFocused_totalamt = false;
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ],
+                                        );
+                                      }).toList(),
+                                      onChanged: (value) async {
+                                        setState(() {
+                                          _selectedsalesledger = value!;
+                                        });
+                                      },
+                                      onTap: () {
+                                        setState(() {
+                                          _isFocused_vchno = false;
+                                          _isFocused_narration = false;
+                                          _isFocused_totalamt = false;
+                                        });
+                                      },
                                     ),
                                   ),
 

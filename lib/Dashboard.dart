@@ -1421,14 +1421,19 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                 colorScheme: ColorScheme.light().copyWith(
                   primary: app_color, // main accent color
                   onPrimary: Colors.white,
+
                   surface: Colors.white,
                   onSurface: Colors.black87,
-                ),
+                ), // 🔹 important
                 datePickerTheme: DatePickerThemeData(
-                  rangeSelectionBackgroundColor: app_color.withOpacity(0.15), // 🔹 light shade of your app_color
+                  backgroundColor: Colors.white, // 🔹 THIS fixes the picker bg
+                  surfaceTintColor: Colors.white, // 🔹 prevents grey tint (Material 3)
+                  rangeSelectionBackgroundColor: app_color.withOpacity(0.15),
                   rangeSelectionOverlayColor:
                   MaterialStatePropertyAll(app_color.withOpacity(0.15)),
-                ),
+                ), dialogTheme: DialogThemeData(backgroundColor: Colors.white),
+                dialogBackgroundColor: Colors.white, // 🔹 important
+
               ),
               child: child!,
             );
@@ -1559,11 +1564,16 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                   surface: Colors.white,
                   onSurface: Colors.black87,
                 ),
+
                 datePickerTheme: DatePickerThemeData(
-                  rangeSelectionBackgroundColor: app_color.withOpacity(0.15), // 🔹 light shade of your app_color
+                  backgroundColor: Colors.white, // 🔹 THIS fixes the picker bg
+                  surfaceTintColor: Colors.white, // 🔹 prevents grey tint (Material 3)
+                  rangeSelectionBackgroundColor: app_color.withOpacity(0.15),
                   rangeSelectionOverlayColor:
                   MaterialStatePropertyAll(app_color.withOpacity(0.15)),
-                ),
+                ), dialogTheme: DialogThemeData(backgroundColor: Colors.white),
+                dialogBackgroundColor: Colors.white, // 🔹 important
+
               ),
               child: child!,
             );
@@ -1701,10 +1711,14 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                   onSurface: Colors.black87,
                 ),
                 datePickerTheme: DatePickerThemeData(
-                  rangeSelectionBackgroundColor: app_color.withOpacity(0.15), // 🔹 light shade of your app_color
+                  backgroundColor: Colors.white, // 🔹 THIS fixes the picker bg
+                  surfaceTintColor: Colors.white, // 🔹 prevents grey tint (Material 3)
+                  rangeSelectionBackgroundColor: app_color.withOpacity(0.15),
                   rangeSelectionOverlayColor:
                   MaterialStatePropertyAll(app_color.withOpacity(0.15)),
-                ),
+                ), dialogTheme: DialogThemeData(backgroundColor: Colors.white),
+                dialogBackgroundColor: Colors.white, // 🔹 important
+
               ),
               child: child!,
             );
@@ -1782,10 +1796,14 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                   onSurface: Colors.black87,
                 ),
                 datePickerTheme: DatePickerThemeData(
-                  rangeSelectionBackgroundColor: app_color.withOpacity(0.15), // 🔹 light shade of your app_color
+                  backgroundColor: Colors.white, // 🔹 THIS fixes the picker bg
+                  surfaceTintColor: Colors.white, // 🔹 prevents grey tint (Material 3)
+                  rangeSelectionBackgroundColor: app_color.withOpacity(0.15),
                   rangeSelectionOverlayColor:
-                  MaterialStatePropertyAll(app_color.withOpacity(0.15)),
-                ),
+                  WidgetStatePropertyAll(app_color.withOpacity(0.15)),
+                ), dialogTheme: DialogThemeData(backgroundColor: Colors.white),
+                dialogBackgroundColor: Colors.white, // 🔹 important
+
               ),
               child: child!,
             );

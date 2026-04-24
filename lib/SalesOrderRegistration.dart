@@ -4560,8 +4560,8 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
                                           fillColor: Colors.white.withOpacity(0.95),
                                           labelText: "Sales Ledger",
                                           labelStyle: GoogleFonts.poppins(
-                                            color: Colors.black87,
-                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                            color: Colors.grey[700],
                                           ),
                                           // Prefix icon with gradient (blue)
                                           prefixIcon: Container(

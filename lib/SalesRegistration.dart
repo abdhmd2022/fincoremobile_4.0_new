@@ -4678,7 +4678,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                                     ),
                                     hint: Text(
-                                      "Voucher Type Name",
+                                      "Voucher Type",
                                       style: GoogleFonts.poppins(
                                         fontSize: 13,
                                         color: Colors.grey[600],
@@ -4866,7 +4866,11 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                     decoration: InputDecoration(
                                       filled: true,
                                       fillColor: Colors.white.withOpacity(0.95),
-
+                                      labelText: "Sales Ledger",   // 👈 This makes it a heading
+                                      labelStyle: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        color: Colors.grey[700],
+                                      ),
                                       // Prefix icon with gradient (blue)
                                       prefixIcon: Container(
                                         margin: const EdgeInsets.all(8),

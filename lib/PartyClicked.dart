@@ -4546,12 +4546,12 @@ Widget _buildSoldPurchaseCard({
         children: [
           // 🔹 Item + Qty badge
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // 📦 Icon + Item Name
               Expanded(
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
                       width: 32,
@@ -4611,7 +4611,7 @@ Widget _buildSoldPurchaseCard({
           // 🔹 Last Date + Rate row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center ,
             children: [
               // 📅 Date
               Flexible(
@@ -4664,7 +4664,7 @@ Widget _buildSoldPurchaseCard({
                     ),
                     const SizedBox(width: 8),
                     // 👇 this makes sure long text wraps and stays aligned to the right
-                    Expanded(
+                    Flexible(
                       child: Text(
                         CurrencyFormatter.formatCurrency_normal(rate),
                         textAlign: TextAlign.right,

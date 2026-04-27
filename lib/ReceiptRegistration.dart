@@ -1601,20 +1601,18 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     Map<String, List<Map<String, dynamic>>> patternGroups = {};
 
     for (String vch in vchnos) {
-      // 🔥 Extract all numbers
       List<RegExpMatch> matches =
       RegExp(r'\d+').allMatches(vch).toList();
 
       if (matches.isNotEmpty) {
         RegExpMatch selectedMatch = matches.last;
 
-        // 🔥 Handle multi-number formats (ignore year like 2026)
+        // 🔥 Ignore year like 2026
         if (matches.length > 1) {
           for (int i = matches.length - 1; i >= 0; i--) {
             String val = matches[i].group(0)!;
             int num = int.tryParse(val) ?? 0;
 
-            // 🎯 Skip year-like numbers (2000–2099)
             if (!(val.length == 4 && num >= 2000 && num <= 2099)) {
               selectedMatch = matches[i];
               break;
@@ -1625,7 +1623,6 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         String numberPart = selectedMatch.group(0)!;
         int number = int.tryParse(numberPart) ?? 0;
 
-        // prefix + suffix detection
         String prefix = vch.substring(0, selectedMatch.start);
         String suffix = vch.substring(selectedMatch.end);
 
@@ -1641,12 +1638,11 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       }
     }
 
-    // ❌ No numeric pattern at all
     if (patternGroups.isEmpty) {
       return vchnos.last + "1";
     }
 
-    // ✅ Find dominant pattern (most used)
+    // ✅ Dominant pattern
     String selectedPattern = patternGroups.entries
         .reduce((a, b) => a.value.length > b.value.length ? a : b)
         .key;
@@ -1654,25 +1650,38 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     List<Map<String, dynamic>> selectedList =
     patternGroups[selectedPattern]!;
 
-    // ✅ Find highest number in that pattern
-    Map<String, dynamic> highest = selectedList.reduce((a, b) {
-      return a["number"] > b["number"] ? a : b;
-    });
+    // 🔥 STEP 1: Extract & sort numbers
+    List<int> numbers =
+    selectedList.map((e) => e["number"] as int).toList();
 
-    int nextNumber = highest["number"] + 1;
-    int length = highest["length"];
+    numbers.sort();
 
+    int length = selectedList.first["length"];
+
+    // 🔥 STEP 2: Find missing number (gap)
+    int expected = numbers.first;
+
+    int nextNumber = numbers.last + 1; // fallback
+
+    for (int num in numbers) {
+      if (num != expected) {
+        nextNumber = expected;
+        break;
+      }
+      expected++;
+    }
+
+    // 🔥 STEP 3: Format number
     String newNumber =
     nextNumber.toString().padLeft(length, '0');
 
-    // reconstruct using prefix + number + suffix
+    // reconstruct
     List<String> parts = selectedPattern.split("#");
     String prefix = parts[0];
     String suffix = parts[1];
 
     return prefix + newNumber + suffix;
   }
-
 
   Future<void> saveEntry() async {
 

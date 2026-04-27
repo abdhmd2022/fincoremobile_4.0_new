@@ -60,6 +60,10 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
 
   final List<SalesModel> salesentries = [];
 
+  TextEditingController _searchController = TextEditingController();
+
+  List<SalesModel> filteredSalesEntries = [];
+
   String name = "",email = "";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -160,6 +164,7 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
+
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(colors: colors),
         boxShadow: [
@@ -392,6 +397,7 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
     if (response.statusCode == 200)
     {
       salesentries.clear();
+      filteredSalesEntries.clear();
       print(response.body);
       try
       {
@@ -406,13 +412,19 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
             DateTime dateB = DateTime.parse(b.data['DATE']);
             return dateB.compareTo(dateA); // descending
           });
+
+          filteredSalesEntries = List.from(salesentries);
+          setState(() {
+            _searchController.clear();
+            FocusScope.of(context).unfocus();
+          });
         }
         else
         {
           throw Exception('Failed to fetch data');
         }
         setState(() {
-          if(salesentries.isEmpty)
+          if(filteredSalesEntries.isEmpty)
           {
             isVisibleNoSalesEntryFound = true;
           }
@@ -443,7 +455,7 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
     }
 
     setState(() {
-      if(salesentries.isEmpty)
+      if(filteredSalesEntries.isEmpty)
       {
         isVisibleNoSalesEntryFound = true;
       }
@@ -455,6 +467,33 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
     super.initState();
     _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     _initSharedPreferences();
+  }
+
+  void searchSales(String query) {
+    if (query.trim().isEmpty) {
+      setState(() {
+        filteredSalesEntries = List.from(salesentries);
+      });
+      return;
+    }
+
+    final lowerQuery = query.toLowerCase();
+
+    setState(() {
+      filteredSalesEntries = salesentries.where((entry) {
+        final data = entry.data;
+
+        final party = (data['PARTYLEDGERNAME'] ?? '').toString().toLowerCase();
+        final vchno = (data['VOUCHERNUMBER'] ?? '').toString().toLowerCase();
+        final vchtype = (data['VOUCHERTYPENAME'] ?? '').toString().toLowerCase();
+        final amount = (data['totalAmount'] ?? '').toString().toLowerCase();
+
+        return party.contains(lowerQuery) ||
+            vchno.contains(lowerQuery) ||
+            vchtype.contains(lowerQuery) ||
+            amount.contains(lowerQuery);
+      }).toList();
+    });
   }
 
   Future<void> _refresh() async {
@@ -530,298 +569,420 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
         ),
         body: RefreshIndicator(
           onRefresh: _refresh,
-          child: Stack(
+          child:
+
+          Column(
             children: [
-
-
-              if(isVisibleNoSalesEntryFound)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.receipt_long, size: 64, color: Colors.grey[300]),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No Sales Entry Found',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[600],
-                          ),
-                        ),
+              if(salesentries.isNotEmpty)
+                Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white,
+                        Colors.white.withOpacity(0.95),
                       ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: app_color.withOpacity(0.08),
+                        blurRadius: 18,
+                        offset: const Offset(0, 8),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.03),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: Colors.grey.shade200,
                     ),
                   ),
-                ),
+                  child: Row(
+                    children: [
 
-              if (!isVisibleNoSalesEntryFound)
-                ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                  itemCount: salesentries.length,
-                  itemBuilder: (context, index) {
-                    final card = salesentries[index];
-                    final partyLedger = card.data['PARTYLEDGERNAME'];
-                    final dateStr = card.data['DATE'];
-                    final totalAmount = card.data['totalAmount'];
-                    final vchno = card.data['VOUCHERNUMBER'];
-                    final vchtype = card.data['VOUCHERTYPENAME'] ?? 'N/A';
-
-                    DateTime date = DateTime.parse(dateStr);
-                    String formattedDate = DateFormat("dd-MMM-yyyy").format(date);
-
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 9),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: LinearGradient(
-                          colors: [Colors.white, Colors.white],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 15,
-                            offset: const Offset(0, 8),
+                      // 🔍 Gradient Search Icon
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              app_color.withOpacity(0.8),
+                              app_color,
+                            ],
                           ),
-                        ],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.search,
+                          color: Colors.white,
+                          size: 18,
+                        ),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 🔹 Top Row: Invoice + Action Icons
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              child: Row(
+
+                      const SizedBox(width: 12),
+
+                      // ✏️ Input Field
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: searchSales,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: "Search sales entries...",
+                            hintStyle: GoogleFonts.poppins(
+                              fontSize: 13,
+                              color: Colors.grey.shade500,
+                            ),
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedErrorBorder: InputBorder.none,
+
+                          ),
+                        ),
+                      ),
+
+                      // ❌ Clear Button
+                      if (_searchController.text.isNotEmpty)
+                        GestureDetector(
+                          onTap: () {
+                            _searchController.clear();
+                            searchSales('');
+                            setState(() {});
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              size: 16,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child:
+
+                Stack(
+                  children: [
+
+
+
+
+                    if(isVisibleNoSalesEntryFound)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.receipt_long, size: 64, color: Colors.grey[300]),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No Sales Entry Found',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                    if (!isVisibleNoSalesEntryFound)
+                      ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                        itemCount: filteredSalesEntries.length,
+                        itemBuilder: (context, index) {
+                          final card = filteredSalesEntries[index];
+                          final partyLedger = card.data['PARTYLEDGERNAME'];
+                          final dateStr = card.data['DATE'];
+                          final totalAmount = card.data['totalAmount'];
+                          final vchno = card.data['VOUCHERNUMBER'];
+                          final vchtype = card.data['VOUCHERTYPENAME'] ?? 'N/A';
+
+                          DateTime date = DateTime.parse(dateStr);
+                          String formattedDate = DateFormat("dd-MMM-yyyy").format(date);
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 9),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              gradient: LinearGradient(
+                                colors: [Colors.white, Colors.white],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-
-                                  // LEFT SIDE (ICON + INVOICE)
-                                  Expanded(
+                                  // 🔹 Top Row: Invoice + Action Icons
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
                                     child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        // Gradient Icon
-                                        Container(
-                                          width: 32,
-                                          height: 32,
-                                          decoration: BoxDecoration(
-                                            gradient: const LinearGradient(
-                                              colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius: BorderRadius.circular(10),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.blue.withOpacity(0.25),
-                                                blurRadius: 6,
-                                                offset: const Offset(0, 3),
+
+                                        // LEFT SIDE (ICON + INVOICE)
+                                        Expanded(
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              // Gradient Icon
+                                              Container(
+                                                width: 32,
+                                                height: 32,
+                                                decoration: BoxDecoration(
+                                                  gradient: const LinearGradient(
+                                                    colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.blue.withOpacity(0.25),
+                                                      blurRadius: 6,
+                                                      offset: const Offset(0, 3),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: const Icon(Icons.receipt_long, size: 18, color: Colors.white),
                                               ),
+                                              const SizedBox(width: 10),
+
+                                              // Invoice Text
+                                              Expanded(
+                                                child: Text(
+                                                  "Invoice #$vchno",
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Colors.black87,
+                                                  ),
+                                                  softWrap: true,
+                                                ),
+                                              ),
+
                                             ],
                                           ),
-                                          child: const Icon(Icons.receipt_long, size: 18, color: Colors.white),
                                         ),
-                                        const SizedBox(width: 10),
 
-                                        // Invoice Text
-                                        Expanded(
-                                          child: Text(
-                                            "Invoice #$vchno",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.black87,
-                                            ),
-                                            softWrap: true,
+                                        const SizedBox(width: 8),
+
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 0),
+                                          child: Row(
+                                            children: [
+                                              _buildSyncChip(card.isSynced),
+                                            ],
                                           ),
                                         ),
-
                                       ],
                                     ),
                                   ),
 
-                                  const SizedBox(width: 8),
-
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 0),
-                              child: Row(
-                                children: [
-                                  _buildSyncChip(card.isSynced),
-                                ],
-                              ),
-                            ),
-                                ],
-                              ),
-                            ),
-
-                            if (card.isSynced == 2 && card.message != null)
-                              Padding(
-                                padding: const EdgeInsets.only(left: 16,right:16, top:16 ),
-                                child: Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red.shade50,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: Colors.red.shade200),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.error_outline, color: Colors.red.shade700, size: 18),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          card.message!,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 12,
-                                            color: Colors.red.shade700,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                  if (card.isSynced == 2 && card.message != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 16,right:16, top:16 ),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red.shade50,
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(color: Colors.red.shade200),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.error_outline, color: Colors.red.shade700, size: 18),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                card.message!,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 12,
+                                                  color: Colors.red.shade700,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ],
+                                    ),
+
+                                  const SizedBox(height: 12),
+                                  // 🔹 Detail Rows
+                                  DetailRowTile(
+                                    label: "Party Ledger",
+                                    value: partyLedger,
                                   ),
+                                  DetailRowTile(
+                                    label: "Voucher Type",
+                                    value: vchtype,
+                                  ),
+                                  DetailRowTile(
+                                    label: "Date",
+                                    value: formattedDate,
+                                  ),
+                                  DetailRowTile(
+                                    label: "Total Amount",
+                                    value: formatAmount(totalAmount.toString()),
+                                  ),
+
+
+
+                                  Padding(padding: EdgeInsets.only(top: 16),
+                                    child:  Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        if (card.isSynced != 1) ...[
+                                          _buildGradientAction(
+                                            icon: Icons.edit,
+                                            text: "Modify",
+
+                                            colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
+                                            onTap: () {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => ModifySalesEntry(
+                                                    type: card.type,
+                                                    id: card.id,
+                                                    isSynced: card.isSynced,
+                                                    data: card.data,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                          const SizedBox(width: 10),
+                                          _buildGradientAction(
+                                            icon: Icons.delete_outline,
+                                            text: "Delete",
+
+                                            colors: [Color(0xFFEF5350), Color(0xFFD32F2F)],
+                                            onTap: () {
+                                              _showConfirmationDialogAndNavigate(context, card.id);
+                                            },
+                                          ),
+                                        ]
+                                      ],
+                                    ),)
+
+                                ],
+                              ),
+                            ),
+                          );
+
+
+                        },
+                      ),
+
+
+
+
+
+
+
+
+
+
+                    // Loading spinner
+                    Visibility(
+                      visible: _isLoading,
+                      child: const Center(child: CircularProgressIndicator.adaptive()),
+                    ),
+
+                    // Floating Action Button
+                    Positioned(
+                      bottom: 40,
+                      right: 30,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => SalesRegistration()),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            gradient: LinearGradient(
+                              colors: [app_color.withOpacity(0.9), app_color],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: app_color.withOpacity(0.4),
+                                blurRadius: 12,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.add_rounded, color: Colors.white, size: 26),
+                              const SizedBox(width: 10),
+                              Text(
+                                "Create Entry",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
                                 ),
                               ),
-
-                            const SizedBox(height: 12),
-                            // 🔹 Detail Rows
-                            DetailRowTile(
-                              label: "Party Ledger",
-                              value: partyLedger,
-                            ),
-                            DetailRowTile(
-                              label: "Voucher Type",
-                              value: vchtype,
-                            ),
-                            DetailRowTile(
-                              label: "Date",
-                              value: formattedDate,
-                            ),
-                            DetailRowTile(
-                              label: "Total Amount",
-                              value: formatAmount(totalAmount.toString()),
-                            ),
-
-
-
-                            Padding(padding: EdgeInsets.only(top: 16),
-                            child:  Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (card.isSynced != 1) ...[
-                                  _buildGradientAction(
-                                    icon: Icons.edit,
-                                    text: "Modify",
-
-                                    colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
-                                    onTap: () {
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ModifySalesEntry(
-                                            type: card.type,
-                                            id: card.id,
-                                            isSynced: card.isSynced,
-                                            data: card.data,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  const SizedBox(width: 10),
-                                  _buildGradientAction(
-                                    icon: Icons.delete_outline,
-                                    text: "Delete",
-
-                                    colors: [Color(0xFFEF5350), Color(0xFFD32F2F)],
-                                    onTap: () {
-                                      _showConfirmationDialogAndNavigate(context, card.id);
-                                    },
-                                  ),
-                                ]
-                              ],
-                            ),)
-
-                          ],
-                        ),
-                      ),
-                    );
-
-
-                  },
-                ),
-
-
-
-
-
-
-
-
-
-
-          // Loading spinner
-              Visibility(
-                visible: _isLoading,
-                child: const Center(child: CircularProgressIndicator.adaptive()),
-              ),
-
-              // Floating Action Button
-              Positioned(
-                bottom: 40,
-                right: 30,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => SalesRegistration()),
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50),
-                      gradient: LinearGradient(
-                        colors: [app_color.withOpacity(0.9), app_color],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: app_color.withOpacity(0.4),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.add_rounded, color: Colors.white, size: 26),
-                        const SizedBox(width: 10),
-                        Text(
-                          "Create Entry",
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
+                            ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+
+                  ],
                 ),
-              ),
+              )
 
             ],
           ),
+
+
         ),
       ));
     // TODO: implement build

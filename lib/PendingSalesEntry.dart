@@ -415,8 +415,9 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
 
           filteredSalesEntries = List.from(salesentries);
           setState(() {
+            FocusManager.instance.primaryFocus?.unfocus();
+
             _searchController.clear();
-            FocusScope.of(context).unfocus();
           });
         }
         else

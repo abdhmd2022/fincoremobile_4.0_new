@@ -420,8 +420,8 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
           });
           filteredSalesOrderEntries = List.from(salesorderentries);
           setState(() {
+            FocusManager.instance.primaryFocus?.unfocus();
             _searchController.clear();
-            FocusScope.of(context).unfocus();
           });
         }
         else

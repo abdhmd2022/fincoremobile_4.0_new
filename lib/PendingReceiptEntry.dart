@@ -426,8 +426,8 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
           filteredReceiptEntries = List.from(receiptentries);
 
           setState(() {
+            FocusManager.instance.primaryFocus?.unfocus();
             _searchController.clear();
-            FocusScope.of(context).unfocus();
           });
 
         } else {

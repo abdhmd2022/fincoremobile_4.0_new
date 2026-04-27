@@ -391,7 +391,6 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
             content: Text('Password reset email sent successfully'),
           ),
         );
-
         setState(() {
           usernameController.text = resetemailController.text;
           resetemailController.clear();
@@ -814,8 +813,6 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
     usernameController.text = usernamee;
     passwordController.text = passwordd;
 
-
-
     /*FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       *//*print('Got a message whilst in the foreground!');
       print('Message data: ${message.data}');*//*
@@ -845,6 +842,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
     socket.onDisconnect((_) {
       print("⚠️ Socket Disconnected");
     });
+
     /*socket = IO.io('http://192.168.2.110:5999', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
@@ -862,6 +860,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
     });*/
 
     // Listen for the socket connection event and get the socket ID
+
     socket.on('connect', (_) {
       socketId = socket.id!;
     });
@@ -1155,6 +1154,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
           SnackBar(
             content: Text('User is active on another device.'),
           ));}});
+
     try
     {
       socket.connect();
@@ -1164,7 +1164,8 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       _scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(
           content: Text(e.toString()),
-        ));}
+        ));
+    }
     _initSharedPreferences();
   }
 
@@ -1216,7 +1217,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 </div>''';
     try {
 
-      await send(message, smtpServer);
+      // await send(message, smtpServer);
 
       /*_scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(
@@ -1252,10 +1253,10 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
     try {
       if (Theme.of(context).platform == TargetPlatform.android) {
         final androidInfo = await deviceInfo.androidInfo;
-        identifier = androidInfo.id; // ✅ use 'id' instead of 'androidId'
+        identifier = androidInfo.id; // use 'id' instead of 'androidId'
       } else if (Theme.of(context).platform == TargetPlatform.iOS) {
         final iosInfo = await deviceInfo.iosInfo;
-        identifier = iosInfo.identifierForVendor; // ✅ same key in iOS
+        identifier = iosInfo.identifierForVendor; // same key in iOS
       }
     } catch (e) {
       debugPrint('Error getting device identifier: $e');
@@ -1302,11 +1303,11 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       });
     }
       else
-        {
-          setState(() {
-            _resetbuttonColor = app_color;
-            isResetPassButtonDisabled = false;
-          });}}}
+    {
+     setState(() {
+       _resetbuttonColor = app_color;
+       isResetPassButtonDisabled = false;
+    });}}}
 
   final TextEditingController otpController = TextEditingController();
   dynamic maskedEmail = '';

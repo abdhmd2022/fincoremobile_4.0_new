@@ -143,6 +143,7 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
     IconData icon;
     List<Color> colors;
 
+
     if (isSynced == 1) {
       text = "Synced";
       icon = Icons.cloud_done;

@@ -600,7 +600,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
     return prefix + newNumber + suffix;
   }
-  
+
   Future<void> generateInvoicePDF(String trn, String address,String emirate, String country) async {
     final pdf = pw.Document();
 
@@ -3947,7 +3947,6 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
     NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
     controller_totalamt.text = formatter.format(roundedtotalAmount).toString();
   }
-
 
   void addItem() {
     final itemName = _selecteditem;

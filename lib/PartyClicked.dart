@@ -2827,7 +2827,6 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
           },
         ),
 
-
         /* Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 25),
                             child: Divider(
@@ -3264,7 +3263,6 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
                     );
                   },
                 ),
-
             ],
           ),
         ),

@@ -17,6 +17,8 @@ class SalesOrderModel {
   final Map<String, dynamic> data;
   final String type;
   final int isSynced;
+  final String? message;
+
 
 
   SalesOrderModel({
@@ -24,6 +26,8 @@ class SalesOrderModel {
     required this.data,
     required this.type,
     required this.isSynced,
+    this.message,
+
 
   });
 
@@ -33,6 +37,8 @@ class SalesOrderModel {
       data: json['data'],
       type: json['type'],
       isSynced: json['isSynced'],
+      message: json['message'],
+
     );
   }
 }
@@ -111,7 +117,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
       String? email_nav = prefs.getString('email_nav');
       String? name_nav = prefs.getString('name_nav');
 
-      HttpURL_loadData = '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales order&isSynced=false';
+      HttpURL_loadData = '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales order';
       HttpURL_deleteEntry = '$hostname/api/entry/deleteEntry/$company_lowercase/$serial_no';
       if (email_nav!=null && name_nav!= null)
       {
@@ -132,6 +138,59 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
     });
     fetchSalesOrderEntries();
   }
+
+  Widget _buildSyncChip(int isSynced) {
+    String text;
+    IconData icon;
+    List<Color> colors;
+
+    if (isSynced == 1) {
+      text = "Synced";
+      icon = Icons.cloud_done;
+      colors = [Colors.green.shade400, Colors.green.shade700];
+    } else if (isSynced == 2) {
+      text = "Failed";
+      icon = Icons.error_outline;
+      colors = [Colors.red.shade400, Colors.red.shade700];
+    } else {
+      text = "Pending";
+      icon = Icons.cloud_upload_outlined;
+      colors = [Colors.orange.shade400, Colors.deepOrange.shade600];
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(colors: colors),
+        boxShadow: [
+          BoxShadow(
+            color: colors.last.withOpacity(0.3),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: Colors.white),
+          const SizedBox(width: 5),
+          Text(
+            text,
+            style: GoogleFonts.poppins(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
   Future<void> _showConfirmationDialogAndNavigate(BuildContext context, int id) async {
     await showGeneralDialog(
       context: context,
@@ -221,7 +280,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                     borderRadius: BorderRadius.circular(14),
                   ),
                   elevation: 0,
-                  backgroundColor: app_color,
+                  backgroundColor: Colors.red,
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -451,7 +510,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                   children: [
                     Flexible(
                       child: Text(
-                        "Pending Sales Order Entry" ?? '',
+                        "Sales Order Entries" ?? '',
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -490,7 +549,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                           Icon(Icons.receipt_long, size: 64, color: Colors.grey[300]),
                           const SizedBox(height: 16),
                           Text(
-                            'No Pending Sales Order Entry Found',
+                            'No Sales Order Entry Found',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.poppins(
                               fontSize: 18,
@@ -587,40 +646,46 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                                   ),),
 
 
-                                  Row(
-                                    children: [
-                                      // Edit
-                                      _buildGradientAction(
-                                        icon: Icons.edit,
-                                        colors: [const Color(0xFF42A5F5), const Color(0xFF1E88E5)],
-                                        onTap: () {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => ModifySalesOrderEntry(
-                                                type: card.type,
-                                                id: card.id,
-                                                isSynced: card.isSynced,
-                                                data: card.data,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                      const SizedBox(width: 10),
-                                      // Delete
-                                      _buildGradientAction(
-                                        icon: Icons.delete_outline,
-                                        colors: [const Color(0xFFEF5350), const Color(0xFFD32F2F)],
-                                        onTap: () {
-                                          _showConfirmationDialogAndNavigate(context, card.id);
-                                        },
-                                      ),
-                                    ],
-                                  )
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 0),
+                                    child: Row(
+                                      children: [
+                                        _buildSyncChip(card.isSynced),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
+
+                            if (card.isSynced == 2 && card.message != null)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 16,right:16, top:16 ),
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade50,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: Colors.red.shade200),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.error_outline, color: Colors.red.shade700, size: 18),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          card.message!,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            color: Colors.red.shade700,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
 
                             const SizedBox(height: 12),
 
@@ -641,6 +706,44 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                               label: "Total Amount",
                               value: formatAmount(totalAmount.toString()),
                             ),
+
+                            Padding(padding: EdgeInsets.only(top: 16),
+                              child:  Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (card.isSynced != 1) ...[
+                                    _buildGradientAction(
+                                      icon: Icons.edit,
+                                      text: "Modify",
+
+                                      colors: [const Color(0xFF42A5F5), const Color(0xFF1E88E5)],
+                                      onTap: () {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ModifySalesOrderEntry(
+                                              type: card.type,
+                                              id: card.id,
+                                              isSynced: card.isSynced,
+                                              data: card.data,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 10),
+                                    _buildGradientAction(
+                                      icon: Icons.delete_outline,
+                                      text: "Delete",
+
+                                      colors: [const Color(0xFFEF5350), const Color(0xFFD32F2F)],
+                                      onTap: () {
+                                        _showConfirmationDialogAndNavigate(context, card.id);
+                                      },
+                                    ),
+                                  ]
+                                ],
+                              ),)
                           ],
                         ),
                       ),
@@ -839,25 +942,40 @@ class DetailRowTile extends StatelessWidget {
 }
 Widget _buildGradientAction({
   required IconData icon,
+  required String text,   // ✅ ADD TEXT
   required List<Color> colors,
   required VoidCallback onTap,
 }) {
   return GestureDetector(
     onTap: onTap,
     child: Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
+        borderRadius: BorderRadius.circular(30), // pill shape
         gradient: LinearGradient(colors: colors),
         boxShadow: [
           BoxShadow(
-            color: colors.last.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(2, 3),
-          )
+            color: colors.last.withOpacity(0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
         ],
       ),
-      child: Icon(icon, size: 18, color: Colors.white),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: Colors.white),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: GoogleFonts.poppins(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     ),
   );
 }

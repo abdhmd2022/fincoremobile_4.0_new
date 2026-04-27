@@ -163,23 +163,40 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
     );
   }
 
+
   String generateNextVchNo(List<String> vchnos) {
     if (vchnos.isEmpty) return "1";
-
-    RegExp regExp = RegExp(r'(\d+)(?!.*\d)');
 
     Map<String, List<Map<String, dynamic>>> patternGroups = {};
 
     for (String vch in vchnos) {
-      Match? match = regExp.firstMatch(vch);
+      // 🔥 Extract all numbers
+      List<RegExpMatch> matches =
+      RegExp(r'\d+').allMatches(vch).toList();
 
-      if (match != null) {
-        String numberPart = match.group(0)!;
+      if (matches.isNotEmpty) {
+        RegExpMatch selectedMatch = matches.last;
+
+        // 🔥 Handle multi-number formats (ignore year like 2026)
+        if (matches.length > 1) {
+          for (int i = matches.length - 1; i >= 0; i--) {
+            String val = matches[i].group(0)!;
+            int num = int.tryParse(val) ?? 0;
+
+            // 🎯 Skip year-like numbers (2000–2099)
+            if (!(val.length == 4 && num >= 2000 && num <= 2099)) {
+              selectedMatch = matches[i];
+              break;
+            }
+          }
+        }
+
+        String numberPart = selectedMatch.group(0)!;
         int number = int.tryParse(numberPart) ?? 0;
 
         // prefix + suffix detection
-        String prefix = vch.substring(0, match.start);
-        String suffix = vch.substring(match.end);
+        String prefix = vch.substring(0, selectedMatch.start);
+        String suffix = vch.substring(selectedMatch.end);
 
         String patternKey = prefix + "#" + suffix;
 
@@ -224,6 +241,8 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
 
     return prefix + newNumber + suffix;
   }
+
+
 
 
   void _deleteLedger(int index) {

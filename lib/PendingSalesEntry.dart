@@ -160,7 +160,6 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(colors: colors),
         boxShadow: [

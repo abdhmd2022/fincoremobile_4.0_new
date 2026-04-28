@@ -68,8 +68,6 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  late GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey;
-
   late SharedPreferences prefs;
 
   String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";
@@ -327,34 +325,26 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
 
     if (response.statusCode == 200)
     {
-      final responsee = response.body;
-      if (responsee != null){
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(responsee),
-          ),
-        );
-        if (responsee == "Entry deleted successfully")
-        {
-          setState(() {
-            _isLoading = true;
-            fetchSalesEntries();
-          });
-        }
-        else
-        {
-          setState(() {
-            _isLoading = false;
-          });
-        }
+      final response_data = response.body;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response_data),
+        ),
+      );
+      if (response_data == "Entry deleted successfully")
+      {
+        setState(() {
+          _isLoading = true;
+          fetchSalesEntries();
+        });
       }
-      else {
+      else
+      {
         setState(() {
           _isLoading = false;
         });
-        throw Exception('Failed to fetch data');
       }
+
     }
     else
     {
@@ -403,26 +393,20 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
       {
         final List<dynamic> jsonList = json.decode(response.body) ;
 
-        if (jsonList != null) {
+        isVisibleNoSalesEntryFound = false;
+        salesentries.addAll(jsonList.map((json) => SalesModel.fromJson(json)).toList());
+        salesentries.sort((a, b) {
+          DateTime dateA = DateTime.parse(a.data['DATE']);
+          DateTime dateB = DateTime.parse(b.data['DATE']);
+          return dateB.compareTo(dateA); // descending
+        });
 
-          isVisibleNoSalesEntryFound = false;
-          salesentries.addAll(jsonList.map((json) => SalesModel.fromJson(json)).toList());
-          salesentries.sort((a, b) {
-            DateTime dateA = DateTime.parse(a.data['DATE']);
-            DateTime dateB = DateTime.parse(b.data['DATE']);
-            return dateB.compareTo(dateA); // descending
-          });
+        filteredSalesEntries = List.from(salesentries);
+        setState(() {
+          FocusManager.instance.primaryFocus?.unfocus();
+          _searchController.clear();
+        });
 
-          filteredSalesEntries = List.from(salesentries);
-          setState(() {
-            FocusManager.instance.primaryFocus?.unfocus();
-            _searchController.clear();
-          });
-        }
-        else
-        {
-          throw Exception('Failed to fetch data');
-        }
         setState(() {
           if(filteredSalesEntries.isEmpty)
           {
@@ -465,7 +449,6 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
   @override
   void initState() {
     super.initState();
-    _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     _initSharedPreferences();
   }
 
@@ -544,7 +527,7 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
                 children: [
                   Flexible(
                     child: Text(
-                      "Sales Entries" ?? '',
+                      "Sales Entries",
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,

@@ -1151,8 +1151,10 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                         filled: true,
 
                       ),
-                    hint: Text('Serial No'),
-                    value: _selectedserial,
+                      hint: Text("Serial No",
+                        style: GoogleFonts.poppins(fontSize: 13),
+                      ),
+                      value: _selectedserial,
                     items: myData.map((item) {
                       return DropdownMenuItem<dynamic>(
                         value: item,
@@ -1161,7 +1163,10 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                             SizedBox(width: 8),
                             Text(item['serial_no'],
                             style: GoogleFonts.poppins(
-                              color: Colors.black
+                              color: Colors.black,
+                              fontWeight: item == _selectedserial
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
                             ),),
                           ]));
                     }).toList(),

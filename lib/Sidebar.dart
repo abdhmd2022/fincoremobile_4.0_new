@@ -22,7 +22,7 @@ class Sidebar extends StatelessWidget {
 
   bool isSalesEntryVisible = false, isSalesEntryEnable = true;
   bool isReceiptEntryVisible = false, isReceiptEntryEnable = true;
-  String SalesEntryHolder = '', username_prefs = '', password_prefs = '', ReceiptEntryHolder = '';
+  String SalesEntryHolder = '', username_prefs = '', password_prefs = '', ReceiptEntryHolder = '',serial_no='', company_name='';
   String? socketId = '', deviceIdentifier = '';
   late IO.Socket socket;
 
@@ -74,6 +74,9 @@ class Sidebar extends StatelessWidget {
     SalesEntryHolder = prefs.getString('salesentry') ?? "False";
     ReceiptEntryHolder = prefs.getString('receiptentry') ?? "False";
     username_prefs = prefs.getString('username') ?? '';
+    serial_no = prefs.getString('serial_no') ?? '';
+    company_name = prefs.getString('company_name') ?? '';
+
     password_prefs = prefs.getString('password') ?? '';
     isSalesEntryVisible = SalesEntryHolder == 'True';
     isReceiptEntryVisible = ReceiptEntryHolder == 'True';
@@ -147,6 +150,24 @@ class Sidebar extends StatelessWidget {
 
                         ),
                       ),
+                      SizedBox(height: 4),
+
+                      Row(
+                        children: [
+
+                          Expanded(
+                            child: Text(
+                              "${serial_no ?? ''} • ${company_name ?? ''}",
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.white70,
+                              ),
+                              overflow: TextOverflow.visible,
+                            ),
+                          ),
+                        ],
+                      ),
+
                     ],
                   ),
                 ),

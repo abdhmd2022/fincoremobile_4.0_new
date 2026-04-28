@@ -1068,6 +1068,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       });
 
       print(' response time -> $apiResponseTime');
+      print(' dash response -> ${response.body}');
+
 
       final dash_data = jsonDecode(response.body);
 

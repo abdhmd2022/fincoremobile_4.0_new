@@ -193,7 +193,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
 
                  prefs = await SharedPreferences.getInstance();
                  prefs.setString("startfrom", startfrom);
-                 prefs.setString("company_name", company_name);
+                 prefs.setString("company_name", normalizeCompany(company_name));
                  prefs.setString("serial_no", serial_no);
                  prefs.setString("base_currency", currency);
 
@@ -618,13 +618,31 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
    }*/
 
 
+
+   String normalizeCompany(String value) {
+     value = value.trim();
+
+     // 1. Remove dot before brackets (e.g. "L.L.C. (1-jan)" → "L.L.C (1-jan)")
+     value = value.replaceAllMapped(
+       RegExp(r'\.(\s*\()'),
+           (match) => match.group(1)!,
+     );
+
+     // 2. Remove trailing dot (e.g. "L.L.C." → "L.L.C")
+     value = value.replaceAll(RegExp(r'\.$'), '');
+
+     return value;
+   }
+
    Future<Map<String, String>> getCompanyLastSync(BuildContext context, String company, String serial) async {
      setState(() {
        _isLoading = true;
      });
 
+     final fixedCompany = normalizeCompany(company);
+
      try {
-       final url = Uri.parse("$hostname/api/main/$company/$serial");
+       final url = Uri.parse("$hostname/api/main/$fixedCompany/$serial");
        Map<String, String> headers = {
          'Authorization': 'Bearer $token',
          "Content-Type": "application/json"
@@ -660,7 +678,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
 
          // Update UI elements if needed
          setState(() {
-           company_name = _selectcompany['company_name'].toString();
+           company_name = normalizeCompany(_selectcompany['company_name'].toString());
            lastsyncvalue = formattedLastSync;
          });
 
@@ -1601,7 +1619,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
            Map<String, String> result =
            await getCompanyLastSync(context, company_name, serial_no);
 
-           prefs.setString("company_name", company_name);
+           prefs.setString("company_name", normalizeCompany(company_name));
            prefs.setString("startfrom", startfrom);
            prefs.setString("serial_no", serial_no);
            prefs.setString("base_currency", currency);
@@ -1711,7 +1729,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
              Map<String, String> result =
              await getCompanyLastSync(context, company_name, serial_no);
 
-             prefs.setString("company_name", company_name);
+             prefs.setString("company_name", normalizeCompany(company_name));
              prefs.setString("startfrom", startfrom);
              prefs.setString("serial_no", serial_no);
              prefs.setString("base_currency", currency);

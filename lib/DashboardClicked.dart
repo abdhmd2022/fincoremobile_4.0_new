@@ -348,6 +348,77 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     super.dispose();
   }
 
+  double getCashDebitTotal() {
+    return filteredItems_sale_purc_cash.fold(0.0, (sum, item) {
+      return item.amount < 0 ? sum -  item.amount.abs() : sum;
+    });
+
+  }
+
+  double getCashCreditTotal() {
+    return filteredItems_sale_purc_cash.fold(0.0, (sum, item) {
+      return item.amount > 0 ? sum + item.amount : sum;
+    });
+  }
+
+
+/*
+  Widget buildDebitCreditSummary() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child:
+    );
+  }
+*/
+
+  Widget _buildDrCrItem({
+    required String title,
+    required double amount,
+    required Color color,
+    required IconData icon,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, color: color, size: 18),
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              formatAmount(amount.toString()),
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: color,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   double getTotalAmount() {
     if (vchtypes == "Receivable" || vchtypes == "Payable") {
       double billsTotal = filteredItems_receivable_payable.fold(0.0, (sum, item) {
@@ -384,7 +455,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
       return voucherTotal + opening;
     }
-    /*else if (vchtypes == "Cash" && !_isLedgerGroupVisible)
+    else if (vchtypes == "Cash" && !_isLedgerGroupVisible)
       {
         double voucherTotal = filteredItems_sale_purc_cash.fold(0.0, (sum, item) {
           print("Adding Amount (Ledger): ${item.amount}");
@@ -401,7 +472,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         print("Opening (Cash): $opening");
 
         return voucherTotal + opening;
-      }*/
+      }
     else {
       return filteredItems_sale_purc_cash.fold(0.0, (sum, item) {
         print("Adding Amount: ${item.amount}");
@@ -2455,50 +2526,115 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     if (_isLoading) return const SizedBox();
 
     double total = getTotalAmount();
-    if (total.abs() < 0.0001) {
-      total = 0.0;
-    }
+    if (total.abs() < 0.0001) total = 0.0;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      margin: const EdgeInsets.only(bottom: 24, left: 20, right: 20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: Colors.white,
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-          )
-        ],
+    return SafeArea(
+      child: Container(
+        height: (vchtypes == "Cash" && !_isLedgerGroupVisible) ? 90 : 60, // 🔥 dynamic height
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: const EdgeInsets.only(bottom: 8, left: 12, right: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.white,
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 8,
+            )
+          ],
+        ),
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+
+
+            // 🔥 Credit
+            if (vchtypes == "Cash" && !_isLedgerGroupVisible)
+              _buildCompactLine(
+                "Credit",
+                getCashCreditTotal(),
+                Colors.green,
+              ),
+            // 🔥 Debit
+            if (vchtypes == "Cash" && !_isLedgerGroupVisible)
+              _buildCompactLine(
+                "Debit",
+                getCashDebitTotal(),
+                Colors.red,
+              ),
+
+
+            // 🔥 Total (always)
+            Row(
+              children: [
+                Text(
+                  "Total",
+                  style: GoogleFonts.poppins(
+                    color: app_color,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  formatAmount(total.toString()),
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: app_color,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+
+  Widget _buildCompactLine(String title, double amount, Color color) {
+    final bool isDebit = title.toLowerCase().contains("debit");
+
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            "Total",
+            title,
             style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              color: color,
+              fontWeight: FontWeight.w700,
             ),
           ),
-
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: Text(
-              formatAmount(total.toString()),
-              textAlign: TextAlign.right,
-              softWrap: true,
-              maxLines: 2,
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: app_color,
+          const Spacer(),
+          Row(
+            children: [
+              Icon(
+                isDebit
+                    ? Icons.south_west_rounded
+                    : Icons.north_east_rounded,
+                size: 14,
+                color: color,
               ),
-            ),
+              const SizedBox(width: 4),
+              Text(
+                formatAmount(amount.toString()),
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
         ],
+
+
       ),
     );
   }
@@ -3090,7 +3226,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                               children: [
                                 if (vchtypes == "Cash" && !_isLedgerGroupVisible)
                                   Container(
-                                    margin: const EdgeInsets.only(left: 16, right: 16, top: 6, bottom: 0),
+                                    margin: const EdgeInsets.only(left: 16, right: 16, top: 0, bottom: 0),
                                     alignment: Alignment.centerLeft,
                                     child: TextButton.icon(
                                       onPressed: () {
@@ -3128,9 +3264,9 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                   ),
 
 
+
+
                                 // The existing vouchers list
-
-
 
                                 Expanded(
                                   child: ListView.builder(

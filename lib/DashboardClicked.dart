@@ -2202,15 +2202,15 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     {
       opening = opening.replaceAll("-", "");
       double opening_double = double.parse(opening);
-      int opening_int = opening_double.round();
-      opening_string = CurrencyFormatter.formatCurrency_int(opening_int);
+      // int opening_int = opening_double.round();
+      opening_string = CurrencyFormatter.formatCurrency_double(opening_double);
       opening_string = opening_string + " DR";
     }
     else
     {
       double opening_double = double.parse(opening);
-      int opening_int = opening_double.round();
-      opening_string = CurrencyFormatter.formatCurrency_int(opening_int);
+      // int opening_int = opening_double.round();
+      opening_string = CurrencyFormatter.formatCurrency_double(opening_double);
       opening_string = opening_string + " CR";
     }
     return opening_string;
@@ -3028,7 +3028,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                         // if (_isSearchViewVisible)
 
                         if(sales_purc_cash_list.isNotEmpty || receivable_payable_list.isNotEmpty || ledgerGroupList.isNotEmpty)
-                          Padding( padding:  EdgeInsets.only(left: 12,right:12, top:5,bottom:10),
+                          Padding( padding:  EdgeInsets.only(left: 12,right:12, top:5,bottom:5),
                             child:  Material(
                               elevation: 2,
                               borderRadius: BorderRadius.circular(14),

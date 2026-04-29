@@ -130,6 +130,7 @@ class Sidebar extends StatelessWidget {
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -184,7 +185,7 @@ class Sidebar extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 4),
-
+/*
                       Wrap(
                         spacing: 6,
                         runSpacing: 6, // 🔥 IMPORTANT
@@ -192,6 +193,71 @@ class Sidebar extends StatelessWidget {
                           _buildInfoChip(Icons.confirmation_number, serial_no,context),
                           _buildInfoChip(Icons.business, company_name,context),
                         ],
+                      ),*/
+
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width * 0.7, // control width
+                        ),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+
+                              Row(
+                                mainAxisSize: MainAxisSize.min, // 🔥 important (no full width)
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.confirmation_number, size: 14, color: Colors.white70),
+                                  SizedBox(width: 6),
+
+                                  Flexible(
+                                    fit: FlexFit.loose, // 🔥 key fix
+                                    child: Text(
+                                      serial_no ?? '',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        color: Colors.white,
+                                      ),
+                                      softWrap: true, // multi-line
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              SizedBox(height: 4,),
+
+                              Row(
+                                mainAxisSize: MainAxisSize.min, // 🔥 important (no full width)
+                                crossAxisAlignment: CrossAxisAlignment.center,
+
+                                children: [
+                                  Icon(Icons.business, size: 14, color: Colors.white70),
+                                  SizedBox(width: 6),
+
+                                  Flexible(
+                                    fit: FlexFit.loose, // 🔥 key fix
+                                    child: Text(
+                                      company_name ?? '',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        color: Colors.white,
+                                      ),
+                                      softWrap: true, // multi-line
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                            ],
+                          ),
+
+                        ),
                       )
 
                     ],

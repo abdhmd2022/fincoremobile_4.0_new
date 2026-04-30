@@ -45,8 +45,6 @@ class AnalyticsScreen extends StatefulWidget {
     required this.selectedScale,
     required this.startDateString,
     required this.endDateString,
-
-
   });
 
   @override
@@ -59,11 +57,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   late NumberScale selectedScale;
   bool showPercentage = false;
 
-
   String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",SecuritybtnAcessHolder= "";
   late SharedPreferences prefs;
   final NumberFormat commaFormat = NumberFormat("#,##0.00");
-
 
   @override
   void initState() {

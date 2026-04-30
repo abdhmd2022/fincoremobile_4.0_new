@@ -361,7 +361,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     });
   }
 
-
 /*
   Widget buildDebitCreditSummary() {
     return Container(
@@ -2439,9 +2438,10 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     else
     {
       setState(() {
-        openingheading = 'Opening';
+        openingheading = 'Opening Balance';
 
       });    }
+
 
   }
 
@@ -2530,7 +2530,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
     return SafeArea(
       child: Container(
-        height: (vchtypes == "Cash" && !_isLedgerGroupVisible) ? 90 : 60, // 🔥 dynamic height
+        height: (vchtypes == "Cash" && !_isLedgerGroupVisible && _isSalesListVisible) ? 90 : 60, // 🔥 dynamic height
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         margin: const EdgeInsets.only(bottom: 8, left: 12, right: 12),
         decoration: BoxDecoration(
@@ -2551,14 +2551,14 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
 
             // 🔥 Credit
-            if (vchtypes == "Cash" && !_isLedgerGroupVisible)
+            if (vchtypes == "Cash" && !_isLedgerGroupVisible && _isSalesListVisible)
               _buildCompactLine(
                 "Credit",
                 getCashCreditTotal(),
                 Colors.green,
               ),
             // 🔥 Debit
-            if (vchtypes == "Cash" && !_isLedgerGroupVisible)
+            if (vchtypes == "Cash" && !_isLedgerGroupVisible&& _isSalesListVisible)
               _buildCompactLine(
                 "Debit",
                 getCashDebitTotal(),

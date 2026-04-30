@@ -66,6 +66,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     super.initState();
     _initSharedPreferences();
   }
+
   double calculateContainerWidthBarGraph() {
     int totalMonths = getMonthsList().length; // ✅ now dynamic
     double averageLabelWidth = 60.0; // Adjust as needed
@@ -87,6 +88,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
     return containerWidth;
   }
+
   List<String> getMonthsList() {
     List<String> months = [];
 
@@ -1127,7 +1129,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     );
   }
   /// existing pie chart -> end
-
   Widget _buildToggleButton(String text, bool active) {
     return GestureDetector(
       onTap: () {
@@ -1152,8 +1153,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       ),
     );
   }
-
-
 }
 
 Widget _buildLegend(Color color, String title) {
@@ -1175,9 +1174,6 @@ Widget _buildLegend(Color color, String title) {
 
 List<Color> pieChartColors_sales = [];
 List<Color> pieChartColors_purchase =[];
-
-
-
 
 List<Color> generateRandomColors(int count) {
   List<Color> colors = [];
@@ -1204,8 +1200,7 @@ class BarChartWidget extends StatelessWidget {
   final List<double> receiptData;
   final NumberScale selectedScale;
   final int decimalPlaces;
-  final List<String> months; // 👈 add this
-
+  final List<String> months;
 
   const BarChartWidget({
     super.key,
@@ -1213,8 +1208,7 @@ class BarChartWidget extends StatelessWidget {
     required this.receiptData,
     required this.selectedScale,
     required this.decimalPlaces,
-    required this.months, // 👈 add this
-
+    required this.months,
   });
 
   @override
@@ -1249,7 +1243,6 @@ class BarChartWidget extends StatelessWidget {
                     ),
                   );
                 },
-
               ),
             ),
 
@@ -1259,7 +1252,6 @@ class BarChartWidget extends StatelessWidget {
                 sideTitles: SideTitles(
                   showTitles: true,
                   reservedSize: 40, // 👈 ensures full visibility
-
                   getTitlesWidget: (value, meta) {
                     int index = value.toInt();
                     if (index >= 0 && index < months.length) {
@@ -1319,9 +1311,6 @@ class BarChartWidget extends StatelessWidget {
               ),
             ),
 
-
-
-
             // 🔹 Grid & Border
             borderData: FlBorderData(show: false),
             gridData: FlGridData(
@@ -1335,7 +1324,6 @@ class BarChartWidget extends StatelessWidget {
           ),
         ));
   }
-
 
   double getMaxValue() {
     List<double> combinedData = salesData + receiptData;
@@ -1390,10 +1378,3 @@ class BarChartWidget extends StatelessWidget {
     });
   }
 }
-
-
-
-
-
-
-

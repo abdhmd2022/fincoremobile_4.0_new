@@ -76,7 +76,7 @@ class _AgeingConfigState extends State<AgeingConfig> {
         int heading5_int = int.parse(heading5);
 
         if(heading1_int >0 && heading2_int>heading1_int && heading3_int>heading2_int && heading4_int>heading3_int && heading5_int>heading4_int)
-          {
+        {
             ageingPref
               ..setString('heading1', heading1)
               ..setString('heading2', heading2)
@@ -87,7 +87,7 @@ class _AgeingConfigState extends State<AgeingConfig> {
             showToast('Ageing Configuration Saved');
 
             print('$heading1  $heading2  $heading3  $heading4  $heading5');
-          }
+        }
         else
           {
             showToast('Ageing Value should be greater than lower limit');

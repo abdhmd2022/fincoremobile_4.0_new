@@ -249,30 +249,25 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(50),
-        child: AppBar(
-          backgroundColor:  app_color,
-          elevation: 6,
-          iconTheme: IconThemeData(color: Colors.white), // ✅ THIS LINE
+      appBar: AppBar(
+        backgroundColor: app_color,
+        elevation: 6,
+        iconTheme: const IconThemeData(color: Colors.white),
+        automaticallyImplyLeading: true,
+        centerTitle: true,
 
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20),
           ),
-          automaticallyImplyLeading: true,
+        ),
 
-          centerTitle: true,
-          title:  Flexible(
-            child: Text(
-              "Change Password" ,
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
+        title: Text(
+          "Change Password",
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
           ),
         ),
       ),

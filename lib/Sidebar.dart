@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
+import 'ChangePassword.dart';
 import 'Dashboard.dart';
 import 'Login.dart';
 import 'Settings.dart';
@@ -139,7 +140,7 @@ class Sidebar extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.only(top: 120,bottom:30,left:20,right:20),
+            padding: EdgeInsets.only(top: 90,bottom:30,left:20,right:20),
             width: double.infinity,
             decoration: BoxDecoration(
               color: app_color,
@@ -291,6 +292,19 @@ class Sidebar extends StatelessWidget {
                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Settings()));
                 }),
                 Divider(),
+
+                _buildTile(
+                  title: 'Change Password',
+                  icon: Icons.lock_outline,
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => ChangePassword()),
+                    );
+                  },
+                ),
+
                 _buildTile(title: 'Help', icon: Icons.help_outline, onTap: () {
                   Navigator.pop(context);
                   Navigator.push(context, MaterialPageRoute(builder: (_) => Help()));

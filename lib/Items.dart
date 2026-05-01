@@ -1315,7 +1315,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.white,
 
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(90),
@@ -1585,7 +1585,6 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
           // 🔹 Loader Overlay
           if (_isLoading)
             Container(
-              color: Colors.black26,
               child: Center(child: CircularProgressIndicator.adaptive()),
             ),
         ],
@@ -1596,22 +1595,79 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
   // ------------------- 🔹 Widgets 🔹 -------------------
 
   Widget _buildParentDropdown() {
-    return DropdownButtonHideUnderline(
-      child: DropdownButton<String>(
-        value: _selecteditem,
-        isExpanded: true,
-        icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
-        style: GoogleFonts.poppins(fontSize: 16, color: Colors.black),
-        items: spinner_list.map((value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value, overflow: TextOverflow.ellipsis),
-          );
-        }).toList(),
-        onChanged: (value) {
-          setState(() => _selecteditem = value);
-          fetchItemData('All Items', _selecteditem);
-        },
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.shade300),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          )
+        ],
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _selecteditem,
+          isExpanded: true,
+          icon: Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black54),
+
+          hint: Text(
+            "Select Item",
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+          ),
+
+          style: GoogleFonts.poppins(
+            fontSize: 15,
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
+          ),
+
+          items: spinner_list.map((value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Container(
+                width: double.infinity, // 🔥 important
+                child: Text(
+                  value,
+                  softWrap: true,        // 🔥 allow wrap
+                  maxLines: 2,           // 👈 adjust (2–3 recommended)
+                  overflow: TextOverflow.visible, // 🔥 no ellipsis
+                  style: GoogleFonts.poppins(fontSize: 14),
+                ),
+              ),
+            );
+          }).toList(),
+
+          selectedItemBuilder: (context) {
+            return spinner_list.map((value) {
+              return Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  value,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis, // 👈 collapsed view clean
+                  maxLines: 1,
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              );
+            }).toList();
+          },
+
+          onChanged: (value) {
+            setState(() => _selecteditem = value);
+            fetchItemData('All Items', _selecteditem);
+          },
+        ),
       ),
     );
   }

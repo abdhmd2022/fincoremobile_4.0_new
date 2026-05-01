@@ -1487,7 +1487,6 @@ Widget buildInventoryRow(
   );
 }
 
-
 Widget buildCostCenterRow(String costCentre, String amount) {
   return Container(
     width: double.infinity,

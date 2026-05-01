@@ -349,6 +349,12 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                                   oldPassController,
                                   Icons.lock_outline,
                                   isOldPassVisible,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Old password required";
+                          }
+
+                        },
                                       () {
                                     setState(() {
                                       isOldPassVisible = !isOldPassVisible;
@@ -370,7 +376,7 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                                   onChanged: validateNewPassword,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return "Password required";
+                                      return "New Password required";
                                     }
                                     if (value.length < 5 ) {
                                       return "Password must be greater than 4 characters";

@@ -384,7 +384,7 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                                   child: GestureDetector(
                                     onTap: isLoading ? null : handleChangePassword,
                                     child: Container(
-                                      margin: EdgeInsets.only(top: 30),
+                                      margin: EdgeInsets.only(top: 20),
                                       padding: EdgeInsets.symmetric(vertical: 15),
                                       decoration: BoxDecoration(
                                         gradient: LinearGradient(

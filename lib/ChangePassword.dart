@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'Constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ChangePassword extends StatefulWidget {
   @override
@@ -18,7 +20,8 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
   bool showNewPassValidation = false;
   bool showConfirmValidation = false;
 
-  final _formKey = GlobalKey<FormState>();
+
+  dynamic _formKey = GlobalKey<FormState>();
 
   bool hasLower = false;
   bool hasUpper = false;
@@ -114,16 +117,91 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
   }
 
 
-  void handleChangePassword() {
+  Future<void> handleChangePassword() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => isLoading = true);
 
-    Future.delayed(Duration(seconds: 2), () {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      final email = prefs.getString('username');
+
+      final url = Uri.parse("$BASE_URL_config/api/login/changePassword");
+
+      final body = jsonEncode({
+        "email": email,
+        "oldPassword": oldPassController.text,
+        "newPassword": newPassController.text,
+      });
+
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $authTokenBase",
+        },
+        body: body,
+      );
+
+      print('response -> ${response.body}');
+      print('status Code -> ${response.statusCode}');
+
+      String message = "";
+
+      try {
+        final data = jsonDecode(response.body);
+        if (data is Map && data.containsKey("error")) {
+          message = data["error"];
+        } else {
+          message = "Something went wrong";
+        }
+      } catch (_) {
+        message = response.body;
+      }
+
+      _showMessage(message);
+
+      if (response.statusCode == 200) {
+
+        // 🔥 SAVE
+        await prefs.setString('password', newPassController.text);
+
+        await prefs.setString('password_remember', newPassController.text);
+
+        // 🔥 UNFOCUS FIRST
+        FocusScope.of(context).unfocus();
+
+        // 🔥 RESET FORM
+        _formKey.currentState?.reset();
+
+
+
+        // 🔥 RESET FLAGS
+        setState(() {
+          _formKey = GlobalKey<FormState>();
+
+          // 🔥 CLEAR CONTROLLERS
+          oldPassController.clear();
+          newPassController.clear();
+          confirmPassController.clear();
+          showNewPassValidation = false;
+          showConfirmValidation = false;
+          hasLower = false;
+          hasUpper = false;
+          hasNumber = false;
+          isMatch = false;
+          isLoading = false; // ✅ MOVE HERE
+        });
+
+      } else {
+        setState(() => isLoading = false);
+      }
+
+    } catch (e) {
       setState(() => isLoading = false);
-      _showMessage("Password changed successfully");
-      // Navigator.pop(context);
-    });
+      _showMessage("Network error. Please try again.");
+    }
   }
 
   void _showMessage(String msg) {
@@ -294,6 +372,9 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                                     if (value == null || value.isEmpty) {
                                       return "Password required";
                                     }
+                                    if (value.length < 5 ) {
+                                      return "Password must be greater than 4 characters";
+                                    }
                                     if (!hasLower || !hasUpper || !hasNumber) {
                                       return "Password must meet all requirements";
                                     }
@@ -334,6 +415,9 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return "Confirm your password";
+                                    }
+                                    if (value.length < 5 ) {
+                                      return "Password must be greater than 4 characters";
                                     }
                                     if (value != newPassController.text) {
                                       return "Passwords do not match";

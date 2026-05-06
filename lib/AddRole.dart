@@ -347,7 +347,6 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       "outstandingpayablesdash" : outstandingpayabledashcheck,
       "cashdash" : cashdashcheck,
       "allitems" : allitemscheck,
-      
       "inactiveitems" : inactiveitemscheck,
       "activeitems" : activeitemscheck,
       "rate" : ratecheck,
@@ -385,34 +384,28 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
 
     if (response.statusCode == 200)
     {
-      final responsee = response.body;
-      if (responsee != null) {
+      final responseBody = response.body;
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(responsee),
-              ),
-            );
-            if(responsee == "Role already exists")
-            {
-              // DO NOTHING
-            }
-            else
-            {
-              WidgetsBinding.instance.addPostFrameCallback((_)
-              {
-                SchedulerBinding.instance.addPostFrameCallback((_)
-                {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => RolesView())
-                  );
-                });}); }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(responseBody),
+        ),
+      );
+      if(responseBody == "Role already exists")
+      {
+        // DO NOTHING
       }
       else
       {
-        throw Exception('Failed to fetch data');
-      }
+        WidgetsBinding.instance.addPostFrameCallback((_)
+        {
+          SchedulerBinding.instance.addPostFrameCallback((_)
+          {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => RolesView())
+            );
+          });}); }
       setState(()
       {
         _isLoading = false;

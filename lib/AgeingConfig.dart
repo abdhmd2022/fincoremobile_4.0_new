@@ -68,7 +68,7 @@ class _AgeingConfigState extends State<AgeingConfig> {
     SharedPreferences ageingPref = await SharedPreferences.getInstance();
 
     if(!heading1txtController.text.isEmpty && !heading2txtController.text.isEmpty && !heading3txtController.text.isEmpty && !heading4txtController.text.isEmpty && !heading5txtController.text.isEmpty )
-      {
+    {
         int heading1_int = int.parse(heading1);
         int heading2_int = int.parse(heading2);
         int heading3_int = int.parse(heading3);
@@ -89,14 +89,14 @@ class _AgeingConfigState extends State<AgeingConfig> {
             print('$heading1  $heading2  $heading3  $heading4  $heading5');
         }
         else
-          {
+        {
             showToast('Ageing Value should be greater than lower limit');
-          }
+        }
       }
     else
-      {
+    {
         showToast('Ageing Field Cannot be Empty');
-      }
+    }
   }
 
   @override

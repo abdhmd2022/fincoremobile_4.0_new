@@ -25,16 +25,22 @@ import 'package:cross_file/cross_file.dart';
 class LedgerGroup {
   final String ledger;
   final double amount;
+  final double opening;
+
 
   LedgerGroup({
     required this.ledger,
     required this.amount,
+    required this.opening,
+
   });
 
   factory LedgerGroup.fromJson(Map<String, dynamic> json) {
     return LedgerGroup(
       ledger: json['ledger']?.toString() ?? '',
       amount: double.tryParse(json['amount'].toString()) ?? 0.0,
+      opening: double.tryParse(json['opening'].toString()) ?? 0.0, // ✅ NEW
+
     );
   }
 }
@@ -439,20 +445,22 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     }
     else if (vchtypes == "Cash" && _isLedgerGroupVisible) {
       double voucherTotal = filteredLedgerGroupList.fold(0.0, (sum, item) {
-        print("Adding Amount (Ledger): ${item.amount}");
-        return sum + item.amount;
+        print("Adding Amount+Opening (Ledger): ${(item.amount + item.opening)}");
+        return sum + (item.amount + item.opening);
       });
-      double opening = 0.0;
+      /*double opening = 0.0;
       setState(() {
         // print("Opening value $opening_value");
 
         opening = double.tryParse(opening_value ?? "0") ?? 0.0;
 
-      });
 
-      print("Opening (Cash): $opening");
+      });*/
 
-      return voucherTotal + opening;
+     //  print("Opening (Cash): $opening");
+
+
+      return voucherTotal;
     }
     else if (vchtypes == "Cash" && !_isLedgerGroupVisible)
       {
@@ -471,6 +479,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         print("Opening (Cash): $opening");
 
         return voucherTotal + opening;
+        // return voucherTotal;
+
       }
     else {
       return filteredItems_sale_purc_cash.fold(0.0, (sum, item) {
@@ -1256,12 +1266,12 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         if(vchtypes == "Sales")
         {
           _isopeningVisible= false;
-          fetchParent("sales,creditnote");
+          fetchParent("");
         }
         else if (vchtypes == "Purchase")
         {
           _isopeningVisible= false;
-          fetchParent("purchase,debitnote");
+          fetchParent("");
         }
         else if (vchtypes =="Cash")
         {
@@ -1315,11 +1325,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
       {
         if(vchtypes == "Sales")
         {
-          fetchSales_purchase_cash("Sales Accounts", startDateString, endDateString, "Sales,creditNote","true","","");
+          fetchSales_purchase_cash("Sales Accounts", startDateString, endDateString, "","true","","");
         }
         else if (vchtypes == "Purchase")
         {
-          fetchSales_purchase_cash("Purchase Accounts", startDateString, endDateString, "Purchase,debitnote","true","","");
+          fetchSales_purchase_cash("Purchase Accounts", startDateString, endDateString, "","true","","");
         }
         else if (vchtypes == "Cash") {
 
@@ -1373,11 +1383,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           {
             if(vchtypes == "Sales")
             {
-              fetchSales_purchase_cash("Sales Accounts", startDateString, endDateString, "Sales,creditNote","true",_selectedvoucher,"");
+              fetchSales_purchase_cash("Sales Accounts", startDateString, endDateString, "","true",_selectedvoucher,"");
             }
             else if (vchtypes == "Purchase")
             {
-              fetchSales_purchase_cash("Purchase Accounts", startDateString, endDateString, "Purchase,debitnote","true",_selectedvoucher,"");
+              fetchSales_purchase_cash("Purchase Accounts", startDateString, endDateString, "","true",_selectedvoucher,"");
             }
 
           else if (vchtypes =="Cash")
@@ -2034,7 +2044,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
             ..addAll(items);
 
           filteredItems_sale_purc_cash = List.from(sales_purc_cash_list);
-          // print('list ->>> ${response.body}');
+          print('list length ->>> ${filteredItems_sale_purc_cash.length}');
 
           isVisibleNoDataFound = filteredItems_sale_purc_cash.isEmpty;
           isSortVisible = filteredItems_sale_purc_cash.isNotEmpty;
@@ -3088,7 +3098,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                               itemCount: filteredLedgerGroupList.length,
                               itemBuilder: (context, index) {
                                 final group = filteredLedgerGroupList[index];
-                                double amount = group.amount;
+                                double amount = group.amount+group.opening;
 
                                 if (amount.abs() < 0.0001) {
                                   amount = 0.0;
@@ -3111,9 +3121,10 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                       "true",
                                       _selectedvoucher ?? "",
                                         _selectedLedgerGroup!
-                                    );/*.then((_) {
+                                    );
+                                    /*.then((_) {
                                       // Filter only matching ledger
-                                      setState(() {
+                                      setState(() {  12
                                         filteredItems_sale_purc_cash = sales_purc_cash_list
                                             .where((e) =>
                                         e.ledger.toLowerCase() ==

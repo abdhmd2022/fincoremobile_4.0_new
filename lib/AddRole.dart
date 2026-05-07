@@ -405,7 +405,8 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
                 context,
                 MaterialPageRoute(builder: (context) => RolesView())
             );
-          });}); }
+          });});
+      }
       setState(()
       {
         _isLoading = false;

@@ -308,8 +308,6 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
         isSalesOrderEntryAccess;
   }
 
-
-
   Future<void> addrolefunction (final String role_namee,final String serialno,final String salesdashcheck,final String barchartdashcheck,final String linechartdashcheck,
   final String piechartdashcheck, final String receiptsdashcheck, final String purchasedashcheck, final String paymentsdashcheck, final String outstandingreceivabledashcheck
       ,final String outstandingpayabledashcheck, final String cashdashcheck, final String allitemscheck, final String inactiveitemscheck
@@ -458,7 +456,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // 🟢 Icon Header
+                  // Icon Header
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -474,7 +472,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
 
                   const SizedBox(height: 18),
 
-                  // 🧾 Title
+                  // Title
                   Text(
                     'Add Role Confirmation',
                     style: GoogleFonts.poppins(
@@ -487,7 +485,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
 
                   const SizedBox(height: 10),
 
-                  // 💬 Description
+                  // Description
                   Text(
                     'Are you sure you want to add this new role?\n'
                         'Please confirm to proceed.',
@@ -500,7 +498,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
 
                   const SizedBox(height: 26),
 
-                  // 🔘 Buttons
+                  // Buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -1467,6 +1465,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       isPartyCustomersAccess = value;
     });
   }
+
   void _toggleDashboard(bool value) {
     setState(() {
       isDashAccessCheck = value;
@@ -1483,10 +1482,10 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       isPieChartDashAccessCheck = value;
     });
   }
+
   void _toggleItems(bool value) {
     setState(() {
       isItemsAccessCheck = value;
-
       isAllItemsAccessCheck = value;
       isInactiveItemsAccessCheck = value;
       isItemsRateAccessCheck = value;
@@ -1496,6 +1495,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       isItemsPurchaseAccessCheck = value;
     });
   }
+
   void _toggleTransactions(bool value) {
     setState(() {
       isTransactionAccessCheck = value;
@@ -1530,7 +1530,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
   serial_no = prefs.getString('serial_no');
   username = prefs.getString('username');
 
-  HttpURL =  hostname! + "/api/dashboard/home/" + company_lowercase! + "/" + serial_no!;
+  HttpURL = hostname! + "/api/dashboard/home/" + company_lowercase! + "/" + serial_no!;
 
   SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
 
@@ -1553,7 +1553,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
     isRolesVisible = false;
     isUserVisible = false;
   }
-});
+    });
   }
 
   @override

@@ -804,7 +804,7 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                                 .take(visibleInventoryCount)
                                 .map((card) => Column(
                               children: [
-                                buildInventoryRow('Item', card.item, 'Qty', card.qty,
+                                buildInventoryRow('Item', card.item, 'Qty', formatNullto0(card.qty),
                                     leftIcon: Icons.inventory_outlined, rightIcon: Icons.confirmation_num_outlined),
                                 buildInventoryRow('Rate', formatRate(card.rate), 'Disc',
                                     "${formatNullto0(card.discount)}%",

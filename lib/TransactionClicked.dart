@@ -778,9 +778,6 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                             ],
                           ),
 
-
-
-
                       /*if (isVisibleBills)
                         ModernExpandableCard(
                           title: 'Reference Details',

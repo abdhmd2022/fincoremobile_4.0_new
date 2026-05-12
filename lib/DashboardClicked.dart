@@ -3077,20 +3077,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                             ),
                           ),
 
-                        if (isVisibleNoDataFound)
-                          Center(
-                            child: Column(
-                              children: [
-                                SizedBox(height: 20),
-                                Icon(Icons.inbox_rounded, size: 40, color: Colors.grey),
-                                SizedBox(height: 10),
-                                Text(
-                                  "No records found",
-                                  style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
-                                ),
-                              ],
-                            ),
-                          ),
+
 
                         if (_isLedgerGroupVisible)
                           Expanded(
@@ -3271,6 +3258,21 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                           borderRadius: BorderRadius.circular(8),
                                         ),
                                       ),
+                                    ),
+                                  ),
+
+                                if (isVisibleNoDataFound)
+                                  Center(
+                                    child: Column(
+                                      children: [
+                                        SizedBox(height: 20),
+                                        Icon(Icons.inbox_rounded, size: 40, color: Colors.grey),
+                                        SizedBox(height: 10),
+                                        Text(
+                                          "No records found",
+                                          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
+                                        ),
+                                      ],
                                     ),
                                   ),
 

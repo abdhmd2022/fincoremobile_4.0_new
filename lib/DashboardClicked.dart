@@ -3207,16 +3207,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                         ),
                                       ],
                                     ),
-
-
-
                                   ),
                                 );
                               },
                             ),
                           ),
-
-
 
                         if (_isSalesListVisible)
                           Expanded(
@@ -3276,11 +3271,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                     ),
                                   ),
 
-
-
-
                                 // The existing vouchers list
-
                                 Expanded(
                                   child: ListView.builder(
                                     controller: _scrollController_salelist,

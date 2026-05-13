@@ -270,6 +270,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
         isPartySuppliersAccess &&
         isPartyCustomersAccess;
   }
+
   void _updateTransaction(String key, bool? value) {
     setState(() {
       switch (key) {

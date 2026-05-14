@@ -2,11 +2,24 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'currencyFormat.dart';
-const String BASE_URL_config = "https://fincorego.duckdns.org/main";
-/*const String BASE_URL_config = "http://192.168.2.185:5000";*/
-const String authTokenBase = 'KSgqL2FzZGFzZGlvQ0VEQUZfX19fIUBBUyQlYXMxOTI4MzdfX18=';
-const String SOCKET_URL = "https://fincorego.duckdns.org";
 
+const String prodServer = "https://fincorego.duckdns.org";
+const String devServer = "http://192.168.2.185";
+
+// Production Environment
+const String BASE_URL_config = "$prodServer/main";
+
+// Dev Environment
+// const String BASE_URL_config = "$devServer:5000";
+const String authTokenBase = 'KSgqL2FzZGFzZGlvQ0VEQUZfX19fIUBBUyQlYXMxOTI4MzdfX18=';
+
+// production socket url
+const String SOCKET_URL = prodServer;
+
+// development socket url
+// const String SOCKET_URL = devServer;
+
+const String uniGasSerialNo = '725463756';
 const Color app_color = Colors.teal;
 
 String formatAmount(String amount)

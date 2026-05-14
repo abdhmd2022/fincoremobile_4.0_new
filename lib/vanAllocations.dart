@@ -41,6 +41,14 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
   final Color backgroundColor = const Color(0xFFF5F7FA);
   final Color textColor = const Color(0xFF1F2937);
 
+  String? hostname = "",
+      company = "",
+      serial_no = "",
+      company_lowercase = "",
+      username = "",
+      base_currency = "",token = '';
+
+
   final TextEditingController searchController = TextEditingController();
   final TextEditingController serialController = TextEditingController();
 
@@ -67,9 +75,40 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
 
   bool isLoading = true;
   late SharedPreferences prefs;
-  String serial_no= "",email= "";
+  String email= "";
 
+  Future<void> fetchSalesLedgers() async {
+    try {
+      final url = Uri.parse(
+        '$hostname/api/entry/getSalesData/$company_lowercase/$serial_no',
+      );
 
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "type": "delivery note",
+        }),
+      );
+
+      // debugPrint("SALES LEDGER RESPONSE: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        setState(() {
+          salesLedgers = List<String>.from(
+            data['salesLedgers'] ?? [],
+          );
+        });
+      }
+    } catch (e) {
+      debugPrint('SALES LEDGER ERROR: $e');
+    }
+  }
 
   Future<void> fetchUsers(String selectedserial) async {
 
@@ -125,10 +164,14 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       });
       serial_no = prefs.getString('serial_no')!;
       email = prefs.getString('username')!;
-
+      hostname = prefs.getString('hostname');
+      company = prefs.getString('company_name');
+      company_lowercase = company!.replaceAll(' ', '').toLowerCase();
+      token = prefs.getString('token')!;
+      base_currency = prefs.getString('base_currency')!;
       await Future.wait([
 
-        fetchUsers(serial_no),
+        fetchUsers(serial_no!),
         fetchLocations(),
         fetchVchTypes(),
         fetchSalesLedgers(),
@@ -181,23 +224,6 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
     }
   }
 
-  Future<void> fetchSalesLedgers() async {
-    try {
-      final response = await http.get(Uri.parse('YOUR_SALES_LEDGER_API'));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        setState(() {
-          salesLedgers = List<String>.from(
-            (data['data'] ?? []).map((e) => e['ledger_name']),
-          );
-        });
-      }
-    } catch (e) {
-      debugPrint('SALES LEDGER ERROR: $e');
-    }
-  }
 
   Future<void> fetchCashLedgers() async {
     try {

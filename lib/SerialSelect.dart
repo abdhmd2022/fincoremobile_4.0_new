@@ -47,7 +47,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
   ,RateHolder,AmountHolder,ItemSalesHolder,ItemPurchaseHolder,SalesPartyHolder,ReceiptPartyHolder,PurchasePartyHolder,PaymentPartyHolder,CreditNotePartyHolder
   ,DebitNotePartyHolder,JournalPartyHolder,ReceivablePartyHolder,PayablePartyHolder,PendingSalesOrderPartyHolder,PartySuppliersHolder,PartyCustomersHolder
   ,PendingPurchaseOrderPartyHolder,LedgerEntriesHolder,BillsEntriesHolder,InventoryEntriesHolder,CostCentreEntriesHolder, PostDatedTransactionsHolder,
-       BarChartDashHolder,LineChartDashHolder,PieChartDashHolder,SalesEntryHolder,ReceiptEntryHolder,SalesOrderEntryHolder;
+       BarChartDashHolder,LineChartDashHolder,PieChartDashHolder,SalesEntryHolder,ReceiptEntryHolder,SalesOrderEntryHolder,VanAllocationHolder,DeliveryNoteEntryHolder;
    List<dynamic> myData = [];
    List<dynamic> myData_company = [];
    List<dynamic> myData_admin = [];
@@ -207,7 +207,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                      "payableparty", "pendingpurchaseorderparty", "receiptparty", "paymentparty",
                      "debitnoteparty", "receivableparty", "pendingsalesorderparty", "party_suppliers",
                      "party_customers", "ledgerentries", "inventoryentries", "postdatedtransactions",
-                     "billsentries", "costcentreentries"
+                     "billsentries", "costcentreentries","vanallocation","deliverynoteentry"
                    ]) {
                      prefs.setString(key, "True");
                    }
@@ -1381,6 +1381,12 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
           CostCentreEntriesHolder = _selectedrole[0]["isCostCentreEntries"];
           PostDatedTransactionsHolder = _selectedrole[0]["isPostDatedTransactions"]?? "True";
 
+          VanAllocationHolder = _selectedrole[0]["isVanAllocationSetup"]?? "True";
+          DeliveryNoteEntryHolder = _selectedrole[0]["isDeliveryNoteEntry"]?? "True";
+
+
+            prefs.setString("vanallocation", VanAllocationHolder);
+            prefs.setString("deliverynoteentry", DeliveryNoteEntryHolder);
 
             prefs.setString("salesdash", SalesDashHolder);
             prefs.setString("purchasedash", PurchaseDashHolder);
@@ -1652,7 +1658,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                "payableparty", "pendingpurchaseorderparty", "receiptparty", "paymentparty",
                "debitnoteparty", "receivableparty", "pendingsalesorderparty", "party_suppliers",
                "party_customers", "ledgerentries", "inventoryentries", "postdatedtransactions",
-               "billsentries", "costcentreentries"
+               "billsentries", "costcentreentries","vanallocation","deliverynoteentry"
              ]) {
                prefs.setString(key, "True");
              }
@@ -1753,7 +1759,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                  "payableparty", "pendingpurchaseorderparty", "receiptparty", "paymentparty",
                  "debitnoteparty", "receivableparty", "pendingsalesorderparty", "party_suppliers",
                  "party_customers", "ledgerentries", "inventoryentries", "postdatedtransactions",
-                 "billsentries", "costcentreentries"
+                 "billsentries", "costcentreentries","vanallocation","deliverynoteentry"
                ]) {
                  prefs.setString(key, "True");
                }

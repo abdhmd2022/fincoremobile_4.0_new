@@ -24,7 +24,9 @@ class Sidebar extends StatelessWidget {
 
   bool isSalesEntryVisible = false, isSalesEntryEnable = true;
   bool isReceiptEntryVisible = false, isReceiptEntryEnable = true;
-  String SalesEntryHolder = '', username_prefs = '', password_prefs = '', ReceiptEntryHolder = '',serial_no='', company_name='';
+  bool isVanAllocationVisible = false, isVanAllocationEnable = true;
+
+  String SalesEntryHolder = '',VanAllocationHolder = '', username_prefs = '', password_prefs = '', ReceiptEntryHolder = '',serial_no='', company_name='';
   String? socketId = '', deviceIdentifier = '';
   late IO.Socket socket;
 
@@ -75,13 +77,16 @@ class Sidebar extends StatelessWidget {
     final prefs = await SharedPreferences.getInstance();
     SalesEntryHolder = prefs.getString('salesentry') ?? "False";
     ReceiptEntryHolder = prefs.getString('receiptentry') ?? "False";
+    VanAllocationHolder = prefs.getString("vanallocation") ?? "False";
     username_prefs = prefs.getString('username') ?? '';
     serial_no = prefs.getString('serial_no') ?? '';
     company_name = prefs.getString('company_name') ?? '';
 
+    print('van allocation value - > $VanAllocationHolder');
     password_prefs = prefs.getString('password') ?? '';
     isSalesEntryVisible = SalesEntryHolder == 'True';
     isReceiptEntryVisible = ReceiptEntryHolder == 'True';
+    isVanAllocationVisible = VanAllocationHolder == 'True';
   }
 
   Widget _buildTile({required IconData icon, required String title, required VoidCallback onTap, bool enabled = true}) {
@@ -290,6 +295,7 @@ class Sidebar extends StatelessWidget {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => UserView()));
                   }),
 
+                if(serial_no == uniGasSerialNo && (isVanAllocationVisible))
                 _buildTile(
                   title: 'Van Allocation',
                   icon: Icons.local_shipping_outlined,

@@ -53,17 +53,17 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
       isUserVisible = true,
       isRolesEnable = true,
       _isLoading = false,
-      isVisibleNoSalesEntryFound = false;
+      isVisibleNoDeliveryNoteEntryFound = false;
 
   String? HttpURL_loadData,HttpURL_deleteEntry,token = '';
 
   String rolename_fetched = "";
 
-  final List<SalesModel> salesentries = [];
+  final List<SalesModel> deliverynoteentries = [];
 
   TextEditingController _searchController = TextEditingController();
 
-  List<SalesModel> filteredSalesEntries = [];
+  List<SalesModel> filteredDeliveryNoteEntries = [];
 
   String name = "",email = "";
 
@@ -113,7 +113,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
       String? name_nav = prefs.getString('name_nav');
 
       // full list
-      HttpURL_loadData = '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales';
+      HttpURL_loadData = '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=delivery note';
 
       // not synced only list
       // HttpURL_loadData = '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales&&isSynced=false';
@@ -387,31 +387,31 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
 
     if (response.statusCode == 200)
     {
-      salesentries.clear();
-      filteredSalesEntries.clear();
+      deliverynoteentries.clear();
+      filteredDeliveryNoteEntries.clear();
       print(response.body);
       try
       {
         final List<dynamic> jsonList = json.decode(response.body) ;
 
-        isVisibleNoSalesEntryFound = false;
-        salesentries.addAll(jsonList.map((json) => SalesModel.fromJson(json)).toList());
-        salesentries.sort((a, b) {
+        isVisibleNoDeliveryNoteEntryFound = false;
+        deliverynoteentries.addAll(jsonList.map((json) => SalesModel.fromJson(json)).toList());
+        deliverynoteentries.sort((a, b) {
           DateTime dateA = DateTime.parse(a.data['DATE']);
           DateTime dateB = DateTime.parse(b.data['DATE']);
           return dateB.compareTo(dateA); // descending
         });
 
-        filteredSalesEntries = List.from(salesentries);
+        filteredDeliveryNoteEntries = List.from(deliverynoteentries);
         setState(() {
           FocusManager.instance.primaryFocus?.unfocus();
           _searchController.clear();
         });
 
         setState(() {
-          if(filteredSalesEntries.isEmpty)
+          if(filteredDeliveryNoteEntries.isEmpty)
           {
-            isVisibleNoSalesEntryFound = true;
+            isVisibleNoDeliveryNoteEntryFound = true;
           }
           _isLoading = false;
         });
@@ -440,9 +440,9 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
     }
 
     setState(() {
-      if(filteredSalesEntries.isEmpty)
+      if(filteredDeliveryNoteEntries.isEmpty)
       {
-        isVisibleNoSalesEntryFound = true;
+        isVisibleNoDeliveryNoteEntryFound = true;
       }
       _isLoading = false;
     });}
@@ -456,7 +456,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
   void searchSales(String query) {
     if (query.trim().isEmpty) {
       setState(() {
-        filteredSalesEntries = List.from(salesentries);
+        filteredDeliveryNoteEntries = List.from(deliverynoteentries);
       });
       return;
     }
@@ -464,7 +464,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
     final lowerQuery = query.toLowerCase();
 
     setState(() {
-      filteredSalesEntries = salesentries.where((entry) {
+      filteredDeliveryNoteEntries = deliverynoteentries.where((entry) {
         final data = entry.data;
 
         final party = (data['PARTYLEDGERNAME'] ?? '').toString().toLowerCase();
@@ -557,7 +557,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
 
             Column(
               children: [
-                if(salesentries.isNotEmpty)
+                if(deliverynoteentries.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
                     child: Container(
@@ -673,7 +673,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
 
 
 
-                      if(isVisibleNoSalesEntryFound)
+                      if(isVisibleNoDeliveryNoteEntryFound)
                         Center(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -696,12 +696,12 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                           ),
                         ),
 
-                      if (!isVisibleNoSalesEntryFound)
+                      if (!isVisibleNoDeliveryNoteEntryFound)
                         ListView.builder(
                           padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                          itemCount: filteredSalesEntries.length,
+                          itemCount: filteredDeliveryNoteEntries.length,
                           itemBuilder: (context, index) {
-                            final card = filteredSalesEntries[index];
+                            final card = filteredDeliveryNoteEntries[index];
                             final partyLedger = card.data['PARTYLEDGERNAME'];
                             final dateStr = card.data['DATE'];
                             final totalAmount = card.data['totalAmount'];

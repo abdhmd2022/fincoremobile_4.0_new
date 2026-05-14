@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:FincoreGo/Items.dart';
+import 'package:FincoreGo/PendingDeliveryNoteEntry.dart';
 import 'package:FincoreGo/PendingSalesEntry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -2909,9 +2910,13 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
         'Authorization' : 'Bearer $token',
         "Content-Type": "application/json"
       };
+      var body = jsonEncode({
+        'type': "delivery note",
+      });
       final response = await http.post
         (
           url,
+          body: body,
           headers:headers
       );
 
@@ -4324,7 +4329,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
             onPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => PendingSalesEntry()),
+                MaterialPageRoute(builder: (context) => PendingDeliveryNoteEntry()),
               );
             },
           ),

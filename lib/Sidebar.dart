@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:FincoreGo/vanAllocations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -288,6 +289,21 @@ class Sidebar extends StatelessWidget {
                     Navigator.pop(context);
                     Navigator.push(context, MaterialPageRoute(builder: (_) => UserView()));
                   }),
+
+                _buildTile(
+                  title: 'Van Allocation',
+                  icon: Icons.local_shipping_outlined,
+                  onTap: () {
+                    Navigator.pop(context);
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const VanAllocationScreen(),
+                      ),
+                    );
+                  },
+                ),
                 _buildTile(title: 'Settings', icon: Icons.settings, onTap: () {
                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Settings()));
                 }),

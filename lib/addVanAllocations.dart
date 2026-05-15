@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:FincoreGo/viewVanAllocations.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
@@ -57,7 +60,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
   String? selectedSalesLedger;
   String? selectedCashLedger;
 
-  String? selectedUser;
+  UserModel? selectedUser;
   String? selectedCompany;
 
 
@@ -72,43 +75,11 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
   List<String> cashLedgers = [];
 
   List<Map<String, dynamic>> allocations = [];
-
+  bool isSaving = false;
   bool isLoading = true;
   late SharedPreferences prefs;
   String email= "";
-
-  Future<void> fetchSalesLedgers() async {
-    try {
-      final url = Uri.parse(
-        '$hostname/api/entry/getSalesData/$company_lowercase/$serial_no',
-      );
-
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          "type": "delivery note",
-        }),
-      );
-
-      // debugPrint("SALES LEDGER RESPONSE: ${response.body}");
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        setState(() {
-          salesLedgers = List<String>.from(
-            data['salesLedgers'] ?? [],
-          );
-        });
-      }
-    } catch (e) {
-      debugPrint('SALES LEDGER ERROR: $e');
-    }
-  }
+  int formResetKey = 0;
 
   Future<void> fetchUsers(String selectedserial) async {
 
@@ -172,11 +143,14 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       await Future.wait([
 
         fetchUsers(serial_no!),
-        fetchLocations(),
+
+        fetchVanAllocationData(),
+        /*fetchLocations(),
         fetchVchTypes(),
         fetchSalesLedgers(),
-        fetchCashLedgers(),
-        fetchAllocations(),
+        fetchCashLedgers(),*/
+
+        // fetchAllocations(),
       ]);
     } catch (e) {
       debugPrint(e.toString());
@@ -188,58 +162,57 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
   }
 
 
-  Future<void> fetchLocations() async {
+  Future<void> fetchVanAllocationData() async {
     try {
-      final response = await http.get(Uri.parse('YOUR_LOCATIONS_API'));
+      final url = Uri.parse(
+        '$hostname/api/entry/getSpectra/$company_lowercase/$serial_no',
+      );
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "type": "delivery note",
+        }),
+      );
+
+      debugPrint(
+        "VAN ALLOCATION RESPONSE: ${response.body}",
+      );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
         setState(() {
-          locations = List<String>.from(
-            (data['data'] ?? []).map((e) => e['location_name']),
-          );
-        });
-      }
-    } catch (e) {
-      debugPrint('LOCATION ERROR: $e');
-    }
-  }
 
-  Future<void> fetchVchTypes() async {
-    try {
-      final response = await http.get(Uri.parse('YOUR_VCHTYPE_API'));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        setState(() {
+          // voucher types
           vchTypes = List<String>.from(
-            (data['data'] ?? []).map((e) => e['name']),
+            data['vchTypes'] ?? [],
           );
-        });
-      }
-    } catch (e) {
-      debugPrint('VCHTYPE ERROR: $e');
-    }
-  }
 
+          // sales ledgers
+          salesLedgers = List<String>.from(
+            data['salesLedgers'] ?? [],
+          );
 
-  Future<void> fetchCashLedgers() async {
-    try {
-      final response = await http.get(Uri.parse('YOUR_CASH_LEDGER_API'));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        setState(() {
+          // cash ledgers
           cashLedgers = List<String>.from(
-            (data['data'] ?? []).map((e) => e['ledger_name']),
+            data['cashLedgers'] ?? [],
+          );
+
+          // locations
+          locations = List<String>.from(
+            data['locations'] ?? [],
           );
         });
       }
     } catch (e) {
-      debugPrint('CASH LEDGER ERROR: $e');
+      debugPrint(
+        'VAN ALLOCATION FETCH ERROR: $e',
+      );
     }
   }
 
@@ -280,33 +253,95 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       selectedVchType = null;
       selectedSalesLedger = null;
       selectedCashLedger = null;
+      formResetKey++;
+
     });
   }
 
-  void _saveAllocation() {
+
+  Future<void> _saveAllocation() async {
+
     if (!isFormValid) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all allocation fields')),
+        const SnackBar(
+          content: Text('Please fill all fields'),
+        ),
       );
       return;
     }
 
-    final body = {
-      'user_name': selectedUser,
-      'serial_no': '767060064',
-      'company_name': 'ABC LLC',
-      'location_name': selectedLocation,
-      'vchtype_name': selectedVchType,
-      'sales_ledger': selectedSalesLedger,
-      'cash_ledger': selectedCashLedger,
-    };
+    setState(() {
+      isSaving = true;
+    });
 
-    debugPrint('ADD ALLOCATION BODY: $body');
+    try {
+      final url = Uri.parse(
+        '$BASE_URL_config/api/spectra/Allocations',
+      );
+      final body = {
+        "user_name": selectedUser!.email,
+        "serial_no": serial_no ?? "",
+        "company_name": company ?? "",
+        "godown_name": selectedLocation!,
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Allocation body is ready for API')),
-    );
+        "voucher_type_name": selectedVchType! ?? "",
+        "sales_ledger": selectedSalesLedger! ?? "",
+
+
+        "cash_ledger": selectedCashLedger!,
+      };
+
+      debugPrint("SAVE ALLOCATION URL: '$url'");
+
+      debugPrint("SAVE ALLOCATION BODY: ${jsonEncode(body)}");
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $authTokenBase',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      debugPrint("SAVE ALLOCATION RESPONSE: ${response.body}");
+
+      if (response.statusCode == 200 ||
+          response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Allocation saved successfully'),
+          ),
+        );
+
+        _resetForm();
+
+        fetchAllocations();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed: ${response.body}',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint("SAVE ALLOCATION ERROR: $e");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+        ),
+      );
+    }
+    finally {
+      setState(() {
+        isSaving = false;
+      });
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -320,52 +355,95 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
     }*/
 
     return Scaffold(
-      backgroundColor: backgroundColor,
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: primaryColor,
-          centerTitle: false,
-          iconTheme: const IconThemeData(color: Colors.white),
-          titleSpacing: 0,
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: primaryColor,
+        centerTitle: false,
+        automaticallyImplyLeading: false,
+
+        leadingWidth: 70,
+
+        leading: Center(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                  const ViewVanAllocationScreen(),
                 ),
-                child: const Icon(
-                  Icons.local_shipping_outlined,
-                  color: Colors.white,
-                  size: 20,
+              );
+            },
+
+            child: Container(
+
+
+              decoration: BoxDecoration(
+
+              ),
+
+              child: const Icon(
+                Icons.arrow_back_rounded,
+                color: Colors.white,
+                size: 22,
+              ),
+            ),
+          ),
+        ),
+
+        titleSpacing: 0,
+
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                borderRadius:
+                BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.local_shipping_outlined,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+
+            const SizedBox(width: 12),
+
+            Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Van Allocation',
+                  style: GoogleFonts.poppins(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Van Allocation',
-                    style: GoogleFonts.poppins(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
+
+                Text(
+                  'Add user allocations',
+                  style: GoogleFonts.poppins(
+                    fontSize: 11,
+                    color:
+                    Colors.white.withOpacity(0.8),
                   ),
-                  Text(
-                    'Manage user allocations',
-                    style: GoogleFonts.poppins(
-                      fontSize: 11,
-                      color: Colors.white.withOpacity(0.8),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          )),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
       body: isLoading ? Center(
-        child: CircularProgressIndicator.adaptive(),
+        child: CircularProgressIndicator.adaptive(
+
+        ),
       ) : LayoutBuilder(
         builder: (context, constraints) {
           final bool isMobile = constraints.maxWidth < 700;
@@ -389,8 +467,6 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                           const SizedBox(height: 16),
                           _buildAllocationForm(isMobile),
 
-                          const SizedBox(height: 16),
-                          _buildAllocationList(isMobile),
                           const SizedBox(height: 30),
 
 
@@ -576,8 +652,8 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
 
               Expanded(
                 flex: 2,
-                child: ElevatedButton.icon(
-                  onPressed: _saveAllocation,
+                child: ElevatedButton(
+                  onPressed: isSaving ? null : _saveAllocation,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
                     elevation: 0,
@@ -586,21 +662,53 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  icon: const Icon(
-                    Icons.save_outlined,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                  label: Text(
-                    'Save Allocation',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  child: isSaving
+                      ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                       SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: Platform.isIOS
+                            ?  CupertinoActivityIndicator(
+                          color: Colors.white,
+                          radius: 10,
+                        )
+                            :  CircularProgressIndicator(
+                          strokeWidth: 2.2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Saving...',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  )
+                      : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.save_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Save Allocation',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+              ),            ],
           ),
 
         ],
@@ -608,103 +716,6 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
     );
   }
 
-  Widget _buildAllocationList(bool isMobile) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: _cardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _sectionTitle(Icons.list_alt_outlined, 'Allocation List'),
-          const SizedBox(height: 14),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: allocations.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final allocation = allocations[index];
-              return Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: backgroundColor,
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 21,
-                          backgroundColor: primaryColor.withOpacity(0.12),
-                          child: Icon(Icons.person_outline, color: primaryColor),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                allocation['user'],
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w700, color: textColor),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Serial: ${allocation['serial']}',
-                                style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade600),
-                              ),
-                            ],
-                          ),
-                        ),
-                        PopupMenuButton<String>(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          onSelected: (value) {},
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(value: 'view', child: Text('View')),
-                            const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                            const PopupMenuItem(value: 'delete', child: Text('Delete')),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        _infoChip(Icons.location_on_outlined, 'Dubai Main Van Area'),
-                        _infoChip(Icons.receipt_long_outlined, 'Sales'),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _miniActionButton('View', Icons.visibility_outlined, primaryColor),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: _miniActionButton('Edit', Icons.edit_outlined, Colors.blue),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: _miniActionButton('Delete', Icons.delete_outline, Colors.red),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _responsiveWrap({required bool isMobile, required List<Widget> children}) {
     return LayoutBuilder(
@@ -730,64 +741,68 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       children: [
         _fieldLabel('User Name'),
         const SizedBox(height: 8),
-        Autocomplete<String>(
+
+        Autocomplete<UserModel>(
+          key: ValueKey('user_$formResetKey'),
+
+          displayStringForOption: (UserModel option) => option.name,
           optionsBuilder: (TextEditingValue textEditingValue) {
             if (textEditingValue.text.isEmpty) {
-              return users.map((e) => e.name.toString());
+              return users;
             }
 
-            return users
-                .map((e) => e.name.toString())
-                .where(
-                  (user) => user
-                  .toLowerCase()
-                  .contains(textEditingValue.text.toLowerCase()),
+            return users.where(
+                  (user) =>
+              user.name.toLowerCase().contains(
+                textEditingValue.text.toLowerCase(),
+              ) ||
+                  user.email.toLowerCase().contains(
+                    textEditingValue.text.toLowerCase(),
+                  ),
             );
           },
-          initialValue: TextEditingValue(text: selectedUser ?? ''),
+
+          initialValue: TextEditingValue(
+            text: selectedUser?.name ?? '',
+          ),
+
+
           onSelected: (value) {
             setState(() {
               selectedUser = value;
             });
           },
+
           fieldViewBuilder:
               (context, controller, focusNode, onEditingComplete) {
-            controller.text = selectedUser ?? controller.text;
+
+
+
 
             return TextField(
               controller: controller,
               focusNode: focusNode,
               style: GoogleFonts.poppins(fontSize: 13),
+
               decoration: _inputDecoration(
                 Icons.person_search_outlined,
                 'Search and select user',
-              ).copyWith(
-                suffixIcon: selectedUser != null
-                    ? Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      'Selected',
-                      style: GoogleFonts.poppins(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.green.shade700,
-                      ),
-                    ),
-                  ),
-                )
-                    : null,
+
+                showClear: controller.text.isNotEmpty || selectedUser != null,
+
+                onClear: () {
+                  controller.clear();
+
+                  setState(() {
+                    selectedUser = null;
+                  });
+                },
               ),
             );
           },
+
+
+
           optionsViewBuilder: (context, onSelected, options) {
             return Align(
               alignment: Alignment.topLeft,
@@ -797,6 +812,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                   margin: const EdgeInsets.only(top: 8),
                   constraints: const BoxConstraints(maxHeight: 300),
                   width: MediaQuery.of(context).size.width * 0.9,
+
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
@@ -808,32 +824,27 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                       ),
                     ],
                   ),
-                  child: ListView.separated(
+
+                  child: ListView.builder(
                     padding: const EdgeInsets.all(10),
-                    shrinkWrap: true,
                     itemCount: options.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+
                     itemBuilder: (context, index) {
                       final option = options.elementAt(index);
-
-                      /*final matchedUser = users.firstWhere(
-                            (e) => e.name == option,
-                        orElse: () => UserModel(
-                          role_name: '',
-                          name: '',
-                          email: '',
-                        ),
-                      );*/
 
                       return InkWell(
                         borderRadius: BorderRadius.circular(14),
                         onTap: () => onSelected(option),
+
                         child: Container(
+                          margin: const EdgeInsets.only(bottom: 8),
                           padding: const EdgeInsets.all(12),
+
                           decoration: BoxDecoration(
                             color: backgroundColor,
                             borderRadius: BorderRadius.circular(14),
                           ),
+
                           child: Row(
                             children: [
                               Container(
@@ -848,33 +859,35 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                                   color: primaryColor,
                                 ),
                               ),
+
                               const SizedBox(width: 12),
+
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment:
                                   CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      option,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                      option.name,
                                       style: GoogleFonts.poppins(
                                         fontSize: 12.5,
                                         fontWeight: FontWeight.w600,
                                         color: textColor,
                                       ),
                                     ),
-                                    /*const SizedBox(height: 5),
-                                    _statusPill(
-                                      matchedUser.role_name.isNotEmpty
-                                          ? 'Configured'
-                                          : 'Pending Setup',
-                                        matchedUser.role_name.isNotEmpty
-                                    ),*/
+
+                                    const SizedBox(height: 3),
+
+                                    Text(
+                                      option.email,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 11,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-
                             ],
                           ),
                         ),
@@ -904,6 +917,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
         _fieldLabel(title),
         const SizedBox(height: 8),
         Autocomplete<String>(
+          key: ValueKey('${title}_$formResetKey'),
           optionsBuilder: (TextEditingValue textEditingValue) {
             if (textEditingValue.text.isEmpty) {
               return items;
@@ -925,7 +939,15 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
               controller: controller,
               focusNode: focusNode,
               style: GoogleFonts.poppins(fontSize: 13),
-              decoration: _inputDecoration(icon, hint),
+              decoration: _inputDecoration(icon, hint,
+                showClear: controller.text.isNotEmpty || value != null,
+                onClear: () {
+                  controller.clear();
+
+                  onSelected(null);
+
+                  setState(() {});
+                },),
             );
           },
           optionsViewBuilder: (context, onSelected, options) {
@@ -1017,7 +1039,8 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           controller: controller,
           onChanged: (_) => setState(() {}),
           style: GoogleFonts.poppins(fontSize: 13),
-          decoration: _inputDecoration(icon, hint),
+          decoration: _inputDecoration(icon, hint,
+          ),
         ),
       ],
     );
@@ -1084,25 +1107,63 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(IconData icon, String hint) {
+  InputDecoration _inputDecoration(
+      IconData icon,
+      String hint, {
+        VoidCallback? onClear,
+        bool showClear = false,
+      }) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: GoogleFonts.poppins(fontSize: 12.5, color: Colors.grey.shade500),
-      prefixIcon: Icon(icon, color: primaryColor, size: 21),
+
+      hintStyle: GoogleFonts.poppins(
+        fontSize: 12.5,
+        color: Colors.grey.shade500,
+      ),
+
+      prefixIcon: Icon(
+        icon,
+        color: primaryColor,
+        size: 21,
+      ),
+
+      suffixIcon: showClear
+          ? IconButton(
+        onPressed: onClear,
+        icon: Icon(
+          Icons.close_rounded,
+          color: Colors.grey.shade500,
+          size: 20,
+        ),
+      )
+          : null,
+
       filled: true,
       fillColor: backgroundColor,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
+
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 15,
+      ),
+
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
         borderSide: BorderSide.none,
       ),
+
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
-        borderSide: BorderSide(color: Colors.grey.shade200),
+        borderSide: BorderSide(
+          color: Colors.grey.shade200,
+        ),
       ),
+
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
-        borderSide: BorderSide(color: primaryColor, width: 1.4),
+        borderSide: BorderSide(
+          color: primaryColor,
+          width: 1.4,
+        ),
       ),
     );
   }

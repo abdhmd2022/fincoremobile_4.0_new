@@ -397,9 +397,19 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
         isVisibleNoDeliveryNoteEntryFound = false;
         deliverynoteentries.addAll(jsonList.map((json) => SalesModel.fromJson(json)).toList());
         deliverynoteentries.sort((a, b) {
+
           DateTime dateA = DateTime.parse(a.data['DATE']);
           DateTime dateB = DateTime.parse(b.data['DATE']);
-          return dateB.compareTo(dateA); // descending
+
+          // First sort by latest date
+          int dateCompare = dateB.compareTo(dateA);
+
+          // If same date, sort by latest ID
+          if (dateCompare == 0) {
+            return b.id.compareTo(a.id);
+          }
+
+          return dateCompare;
         });
 
         filteredDeliveryNoteEntries = List.from(deliverynoteentries);
@@ -771,7 +781,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                                                 // Invoice Text
                                                 Expanded(
                                                   child: Text(
-                                                    "Invoice #$vchno",
+                                                    "D/O #$vchno",
                                                     style: GoogleFonts.poppins(
                                                       fontSize: 15,
                                                       fontWeight: FontWeight.w700,
@@ -849,7 +859,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
 
 
 
-                                    Padding(padding: EdgeInsets.only(top: 16),
+                                   /* Padding(padding: EdgeInsets.only(top: 16),
                                       child:  Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
@@ -885,7 +895,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                                             ),
                                           ]
                                         ],
-                                      ),)
+                                      ),)*/
 
                                   ],
                                 ),

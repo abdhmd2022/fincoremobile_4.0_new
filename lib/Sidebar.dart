@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:FincoreGo/vanAllocations.dart';
+import 'package:FincoreGo/addVanAllocations.dart';
+import 'package:FincoreGo/viewVanAllocations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -305,7 +306,7 @@ class Sidebar extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const VanAllocationScreen(),
+                        builder: (_) => const ViewVanAllocationScreen(),
                       ),
                     );
                   },

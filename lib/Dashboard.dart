@@ -2,6 +2,7 @@ import'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
+import 'package:FincoreGo/PendingDeliveryNoteEntry.dart';
 import 'package:flutter/foundation.dart';
 import 'package:FincoreGo/DashboardClicked.dart';
 import 'package:FincoreGo/PendingReceiptEntry.dart';
@@ -56,9 +57,9 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
        isRolesVisible = true,
        isUserVisible = true;
 
-  bool isSalesEntryVisible = false,isReceiptEntryVisible = false,isSalesOrderEntryVisible = false;
+  bool isSalesEntryVisible = false,isReceiptEntryVisible = false,isSalesOrderEntryVisible = false,isDeliveryNoteEntryVisible = false ;
 
-  String SalesEntryHolder = '',ReceiptEntryHolder = '',SalesOrderEntryHolder = "";
+  String SalesEntryHolder = '',ReceiptEntryHolder = '',SalesOrderEntryHolder = "",DeliveryNoteEntryHolder = '';
   String email = "";
   String name = "", token = '';
 
@@ -316,6 +317,19 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                     );
                   },
                 ),
+              if(serial_no == uniGasSerialNo && (isDeliveryNoteEntryVisible))
+              _buildEntryOption(
+                icon: Icons.local_shipping,
+                label: "Delivery Note",
+                gradient: [Colors.blue.shade400, Colors.indigo.shade600],
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => PendingDeliveryNoteEntry()),
+                  );
+                },
+              ),
             ],
           ),
         );
@@ -1944,6 +1958,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
     SalesEntryHolder = prefs.getString('salesentry') ?? "False";
     ReceiptEntryHolder = prefs.getString('receiptentry') ?? "False";
     SalesOrderEntryHolder = prefs.getString('salesorderentry') ?? "True";
+    DeliveryNoteEntryHolder = prefs.getString('deliverynoteentry') ?? "True";
 
     _selecteddate= prefs.getString('dateRangeOption') ?? 'Today';
 
@@ -1977,6 +1992,14 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
     else if (SalesOrderEntryHolder == 'True')
     {
       isSalesOrderEntryVisible = true;
+    }
+    if(DeliveryNoteEntryHolder == 'False')
+    {
+      isDeliveryNoteEntryVisible = false;
+    }
+    else if (DeliveryNoteEntryHolder == 'True')
+    {
+      isDeliveryNoteEntryVisible = true;
     }
 
     /*print('token : $token');

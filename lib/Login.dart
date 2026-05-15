@@ -119,6 +119,11 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 'website_url': data['website_url'],
                 'token': data['token'],
               };
+
+              // ✅ Save spectra allocations only if not null
+              if (data['spectra_allocations'] != null) {
+                newObj['spectra_allocations'] = data['spectra_allocations'];
+              }
               myList.add(newObj);
             }
             String jsonString = jsonEncode(myList);
@@ -1217,7 +1222,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 </div>''';
     try {
 
-      await send(message, smtpServer);
+      // await send(message, smtpServer);
 
       /*_scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(

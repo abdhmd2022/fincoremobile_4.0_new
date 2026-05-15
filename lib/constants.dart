@@ -20,6 +20,7 @@ const String SOCKET_URL = prodServer;
 // const String SOCKET_URL = devServer;
 
 const String uniGasSerialNo = '725463756';
+
 const Color app_color = Colors.teal;
 
 String formatAmount(String amount)

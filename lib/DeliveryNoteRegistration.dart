@@ -82,8 +82,8 @@ class Unit {
   factory Unit.fromJson(Map<String, dynamic> json)
   {
     return Unit(
-      name: json['name'],
-      multiplier: double.parse(json['multiplier']),
+      name: json['name'] ?? '',
+      multiplier: double.tryParse(json['multiplier']?.toString() ?? '0') ?? 0,
     );}}
 
 class LedgerEntry {
@@ -115,6 +115,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       isVisibleNoUserFound = false;
 
   bool isVchEditable = false; // state variable
+
+  String startfrom = '';
 
   TextEditingController _itemController = TextEditingController();
   TextEditingController _partyLedgerController = TextEditingController();
@@ -429,7 +431,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       SecuritybtnAcessHolder = "";
 
   late DateTime saledate,refdate;
-  String? HttpURL_loadData,HttpURL_salesEntry,HttpURL_fetchvchnos,HttpURL_loadLedgerData;
+  String? HttpURL_loadData,HttpURL_deliveryNoteEntry,HttpURL_fetchvchnos,HttpURL_loadLedgerData;
   List<String> vchnos = [];
 
   double selectedMultiplier = 0.0;
@@ -612,7 +614,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     return prefix + newNumber + suffix;
   }
 
-  Future<void> generateInvoicePDF(String trn, String address,String emirate, String country) async {
+  Future<void> generateDeliveryNotePDF(String trn, String address,String emirate, String country) async {
     final pdf = pw.Document();
 
     int totalQuantity = 0;
@@ -625,6 +627,33 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
       totalitemAmount += double.parse(item.itemAmount.toStringAsFixed(decimal!));
     }
+
+    List<String> placeParts = [];
+
+    // Address
+    if (address != null &&
+        address != "null" &&
+        address != "Not Available" &&
+        address.trim().isNotEmpty) {
+      placeParts.add(address.trim());
+    }
+    if (emirate != null &&
+        emirate != "null" &&
+        emirate != "Not Available" &&
+        emirate.trim().isNotEmpty) {
+      placeParts.add(emirate.trim());
+    }
+
+    // Country
+    if (country != null &&
+        country != "null" &&
+        country != "Not Available" &&
+        country.trim().isNotEmpty) {
+      placeParts.add(country.trim());
+    }
+
+    String placeOfSupply = placeParts.join(", ");
+
 
     pdf.addPage(
       pw.Page(
@@ -640,7 +669,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                         level: 0,
                         decoration: pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide.none)),
 
-                        child: pw.Center(child:pw.Text('Tax Invoice', textAlign: pw.TextAlign.center,
+                        child: pw.Center(child:pw.Text('Delivery Note', textAlign: pw.TextAlign.center,
                             style: pw.TextStyle(
                                 fontSize: 18
                             )), )
@@ -680,7 +709,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                       pw.Text(company!),
 
 
-                                      if(company_address!="null" || company_address!="Not Available")
+                                      if(company_address!="null" && company_address!="Not Available" )
                                         pw.Column(children: [
                                           pw.SizedBox(height: 2),
 
@@ -688,7 +717,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                                         ],),
 
-                                      if(company_emirate!="null"  || company_emirate!="Not Available")
+                                      if(company_emirate!="null"  && company_emirate!="Not Available")
                                         pw.Column(children: [
                                           pw.SizedBox(height: 2),
 
@@ -702,7 +731,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                                         ],),
 
-                                      if(company_country!="null" || company_country!="Not Available")
+                                      if(company_country!="null" && company_country!="Not Available")
                                         pw.Column(children: [
                                           pw.SizedBox(height: 2),
 
@@ -715,7 +744,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                           ],)
                                         ],),
 
-                                      if(company_trn!="null" || company_trn!="Not Available")
+                                      if(company_trn!="null" && company_trn!="Not Available")
                                         pw.Column(children: [
                                           pw.SizedBox(height: 2),
 
@@ -786,7 +815,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                                       mainAxisAlignment: pw.MainAxisAlignment.start,
                                                       children: [
 
-                                                        pw.Text('Invoice No:'),
+                                                        pw.Text('Delivery Note No:'),
                                                         pw.SizedBox(height: 2),
                                                         pw.Text(_vchnoController.text),
                                                       ]
@@ -1018,6 +1047,29 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                                           ],)
                                         ],),
+
+                                      if (placeOfSupply.isNotEmpty)
+                                        pw.Column(
+                                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                          children: [
+                                            pw.SizedBox(height: 2),
+
+                                            pw.Row(
+                                              crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                              children: [
+
+                                                pw.Text("Place of Supply :"),
+
+                                                pw.SizedBox(width: 5),
+
+                                                pw.Expanded(
+                                                  child: pw.Text(placeOfSupply),
+                                                ),
+
+                                              ],
+                                            ),
+                                          ],
+                                        ),
 
                                       if(trn!="null")
                                         pw.Column(children: [
@@ -2023,22 +2075,22 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                                   pw.SizedBox(height:10),
 
                                                   pw.Text(
-                                                    'Declaration',
+                                                    'Recd. in Good Condition',
                                                     textAlign: pw.TextAlign.left,
                                                     style: pw.TextStyle(
                                                       fontSize: 10,
                                                     ),
                                                   ),
 
-                                                  pw.Text(
+                                                /*  pw.Text(
                                                     'We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct',
                                                     textAlign: pw.TextAlign.left,
                                                     style: pw.TextStyle(
                                                       fontSize: 10,
                                                     ),
-                                                  ),
+                                                  ),*/
 
-                                                  pw.SizedBox(height: 10)
+                                                  /*pw.SizedBox(height: 10)*/
 
                                                 ],)
 
@@ -2140,16 +2192,19 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
     // 🗂 Save to temp file
     final pdfData = await pdf.save();
+    final now = DateTime.now();
+    final formattedDate =
+        "${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}";
 
     final dir = await getApplicationDocumentsDirectory();
-    final filePath = '${dir.path}/SaleInvoice.pdf';
-
+    final filePath = '${dir.path}/DeliveryNote_$formattedDate.pdf';
+    debugPrint("PDF PATH: $filePath");
     final file = File(filePath);
     await file.writeAsBytes(pdfData);
 
     await Share.shareXFiles(
       [XFile(filePath, mimeType: 'application/pdf')],
-      text: 'Sharing Sale Invoice for $_selectedpartyledger',
+      text: 'Sharing D/O for $_selectedpartyledger',
     );
 
     setState(() {
@@ -2652,7 +2707,11 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       Map<String, dynamic> jsonData = {
         'type' : 'delivery note',
         'data' : jsonEntryData
+
+
+
       };
+
 
       String jsonDataString = jsonEncode(jsonData);
 
@@ -2660,7 +2719,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
       try
       {
-        final url_salesentry = Uri.parse(HttpURL_salesEntry!);
+        final url_salesentry = Uri.parse(HttpURL_deliveryNoteEntry!);
         Map<String,String> headers_salesentry = {
           'Authorization' : 'Bearer $token',
           "Content-Type": "application/json"
@@ -2668,16 +2727,18 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
         var body_salesentry = jsonDataString;
 
-        final response_salesentry = await http.post(
+        debugPrint('body -> $body_salesentry');
+
+        final response_deliverynote = await http.post(
             url_salesentry,
             body: body_salesentry,
             headers:headers_salesentry
         );
 
-        if (response_salesentry.statusCode == 200) {
-          if(response_salesentry.body == 'Entry created successfully')
+        if (response_deliverynote.statusCode == 200) {
+          if(response_deliverynote.body == 'Entry created successfully')
           {
-            /*Fluttertoast.showToast(msg: response_salesentry. );*/
+            /*Fluttertoast.showToast(msg: response_deliverynote. );*/
 
             loadLedgerData();
 
@@ -2689,7 +2750,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
           }
         }
         else {
-          Map<String, dynamic> data = json.decode(response_salesentry.body);
+          Map<String, dynamic> data = json.decode(response_deliverynote.body);
           String error = '';
 
           if (data.containsKey('error')) {
@@ -2784,7 +2845,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                             _selectedvchtypename = vchtypenamedata[0];
                             fetchvchnos(_selectedvchtypename);
                             _selectedpartyledger = partyledgerdata[0];
-                            _partyLedgerController.text = _selectedpartyledger;
+                            _partyLedgerController.text = _selectedpartyledger['name'];
                             _selectedsalesledger = salesledger_data[0];
                             _selectedledger = ledgerdata.isNotEmpty ? ledgerdata[0]['name'] : null;
                             _selectedvatledger = vatledgerdata[0];
@@ -2844,7 +2905,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                       ElevatedButton.icon(
                         onPressed: () async {
                           Navigator.pop(context);
-                          await generateInvoicePDF(trn, address, emirate, country);
+                          await generateDeliveryNotePDF(trn, address, emirate, country);
                         },
                         icon: const Icon(Icons.share_rounded, size: 20, color: Colors.white),
                         label: Text(
@@ -2902,7 +2963,23 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       _isLoading = true;
     });
 
-    // vchtype fetching
+    final prefs = await SharedPreferences.getInstance();
+
+    String godownName = '';
+
+    String? allocationString =
+    prefs.getString('spectra_allocations');
+
+    if (allocationString != null) {
+      List<dynamic> allocations =
+      jsonDecode(allocationString);
+
+      if (allocations.isNotEmpty) {
+        godownName =
+            allocations.first['godown']?.toString() ?? '';
+      }
+    }
+
     try {
       final url = Uri.parse(HttpURL_loadData!);
       Map<String,String> headers =
@@ -2911,8 +2988,12 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
         "Content-Type": "application/json"
       };
       var body = jsonEncode({
-        'type': "delivery note",
+        "type": "delivery note",
+        if (godownName.isNotEmpty)
+          "godownName": godownName,
       });
+
+      debugPrint('body load data -> $body');
       final response = await http.post
         (
           url,
@@ -2926,28 +3007,89 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
         /*print(response.body);*/
         setState(() {
-          vchtypenamedata = jsonResponse["vchTypes"].cast<String>();
-          _selectedvchtypename = vchtypenamedata[0];
-          fetchvchnos(_selectedvchtypename);
-          partyledgerdata = jsonResponse["partyLedgers"].cast<String>();
-          _selectedpartyledger = partyledgerdata[0];
-          _partyLedgerController.text = _selectedpartyledger;
+          vchtypenamedata = List<String>.from(
+            (jsonResponse["vchTypes"] ?? [])
+                .where((e) => e != null)
+                .map((e) => e.toString()),
+          );
 
-          salesledger_data = jsonResponse["salesLedgers"].cast<String>();
-          _selectedsalesledger = salesledger_data[0];
+          _selectedvchtypename =
+          vchtypenamedata.isNotEmpty ? vchtypenamedata[0] : null;
 
-          ledgerdata = List<Map<String, dynamic>>.from(jsonResponse['otherLedgers']);
-          _selectedledger = ledgerdata.isNotEmpty ? ledgerdata[0]['name'] : null;
+          if (_selectedvchtypename != null &&
+              _selectedvchtypename.toString().isNotEmpty) {
+            fetchvchnos(_selectedvchtypename);
+          }
+
+          if (serial_no == uniGasSerialNo) {
+
+            // NEW RESPONSE FORMAT
+            partyledgerdata = List<String>.from(
+              (jsonResponse["partyLedgers"] ?? [])
+                  .where((e) => e != null && e['name'] != null)
+                  .map((e) => e['name'].toString()),
+            );
+
+          } else {
+
+            // OLD RESPONSE FORMAT
+            partyledgerdata = List<String>.from(
+              (jsonResponse["partyLedgers"] ?? [])
+                  .where((e) => e != null)
+                  .map((e) => e.toString()),
+            );
+
+          }
+
+          _selectedpartyledger =
+          partyledgerdata.isNotEmpty ? partyledgerdata[0] : null;
+          _partyLedgerController.text = _selectedpartyledger ?? '';
+          salesledger_data = List<String>.from(
+            (jsonResponse["salesLedgers"] ?? [])
+                .where((e) => e != null)
+                .map((e) => e.toString()),
+          );
+
+          _selectedsalesledger =
+          salesledger_data.isNotEmpty ? salesledger_data[0] : null;
+
+          ledgerdata = List<Map<String, dynamic>>.from(
+            (jsonResponse['otherLedgers'] ?? [])
+                .where((e) => e != null),
+          );
+
+          _selectedledger =
+          ledgerdata.isNotEmpty
+              ? ledgerdata[0]['name']?.toString() ?? ''
+              : '';
 
           vatledgerdata.add('Not Applicable');
-          vatledgerdata.addAll(jsonResponse["vatLedgers"].cast<String>());
-          _selectedvatledger = vatledgerdata[0];
+          vatledgerdata.addAll(
+            List<String>.from(
+              (jsonResponse["vatLedgers"] ?? [])
+                  .where((e) => e != null)
+                  .map((e) => e.toString()),
+            ),
+          );
 
-          itemdata = jsonResponse["items"];
+          _selectedvatledger =
+          vatledgerdata.isNotEmpty ? vatledgerdata[0] : null;
+          itemdata = (jsonResponse["items"] ?? [])
+              .where((e) => e != null)
+              .toList();
 
-          _selecteditem = '${itemdata[0]['name']}';
-          _itemController.text = _selecteditem;
-          locationsdata = List<String>.from(jsonResponse['locations']);
+
+          _selecteditem =
+          itemdata.isNotEmpty ? '${itemdata[0]['name']}' : null;
+
+
+          _itemController.text = _selecteditem ?? '';
+          locationsdata = List<String>.from(
+            (jsonResponse['locations'] ?? [])
+                .where((e) => e != null)
+                .map((e) => e.toString()),
+          );
+
           if (locationsdata.isNotEmpty)
           {
             selectedLocation = locationsdata[0];
@@ -2962,7 +3104,9 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
               isVisibleLocation = false;
             });
           }
-          _updateUnitDropdown(_selecteditem);
+          if (_selecteditem != null) {
+            _updateUnitDropdown(_selecteditem);
+          }
         });
       }
       else
@@ -2984,12 +3128,47 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     }
     catch (e)
     {
-      print(e);
+      print('error -> $e');
     }
 
     setState(() {
       _isLoading = false;
     });
+
+
+    if (allocationString != null) {
+      List<dynamic> allocations = jsonDecode(allocationString);
+
+      if (allocations.isNotEmpty) {
+        final allocation = allocations.first;
+
+        // GODOWN
+        if (allocation['godown'] != null &&
+            locationsdata.contains(allocation['godown'])) {
+          selectedLocation = allocation['godown'];
+
+          isVisibleLocation = true;
+
+        }
+
+        // SALES LEDGER
+        if (allocation['sales_ledger'] != null &&
+            salesledger_data.contains(allocation['sales_ledger'])) {
+          _selectedsalesledger = allocation['sales_ledger'];
+        }
+
+        // VOUCHER TYPE
+        if (allocation['voucher_type'] != null &&
+            vchtypenamedata.contains(allocation['voucher_type'])) {
+          _selectedvchtypename = allocation['voucher_type'];
+
+          // optional if your app fetches voucher numbers on selection
+          fetchvchnos(_selectedvchtypename);
+        }
+
+        setState(() {});
+      }
+    }
   }
 
   Future<void> loadLedgerData() async {
@@ -3071,7 +3250,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
   Future<void> fetchvchnos(String vchname) async {
 
     // Format the dates as yyyyMMdd
-    String formattedStartDateVchNo = DateFormat('yyyyMMdd').format(yearStartDate);
+    String formattedStartDateVchNo = startfrom;
     String formattedEndDateVchNo = DateFormat('yyyyMMdd').format(yearEndDate);
 
     vchnos.clear();
@@ -3093,6 +3272,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
         "from": formattedStartDateVchNo,
         "vchname" : vchname,
       };
+
+      debugPrint('body vch no -> $jsonDatabody');
 
       String jsonDatabodyString = jsonEncode(jsonDatabody);
 
@@ -3376,206 +3557,334 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                     ),
                   ],
                 ),
-                content: SingleChildScrollView(
-                  child: Form(
-                    key: _itemFormkey,
-                    child: Column(
-                      children: [
+                content: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: SingleChildScrollView(
+                    child: Form(
+                      key: _itemFormkey,
+                      child: Column(
+                        children: [
 
-                        // 🔍 Item Search
-                        TypeAheadField<Map<String, dynamic>>(
-                          // 🔹 Latest API requires this controller instead of inside TextFieldConfiguration
-                          controller: _itemController,
+                          // 🔍 Item Search
+                          TypeAheadField<Map<String, dynamic>>(
+                            // 🔹 Latest API requires this controller instead of inside TextFieldConfiguration
+                            controller: _itemController,
 
-                          // 🔹 Suggestion logic
-                          suggestionsCallback: (pattern) async {
-                            return itemdata
-                                .where((item) {
-                              final name = item['name']?.toString().toLowerCase() ?? '';
-                              final part = item['part']?.toString().toLowerCase() ?? '';
-                              return name.contains(pattern.toLowerCase()) ||
-                                  part.contains(pattern.toLowerCase());
-                            })
-                                .cast<Map<String, dynamic>>() // 👈 important fix
-                                .toList();
-                          },
+                            // 🔹 Suggestion logic
+                            suggestionsCallback: (pattern) async {
+                              return itemdata
+                                  .where((item) {
+                                final name = item['name']?.toString().toLowerCase() ?? '';
+                                final part = item['part']?.toString().toLowerCase() ?? '';
+                                return name.contains(pattern.toLowerCase()) ||
+                                    part.contains(pattern.toLowerCase());
+                              })
+                                  .cast<Map<String, dynamic>>() // 👈 important fix
+                                  .toList();
+                            },
 
-                          // 🔹 How each suggestion looks
-                          itemBuilder: (context, suggestion) {
-                            return ListTile(
-                              title: Text(
-                                suggestion['name'] ?? '',
-                                style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
-                              ),
-                              subtitle: Text(
-                                suggestion['part'] ?? '',
-                                style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
-                              ),
-                            );
-                          },
-
-                          // 🔹 Required in new API (replaces onSuggestionSelected)
-
-                          onSelected: (suggestion) {
-                            setStateDialog(() {
-                              _selecteditem = suggestion['name'] ?? '';
-                              _itemController.text = _selecteditem;
-
-                              if (locationsdata.isNotEmpty) {
-                                selectedLocation = locationsdata[0];
-                                isVisibleLocation = true;
-                              } else {
-                                isVisibleLocation = false;
-                              }
-
-                              _updateUnitDropdown(_selecteditem);
-                              isVisibleUnit = true;
-                            });
-                          },
-
-
-
-                          // 🔹 Main TextField builder (replaces old textFieldConfiguration)
-                          builder: (context, controller, focusNode) {
-                            return TextField(
-                              controller: controller,
-                              focusNode: focusNode,
-                              decoration: InputDecoration(
-                                labelText: "Item",
-                                hintText: "Search item",
-                                prefixIcon: Container(
-                                  margin: const EdgeInsets.all(8),
-                                  decoration: const BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [Colors.blue, Colors.lightBlueAccent],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.all(Radius.circular(8)),
-                                  ),
-                                  child: const Icon(Icons.inventory_outlined, color: Colors.white),
+                            // 🔹 How each suggestion looks
+                            itemBuilder: (context, suggestion) {
+                              return ListTile(
+                                title: Text(
+                                  suggestion['name'] ?? '',
+                                  style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
                                 ),
-
-                                // 👉 Close + Dropdown icons
-                                suffixIcon: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (_itemController.text.isNotEmpty)
-                                      IconButton(
-                                        icon: const Icon(Icons.close, color: Colors.grey, size: 20),
-                                        onPressed: () {
-                                          _itemController.clear();
-                                          setStateDialog(() {
-                                            _selecteditem = "";
-                                            isVisibleLocation = false;
-                                            isVisibleUnit = false;
-                                          });
-                                        },
-                                      ),
-                                    const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                                    const SizedBox(width: 6),
-                                  ],
-                                ),
-
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  borderSide: BorderSide(color: app_color, width: 1.5),
-                                ),
-                                contentPadding:
-                                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                              ),
-                            );
-                          },
-
-                          // 🔹 Optional — shows if no match found
-                          emptyBuilder: (context) => const SizedBox.shrink(),
-                        ),
-
-
-
-
-                        const SizedBox(height: 14),
-
-                        // 📍 Location
-                        Visibility(
-                          visible: isVisibleLocation,
-                          child: DropdownButtonFormField<String>(
-                            isExpanded: true,
-
-                            value: selectedLocation,
-                            items: locationsdata.map((value) {
-                              return DropdownMenuItem(
-                                value: value,
-                                child: SizedBox(
-                                  width: double.infinity,
-                                  child: Text(
-                                    value,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                  ),
+                                subtitle: Text(
+                                  suggestion['part'] ?? '',
+                                  style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
                                 ),
                               );
-                            }).toList(),
-                            onChanged: (val) => setStateDialog(() => selectedLocation = val!),
-                            decoration: InputDecoration(
-                              labelText: "Location",
-                              prefixIcon: Container(
-                                margin: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [Colors.orange, Colors.redAccent],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                                ),
-                                child: const Icon(Icons.location_on, color: Colors.white),
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: app_color, width: 1.5),
-                              ),
-                            ),
-                          ),
-                        ),
+                            },
 
-                        const SizedBox(height: 14),
+                            // 🔹 Required in new API (replaces onSuggestionSelected)
 
-                        // 📦 Unit
-                        Visibility(
-                          visible: isVisibleUnit,
-                          child: DropdownButtonFormField<String>(
-                            value: _selectedunit,
-                            items: unitdata.map((u) {
-                              return DropdownMenuItem(value: u.name, child: Text(u.name));
-                            }).toList(),
-                            onChanged: (val) {
+                            onSelected: (suggestion) {
                               setStateDialog(() {
-                                _selectedunit = val!;
-                                itemQuantityController.text = "1";
-                                selectedMultiplier = unitdata.firstWhere((u) => u.name == _selectedunit).multiplier;
-                                updateRateAndAmount();
+                                _selecteditem = suggestion['name'] ?? '';
+                                _itemController.text = _selecteditem;
+
+                                if (locationsdata.isNotEmpty) {
+                                  selectedLocation = locationsdata[0];
+                                  isVisibleLocation = true;
+                                } else {
+                                  isVisibleLocation = false;
+                                }
+
+                                _updateUnitDropdown(_selecteditem);
+                                isVisibleUnit = true;
                               });
                             },
+
+
+
+                            // 🔹 Main TextField builder (replaces old textFieldConfiguration)
+                            builder: (context, controller, focusNode) {
+                              return TextField(
+                                controller: controller,
+                                focusNode: focusNode,
+                                decoration: InputDecoration(
+                                  labelText: "Item",
+                                  hintText: "Search item",
+                                  prefixIcon: Container(
+                                    margin: const EdgeInsets.all(8),
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [Colors.blue, Colors.lightBlueAccent],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                                    ),
+                                    child: const Icon(Icons.inventory_outlined, color: Colors.white),
+                                  ),
+
+                                  // 👉 Close + Dropdown icons
+                                  suffixIcon: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (_itemController.text.isNotEmpty)
+                                        IconButton(
+                                          icon: const Icon(Icons.close, color: Colors.grey, size: 20),
+                                          onPressed: () {
+                                            _itemController.clear();
+                                            setStateDialog(() {
+                                              _selecteditem = "";
+                                              isVisibleLocation = false;
+                                              isVisibleUnit = false;
+                                            });
+                                          },
+                                        ),
+                                      const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                                      const SizedBox(width: 6),
+                                    ],
+                                  ),
+
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(color: app_color, width: 1.5),
+                                  ),
+                                  contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                                ),
+                              );
+                            },
+
+                            // 🔹 Optional — shows if no match found
+                            emptyBuilder: (context) => const SizedBox.shrink(),
+                          ),
+
+
+
+
+
+                          // 📍 Location
+                          Visibility(
+                            visible: isVisibleLocation,
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 14),
+
+                                DropdownButtonFormField<String>(
+                                  isExpanded: true,
+
+                                  value: selectedLocation,
+                                  items: locationsdata.map((value) {
+                                    return DropdownMenuItem(
+                                      value: value,
+                                      child: SizedBox(
+                                        width: double.infinity,
+                                        child: Text(
+                                          value,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (val) => setStateDialog(() => selectedLocation = val!),
+                                  decoration: InputDecoration(
+                                    labelText: "Location",
+                                    prefixIcon: Container(
+                                      margin: const EdgeInsets.all(8),
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [Colors.orange, Colors.redAccent],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                                      ),
+                                      child: const Icon(Icons.location_on, color: Colors.white),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(color: app_color, width: 1.5),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                          ),
+
+
+                          // 📦 Unit
+                          Visibility(
+                            visible: isVisibleUnit,
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 14),
+
+                                DropdownButtonFormField<String>(
+                                  value: _selectedunit,
+                                  items: unitdata.map((u) {
+                                    return DropdownMenuItem(value: u.name, child: Text(u.name));
+                                  }).toList(),
+                                  onChanged: (val) {
+                                    setStateDialog(() {
+                                      _selectedunit = val!;
+                                      itemQuantityController.text = "1";
+                                      selectedMultiplier = unitdata.firstWhere((u) => u.name == _selectedunit).multiplier;
+                                      updateRateAndAmount();
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    labelText: "Unit",
+                                    prefixIcon: Container(
+                                      margin: const EdgeInsets.all(8),
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [Colors.purple, Colors.deepPurpleAccent],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                                      ),
+                                      child: const Icon(Icons.straighten, color: Colors.white),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(color: app_color, width: 1.5),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                          ),
+
+                          const SizedBox(height: 14),
+
+                          // 🔢 Quantity
+                          TextFormField(
+                            controller: itemQuantityController,
+                            keyboardType: TextInputType.number,
+                            onChanged: (_) => updateRateAndAmount(),
                             decoration: InputDecoration(
-                              labelText: "Unit",
+                              labelText: "Quantity",
                               prefixIcon: Container(
                                 margin: const EdgeInsets.all(8),
                                 decoration: const BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: [Colors.purple, Colors.deepPurpleAccent],
+                                    colors: [Colors.green, Colors.lightGreen],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
                                   borderRadius: BorderRadius.all(Radius.circular(8)),
                                 ),
-                                child: const Icon(Icons.straighten, color: Colors.white),
+                                child: const Icon(Icons.confirmation_num, color: Colors.white),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: app_color, width: 1.5),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 14),
+
+                          // 💲 Rate
+                          TextFormField(
+                            controller: itemRateController,
+                            keyboardType: TextInputType.number,
+                            onChanged: (_) => updateAmount(),
+                            decoration: InputDecoration(
+
+                              labelText: "Rate",
+                              prefix: Container(
+                                margin: const EdgeInsets.only(right: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Colors.blue, Colors.blue],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                                ),
+                                child: Text(
+                                  getCurrencySymbol(currencycode),
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+
+                              ),
+
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: app_color, width: 1.5),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 14),
+
+                          // 💰 Amount (Disabled with Gradient Currency Symbol)
+                          TextFormField(
+                            controller: itemAmountController,
+                            enabled: false,
+                            decoration: InputDecoration(
+                              labelText: "Amount",
+                              prefix: Container(
+                                margin: const EdgeInsets.only(right: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Colors.green, Colors.teal], // ✅ distinct from Ledger
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                                ),
+                                child: Text(
+                                  getCurrencySymbol(currencycode),
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -3586,119 +3895,12 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                               ),
                             ),
                           ),
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        // 🔢 Quantity
-                        TextFormField(
-                          controller: itemQuantityController,
-                          keyboardType: TextInputType.number,
-                          onChanged: (_) => updateRateAndAmount(),
-                          decoration: InputDecoration(
-                            labelText: "Quantity",
-                            prefixIcon: Container(
-                              margin: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Colors.green, Colors.lightGreen],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.all(Radius.circular(8)),
-                              ),
-                              child: const Icon(Icons.confirmation_num, color: Colors.white),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: app_color, width: 1.5),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        // 💲 Rate
-                        TextFormField(
-                          controller: itemRateController,
-                          keyboardType: TextInputType.number,
-                          onChanged: (_) => updateAmount(),
-                          decoration: InputDecoration(
-                            labelText: "Rate",
-                            prefix: Container(
-                              margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Colors.blue, Colors.blue], // ✅ distinct from Ledger
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.all(Radius.circular(8)),
-                              ),
-                              child: Text(
-                                getCurrencySymbol(currencycode),
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: app_color, width: 1.5),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        // 💰 Amount (Disabled with Gradient Currency Symbol)
-                        TextFormField(
-                          controller: itemAmountController,
-                          enabled: false,
-                          decoration: InputDecoration(
-                            labelText: "Amount",
-                            prefix: Container(
-                              margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Colors.green, Colors.teal], // ✅ distinct from Ledger
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.all(Radius.circular(8)),
-                              ),
-                              child: Text(
-                                getCurrencySymbol(currencycode),
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: app_color, width: 1.5),
-                            ),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
+
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
@@ -4215,7 +4417,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       username = prefs.getString('username');
       token = prefs.getString('token')!;
       currencycode = prefs.getString('currencycode') ?? 'AED';
-
+      startfrom = prefs.getString('startfrom') ?? DateFormat('yyyyMMdd').format(yearStartDate);
       company_trn = prefs.getString("company_trn")?? "null";
       company_address = prefs.getString("company_address") ?? "null";
       company_emirate = prefs.getString("company_emirate")?? "null";
@@ -4249,7 +4451,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       HttpURL_fetchvchnos = '$hostname/api/entry/nos/$company_lowercase/$serial_no';
       /*HttpURL_fetchvchnos = 'http://192.168.2.110:4999/api/entry/nos/$company_lowercase/$serial_no';*/
 
-      HttpURL_salesEntry = '$hostname/api/entry/create/$company/$serial_no';
+      HttpURL_deliveryNoteEntry = '$hostname/api/entry/create/$company/$serial_no';
       /*HttpURL_salesEntry = 'http://192.168.2.110:4999/api/entry/create/demonewformobilepp/767060064';*/
 
       itemQuantityController.text = 1.toString();
@@ -4380,7 +4582,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
             children: [
               ListView(
                   children:[
-                    GestureDetector(
+                   /* GestureDetector(
                       onTap: () => _selectDateRangeVchNo(context),
                       child: Container(
                         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -4448,7 +4650,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                           ],
                         ),
                       ),
-                    ),
+                    ),*/
 
 
                     Container(
@@ -4459,10 +4661,13 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                 child: Column(
                                   children: [
 
+                                    SizedBox(height: 8,),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                                       child: TextFormField(
                                         controller: _dateController,
+                                        readOnly: true,
+                                        enableInteractiveSelection: false,
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
@@ -4477,21 +4682,35 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                           ),
                                           filled: true,
                                           fillColor: Colors.white.withOpacity(0.95),
-                                          prefixIcon: GestureDetector(
-                                            onTap: () => _selectsaleDate(context),
-                                            child: Container(
-                                              margin: const EdgeInsets.all(8),
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: [app_color, app_color.withOpacity(0.7)],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                borderRadius: BorderRadius.circular(12),
+
+                                          // Left calendar icon (same UI)
+                                          prefixIcon: Container(
+                                            margin: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [app_color, app_color.withOpacity(0.7)],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
                                               ),
-                                              child: const Icon(Icons.calendar_today, color: Colors.white, size: 20),
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                            child: const Icon(
+                                              Icons.calendar_today,
+                                              color: Colors.white,
+                                              size: 20,
                                             ),
                                           ),
+
+                                          // Lock icon added
+                                          suffixIcon: Padding(
+                                            padding: const EdgeInsets.only(right: 12),
+                                            child: Icon(
+                                              Icons.lock,
+                                              color: Colors.grey.shade600,
+                                              size: 20,
+                                            ),
+                                          ),
+
                                           enabledBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(14),
                                             borderSide: BorderSide(
@@ -4506,10 +4725,14 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                               width: 1.5,
                                             ),
                                           ),
-                                          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            vertical: 16,
+                                            horizontal: 14,
+                                          ),
                                         ),
-                                        readOnly: true,
-                                        onTap: () => _selectsaleDate(context),
+
+                                        // Disabled tap
+                                        onTap: () {},
                                       ),
                                     ),
 

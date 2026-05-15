@@ -653,6 +653,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
        if (response.statusCode == 200) {
          Map<String, dynamic> jsonMap = jsonDecode(response.body);
 
+         debugPrint('company sync -> $jsonMap');
          // Extract the "lastSync" and "trn" values
          String lastSyncString = jsonMap['lastSync'];
          String trn = jsonMap['trn'].toString();
@@ -1173,6 +1174,16 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                     onChanged: (value) async {
                       setState(() {
                         _selectedserial = value!;
+                        // ✅ Update spectra allocations on serial change
+                        if (_selectedserial['spectra_allocations'] != null) {
+                          prefs.setString(
+                            'spectra_allocations',
+                            jsonEncode(_selectedserial['spectra_allocations']),
+                          );
+                        } else {
+                          prefs.remove('spectra_allocations');
+                        }
+
                         _isLoading = true;
                       });
 
@@ -1280,6 +1291,22 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
       });
 
       Map<String, dynamic> selected_data = _selectedserial;
+
+      // ✅ Save spectra allocations if available
+      if (_selectedserial['spectra_allocations'] != null) {
+        prefs.setString(
+          'spectra_allocations',
+          jsonEncode(_selectedserial['spectra_allocations']),
+        );
+
+        print(
+          'spectra allocations -> ${prefs.getString('spectra_allocations')}',
+        );
+      } else {
+        prefs.remove('spectra_allocations');
+      }
+
+
       serial_no = selected_data['serial_no'] as String;
       role_id = selected_data['role_id'].toString();
       hostname = selected_data['website_url'] as String;
@@ -1614,6 +1641,8 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
 
      if (response.statusCode == 200) {
        final company_data = jsonDecode(response.body);
+
+       debugPrint('company_data -> $company_data');
        if (company_data != null) {
          setState(() {
            myData_company = company_data;

@@ -1920,27 +1920,99 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
               ),
             ),
 
-            SizedBox(height: 16),
+            SizedBox(height: 0),
 
             // Text Field Box
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.black12),
-                borderRadius: BorderRadius.circular(12),
-
+                borderRadius: BorderRadius.circular(22),
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white,
+                    Colors.grey.shade50,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
-              padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               child: TextField(
                 controller: _textEditingController,
-                style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
+                style: GoogleFonts.poppins(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+                cursorColor: app_color,
                 decoration: InputDecoration(
                   hintText: 'Enter new role name',
-                  hintStyle: GoogleFonts.poppins(color: Colors.grey.shade500),
-                  border: InputBorder.none,
+                  hintStyle: GoogleFonts.poppins(
+                    color: Colors.grey.shade500,
+                    fontSize: 14,
+                  ),
 
-                  icon: Icon(Icons.badge_outlined, color: Colors.grey),
+                  prefixIcon: Container(
+                    margin: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: app_color.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      Icons.badge_outlined,
+                      color: app_color,
+                      size: 22,
+                    ),
+                  ),
+
+                  suffixIcon: _textEditingController.text.isNotEmpty
+                      ? IconButton(
+                    splashRadius: 20,
+                    icon: Icon(
+                      Icons.close_rounded,
+                      color: Colors.grey.shade500,
+                    ),
+                    onPressed: () {
+                      _textEditingController.clear();
+                      setState(() {});
+                    },
+                  )
+                      : null,
+
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(22),
+                    borderSide: BorderSide(
+                      color: Colors.grey.shade300,
+                      width: 1.2,
+                    ),
+                  ),
+
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(22),
+                    borderSide: BorderSide(
+                      color: app_color,
+                      width: 1.7,
+                    ),
+                  ),
+
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+
+                  filled: true,
+                  fillColor: Colors.transparent,
+
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 20,
+                  ),
                 ),
+                onChanged: (_) => setState(() {}),
               ),
             ),
 

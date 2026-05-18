@@ -41,7 +41,12 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
       _isLoading = false,
       isVisibleNoRoleFound = false;
 
-      String rolename_fetched = "";
+
+  final TextEditingController searchController = TextEditingController();
+
+  List<RoleModel> filteredRoles = [];
+
+  String rolename_fetched = "";
 
       final List<RoleModel> roles = [];
 
@@ -54,6 +59,21 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
       late SharedPreferences prefs;
 
       String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";
+
+
+  void filterRoles(String query) {
+    setState(() {
+      if (query.trim().isEmpty) {
+        filteredRoles = List.from(roles);
+      } else {
+        filteredRoles = roles.where((role) {
+          return role.role_name
+              .toLowerCase()
+              .contains(query.toLowerCase());
+        }).toList();
+      }
+    });
+  }
 
       Future<void> _initSharedPreferences() async {
         prefs = await SharedPreferences.getInstance();
@@ -322,6 +342,7 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
         {
           isVisibleNoRoleFound = false;
           roles.addAll(jsonList.map((json) => RoleModel.fromJson(json)).toList());
+          filteredRoles = List.from(roles);
         }
         else
         {
@@ -457,80 +478,152 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
                   ),
                 ),
               ),
-              ListView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                itemCount: roles.length,
-                itemBuilder: (context, index) {
-                  final card = roles[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 14),
+              
+              Column(
+                children: [
+                  // SEARCH BAR
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
                       color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
+                          color: Colors.black12.withOpacity(0.06),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
                         ),
                       ],
                     ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      leading: CircleAvatar(
-                        radius: 24,
-                        backgroundColor: app_color.withOpacity(0.1),
-                        child: Icon(Icons.group, color: app_color, size: 24),
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: filterRoles,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.black87,
                       ),
-                      title: Text(
-                        card.role_name,
-                        style:  GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                      decoration: InputDecoration(
+                        hintText: 'Search roles...',
+                        hintStyle: GoogleFonts.poppins(
+                          color: Colors.grey[500],
+                          fontSize: 14,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search_rounded,
+                          color: app_color,
+                          size: 24,
+                        ),
+                        suffixIcon: searchController.text.isNotEmpty
+                            ? IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () {
+                            searchController.clear();
+                            filterRoles('');
+                          },
+                        )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(
+                            color: app_color.withOpacity(0.4),
+                            width: 1.2,
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
                         ),
                       ),
-
-                      trailing: Wrap(
-                        spacing: 10,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              String rolename = card.role_name;
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => ModifyRole(role_name: rolename)),
-                              );
-                            },
-                            child: Tooltip(
-                              message: 'Edit Role',
-                              child: CircleAvatar(
-                                backgroundColor: Colors.blue.shade50,
-                                child: Icon(Icons.edit, size: 18, color: Colors.blue),
-                                radius: 16,
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              rolename_fetched = card.role_name;
-                              _showConfirmationDialogAndNavigate(context);
-                            },
-                            child: Tooltip(
-                              message: 'Delete Role',
-                              child: CircleAvatar(
-                                backgroundColor: Colors.red.shade50,
-                                child: Icon(Icons.delete_outline, size: 18, color: Colors.red),
-                                radius: 16,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
-                  );
-                },
+                  ),
+                  Expanded(child: ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                    itemCount: roles.length,
+                    itemBuilder: (context, index) {
+                      final card = roles[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 14),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 8,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          leading: CircleAvatar(
+                            radius: 24,
+                            backgroundColor: app_color.withOpacity(0.1),
+                            child: Icon(Icons.group, color: app_color, size: 24),
+                          ),
+                          title: Text(
+                            card.role_name,
+                            style:  GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+
+                          trailing: Wrap(
+                            spacing: 10,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  String rolename = card.role_name;
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => ModifyRole(role_name: rolename)),
+                                  );
+                                },
+                                child: Tooltip(
+                                  message: 'Edit Role',
+                                  child: CircleAvatar(
+                                    backgroundColor: Colors.blue.shade50,
+                                    child: Icon(Icons.edit, size: 18, color: Colors.blue),
+                                    radius: 16,
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  rolename_fetched = card.role_name;
+                                  _showConfirmationDialogAndNavigate(context);
+                                },
+                                child: Tooltip(
+                                  message: 'Delete Role',
+                                  child: CircleAvatar(
+                                    backgroundColor: Colors.red.shade50,
+                                    child: Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                                    radius: 16,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  )
+                ],
               ),
+              
 
               if (_isLoading)
                 const Center(

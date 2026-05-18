@@ -323,10 +323,45 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
 
         fetchAllocations();
       } else {
+        String errorMessage = 'Something went wrong';
+
+        try {
+          final responseData = jsonDecode(response.body);
+
+          if (responseData is Map<String, dynamic>) {
+
+            errorMessage =
+                responseData['message'] ??
+                    responseData['error'] ??
+                    responseData['detail'] ??
+                    responseData['msg'] ??
+                    errorMessage;
+
+          } else if (responseData is String) {
+
+            errorMessage = responseData;
+
+          }
+
+        } catch (_) {
+
+          errorMessage = response.body.toString();
+
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.red.shade500,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             content: Text(
-              'Failed: ${response.body}',
+              errorMessage,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         );

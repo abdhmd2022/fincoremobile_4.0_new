@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -247,17 +248,17 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
       }
       Fluttertoast.showToast(msg: error);
 
-      setState(() {
+     /* setState(() {
         _isLoading = false;
-      });
+      });*/
     }
   }
 
   Future<void> fetchCompany(String selectedserial) async {
-    setState(()
+    /*setState(()
     {
       _isLoading = true;
-    });
+    });*/
     myDataCompanies.clear();
     final url = Uri.parse('$BASE_URL_config/api/admin/getCompany');
 
@@ -311,17 +312,18 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
       }
       Fluttertoast.showToast(msg: error);
 
-      setState(() {
+      /*setState(() {
         _isLoading = false;
-      });
+      });*/
     }
   }
 
   Future<void> fetchAllowedCompany(String selectedserial, String email) async {
-    setState(()
+    /*setState(()
     {
       _isLoading = true;
-    });
+    });*/
+
     final url = Uri.parse('$BASE_URL_config/api/roles/allowed_companies?user_name=$email&serial_no=$selectedserial');
 
     Map<String,String> headers = {
@@ -349,9 +351,20 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
         }).toList();
 
         setState(() {
+
+          final normalizedAllowedCompanies =
+          allowedCompanies
+              .map((e) => e.toString().trim().toLowerCase())
+              .toList();
+
           _selectedCompanies = myDataCompanies.where((company) {
-            return allowedCompanies.contains(company);
+
+            return normalizedAllowedCompanies.contains(
+              company.toString().trim().toLowerCase(),
+            );
+
           }).toList();
+
         });
 
         print('Allowed Companies: $allowedCompanies');
@@ -360,17 +373,17 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
       }
       else
       {
-        setState(() {
+        /*setState(() {
           _isLoading = false;
 
-        });
+        });*/
 
         throw Exception('Failed to fetch data');
       }
-      setState(()
+     /* setState(()
       {
         _isLoading = false;
-      });
+      });*/
 
     }
     else
@@ -381,14 +394,14 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
       if (data.containsKey('error')) {
         setState(() {
           error = data['error'];
-          _isLoading = false;
+          /*_isLoading = false;*/
         });
       }
       else
       {
         error = 'Something went wrong!!!';
         setState(() {
-          _isLoading = false;
+          /*_isLoading = false;*/
         });
       }
       Fluttertoast.showToast(msg: error);
@@ -496,7 +509,8 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
                         child: ElevatedButton(
                           onPressed: () async {
                             Navigator.of(context).pop();
-                            modifyUser(serial_no!, fetched_email!, fetched_role!, fetched_name!);
+                            modifyUser(serial_no!, fetched_email!, fetched_role!, fetched_name!,  controller_password.text.trim(),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: app_color,
@@ -531,7 +545,7 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
         .hasMatch(value.trim());
   }
 
-  Future<void> modifyUser(String selectedserial,String email,String rolename, String name) async {
+  Future<void> modifyUser(String selectedserial,String email,String rolename, String name, String? password,) async {
     setState(() {
       _isLoading = true;
     });
@@ -545,12 +559,19 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
         "Content-Type": "application/json"
       };
 
-      var body = jsonEncode( {
-        "username" : email,
-        "serialno" : selectedserial,
-        "rolename" : rolename,
-        "name" : name,
-      });
+      Map<String, dynamic> requestBody = {
+        "username": email,
+        "serialno": selectedserial,
+        "rolename": rolename,
+        "name": name,
+      };
+
+      if (!isEmail(email)) {
+        requestBody["password"] = password;
+      }
+
+      var body = jsonEncode(requestBody);
+
 
       final response = await http.post(
           url,
@@ -615,10 +636,10 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
   }
 
   Future<void> fetchRoles(String selectedserial) async {
-    setState(()
+    /*setState(()
     {
       _isLoading = true;
-    });
+    });*/
 
     try
     {
@@ -666,16 +687,17 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
     catch (e)
     {
       print(e);
-    setState(() {
+   /* setState(() {
       _isLoading = false;
-    });}
+    });*/
+    }
   }
 
   Future<void> fetchUsers(String selectedserial,String username) async {
-    setState(()
+  /*  setState(()
     {
       _isLoading = true;
-    });
+    });*/
 
     try
     {
@@ -703,18 +725,21 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
       {
         List<dynamic> parsedResponse = jsonDecode(response.body);
 
-        String userPassword = parsedResponse[0]['user_password'];
+        if (!isEmail(controller_email.text)) {
+          String userPassword =
+              parsedResponse[0]['user_password'] ?? '';
 
-        controller_password.text = userPassword;
+          controller_password.text = userPassword;
+        }
       }
     }
     catch (e)
     {
     print(e);
-    setState(()
+   /* setState(()
     {
       _isLoading = false;
-    });
+    });*/
     }
   }
 
@@ -733,6 +758,9 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final bool isUsernameUser =
+        controller_email.text.isNotEmpty &&
+            !isEmail(controller_email.text);
     return WillPopScope(
       onWillPop: () async {
         Navigator.pushReplacement(
@@ -862,8 +890,27 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
                               isFocused: _isFocused_email,
                               onFocus: () => _updateFocus(email: true),
                             ),
+                            if (isUsernameUser) ...[
+                              const SizedBox(height: 20),
 
-                            const SizedBox(height: 20),
+                              _modernTextField(
+                                label: 'Change Password',
+                                enable: true,
+                                controller: controller_password,
+                                icon: Icons.lock_outline,
+                                isPassword: true,
+                                obscureText: _obscureText,
+                                isFocused: _isFocused_password,
+                                onFocus: () => _updateFocus(password: true),
+                                toggleObscure: () {
+                                  setState(() {
+                                    _obscureText = !_obscureText;
+                                  });
+                                },
+                              ),
+                            ],
+                            const SizedBox(height: 10),
+
 
                             // Role Dropdown
                             Text("Select Role", style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
@@ -915,21 +962,70 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
 
 
                             // Submit Button
-                            ElevatedButton.icon(
+                            ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: app_color,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                                 elevation: 4,
                               ),
-                              icon: const Icon(Icons.save_alt),
-                              label: Text(
-                                'Modify',
-                                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+
+                              onPressed: _isLoading ? null : _onModifyPressed,
+
+                              child: _isLoading
+                                  ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+
+                                  SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: Theme.of(context).platform == TargetPlatform.iOS
+                                        ? const CupertinoActivityIndicator(
+                                      radius: 10,
+                                      color: Colors.white,
+                                    )
+                                        : const CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                      backgroundColor: Colors.transparent,
+                                    ),
+                                  ),
+
+                                  const SizedBox(width: 12),
+
+                                  Text(
+                                    'Saving...',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              )
+
+                                  : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+
+                                  const Icon(Icons.save_alt),
+
+                                  const SizedBox(width: 10),
+
+                                  Text(
+                                    'MODIFY',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              onPressed: _onModifyPressed,
-                            ),
+                            )
                           ],
                         ),
                       ),
@@ -975,6 +1071,26 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
 
         _isFocused_email = false;
         _isFocus_name = false;
+        if (!isEmail(fetched_email!)) {
+
+          if (controller_password.text.trim().isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Enter password"),
+              ),
+            );
+            return;
+          }
+
+          if (controller_password.text.trim().length < 4) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Password too short"),
+              ),
+            );
+            return;
+          }
+        }
         _showConfirmationDialogAndNavigate(context);
       }
     });

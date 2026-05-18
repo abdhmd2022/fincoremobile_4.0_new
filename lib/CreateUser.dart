@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mailer/mailer.dart';
@@ -421,7 +422,7 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
   }
 
   Future<void> addAllowedCompanies(String email, String serialno, List<String> companies_list) async {
-    myDataCompanies.clear();
+    // myDataCompanies.clear();
     final url = Uri.parse('$BASE_URL_config/api/roles/allowed_companies');
 
     Map<String,String> headers = {
@@ -446,6 +447,10 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
     if (response.statusCode == 200)
     {
       print(response.body);
+
+      setState(() {
+        _selectedCompanies.clear();
+      });
     }
     else
     {
@@ -663,8 +668,8 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
               tickerProvider: this),
         body: Stack(
           children: [
-            if (_isLoading)
-              const Center(child: CircularProgressIndicator.adaptive()),
+           /* if (_isLoading)
+              const Center(child: CircularProgressIndicator.adaptive()),*/
 
             LayoutBuilder(
               builder: (context, constraints) {
@@ -796,21 +801,59 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
                               ),
                             ),
                             SizedBox(height: 70),
-                            ElevatedButton.icon(
+                            ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: app_color,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                                 elevation: 4,
                               ),
-                              icon: Icon(Icons.save_alt),
-                              label: Text(
-                                'REGISTER',
-                                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                              onPressed: _isLoading ? null : _submitForm,
+                              child: _isLoading
+                                  ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: Theme.of(context).platform == TargetPlatform.iOS
+                                        ? const CupertinoActivityIndicator(
+                                      radius: 10,
+                                      color: Colors.white,
+                                    )
+                                        : const CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      backgroundColor: Colors.transparent,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    'Saving...',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              )
+                                  : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.save_alt),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'REGISTER',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              onPressed: _submitForm,
-                            ),
+                            )
                           ],
                         ),
                       ),

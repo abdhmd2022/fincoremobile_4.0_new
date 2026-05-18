@@ -47,6 +47,10 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
        _isLoading = false,
        isVisibleNoUserFound = false;
 
+  final TextEditingController searchController = TextEditingController();
+
+  List<UserModel> filteredUsers = [];
+
   String user_email_fetched = "";
 
   final List<UserModel> users = [];
@@ -58,6 +62,20 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
   late SharedPreferences prefs;
 
   String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";
+
+  void filterUsers(String query) {
+    setState(() {
+      if (query.trim().isEmpty) {
+        filteredUsers = List.from(users);
+      } else {
+        filteredUsers = users.where((user) {
+          return user.name.toLowerCase().contains(query.toLowerCase()) ||
+              user.email.toLowerCase().contains(query.toLowerCase()) ||
+              user.role_name.toLowerCase().contains(query.toLowerCase());
+        }).toList();
+      }
+    });
+  }
 
   Future<void> _initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
@@ -311,7 +329,10 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
         isVisibleNoUserFound = false;
 
         users.addAll(jsonList.map((json) => UserModel.fromJson(json)).toList());
+        filteredUsers = List.from(users);
+
         users.sort(compareDataObjects);
+        filteredUsers.sort(compareDataObjects);
 
         setState(()
         {
@@ -441,142 +462,218 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                   ),
                 ),
 
-              ListView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                itemCount: users.length,
+              Column(
+                children: [
 
-                itemBuilder: (context, index) {
-                  final card = users[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 5),
+
+                  // SEARCH BAR
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.95),
-                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black12.withOpacity(0.08),
-                          blurRadius: 20,
-                          offset: Offset(0, 10),
+                          color: Colors.black12.withOpacity(0.06),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
                         ),
                       ],
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          /// Left Column (Avatar + Info)
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                /// Name
-                                Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 22,
-                                      backgroundColor: app_color.withOpacity(0.2),
-                                      child: Icon(Icons.person, color: app_color),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Text(
-                                        card.name,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 14),
-
-                                /// Email
-                                Row(
-                                  children: [
-                                    Icon(Icons.email_outlined, size: 18, color: Colors.grey[600]),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        card.email,
-                                        style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[700]),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 10),
-
-                                /// Role
-                                Row(
-                                  children: [
-                                    Icon(Icons.security_outlined, size: 18, color: Colors.grey[600]),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        card.role_name,
-                                        style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[700]),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: filterUsers,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.black87,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Search users...',
+                        hintStyle: GoogleFonts.poppins(
+                          color: Colors.grey[500],
+                          fontSize: 14,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search_rounded,
+                          color: app_color,
+                          size: 24,
+                        ),
+                        suffixIcon: searchController.text.isNotEmpty
+                            ? IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () {
+                            searchController.clear();
+                            filterUsers('');
+                          },
+                        )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(
+                            color: app_color.withOpacity(0.4),
+                            width: 1.2,
                           ),
-
-                          /// Right Column (Edit/Delete)
-                          Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => ModifyUser(
-                                          email_address: card.email,
-                                          user_name: card.name,
-                                          rolename: card.role_name,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Tooltip(
-                                    message: 'Edit User',
-                                    child: CircleAvatar(
-                                      backgroundColor: Colors.blue.shade50,
-                                      radius: 16,
-                                      child: Icon(Icons.edit, size: 18, color: Colors.blue),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 15),
-                                GestureDetector(
-                                  onTap: () {
-                                    user_email_fetched = card.email;
-                                    _showConfirmationDialogAndNavigate(context);
-                                  },
-                                  child: Tooltip(
-                                    message: 'Delete User',
-                                    child: CircleAvatar(
-                                      backgroundColor: Colors.red.shade50,
-                                      radius: 16,
-                                      child: Icon(Icons.delete_outline, size: 18, color: Colors.red),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
                       ),
                     ),
-                  );
-                },
+                  ),
+
+                  Expanded(child:
+                  ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                    itemCount: filteredUsers.length,
+
+                    itemBuilder: (context, index) {
+                      final card = filteredUsers[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.95),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12.withOpacity(0.08),
+                              blurRadius: 20,
+                              offset: Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              /// Left Column (Avatar + Info)
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    /// Name
+                                    Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 22,
+                                          backgroundColor: app_color.withOpacity(0.2),
+                                          child: Icon(Icons.person, color: app_color),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            card.name,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 14),
+
+                                    /// Email
+                                    Row(
+                                      children: [
+                                        Icon(Icons.email_outlined, size: 18, color: Colors.grey[600]),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            card.email,
+                                            style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[700]),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 10),
+
+                                    /// Role
+                                    Row(
+                                      children: [
+                                        Icon(Icons.security_outlined, size: 18, color: Colors.grey[600]),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            card.role_name,
+                                            style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[700]),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              /// Right Column (Edit/Delete)
+                              Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => ModifyUser(
+                                              email_address: card.email,
+                                              user_name: card.name,
+                                              rolename: card.role_name,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Tooltip(
+                                        message: 'Edit User',
+                                        child: CircleAvatar(
+                                          backgroundColor: Colors.blue.shade50,
+                                          radius: 16,
+                                          child: Icon(Icons.edit, size: 18, color: Colors.blue),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 15),
+                                    GestureDetector(
+                                      onTap: () {
+                                        user_email_fetched = card.email;
+                                        _showConfirmationDialogAndNavigate(context);
+                                      },
+                                      child: Tooltip(
+                                        message: 'Delete User',
+                                        child: CircleAvatar(
+                                          backgroundColor: Colors.red.shade50,
+                                          radius: 16,
+                                          child: Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),)
+
+
+
+                ],
               ),
 
               if (_isLoading)

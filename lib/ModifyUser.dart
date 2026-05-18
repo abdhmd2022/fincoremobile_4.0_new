@@ -526,6 +526,11 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
     );
   }
 
+  bool isEmail(String value) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+        .hasMatch(value.trim());
+  }
+
   Future<void> modifyUser(String selectedserial,String email,String rolename, String name) async {
     setState(() {
       _isLoading = true;
@@ -849,7 +854,7 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
 
                             // Email Field (Disabled)
                             _modernTextField(
-                              label: 'Email Address',
+                              label: 'Username or Email',
                               enable: false,
                               controller: controller_email,
                               icon: Icons.email_outlined,
@@ -964,18 +969,13 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
         );
       } else if (fetched_email!.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Enter Email Address")),
+          SnackBar(content: Text("Enter Username or Email")),
         );
       } else {
-        if (isValidEmail(fetched_email!)) {
-          _isFocused_email = false;
-          _isFocus_name = false;
-          _showConfirmationDialogAndNavigate(context);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Enter Valid Email Address")),
-          );
-        }
+
+        _isFocused_email = false;
+        _isFocus_name = false;
+        _showConfirmationDialogAndNavigate(context);
       }
     });
   }

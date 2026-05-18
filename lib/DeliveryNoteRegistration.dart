@@ -126,12 +126,14 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       totalVatAmount = 0,
       totalAmount = 0;
 
+  bool isVoucherTypeLocked = false;
+
   double totalPriceOfItems = 0, totalAmountForVatAppEntries = 0,totalAmountOfLedgers = 0;
   final FocusNode _textFieldFocusNodeNarration = FocusNode();
 
   late AnimationController _animationController;
   late Animation<double> _animation;
-
+  bool isSalesLedgerLocked = false;
 
   void _deleteLedger(int index) {
     setState(() {
@@ -3041,9 +3043,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
           }
 
-          _selectedpartyledger =
-          partyledgerdata.isNotEmpty ? partyledgerdata[0] : null;
-          _partyLedgerController.text = _selectedpartyledger ?? '';
+          // _selectedpartyledger = partyledgerdata.isNotEmpty ? partyledgerdata[0] : null;
+          // _partyLedgerController.text = _selectedpartyledger ?? '';
           salesledger_data = List<String>.from(
             (jsonResponse["salesLedgers"] ?? [])
                 .where((e) => e != null)
@@ -3079,11 +3080,10 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
               .toList();
 
 
-          _selecteditem =
-          itemdata.isNotEmpty ? '${itemdata[0]['name']}' : null;
+          // _selecteditem = itemdata.isNotEmpty ? '${itemdata[0]['name']}' : null;
 
 
-          _itemController.text = _selecteditem ?? '';
+          // _itemController.text = _selecteditem ?? '';
           locationsdata = List<String>.from(
             (jsonResponse['locations'] ?? [])
                 .where((e) => e != null)
@@ -3136,6 +3136,45 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     });
 
 
+    if (allocationString != null &&
+        allocationString.isNotEmpty) {
+
+      List<dynamic> allocations =
+      jsonDecode(allocationString);
+
+      if (allocations.isNotEmpty) {
+
+        final allocation =
+        allocations.first as Map<String, dynamic>;
+
+        final savedSalesLedger =
+        allocation['sales_ledger']?.toString();
+
+        if (savedSalesLedger != null &&
+            savedSalesLedger.isNotEmpty &&
+            salesledger_data.contains(savedSalesLedger)) {
+
+          _selectedsalesledger = savedSalesLedger;
+
+          // LOCK DROPDOWN
+          isSalesLedgerLocked = true;
+
+        } else if (salesledger_data.isNotEmpty) {
+
+          _selectedsalesledger = salesledger_data[0];
+
+          isSalesLedgerLocked = false;
+        }
+      }
+    }
+    else if (salesledger_data.isNotEmpty) {
+
+      _selectedsalesledger = salesledger_data[0];
+
+      isSalesLedgerLocked = false;
+    }
+
+
     if (allocationString != null) {
       List<dynamic> allocations = jsonDecode(allocationString);
 
@@ -3152,18 +3191,31 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
         }
 
         // SALES LEDGER
-        if (allocation['sales_ledger'] != null &&
+        /*if (allocation['sales_ledger'] != null &&
             salesledger_data.contains(allocation['sales_ledger'])) {
           _selectedsalesledger = allocation['sales_ledger'];
-        }
+        }*/
 
         // VOUCHER TYPE
-        if (allocation['voucher_type'] != null &&
-            vchtypenamedata.contains(allocation['voucher_type'])) {
-          _selectedvchtypename = allocation['voucher_type'];
+        final savedVoucherType =
+        allocation['voucher_type']?.toString();
+
+        if (savedVoucherType != null &&
+            savedVoucherType.isNotEmpty &&
+            vchtypenamedata.contains(savedVoucherType)) {
+
+          _selectedvchtypename = savedVoucherType;
+
+          isVoucherTypeLocked = true;
 
           // optional if your app fetches voucher numbers on selection
           fetchvchnos(_selectedvchtypename);
+
+        } else if (vchtypenamedata.isNotEmpty) {
+
+          _selectedvchtypename = vchtypenamedata[0];
+
+          isVoucherTypeLocked = false;
         }
 
         setState(() {});
@@ -3524,6 +3576,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
   }
 
   Future<void> _showItemDetailsPopup(BuildContext context) async {
+    _selecteditem = null;
+    _itemController.clear();
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -3569,6 +3623,17 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                           TypeAheadField<Map<String, dynamic>>(
                             // 🔹 Latest API requires this controller instead of inside TextFieldConfiguration
                             controller: _itemController,
+                            decorationBuilder: (context, child) {
+                              return Material(
+                                elevation: 6,
+                                borderRadius: BorderRadius.circular(16),
+                                color: Colors.white,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: child,
+                                ),
+                              );
+                            },
 
                             // 🔹 Suggestion logic
                             suggestionsCallback: (pattern) async {
@@ -3623,9 +3688,24 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                               return TextField(
                                 controller: controller,
                                 focusNode: focusNode,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
+                                ),
                                 decoration: InputDecoration(
                                   labelText: "Item",
                                   hintText: "Search item",
+                                  labelStyle: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey[700],
+                                  ),
+
+                                  hintStyle: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    color: Colors.grey[600],
+                                  ),
                                   prefixIcon: Container(
                                     margin: const EdgeInsets.all(8),
                                     decoration: const BoxDecoration(
@@ -3674,15 +3754,21 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                             },
 
                             // 🔹 Optional — shows if no match found
-                            emptyBuilder: (context) => const SizedBox.shrink(),
+                            emptyBuilder: (context) => Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Text(
+                                "No item found",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  color: Colors.redAccent,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
                           ),
 
-
-
-
-
                           // 📍 Location
-                          Visibility(
+                          /*Visibility(
                             visible: isVisibleLocation,
                             child: Column(
                               children: [
@@ -3694,7 +3780,9 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                   value: selectedLocation,
                                   items: locationsdata.map((value) {
                                     return DropdownMenuItem(
+
                                       value: value,
+
                                       child: SizedBox(
                                         width: double.infinity,
                                         child: Text(
@@ -3705,9 +3793,19 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                       ),
                                     );
                                   }).toList(),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black87,
+                                  ),
                                   onChanged: (val) => setStateDialog(() => selectedLocation = val!),
                                   decoration: InputDecoration(
                                     labelText: "Location",
+                                    labelStyle: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[700],
+                                    ),
                                     prefixIcon: Container(
                                       margin: const EdgeInsets.all(8),
                                       decoration: const BoxDecoration(
@@ -3732,7 +3830,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                               ],
                             ),
 
-                          ),
+                          ),*/
 
 
                           // 📦 Unit
@@ -3745,7 +3843,14 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                 DropdownButtonFormField<String>(
                                   value: _selectedunit,
                                   items: unitdata.map((u) {
-                                    return DropdownMenuItem(value: u.name, child: Text(u.name));
+                                    return DropdownMenuItem(value: u.name, child: Text(
+                                      u.name,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black87,
+                                      ),
+                                    ),);
                                   }).toList(),
                                   onChanged: (val) {
                                     setStateDialog(() {
@@ -3756,6 +3861,11 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     });
                                   },
                                   decoration: InputDecoration(
+                                    labelStyle: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[700],
+                                    ),
                                     labelText: "Unit",
                                     prefixIcon: Container(
                                       margin: const EdgeInsets.all(8),
@@ -3787,10 +3897,25 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                           // 🔢 Quantity
                           TextFormField(
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
                             controller: itemQuantityController,
                             keyboardType: TextInputType.number,
                             onChanged: (_) => updateRateAndAmount(),
                             decoration: InputDecoration(
+                              labelStyle: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[700],
+                              ),
+
+                              hintStyle: GoogleFonts.poppins(
+                                fontSize: 13,
+                                color: Colors.grey[600],
+                              ),
                               labelText: "Quantity",
                               prefixIcon: Container(
                                 margin: const EdgeInsets.all(8),
@@ -3819,11 +3944,25 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                           // 💲 Rate
                           TextFormField(
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
                             controller: itemRateController,
                             keyboardType: TextInputType.number,
                             onChanged: (_) => updateAmount(),
                             decoration: InputDecoration(
+                              labelStyle: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[700],
+                              ),
 
+                              hintStyle: GoogleFonts.poppins(
+                                fontSize: 13,
+                                color: Colors.grey[600],
+                              ),
                               labelText: "Rate",
                               prefix: Container(
                                 margin: const EdgeInsets.only(right: 8),
@@ -3862,9 +4001,24 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                           // 💰 Amount (Disabled with Gradient Currency Symbol)
                           TextFormField(
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
                             controller: itemAmountController,
                             enabled: false,
                             decoration: InputDecoration(
+                              labelStyle: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[700],
+                              ),
+
+                              hintStyle: GoogleFonts.poppins(
+                                fontSize: 13,
+                                color: Colors.grey[600],
+                              ),
                               labelText: "Amount",
                               prefix: Container(
                                 margin: const EdgeInsets.only(right: 8),
@@ -3929,6 +4083,12 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
   }
 
   void _showLedgerDetailsPopup(BuildContext context) {
+    final TextEditingController _ledgerController =
+    TextEditingController();
+
+    _ledgerController.clear();
+    _selectedledger = null;
+
     showDialog(
       context: context,
       builder: (context) {
@@ -3972,45 +4132,160 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                     // 🔻 Ledger Dropdown
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                      child: DropdownButtonFormField<String>(
-                        isExpanded: true,
-                        value: _selectedledger,
-                        hint: const Text("Select Ledger"),
-                        items: ledgerdata.map<DropdownMenuItem<String>>((ledger) {
-                          return DropdownMenuItem<String>(
-                            value: ledger['name'],
-                            child: Text(
-                              ledger['name'],
-                              overflow: TextOverflow.ellipsis,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 4,
+                        horizontal: 4,
+                      ),
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: TypeAheadField<String>(
+                        controller: _ledgerController,
+
+                        suggestionsCallback: (pattern) async {
+                          return ledgerdata
+                              .map<String>((ledger) => ledger['name'].toString())
+                              .where(
+                                (item) => item
+                                .toLowerCase()
+                                .contains(pattern.toLowerCase()),
+                          )
+                              .toList();
+                        },
+
+                        builder: (context, textController, focusNode) {
+                          return TextField(
+                            controller: textController,
+                            focusNode: focusNode,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+
+
+
+                            decoration: InputDecoration(
+                              hintText: _selectedledger?.isNotEmpty == true
+                                  ? _selectedledger
+                                  : "Select Ledger",
+
+                              labelText: "Ledger Name",
+                              hintStyle: GoogleFonts.poppins(
+                                fontSize: 13,
+                                color: Colors.grey[600],
+                              ),
+                              labelStyle: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[700],
+                              ),
+                              prefixIcon: Container(
+                                margin: const EdgeInsets.all(8),
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.blue,
+                                      Colors.lightBlueAccent,
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(12),
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.account_balance_wallet,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+
+                              suffixIcon: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (_ledgerController.text.isNotEmpty)
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.close,
+                                        color: Colors.grey,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _ledgerController.clear();
+                                          _selectedledger = "";
+                                        });
+                                      },
+                                    ),
+
+                                  const Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.grey,
+                                  ),
+
+                                  const SizedBox(width: 6),
+                                ],
+                              ),
+
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                  color: app_color,
+                                  width: 1.5,
+                                ),
+                              ),
                             ),
                           );
-                        }).toList(),
-                        onChanged: (value) {
+                        },
+
+                        decorationBuilder: (context, child) {
+                          return Material(
+                            elevation: 6,
+                            borderRadius: BorderRadius.circular(16),
+                            color: Colors.white,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: child,
+                            ),
+                          );
+                        },
+
+                          itemBuilder: (context, String suggestion) {
+                            return ListTile(
+                              title: Text(
+                                suggestion,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            );
+                          },
+
+                        onSelected: (String suggestion) {
                           setState(() {
-                            _selectedledger = value!;
+                            _selectedledger = suggestion;
+                            _ledgerController.text = suggestion;
                           });
                         },
-                        decoration: InputDecoration(
-                          labelText: "Ledger Name",
-                          prefixIcon: Container(
-                            margin: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Colors.blue, Colors.lightBlueAccent],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+
+                          emptyBuilder: (context) => Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Text(
+                              "No ledger found",
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                color: Colors.redAccent,
+                                fontWeight: FontWeight.w500,
                               ),
-                              borderRadius: BorderRadius.all(Radius.circular(8)),
                             ),
-                            child: const Icon(Icons.account_balance_wallet, color: Colors.white),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: app_color, width: 1.5),
                           ),
                         ),
                       ),
@@ -4023,10 +4298,21 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
                       child: TextFormField(
                         controller: ledgerAmountController,
+
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+
                         keyboardType: TextInputType.number,
+
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*')),
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^-?\d*\.?\d*'),
+                          ),
                         ],
+
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter amount';
@@ -4035,19 +4321,45 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                           }
                           return null;
                         },
+
                         decoration: InputDecoration(
                           labelText: "Amount",
                           hintText: "Enter Amount",
+
+                          labelStyle: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[700],
+                          ),
+
+                          hintStyle: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.grey[600],
+                          ),
+
+                          errorStyle: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+
                           prefix: Container(
                             margin: const EdgeInsets.only(right: 8),
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [Colors.orange, Colors.redAccent], // ✅ distinct from Ledger
+                                colors: [
+                                  Colors.orange,
+                                  Colors.redAccent,
+                                ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
-                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(8),
+                              ),
                             ),
                             child: Text(
                               getCurrencySymbol(currencycode),
@@ -4058,16 +4370,50 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                               ),
                             ),
                           ),
+
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
+
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 1,
+                            ),
+                          ),
+
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: app_color, width: 1.5),
+                            borderSide: BorderSide(
+                              color: app_color,
+                              width: 1.5,
+                            ),
+                          ),
+
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(
+                              color: Colors.redAccent,
+                              width: 1.5,
+                            ),
+                          ),
+
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(
+                              color: Colors.redAccent,
+                              width: 1.5,
+                            ),
+                          ),
+
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 14,
                           ),
                         ),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -4875,94 +5221,143 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                                     Padding(
                                       padding: const EdgeInsets.only(
-                                          top: 12, left: 20, right: 20, bottom: 0),
-                                      child: DropdownButtonFormField<String>(
-                                        isExpanded: true,
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white.withOpacity(0.95),
-                                          labelText: "Voucher Type",
-                                          labelStyle: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.grey[700],
-                                          ),
+                                        top: 12,
+                                        left: 20,
+                                        right: 20,
+                                        bottom: 0,
+                                      ),
+                                      child: IgnorePointer(
+                                        ignoring: isVoucherTypeLocked,
+                                        child: Opacity(
+                                          opacity: isVoucherTypeLocked ? 0.7 : 1,
+                                          child: DropdownButtonFormField<String>(
+                                            isExpanded: true,
 
-                                          // Prefix icon with gradient bg (different color)
-                                          prefixIcon: Container(
-                                            margin: const EdgeInsets.all(8),
-                                            decoration: BoxDecoration(
-                                              gradient: const LinearGradient(
-                                                colors: [Colors.purpleAccent, Colors.deepPurple],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
+                                            decoration: InputDecoration(
+                                              filled: true,
+
+                                              fillColor: isVoucherTypeLocked
+                                                  ? Colors.grey.shade100
+                                                  : Colors.white.withOpacity(0.95),
+
+                                              labelText: "Voucher Type",
+
+                                              labelStyle: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.grey[700],
                                               ),
-                                              borderRadius: BorderRadius.all(Radius.circular(12)),
-                                            ),
-                                            child: const Icon(
-                                              Icons.discount_outlined,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
 
-                                          // Borders
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(16),
-                                            borderSide: BorderSide(
-                                              color: Colors.grey.shade300,
-                                              width: 1,
+                                              prefixIcon: Container(
+                                                margin: const EdgeInsets.all(8),
+
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: isVoucherTypeLocked
+                                                        ? [
+                                                      Colors.grey,
+                                                      Colors.grey.shade600,
+                                                    ]
+                                                        : [
+                                                      Colors.purpleAccent,
+                                                      Colors.deepPurple,
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+
+                                                  borderRadius:
+                                                  const BorderRadius.all(
+                                                    Radius.circular(12),
+                                                  ),
+                                                ),
+
+                                                child: Icon(
+                                                  isVoucherTypeLocked
+                                                      ? Icons.lock_outline
+                                                      : Icons.discount_outlined,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                ),
+                                              ),
+
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(16),
+                                                borderSide: BorderSide(
+                                                  color: isVoucherTypeLocked
+                                                      ? Colors.grey.shade400
+                                                      : Colors.grey.shade300,
+                                                  width: 1,
+                                                ),
+                                              ),
+
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(16),
+                                                borderSide: BorderSide(
+                                                  color: app_color,
+                                                  width: 1.5,
+                                                ),
+                                              ),
+
+                                              errorBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(16),
+                                                borderSide: const BorderSide(
+                                                  color: Colors.redAccent,
+                                                  width: 1.5,
+                                                ),
+                                              ),
+
+                                              contentPadding: const EdgeInsets.symmetric(
+                                                horizontal: 14,
+                                                vertical: 14,
+                                              ),
                                             ),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(16),
-                                            borderSide: BorderSide(
-                                              color: app_color,
-                                              width: 1.5,
-                                            ),
-                                          ),
-                                          errorBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(16),
-                                            borderSide: const BorderSide(
-                                              color: Colors.redAccent,
-                                              width: 1.5,
-                                            ),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                        ),
-                                        hint: Text(
-                                          "Voucher Type",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                        value: _selectedvchtypename,
-                                        items: vchtypenamedata.map((item) {
-                                          return DropdownMenuItem<String>(
-                                            value: item,
-                                            child: Text(
-                                              item,
+
+                                            hint: Text(
+                                              isVoucherTypeLocked
+                                                  ? "Voucher Type Locked"
+                                                  : "Voucher Type",
                                               style: GoogleFonts.poppins(
                                                 fontSize: 13,
-                                                color: Colors.black87,
+                                                color: Colors.grey[600],
                                               ),
                                             ),
-                                          );
-                                        }).toList(),
-                                        onChanged: (value) async {
-                                          setState(() {
-                                            _selectedvchtypename = value!;
-                                            fetchvchnos(_selectedvchtypename);
-                                          });
-                                        },
-                                        onTap: () {
-                                          setState(() {
-                                            _isFocused_vchno = false;
-                                            _isFocused_narration = false;
-                                            _isFocused_totalamt = false;
-                                          });
-                                        },
+
+                                            value: _selectedvchtypename,
+
+                                            items: vchtypenamedata.map((item) {
+                                              return DropdownMenuItem<String>(
+                                                value: item,
+                                                child: Text(
+                                                  item,
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 13,
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+
+                                            onChanged: isVoucherTypeLocked
+                                                ? null
+                                                : (value) async {
+
+                                              setState(() {
+                                                _selectedvchtypename = value!;
+
+                                                fetchvchnos(_selectedvchtypename);
+                                              });
+                                            },
+
+                                            onTap: () {
+                                              setState(() {
+                                                _isFocused_vchno = false;
+                                                _isFocused_narration = false;
+                                                _isFocused_totalamt = false;
+                                              });
+                                            },
+                                          ),
+                                        ),
                                       ),
                                     ),
 
@@ -5113,93 +5508,134 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     ),
 
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 0),
-                                      child: DropdownButtonFormField<String>(
-                                        isExpanded: true,
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white.withOpacity(0.95),
-                                          labelText: "Sales Ledger",   // 👈 This makes it a heading
-                                          labelStyle: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            color: Colors.grey[700],
-                                          ),
-                                          // Prefix icon with gradient (blue)
-                                          prefixIcon: Container(
-                                            margin: const EdgeInsets.all(8),
-                                            decoration: const BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [Colors.blueAccent, Colors.indigo],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
+                                      padding: const EdgeInsets.only(
+                                        top: 12,
+                                        left: 20,
+                                        right: 20,
+                                        bottom: 0,
+                                      ),
+                                      child: IgnorePointer(
+                                        ignoring: isSalesLedgerLocked,
+                                        child: Opacity(
+                                          opacity: isSalesLedgerLocked ? 0.7 : 1,
+                                          child: DropdownButtonFormField<String>(
+                                            isExpanded: true,
+
+                                            decoration: InputDecoration(
+                                              filled: true,
+                                              fillColor: isSalesLedgerLocked
+                                                  ? Colors.grey.shade100
+                                                  : Colors.white.withOpacity(0.95),
+
+                                              labelText: "Sales Ledger",
+
+                                              labelStyle: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                color: Colors.grey[700],
                                               ),
-                                              borderRadius: BorderRadius.all(Radius.circular(12)),
-                                            ),
-                                            child: const Icon(
-                                              Icons.sell_outlined,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
 
-                                          // Borders
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(16),
-                                            borderSide: BorderSide(
-                                              color: Colors.grey.shade300,
-                                              width: 1,
-                                            ),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(16),
-                                            borderSide: BorderSide(
-                                              color: app_color,
-                                              width: 1.5,
-                                            ),
-                                          ),
-                                          errorBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(16),
-                                            borderSide: const BorderSide(
-                                              color: Colors.redAccent,
-                                              width: 1.5,
-                                            ),
-                                          ),
+                                              prefixIcon: Container(
+                                                margin: const EdgeInsets.all(8),
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: isSalesLedgerLocked
+                                                        ? [
+                                                      Colors.grey,
+                                                      Colors.grey.shade600,
+                                                    ]
+                                                        : [
+                                                      Colors.blueAccent,
+                                                      Colors.indigo,
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                  borderRadius:
+                                                  const BorderRadius.all(Radius.circular(12)),
+                                                ),
+                                                child: Icon(
+                                                  isSalesLedgerLocked
+                                                      ? Icons.lock_outline
+                                                      : Icons.sell_outlined,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                ),
+                                              ),
 
-                                          contentPadding:
-                                          const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                        ),
-                                        hint: Text(
-                                          "Sales Ledger",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                        value: _selectedsalesledger,
-                                        items: salesledger_data.map((item) {
-                                          return DropdownMenuItem<String>(
-                                            value: item.toString(),
-                                            child: Text(
-                                              item.toString(),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(16),
+                                                borderSide: BorderSide(
+                                                  color: isSalesLedgerLocked
+                                                      ? Colors.grey.shade400
+                                                      : Colors.grey.shade300,
+                                                  width: 1,
+                                                ),
+                                              ),
+
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(16),
+                                                borderSide: BorderSide(
+                                                  color: app_color,
+                                                  width: 1.5,
+                                                ),
+                                              ),
+
+                                              errorBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(16),
+                                                borderSide: const BorderSide(
+                                                  color: Colors.redAccent,
+                                                  width: 1.5,
+                                                ),
+                                              ),
+
+                                              contentPadding: const EdgeInsets.symmetric(
+                                                horizontal: 14,
+                                                vertical: 14,
+                                              ),
+                                            ),
+
+                                            hint: Text(
+                                              isSalesLedgerLocked
+                                                  ? "Sales Ledger Locked"
+                                                  : "Sales Ledger",
                                               style: GoogleFonts.poppins(
                                                 fontSize: 13,
-                                                color: Colors.black87,
+                                                color: Colors.grey[600],
                                               ),
                                             ),
-                                          );
-                                        }).toList(),
-                                        onChanged: (value) async {
-                                          setState(() {
-                                            _selectedsalesledger = value!;
-                                          });
-                                        },
-                                        onTap: () {
-                                          setState(() {
-                                            _isFocused_vchno = false;
-                                            _isFocused_narration = false;
-                                            _isFocused_totalamt = false;
-                                          });
-                                        },
+
+                                            value: _selectedsalesledger,
+
+                                            items: salesledger_data.map((item) {
+                                              return DropdownMenuItem<String>(
+                                                value: item.toString(),
+                                                child: Text(
+                                                  item.toString(),
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 13,
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+
+                                            onChanged: isSalesLedgerLocked
+                                                ? null
+                                                : (value) async {
+                                              setState(() {
+                                                _selectedsalesledger = value!;
+                                              });
+                                            },
+
+                                            onTap: () {
+                                              setState(() {
+                                                _isFocused_vchno = false;
+                                                _isFocused_narration = false;
+                                                _isFocused_totalamt = false;
+                                              });
+                                            },
+                                          ),
+                                        ),
                                       ),
                                     ),
 
@@ -5713,7 +6149,6 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                                 GestureDetector(
                                                   onTap: () {
                                                     _showLedgerDetailsPopup(context);
-
                                                   },
                                                   child: Container(
                                                     width: 34,

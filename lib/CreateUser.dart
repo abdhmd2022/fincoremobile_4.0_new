@@ -39,14 +39,14 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
 
   String user_email_fetched = "";
 
-  late final TextEditingController controller_email = TextEditingController();
+  late final TextEditingController controller_username = TextEditingController();
   late final TextEditingController controller_password = TextEditingController();
   late final TextEditingController controller_name = TextEditingController();
 
   bool _isFocused_password = false;
   bool _obscureText = true;
 
-  String name = "",email = "";
+  String name = "",usernameOrEmail = "";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -55,6 +55,11 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
   late SharedPreferences prefs;
 
   String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";
+
+  bool isEmail(String value) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+        .hasMatch(value.trim());
+  }
 
   Future<void> _initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
@@ -75,7 +80,7 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
       if (email_nav!=null && name_nav!= null)
       {
         name = name_nav;
-        email = email_nav;
+        usernameOrEmail = email_nav;
       }
 
       if(SecuritybtnAcessHolder == "True")
@@ -241,22 +246,24 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
         {
           addAllowedCompanies(email, serial_no!, _selectedCompanies);
 
-          controller_email.clear();
+          controller_username.clear();
           controller_name.clear();
           controller_password.clear();
           _selectedrole =   myData_roles[0];
           FocusScope.of(context).unfocus();
 
-           sendUserCredentialsEmailSMTP(
-            email: email,
-            name: name,
-            password: password,
-          );
+          if (isEmail(email)) {
+            sendUserCredentialsEmailSMTP(
+              email: email,
+              name: name,
+              password: password,
+            );
+          }
 
         }
         else if (responsee == "No of users exceeded")
         {
-          controller_email.clear();
+          controller_username.clear();
           controller_name.clear();
           controller_password.clear();
           _selectedrole =   myData_roles.first;
@@ -265,7 +272,7 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
         }
         else
           {
-            controller_email.clear();
+            controller_username.clear();
             controller_name.clear();
             controller_password.clear();
             _selectedrole =   myData_roles[0];
@@ -591,6 +598,9 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final bool isUsernameLogin =
+        controller_username.text.isNotEmpty &&
+            !isEmail(controller_username.text);
 
     return WillPopScope(
       onWillPop: () async {
@@ -649,7 +659,7 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
               isUserEnable: isUserEnable,
               isUserVisible: isUserVisible,
               Username: name,
-              Email: email,
+              Email: usernameOrEmail,
               tickerProvider: this),
         body: Stack(
           children: [
@@ -712,14 +722,33 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
                             ),
                             const SizedBox(height: 20),
                             _modernTextField(
-                              label: 'Email Address',
-                              controller: controller_email,
+                              label: 'Username or Email',
+                              controller: controller_username,
                               icon: Icons.email_outlined,
                               keyboardType: TextInputType.emailAddress,
                               isFocused: _isFocused_email,
                               onFocus: () => _updateFocus(email: true),
                             ),
+                            if (isUsernameLogin) ...[
+                              const SizedBox(height: 20),
+
+                              _modernTextField(
+                                label: 'Password',
+                                controller: controller_password,
+                                icon: Icons.lock_outline,
+                                isPassword: true,
+                                obscureText: _obscureText,
+                                isFocused: _isFocused_password,
+                                onFocus: () => _updateFocus(password: true),
+                                toggleObscure: () {
+                                  setState(() {
+                                    _obscureText = !_obscureText;
+                                  });
+                                },
+                              ),
+                            ],
                             const SizedBox(height: 20),
+
                             Text("Select Role", style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<dynamic>(
@@ -830,7 +859,10 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
       obscureText: obscureText,
       keyboardType: keyboardType,
       onTap: onFocus,
-      onChanged: (_) => onFocus(),
+      onChanged: (_) {
+        onFocus();
+        setState(() {});
+      },
       decoration: InputDecoration(
         labelText: label,
         labelStyle: GoogleFonts.poppins(
@@ -866,8 +898,60 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
   }
 
   void _submitForm() {
+    final name = controller_name.text.trim();
+    final username = controller_username.text.trim();
+    final role = _selectedrole?["role_name"];
+
+    if (name.isEmpty || username.isEmpty || role == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill all required fields.")),
+      );
+      return;
+    }
+
+    String finalPassword = '';
+
+    // EMAIL USER
+    if (isEmail(username)) {
+
+      finalPassword = _generateRandomPassword();
+
+    }
+
+    // USERNAME USER
+    else {
+
+      finalPassword = controller_password.text.trim();
+
+      if (finalPassword.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Please enter password")),
+        );
+        return;
+      }
+
+      if (finalPassword.length < 4) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Password too short")),
+        );
+        return;
+      }
+    }
+
+    _updateFocus();
+
+    userRegistration(
+      serial_no!,
+      username,
+      finalPassword,
+      role,
+      name,
+    );
+  }
+
+  /*void _submitForm() {
     final name = controller_name.text;
-    final email = controller_email.text;
+    final email = controller_username.text;
     final password = controller_password.text;
     final role = _selectedrole?["role_name"];
 
@@ -876,17 +960,11 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
       return;
     }
 
-    if (!isValidEmail(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Enter a valid email address")));
-      return;
-    }
-
-
 
     _updateFocus();
     final generatedPassword = _generateRandomPassword(); // generates 5-char password
     userRegistration(serial_no!, email, generatedPassword, role, name);
-  }
+  }*/
 
 
 

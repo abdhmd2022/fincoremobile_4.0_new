@@ -284,11 +284,16 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
         "company_name": company ?? "",
         "godown_name": selectedLocation!,
 
-        "voucher_type_name": selectedVchType! ?? "",
-        "sales_ledger": selectedSalesLedger! ?? "",
+        "voucher_type_name": selectedVchType! ?? null,
+        "sales_ledger":
+        (selectedSalesLedger == null || selectedSalesLedger!.isEmpty)
+            ? null
+            : selectedSalesLedger,
 
-
-        "cash_ledger": selectedCashLedger!,
+        "cash_ledger":
+        (selectedCashLedger == null || selectedCashLedger!.isEmpty)
+            ? null
+            : selectedCashLedger,
       };
 
       debugPrint("SAVE ALLOCATION URL: '$url'");

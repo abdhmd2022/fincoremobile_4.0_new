@@ -97,6 +97,11 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
    }
    );
 
+  bool isEmail(String value) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+        .hasMatch(value.trim());
+  }
+
   void emitSaveId(final jsonPayload,final response) {
     if(isOTPVerified)
       {
@@ -562,7 +567,13 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
           }
         else
           {
-            _otplogin(entered_username);
+            if (isEmail(entered_username)) {
+              _otplogin(entered_username);
+            } else {
+              isOTPVerified = true;
+              isAnotherDevice = true;
+              _directlogin();
+            }
           }
       }
     else
@@ -586,7 +597,13 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
         {
           if(username_prefs!=entered_username)
           {
-            _otplogin(entered_username);
+            if (isEmail(entered_username)) {
+              _otplogin(entered_username);
+            } else {
+              isOTPVerified = true;
+              isAnotherDevice = true;
+              _directlogin();
+            }
           }
           else
           {
@@ -1043,7 +1060,13 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
             /*sendOTP('saadan@ca-eim.com');*/
 
-            sendOTP(usernamee);
+            if (isEmail(usernamee)) {
+              sendOTP(usernamee);
+            } else {
+              isOTPVerified = true;
+              isAnotherDevice = true;
+              _directlogin();
+            }
 
             /*showDialog(
               context: context,
@@ -1447,7 +1470,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                     focusNode: _usernameFocusNode,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.email_outlined, color: app_color),
-                      labelText: 'Email Address',
+                      labelText: 'Username or Email',
                       labelStyle: GoogleFonts.poppins(
                         color: Colors.black54,
                         fontWeight: FontWeight.w500,
@@ -1461,9 +1484,9 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                       ),
                     ),
                     validator: (v) {
-                      if (v == null || v.isEmpty) return 'Please enter email';
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                          .hasMatch(v)) return 'Invalid email';
+                      if (v == null || v.trim().isEmpty) {
+                        return 'Please enter username or email';
+                      }
                       return null;
                     },
                     onSaved: (v) => usernamee = v!,

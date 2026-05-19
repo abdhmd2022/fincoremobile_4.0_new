@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:FincoreGo/Items.dart';
 import 'package:FincoreGo/PendingDeliveryNoteEntry.dart';
 import 'package:FincoreGo/PendingSalesEntry.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -120,11 +121,18 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
   TextEditingController _itemController = TextEditingController();
   TextEditingController _partyLedgerController = TextEditingController();
+  String? selectedPartyLedgerPriceLevel;
 
+  String? selectedItemMasterId;
+  bool isPriceLevelLoading = false;
   double ledgerVatAmount = 0,
       itemsVatAmount = 0,
       totalVatAmount = 0,
       totalAmount = 0;
+
+  bool isRateFieldEnabled = true;
+
+  bool showRateField = true;
 
   bool isVoucherTypeLocked = false;
 
@@ -134,6 +142,117 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
   late AnimationController _animationController;
   late Animation<double> _animation;
   bool isSalesLedgerLocked = false;
+
+  Future<void> fetchPriceLevelDetailsForSelectedItem(StateSetter setStateDialog) async {
+    if (serial_no != uniGasSerialNo) {
+      return;
+    }
+
+    if (selectedItemMasterId == null || selectedItemMasterId!.trim().isEmpty) {
+      debugPrint('Price level API skipped: selected item masterid is null/empty');
+      return;
+    }
+
+    if (selectedPartyLedgerPriceLevel == null ||
+        selectedPartyLedgerPriceLevel.toString().trim().isEmpty) {
+      debugPrint('Price level API skipped: selected price level is null/empty');
+      debugPrint('selected item -> $_selecteditem');
+      debugPrint('selected party ledger -> $_selectedpartyledger');
+      return;
+    }
+    setStateDialog(() {
+      isPriceLevelLoading = true;
+    });
+    try {
+      final String selectedDate = saledatestring.isNotEmpty
+          ? saledatestring
+          : DateFormat('yyyyMMdd').format(DateTime.now());
+
+      final Uri url = Uri.parse(
+        '$hostname/api/item/getPriceLevelDetails/$company_lowercase/$serial_no',
+      ).replace(
+        queryParameters: {
+          'date': selectedDate,
+          'itemId': selectedItemMasterId!,
+          'name': selectedPartyLedgerPriceLevel!,
+        },
+      );
+
+      debugPrint('price level details API url -> $url');
+      debugPrint('selected item name -> $_selecteditem');
+      debugPrint('selected item masterid -> $selectedItemMasterId');
+      debugPrint('selected party ledger -> $_selectedpartyledger');
+      debugPrint('selected price level -> $selectedPartyLedgerPriceLevel');
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      debugPrint('price level details status -> ${response.statusCode}');
+      debugPrint('price level details response -> ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decodedResponse = jsonDecode(response.body);
+        debugPrint('decoded price level details -> $decodedResponse');
+
+        if (decodedResponse is List && decodedResponse.isNotEmpty) {
+          final Map<String, dynamic> priceData =
+          Map<String, dynamic>.from(decodedResponse.first);
+
+          final double apiRate = double.tryParse(
+            priceData['rate']?.toString() ?? '0',
+          ) ??
+              0.0;
+          final double qty = double.tryParse(
+            itemQuantityController.text.trim().isEmpty
+                ? '1'
+                : itemQuantityController.text.trim(),
+          ) ??
+              1.0;
+
+          final double amount = apiRate * qty;
+
+          setStateDialog(() {
+            itemRateController.text = apiRate.toStringAsFixed(decimal ?? 2);
+            itemAmountController.text = amount.toStringAsFixed(decimal ?? 2);
+            isRateFieldEnabled = false;
+            showRateField = false;
+          });
+
+          debugPrint('applied price level rate -> $apiRate');
+          debugPrint('rateStr from API -> ${priceData['rateStr']}');
+        } else {
+          debugPrint('No price level rate found for selected item and price level');
+
+          setStateDialog(() {
+            itemRateController.clear();
+            isRateFieldEnabled = true;
+            showRateField = true;
+
+          });
+        }
+      } else {
+        debugPrint('price level details API failed -> ${response.body}');
+        isRateFieldEnabled = true;
+        showRateField = true;
+
+      }
+    } catch (e) {
+      debugPrint('price level details error -> $e');
+      isRateFieldEnabled = true;
+      showRateField = true;
+    }
+    finally {
+      setStateDialog(() {
+        isPriceLevelLoading = false;
+
+      });
+    }
+  }
 
   void _deleteLedger(int index) {
     setState(() {
@@ -387,7 +506,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey;
-
+  Map<String, String?> partyLedgerPriceLevelMap = {};
   late SharedPreferences prefs;
 
   dynamic _selectedledger, _selecteditem, _selectedunit, _selectedsalesledger,
@@ -3024,23 +3143,49 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
           }
 
           if (serial_no == uniGasSerialNo) {
+            // NEW RESPONSE FORMAT:
+            // partyLedgers = [
+            //   { "name": "25 Degree North Restaurant", "price_level": "563PL Unigas Tech.&" },
+            //   { "name": "Smile Cuisine Cafe FZE", "price_level": null }
+            // ]
 
-            // NEW RESPONSE FORMAT
-            partyledgerdata = List<String>.from(
-              (jsonResponse["partyLedgers"] ?? [])
-                  .where((e) => e != null && e['name'] != null)
-                  .map((e) => e['name'].toString()),
-            );
+            partyledgerdata.clear();
+            partyLedgerPriceLevelMap.clear();
 
-          } else {
+            for (var ledger in (jsonResponse["partyLedgers"] ?? [])) {
+              if (ledger == null) continue;
 
+              final String ledgerName = ledger['name']?.toString().trim() ?? '';
+
+              final dynamic rawPriceLevel = ledger['price_level'];
+
+              final String? priceLevel = rawPriceLevel == null ||
+                  rawPriceLevel.toString().trim().isEmpty ||
+                  rawPriceLevel.toString().trim().toLowerCase() == 'null'
+                  ? null
+                  : rawPriceLevel.toString().trim();
+
+              if (ledgerName.isEmpty) continue;
+
+              // Add only ledger name in dropdown
+              if (!partyledgerdata.contains(ledgerName)) {
+                partyledgerdata.add(ledgerName);
+              }
+
+              // Store price_level against party ledger name
+              partyLedgerPriceLevelMap[ledgerName] = priceLevel;
+            }
+
+            debugPrint('party ledger data -> $partyledgerdata');
+            debugPrint('party price level map -> $partyLedgerPriceLevelMap');
+          }
+          else {
             // OLD RESPONSE FORMAT
             partyledgerdata = List<String>.from(
               (jsonResponse["partyLedgers"] ?? [])
                   .where((e) => e != null)
                   .map((e) => e.toString()),
             );
-
           }
 
           // _selectedpartyledger = partyledgerdata.isNotEmpty ? partyledgerdata[0] : null;
@@ -3079,9 +3224,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
               .where((e) => e != null)
               .toList();
 
-
           // _selecteditem = itemdata.isNotEmpty ? '${itemdata[0]['name']}' : null;
-
 
           // _itemController.text = _selecteditem ?? '';
           locationsdata = List<String>.from(
@@ -3134,7 +3277,6 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     setState(() {
       _isLoading = false;
     });
-
 
     if (allocationString != null &&
         allocationString.isNotEmpty) {
@@ -3575,6 +3717,25 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       });
   }
 
+  void resetItemDialogFields() {
+    _selecteditem = null;
+    selectedItemMasterId = null;
+    _selectedunit = null;
+
+    _itemController.clear();
+    itemQuantityController.clear();
+    itemRateController.clear();
+    itemAmountController.clear();
+
+    selectedMultiplier = 0.0;
+    selectedLocation = '';
+
+    isVisibleLocation = false;
+    isVisibleUnit = false;
+    isPriceLevelLoading = false;
+    isRateFieldEnabled = true;
+  }
+
   Future<void> _showItemDetailsPopup(BuildContext context) async {
     _selecteditem = null;
     _itemController.clear();
@@ -3664,7 +3825,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                             // 🔹 Required in new API (replaces onSuggestionSelected)
 
-                            onSelected: (suggestion) {
+                            /*onSelected: (suggestion) {
                               setStateDialog(() {
                                 _selecteditem = suggestion['name'] ?? '';
                                 _itemController.text = _selecteditem;
@@ -3679,7 +3840,35 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                 _updateUnitDropdown(_selecteditem);
                                 isVisibleUnit = true;
                               });
-                            },
+                            },*/
+
+                            onSelected: (suggestion) async {
+                              setStateDialog(() {
+                                debugPrint('item clicked');
+
+                                _selecteditem = suggestion['name']?.toString() ?? '';
+                                selectedItemMasterId = suggestion['masterid']?.toString() ??
+                                    suggestion['itemId']?.toString() ??
+                                    suggestion['id']?.toString();
+
+                                _itemController.text = _selecteditem;
+
+                                debugPrint('selected item name -> $_selecteditem');
+                                debugPrint('selected item masterid -> $selectedItemMasterId');
+
+                                if (locationsdata.isNotEmpty) {
+                                  selectedLocation = locationsdata[0];
+                                  isVisibleLocation = true;
+                                } else {
+                                  isVisibleLocation = false;
+                                }
+
+                                _updateUnitDropdown(_selecteditem);
+                                isVisibleUnit = true;
+                              });
+
+                              await fetchPriceLevelDetailsForSelectedItem(setStateDialog);
+                              },
 
 
 
@@ -3723,19 +3912,39 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                   suffixIcon: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      if (_itemController.text.isNotEmpty)
+                                      if (isPriceLevelLoading)
+                                        Padding(
+                                          padding: const EdgeInsets.only(right: 8),
+                                          child: SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: Theme.of(context).platform == TargetPlatform.iOS
+                                                ? const CupertinoActivityIndicator(radius: 10)
+                                                : CircularProgressIndicator(
+                                              strokeWidth: 2.3,
+                                              valueColor: AlwaysStoppedAnimation<Color>(app_color),
+                                            ),
+                                          ),
+                                        ),
+
+                                      if (!isPriceLevelLoading && _itemController.text.isNotEmpty)
                                         IconButton(
                                           icon: const Icon(Icons.close, color: Colors.grey, size: 20),
                                           onPressed: () {
                                             _itemController.clear();
                                             setStateDialog(() {
                                               _selecteditem = "";
+                                              selectedItemMasterId = null;
+                                              itemRateController.clear();
                                               isVisibleLocation = false;
                                               isVisibleUnit = false;
                                             });
                                           },
                                         ),
-                                      const Icon(Icons.arrow_drop_down, color: Colors.grey),
+
+                                      if (!isPriceLevelLoading)
+                                        const Icon(Icons.arrow_drop_down, color: Colors.grey),
+
                                       const SizedBox(width: 6),
                                     ],
                                   ),
@@ -3743,6 +3952,17 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),
+
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(color: Colors.grey.shade400),
+                                  ),
+
+                                  disabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(color: Colors.grey.shade300),
+                                  ),
+
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
                                     borderSide: BorderSide(color: app_color, width: 1.5),
@@ -3882,6 +4102,17 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
+
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(color: Colors.grey.shade400),
+                                    ),
+
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(color: Colors.grey.shade300),
+                                    ),
+
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
                                       borderSide: BorderSide(color: app_color, width: 1.5),
@@ -3929,51 +4160,76 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                 ),
                                 child: const Icon(Icons.confirmation_num, color: Colors.white),
                               ),
+
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-
                               ),
+
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: Colors.grey.shade400),
+                              ),
+
+                              disabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide(color: app_color, width: 1.5),
                               ),
+
                             ),
                           ),
 
                           const SizedBox(height: 14),
 
                           // 💲 Rate
-                          TextFormField(
+
+                          Visibility(
+                            visible: showRateField,
+                            child:  TextFormField(
+                            enabled: isRateFieldEnabled,
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Colors.black87,
+                              color: isRateFieldEnabled ? Colors.black87 : Colors.grey[700],
                             ),
                             controller: itemRateController,
                             keyboardType: TextInputType.number,
-                            onChanged: (_) => updateAmount(),
+
+                            // ✅ only allow manual amount update when rate is editable
+                            onChanged: isRateFieldEnabled ? (_) => updateAmount() : null,
+
                             decoration: InputDecoration(
                               labelStyle: GoogleFonts.poppins(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.grey[700],
+                                color: isRateFieldEnabled ? Colors.grey[700] : Colors.grey[500],
                               ),
-
                               hintStyle: GoogleFonts.poppins(
                                 fontSize: 13,
                                 color: Colors.grey[600],
                               ),
                               labelText: "Rate",
+
+                              // ✅ disabled field background
+                              filled: !isRateFieldEnabled,
+                              fillColor: !isRateFieldEnabled ? Colors.grey.shade100 : null,
+
                               prefix: Container(
                                 margin: const EdgeInsets.only(right: 8),
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: [Colors.blue, Colors.blue],
+                                    colors: isRateFieldEnabled
+                                        ? [Colors.blue, Colors.blue]
+                                        : [Colors.grey, Colors.grey],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
-                                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  borderRadius: const BorderRadius.all(Radius.circular(8)),
                                 ),
                                 child: Text(
                                   getCurrencySymbol(currencycode),
@@ -3987,7 +4243,16 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
+                              ),
 
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: Colors.grey.shade400),
+                              ),
+
+                              disabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
                               ),
 
                               focusedBorder: OutlineInputBorder(
@@ -3995,7 +4260,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                 borderSide: BorderSide(color: app_color, width: 1.5),
                               ),
                             ),
-                          ),
+                          ),),
+
 
                           const SizedBox(height: 14),
 
@@ -4012,24 +4278,28 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                               labelStyle: GoogleFonts.poppins(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.grey[700],
+                                color: isRateFieldEnabled ? Colors.grey[700] : Colors.grey[500],
                               ),
-
                               hintStyle: GoogleFonts.poppins(
                                 fontSize: 13,
                                 color: Colors.grey[600],
                               ),
                               labelText: "Amount",
+
+                              // ✅ disabled field background
+                              filled: true,
+                              fillColor: Colors.grey.shade100,
+
                               prefix: Container(
                                 margin: const EdgeInsets.only(right: 8),
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: [Colors.green, Colors.teal], // ✅ distinct from Ledger
+                                    colors: [Colors.grey, Colors.grey],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
-                                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  borderRadius: const BorderRadius.all(Radius.circular(8)),
                                 ),
                                 child: Text(
                                   getCurrencySymbol(currencycode),
@@ -4040,9 +4310,21 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                   ),
                                 ),
                               ),
+
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
+
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: Colors.grey.shade400),
+                              ),
+
+                              disabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide(color: app_color, width: 1.5),
@@ -4057,8 +4339,21 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                 actions: [
                   TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text("Cancel", style: GoogleFonts.poppins(color: app_color)),
+                    onPressed: () {
+                      setStateDialog(() {
+                        resetItemDialogFields();
+                      });
+
+                      setState(() {
+                        resetItemDialogFields();
+                      });
+
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      "Cancel",
+                      style: GoogleFonts.poppins(color: app_color),
+                    ),
                   ),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
@@ -5428,8 +5723,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                                           setState(() {
                                                             _partyLedgerController.clear();
                                                             _selectedpartyledger = "";
+                                                            selectedPartyLedgerPriceLevel = null;
                                                           });
-
                                                         },
                                                       ),
 
@@ -5484,12 +5779,18 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                           },
 
                                           // 🔹 On item select
-                                          onSelected: (String suggestion) {
-                                            setState(() {
-                                              _selectedpartyledger = suggestion;
-                                              _partyLedgerController.text = suggestion;   // instead of _partyLedgerController
-                                            });
-                                          },
+                                            onSelected: (String suggestion) {
+                                              setState(() {
+                                                _selectedpartyledger = suggestion;
+                                                _partyLedgerController.text = suggestion;
+
+                                                selectedPartyLedgerPriceLevel = partyLedgerPriceLevelMap[suggestion];
+
+                                                debugPrint('selected party ledger -> $_selectedpartyledger');
+                                                debugPrint('selected price level -> $selectedPartyLedgerPriceLevel');
+                                              });
+                                            },
+
 
 
                                           // 🔹 Empty result text

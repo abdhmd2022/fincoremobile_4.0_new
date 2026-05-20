@@ -371,7 +371,7 @@ class _ViewVanAllocationScreenState
           color: Colors.white,
         ),
         label: Text(
-          "Add Allocation",
+          "Create Allocation",
           style: GoogleFonts.poppins(
             color: Colors.white,
             fontWeight: FontWeight.w600,

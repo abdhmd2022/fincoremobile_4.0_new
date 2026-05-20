@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Constants.dart';
+import 'package:flutter/material.dart';
 import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'currencyFormat.dart';
@@ -54,6 +55,9 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
       isRolesEnable = true,
       _isLoading = false,
       isVisibleNoDeliveryNoteEntryFound = false;
+
+  DateTime? selectedSingleDate;
+  DateTimeRange? selectedDateRange;
 
   String? HttpURL_loadData,HttpURL_deleteEntry,token = '';
 
@@ -416,6 +420,8 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
         setState(() {
           FocusManager.instance.primaryFocus?.unfocus();
           _searchController.clear();
+          selectedSingleDate = null;
+          selectedDateRange = null;
         });
 
         setState(() {
@@ -464,6 +470,241 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
   }
 
   void searchSales(String query) {
+    _applyFilters();
+  }
+
+  void _applyFilters() {
+    final query = _searchController.text.trim().toLowerCase();
+
+    setState(() {
+      filteredDeliveryNoteEntries = deliverynoteentries.where((entry) {
+        final data = entry.data;
+
+        final party = (data['PARTYLEDGERNAME'] ?? '').toString().toLowerCase();
+        final vchno = (data['VOUCHERNUMBER'] ?? '').toString().toLowerCase();
+        final vchtype = (data['VOUCHERTYPENAME'] ?? '').toString().toLowerCase();
+        // final amount = (data['totalAmount'] ?? '').toString().toLowerCase();
+
+        final bool matchesSearch = query.isEmpty ||
+            party.contains(query) ||
+            vchno.contains(query) ||
+            vchtype.contains(query) ;
+
+        final bool matchesDate = _matchesDateFilter(entry);
+
+        return matchesSearch && matchesDate;
+      }).toList();
+
+      isVisibleNoDeliveryNoteEntryFound = filteredDeliveryNoteEntries.isEmpty;
+    });
+  }
+
+  Future<void> _pickSingleDate() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: selectedSingleDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: app_color,
+              onPrimary: Colors.white,
+              onSurface: Colors.black87,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: app_color,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        selectedSingleDate = pickedDate;
+        selectedDateRange = null;
+      });
+
+      _applyFilters();
+    }
+  }
+
+  Future<void> _pickDateRange() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    final pickedRange = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      initialDateRange: selectedDateRange,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: app_color,              // selected start/end circle
+              onPrimary: Colors.white,         // selected date number color
+              surface: Colors.white,
+              onSurface: Colors.black87,
+            ),
+
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: Colors.white,
+
+              // Header
+              headerBackgroundColor: app_color,
+              headerForegroundColor: Colors.white,
+
+              // Selected start/end dates
+              rangeSelectionBackgroundColor: app_color.withOpacity(0.14),
+
+              // Shape of selected dates
+              dayShape: WidgetStateProperty.resolveWith<OutlinedBorder?>(
+                    (states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return const CircleBorder();
+                  }
+                  return null;
+                },
+              ),
+
+              // Date number color
+              dayForegroundColor: WidgetStateProperty.resolveWith<Color?>(
+                    (states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return Colors.white; // selected date text white
+                  }
+
+                  if (states.contains(WidgetState.disabled)) {
+                    return Colors.grey.shade400;
+                  }
+
+                  return Colors.black87;
+                },
+              ),
+
+              // Selected date circle color
+              dayBackgroundColor: WidgetStateProperty.resolveWith<Color?>(
+                    (states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return app_color; // app color on selected dates
+                  }
+
+                  return null;
+                },
+              ),
+
+              todayForegroundColor: WidgetStateProperty.resolveWith<Color?>(
+                    (states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return Colors.white;
+                  }
+                  return app_color;
+                },
+              ),
+
+              todayBackgroundColor: WidgetStateProperty.resolveWith<Color?>(
+                    (states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return app_color;
+                  }
+                  return Colors.transparent;
+                },
+              ),
+            ),
+
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: app_color,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedRange != null) {
+      setState(() {
+        selectedDateRange = pickedRange;
+        selectedSingleDate = null;
+      });
+
+      _applyFilters();
+    }
+  }
+  void _clearDateFilter() {
+    setState(() {
+      selectedSingleDate = null;
+      selectedDateRange = null;
+    });
+
+    _applyFilters();
+  }
+
+  String _getDateFilterText() {
+    if (selectedSingleDate != null) {
+      return DateFormat("dd-MMM-yyyy").format(selectedSingleDate!);
+    }
+
+    if (selectedDateRange != null) {
+      final start = DateFormat("dd-MMM").format(selectedDateRange!.start);
+      final end = DateFormat("dd-MMM-yyyy").format(selectedDateRange!.end);
+      return "$start to $end";
+    }
+
+    return "All Dates";
+  }
+
+  bool _matchesDateFilter(SalesModel entry) {
+    final dateValue = entry.data['DATE'];
+
+    if (dateValue == null) return false;
+
+    final entryDate = DateTime.tryParse(dateValue.toString());
+
+    if (entryDate == null) return false;
+
+    final onlyEntryDate = DateTime(entryDate.year, entryDate.month, entryDate.day);
+
+    if (selectedSingleDate != null) {
+      final selected = DateTime(
+        selectedSingleDate!.year,
+        selectedSingleDate!.month,
+        selectedSingleDate!.day,
+      );
+
+      return onlyEntryDate == selected;
+    }
+
+    if (selectedDateRange != null) {
+      final start = DateTime(
+        selectedDateRange!.start.year,
+        selectedDateRange!.start.month,
+        selectedDateRange!.start.day,
+      );
+
+      final end = DateTime(
+        selectedDateRange!.end.year,
+        selectedDateRange!.end.month,
+        selectedDateRange!.end.day,
+      );
+
+      return onlyEntryDate.isAtSameMomentAs(start) ||
+          onlyEntryDate.isAtSameMomentAs(end) ||
+          (onlyEntryDate.isAfter(start) && onlyEntryDate.isBefore(end));
+    }
+
+    return true;
+  }
+
+  /*void searchSales(String query) {
     if (query.trim().isEmpty) {
       setState(() {
         filteredDeliveryNoteEntries = List.from(deliverynoteentries);
@@ -488,13 +729,166 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
             amount.contains(lowerQuery);
       }).toList();
     });
-  }
+  }*/
 
   Future<void> _refresh() async {
     setState(()
     {
       fetchDeliveryNoteEntries();
     });
+  }
+
+  Widget _buildDateFilterSection() {
+    final bool hasDateFilter =
+        selectedSingleDate != null || selectedDateRange != null;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: app_color.withOpacity(0.07),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        app_color.withOpacity(0.8),
+                        app_color,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.calendar_month_rounded,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    _getDateFilterText(),
+                    style: GoogleFonts.poppins(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                if (hasDateFilter)
+                  GestureDetector(
+                    onTap: _clearDateFilter,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 16,
+                        color: Colors.red.shade600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            Row(
+              children: [
+                Expanded(
+                  child: _buildFilterButton(
+                    icon: Icons.today_rounded,
+                    text: "Single Date",
+                    isSelected: selectedSingleDate != null,
+                    onTap: _pickSingleDate,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _buildFilterButton(
+                    icon: Icons.date_range_rounded,
+                    text: "Date Range",
+                    isSelected: selectedDateRange != null,
+                    onTap: _pickDateRange,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterButton({
+    required IconData icon,
+    required String text,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          gradient: isSelected
+              ? LinearGradient(
+            colors: [
+              app_color.withOpacity(0.85),
+              app_color,
+            ],
+          )
+              : null,
+          color: isSelected ? null : Colors.grey.shade50,
+          border: Border.all(
+            color: isSelected ? app_color : Colors.grey.shade200,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 17,
+              color: isSelected ? Colors.white : app_color,
+            ),
+            const SizedBox(width: 7),
+            Flexible(
+              child: Text(
+                text,
+                style: GoogleFonts.poppins(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? Colors.white : Colors.black87,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -654,8 +1048,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                             GestureDetector(
                               onTap: () {
                                 _searchController.clear();
-                                searchSales('');
-                                setState(() {});
+                                _applyFilters();
                               },
                               child: Container(
                                 padding: const EdgeInsets.all(6),
@@ -674,6 +1067,10 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                       ),
                     ),
                   ),
+
+                if (deliverynoteentries.isNotEmpty)
+                  _buildDateFilterSection(),
+
                 Expanded(
                   child:
 

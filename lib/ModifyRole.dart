@@ -35,13 +35,13 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
   ,OutstandingPayablesDashHolder,CashDashHolder,AllitemsHolder,InActiveitemsHolder,ActiveitemsHolder
   ,RateHolder,AmountHolder,ItemSalesHolder,ItemPurchaseHolder,SalesPartyHolder,ReceiptPartyHolder,PurchasePartyHolder,PaymentPartyHolder,CreditNotePartyHolder
   ,DebitNotePartyHolder,JournalPartyHolder,ReceivablePartyHolder,PayablePartyHolder,PendingSalesOrderPartyHolder,PartySuppliersHolder,PartyCustomersHolder
-  ,PendingPurchaseOrderPartyHolder,LedgerEntriesHolder,BillsEntriesHolder,InventoryEntriesHolder,PostDatedTransactionsHolder,CostCentreEntriesHolder,BarChartDashHolder,LineChartDashHolder,PieChartDashHolder,ReceiptEntryHolder,SalesEntryHolder,SalesOrderEntryHolder;
+  ,PendingPurchaseOrderPartyHolder,LedgerEntriesHolder,BillsEntriesHolder,InventoryEntriesHolder,PostDatedTransactionsHolder,CostCentreEntriesHolder,BarChartDashHolder,LineChartDashHolder,PieChartDashHolder,ReceiptEntryHolder,SalesEntryHolder,SalesOrderEntryHolder,DeliveryNoteEntryHolder,VanAllocationSetupHolder;
 
   late String salesdashcheck,barchartdashcheck,linechartdashcheck,piechartdashcheck,receiptsdashcheck,purchasedashcheck
   ,paymentsdashcheck,outstandingreceivabledashcheck,outstandingpayabledashcheck,cashdashcheck,allitemscheck,inactiveitemscheck,activeitemscheck,ratecheck
   ,salespartycheck,receiptpartycheck,purchasepartycheck,paymentpartycheck,creditnotepartycheck,debitnotepartycheck,journalpartycheck,receivablepartycheck
   ,payablepartycheck,pendingsalesorderpartycheck,pendingpurchaseorderpartycheck,ledgerentriescheck,billentriescheck,
-      inventoryentriescheck,postdatedtransactionscheck,costcentrecheck,salesentrycheck,receiptentrycheck,salesorderentrycheck,amountcheck,item_salescheck,item_purchasecheck,party_supplierscheck,party_customerscheck;
+      inventoryentriescheck,postdatedtransactionscheck,costcentrecheck,salesentrycheck,receiptentrycheck,salesorderentrycheck,deliverynoteentrycheck,vanallocationsetupcheck,amountcheck,item_salescheck,item_purchasecheck,party_supplierscheck,party_customerscheck;
 
   bool isDashEnable = true,
       isRolesVisible = true,
@@ -92,7 +92,9 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
       isEntryAccessCheck = false,
       isSalesEntryAccess = false,
       isReceiptEntryAccess = false,
-      isSalesOrderEntryAccess = false;
+      isSalesOrderEntryAccess = false,
+      isDeliveryNoteEntryAccess = false,
+      isVanAllocationSetupAccess = false;
 
   String name = "",email = "",selectedRole = "";
   late SharedPreferences prefs;
@@ -119,7 +121,8 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
       final String pendingsalesorderpartycheck
       , final String pendingpurchaseorderpartycheck,final String party_supplierscheck,final String party_customerscheck,
       final String ledgerentriescheck, final String billentriescheck
-      , final String inventoryentriescheck, final String postdatedtransactionscheck, final String costcentrecheck,final salesentrycheck,final receiptentrycheck, final salesorderentrycheck) async
+      , final String inventoryentriescheck, final String postdatedtransactionscheck, final String costcentrecheck,final salesentrycheck,final receiptentrycheck, final salesorderentrycheck,final deliverynoteentrycheck,
+      final vanallocationsetupcheck) async
   {
     setState(() {
       _isLoading = true;
@@ -174,7 +177,9 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
       "costcentreentries" : costcentrecheck,
       "salesEntry" : salesentrycheck,
       "receiptsEntry" : receiptentrycheck,
-      "salesOrderEntry" : salesorderentrycheck
+      "salesOrderEntry" : salesorderentrycheck,
+      "isDeliveryNoteEntry": deliverynoteentrycheck,
+      "isVanAllocationSetup": vanallocationsetupcheck
     });
 
     final response = await http.post(
@@ -382,6 +387,8 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
                               salesentrycheck,
                               receiptentrycheck,
                               salesorderentrycheck,
+                              deliverynoteentrycheck,
+                              vanallocationsetupcheck,
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -696,7 +703,17 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
           salesorderentrycheck = "False";
 
         }
+        if (serial_no == uniGasSerialNo && isDeliveryNoteEntryAccess) {
+          deliverynoteentrycheck = "True";
+        } else {
+          deliverynoteentrycheck = "False";
+        }
 
+        if (serial_no == uniGasSerialNo && isVanAllocationSetupAccess) {
+          vanallocationsetupcheck = "True";
+        } else {
+          vanallocationsetupcheck = "False";
+        }
 
 
 
@@ -835,6 +852,8 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
         SalesEntryHolder = saved_roles_data_list[0]["isSalesEntry"];
         ReceiptEntryHolder = saved_roles_data_list[0]["isReceiptsEntry"];
         SalesOrderEntryHolder = saved_roles_data_list[0]["isSalesOrderEntry"] ?? "False";
+        DeliveryNoteEntryHolder = saved_roles_data_list[0]["isDeliveryNoteEntry"] ?? "False";
+        VanAllocationSetupHolder = saved_roles_data_list[0]["isVanAllocationSetup"] ?? "False";
 
         setState(() {
           _isLoading = true;
@@ -1191,16 +1210,36 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
             isSalesOrderEntryAccess = false;
           }
 
+          if (serial_no == uniGasSerialNo) {
+            if (DeliveryNoteEntryHolder == "True") {
+              isDeliveryNoteEntryAccess = true;
+            } else {
+              isDeliveryNoteEntryAccess = false;
+            }
 
-
-
-          if(isSalesEntryAccess && isReceiptEntryAccess && isSalesOrderEntryAccess)
-          {
-            isEntryAccessCheck = true;
+            if (VanAllocationSetupHolder == "True") {
+              isVanAllocationSetupAccess = true;
+            } else {
+              isVanAllocationSetupAccess = false;
+            }
+          } else {
+            isDeliveryNoteEntryAccess = false;
+            isVanAllocationSetupAccess = false;
           }
-          else
-          {
-            isEntryAccessCheck = false;
+
+
+
+
+          if (serial_no == uniGasSerialNo) {
+            isEntryAccessCheck = isSalesEntryAccess &&
+                isReceiptEntryAccess &&
+                isSalesOrderEntryAccess &&
+                isDeliveryNoteEntryAccess &&
+                isVanAllocationSetupAccess;
+          } else {
+            isEntryAccessCheck = isSalesEntryAccess &&
+                isReceiptEntryAccess &&
+                isSalesOrderEntryAccess;
           }
 
 
@@ -1337,11 +1376,22 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
     {'label': 'Post Dated', 'value': IsPostDatedTransactionsEntryAccess, 'onChanged': (v) => _updateTransaction('postdated', v)},
   ];
 
-  List<Map<String, dynamic>> get entryPermissions => [
-    {'label': 'Sales Entry', 'value': isSalesEntryAccess, 'onChanged': (v) => _updateEntry('sales', v)},
-    {'label': 'Receipt Entry', 'value': isReceiptEntryAccess, 'onChanged': (v) => _updateEntry('receipt', v)},
-    {'label': 'Sales Order Entry', 'value': isSalesOrderEntryAccess, 'onChanged': (v) => _updateEntry('salesorder', v)},
-  ];
+  List<Map<String, dynamic>> get entryPermissions {
+    final permissions = [
+      {'label': 'Sales Entry', 'value': isSalesEntryAccess, 'onChanged': (v) => _updateEntry('sales', v)},
+      {'label': 'Receipt Entry', 'value': isReceiptEntryAccess, 'onChanged': (v) => _updateEntry('receipt', v)},
+      {'label': 'Sales Order Entry', 'value': isSalesOrderEntryAccess, 'onChanged': (v) => _updateEntry('salesorder', v)},
+    ];
+
+    if (serial_no == uniGasSerialNo) {
+      permissions.addAll([
+        {'label': 'Delivery Note Entry', 'value': isDeliveryNoteEntryAccess, 'onChanged': (v) => _updateEntry('deliverynoteentry', v)},
+        {'label': 'Van Allocation', 'value': isVanAllocationSetupAccess, 'onChanged': (v) => _updateEntry('vanallocationsetup', v)},
+      ]);
+    }
+
+    return permissions;
+  }
 
   void _updateAccess(String key, bool? value) {
     setState(() {
@@ -1462,15 +1512,29 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
         case 'sales': isSalesEntryAccess = value!; break;
         case 'receipt': isReceiptEntryAccess = value!; break;
         case 'salesorder': isSalesOrderEntryAccess = value!; break;
+        case 'deliverynoteentry':
+          isDeliveryNoteEntryAccess = value!;
+          break;
+        case 'vanallocationsetup':
+          isVanAllocationSetupAccess = value!;
+          break;
       }
       _syncEntryMasterToggle();
     });
   }
 
   void _syncEntryMasterToggle() {
-    isEntryAccessCheck = isSalesEntryAccess &&
-        isReceiptEntryAccess &&
-        isSalesOrderEntryAccess;
+    if (serial_no == uniGasSerialNo) {
+      isEntryAccessCheck = isSalesEntryAccess &&
+          isReceiptEntryAccess &&
+          isSalesOrderEntryAccess &&
+          isDeliveryNoteEntryAccess &&
+          isVanAllocationSetupAccess;
+    } else {
+      isEntryAccessCheck = isSalesEntryAccess &&
+          isReceiptEntryAccess &&
+          isSalesOrderEntryAccess;
+    }
   }
 
   void _toggleParty(bool value) {
@@ -1539,6 +1603,14 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
       isSalesEntryAccess = value;
       isReceiptEntryAccess = value;
       isSalesOrderEntryAccess = value;
+
+      if (serial_no == uniGasSerialNo) {
+        isDeliveryNoteEntryAccess = value;
+        isVanAllocationSetupAccess = value;
+      } else {
+        isDeliveryNoteEntryAccess = false;
+        isVanAllocationSetupAccess = false;
+      }
     });
   }
 

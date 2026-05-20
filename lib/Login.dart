@@ -40,6 +40,8 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
   final _resetformKey = GlobalKey<FormState>();
   final _otpformKey = GlobalKey<FormState>();
 
+  bool _isOtpVerifyingProgress = false;
+
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   Color _buttonColor = app_color;
   Color _resetbuttonColor = app_color;
@@ -83,6 +85,9 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
   DateTime? lastBackPressedTime;
 
+  bool _isVerifyingOtp = false;
+
+
   late String passwordd = '';
   bool remember_me = true;
   final _usernameFocusNode = FocusNode();
@@ -96,6 +101,50 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
         required this.passwordd,
    }
    );
+
+
+  Future<void> _verifyOtpAndProceed(String enteredOTP) async {
+    if (_isVerifyingOtp || _isOtpVerifyingProgress) return;
+
+    if (enteredOTP.length == 4) {
+      if (enteredOTP == generatedotp) {
+        setState(() {
+          _isVerifyingOtp = true;
+          _isOtpVerifyingProgress = true;
+        });
+
+        FocusManager.instance.primaryFocus?.unfocus();
+
+        socket.emit('deleteMyId', socket_data);
+
+        isOTPVerified = true;
+        isAnotherDevice = true;
+
+        await _directlogin();
+
+        if (mounted) {
+          setState(() {
+            _isOtpVerifyingProgress = false;
+          });
+        }
+      } else {
+        isOTPVerified = false;
+        isAnotherDevice = false;
+
+        Fluttertoast.showToast(msg: 'Incorrect OTP');
+
+        otpController.clear();
+        currentText = '';
+
+        setState(() {
+          _isVerifyingOtp = false;
+          _isOtpVerifyingProgress = false;
+        });
+      }
+    } else {
+      Fluttertoast.showToast(msg: 'Please enter a 4-digit OTP');
+    }
+  }
 
   bool isEmail(String value) {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
@@ -992,6 +1041,11 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                                   isVisibleResetPassForm = false;
                                   _isButtonEnabled = false;
                                   isVisibleTimer = true;
+                                  _isOtpVerifyingProgress = false;
+                                  _isVerifyingOtp = false;
+                                  otpController.clear();
+                                  currentText = '';
+
                                   _startTimer();
                                   isVisibleOTPForm = true;
                                   maskedEmail = username;
@@ -1158,6 +1212,11 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
               isVisibleResetPassForm = false;
               _isButtonEnabled = false;
               isVisibleTimer = true;
+              _isOtpVerifyingProgress = false;
+              _isVerifyingOtp = false;
+              otpController.clear();
+              currentText = '';
+
               _startTimer();
               isVisibleOTPForm = true;
               maskedEmail = usernamee;
@@ -1343,7 +1402,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    passwordController.dispose();
+    // passwordController.dispose();
     super.dispose();
   }
 
@@ -1802,8 +1861,15 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 appContext: context,
                 controller: otpController,
                 length: 4,
+                enabled: !_isOtpVerifyingProgress,
                 animationType: AnimationType.fade,
-                onChanged: (value) => currentText = value,
+                onChanged: (value) {
+                  currentText = value;
+                },
+                onCompleted: (value) {
+                  currentText = value;
+                  _verifyOtpAndProceed(value);
+                },
                 pinTheme: PinTheme(
                   shape: PinCodeFieldShape.box,
                   borderRadius: BorderRadius.circular(12),
@@ -1872,7 +1938,47 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
               const SizedBox(height: 10),
 
               // ✅ Verify Button
+
               ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isOtpVerifyingProgress
+                      ? Colors.grey
+                      : app_color,
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 60),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: _isOtpVerifyingProgress
+                    ? Theme.of(context).platform == TargetPlatform.iOS
+                    ? const CupertinoActivityIndicator(
+                  radius: 9,
+                  color: Colors.white,
+                )
+                    : const SizedBox(
+                  height: 18,
+                  width: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.3,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    backgroundColor: Colors.transparent,
+                  ),
+                )
+                    : const Icon(Icons.verified_rounded, color: Colors.white),
+                onPressed: _isOtpVerifyingProgress
+                    ? null
+                    : () {
+                  _verifyOtpAndProceed(currentText);
+                },
+                label: Text(
+                  _isOtpVerifyingProgress ? 'Verifying...' : 'Verify',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              /*ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: app_color,
                   padding:
@@ -1881,7 +1987,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                       borderRadius: BorderRadius.circular(12)),
                 ),
                 icon: const Icon(Icons.verified_rounded, color: Colors.white),
-                onPressed: () {
+                *//*onPressed: () {
                   if (currentText.length == 4) {
                     final enteredOTP = currentText;
                     if (enteredOTP == generatedotp) {
@@ -1898,13 +2004,17 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                   } else {
                     Fluttertoast.showToast(msg: 'Please enter a 4-digit OTP');
                   }
+                },*//*
+
+                onPressed: () {
+                  _verifyOtpAndProceed(currentText);
                 },
                 label: Text(
                   'Verify',
                   style: GoogleFonts.poppins(
                       color: Colors.white, fontWeight: FontWeight.w600),
                 ),
-              ),
+              ),*/
 
               const SizedBox(height: 16),
 

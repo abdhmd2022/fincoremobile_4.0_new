@@ -19,23 +19,38 @@ class UserModel {
   final String role_name;
   final String name;
   final String email;
+  final bool isAdmin;
 
   UserModel({
     required this.role_name,
     required this.name,
-    required this.email
+    required this.email,
+    required this.isAdmin,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json)
-  {
-    return UserModel
-      (
-        role_name: json['role_name'],
-        name: json['customer_name'],
-        email: json['user_name']
+  factory UserModel.fromNormalUserJson(Map<String, dynamic> json) {
+    return UserModel(
+      role_name: json['role_name']?.toString() ??
+          json['worker_role']?.toString() ??
+          'User',
+      name: json['customer_name']?.toString() ?? '',
+      email: json['user_name']?.toString() ?? '',
+      isAdmin: false,
+    );
+  }
+
+  factory UserModel.fromAdminJson(Map<String, dynamic> json) {
+    return UserModel(
+      role_name: json['role_name']?.toString() ??
+          json['worker_role']?.toString() ??
+          'Admin',
+      name: json['name']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      isAdmin: true,
     );
   }
 }
+
 
 
 class _VanAllocationScreenState extends State<VanAllocationScreen> {
@@ -82,44 +97,103 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
   int formResetKey = 0;
 
   Future<void> fetchUsers(String selectedserial) async {
+    final usersUrl = Uri.parse('$BASE_URL_config/api/login/get');
 
-    final url = Uri.parse('$BASE_URL_config/api/login/getRole');
+    // Replace this with your actual get allocations API
+    final allocationsUrl = Uri.parse('$BASE_URL_config/api/spectra/Allocations');
 
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $authTokenBase',
-      "Content-Type": "application/json"
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $authTokenBase',
+      "Content-Type": "application/json",
     };
 
-    var body = jsonEncode({
-      'serialno': selectedserial,
-    });
-
-    final response = await http.post(
-        url,
-        body: body,
-        headers:headers
-    );
-
-    if (response.statusCode == 200)
-    {
+    try {
       users.clear();
-      try
-      {
-        final List<dynamic> jsonList = json.decode(response.body);
 
+      // -----------------------------------------
+      // STEP 1: Fetch existing allocations
+      // -----------------------------------------
+      final allocationResponse = await http.get(
+        allocationsUrl,
+        headers: headers,
+      );
 
-        users.addAll(jsonList.map((json) => UserModel.fromJson(json)).toList());
+      print("Allocations Status: ${allocationResponse.statusCode}");
+      print("Allocations Response: ${allocationResponse.body}");
 
+      final Set<String> allocatedUserNames = {};
 
+      if (allocationResponse.statusCode == 200) {
+        final List<dynamic> allocationJsonList =
+        json.decode(allocationResponse.body);
+
+        for (final item in allocationJsonList) {
+          final map = item as Map<String, dynamic>;
+
+          // Only check allocation for selected serial
+          final serialNo = map['serial_no']?.toString().trim();
+          final userName = map['user_name']?.toString().trim().toLowerCase();
+
+          if (serialNo == selectedserial &&
+              userName != null &&
+              userName.isNotEmpty) {
+            allocatedUserNames.add(userName);
+          }
+        }
       }
-      catch (e)
-      {
-        print(e);
+
+      print("Already Allocated User Names: $allocatedUserNames");
+
+      // -----------------------------------------
+      // STEP 2: Fetch normal users
+      // -----------------------------------------
+      final normalResponse = await http.post(
+        usersUrl,
+        body: jsonEncode({
+          'serialno': selectedserial,
+          'admin': false,
+        }),
+        headers: headers,
+      );
+
+      print("Normal Users Status: ${normalResponse.statusCode}");
+      print("Normal Users Response: ${normalResponse.body}");
+
+      if (normalResponse.statusCode == 200) {
+        final List<dynamic> normalJsonList = json.decode(normalResponse.body);
+
+        users.addAll(
+          normalJsonList
+              .where((json) {
+            final map = json as Map<String, dynamic>;
+
+            final userName =
+            map['user_name']?.toString().trim().toLowerCase();
+
+            // If user_name is null, keep user
+            if (userName == null || userName.isEmpty) {
+              return true;
+            }
+
+            // If user already allocated, don't add user
+            return !allocatedUserNames.contains(userName);
+          })
+              .map((json) {
+            return UserModel.fromNormalUserJson(
+              json as Map<String, dynamic>,
+            );
+          })
+              .toList(),
+        );
       }
+      if (users.isEmpty) {
+        selectedUser = null;
+      }
+      setState(() {});
+    } catch (e) {
+      print("Fetch Users Error: $e");
     }
   }
-
-
   @override
   void initState() {
     super.initState();
@@ -162,59 +236,6 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
   }
 
 
-  Future<void> fetchVanAllocationData() async {
-    try {
-      final url = Uri.parse(
-        '$hostname/api/entry/getSpectra/$company_lowercase/$serial_no',
-      );
-
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          "type": "delivery note",
-        }),
-      );
-
-      debugPrint(
-        "VAN ALLOCATION RESPONSE: ${response.body}",
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        setState(() {
-
-          // voucher types
-          vchTypes = List<String>.from(
-            data['vchTypes'] ?? [],
-          );
-
-          // sales ledgers
-          salesLedgers = List<String>.from(
-            data['salesLedgers'] ?? [],
-          );
-
-          // cash ledgers
-          cashLedgers = List<String>.from(
-            data['cashLedgers'] ?? [],
-          );
-
-          // locations
-          locations = List<String>.from(
-            data['locations'] ?? [],
-          );
-        });
-      }
-    } catch (e) {
-      debugPrint(
-        'VAN ALLOCATION FETCH ERROR: $e',
-      );
-    }
-  }
 
   Future<void> fetchAllocations() async {
     try {
@@ -246,15 +267,126 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           selectedSalesLedger != null &&
           selectedCashLedger != null;
 
+  Future<void> fetchVanAllocationData() async {
+    try {
+      final url = Uri.parse(
+        '$hostname/api/entry/getSpectra/$company_lowercase/$serial_no',
+      );
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "type": "delivery note",
+        }),
+      );
+
+      debugPrint("VAN ALLOCATION RESPONSE: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        // -----------------------------------------
+        // STEP 1: Fetch existing allocations
+        // -----------------------------------------
+        final allocationsUrl = Uri.parse(
+          '$BASE_URL_config/api/spectra/Allocations',
+        );
+
+        final allocationResponse = await http.get(
+          allocationsUrl,
+          headers: {
+            'Authorization': 'Bearer $authTokenBase',
+            'Content-Type': 'application/json',
+          },
+        );
+
+        final Set<String> allocatedVchTypes = {};
+
+        if (allocationResponse.statusCode == 200) {
+          final List<dynamic> allocationJsonList =
+          jsonDecode(allocationResponse.body);
+
+          for (final item in allocationJsonList) {
+            final map = item as Map<String, dynamic>;
+
+            final serialNo = map['serial_no']?.toString().trim();
+            final vchType =
+            map['voucher_type_name']?.toString().trim().toLowerCase();
+
+            // Only check voucher types for current serial number
+            if (serialNo == serial_no &&
+                vchType != null &&
+                vchType.isNotEmpty) {
+              allocatedVchTypes.add(vchType);
+            }
+          }
+        }
+
+        debugPrint("Already Allocated Vch Types: $allocatedVchTypes");
+
+        setState(() {
+          // voucher types without already allocated duplicates
+          vchTypes = List<String>.from(data['vchTypes'] ?? [])
+              .where((vch) {
+            final vchName = vch.toString().trim().toLowerCase();
+
+            if (vchName.isEmpty) {
+              return false;
+            }
+
+            return !allocatedVchTypes.contains(vchName);
+          })
+              .toSet()
+              .toList();
+
+          // sales ledgers
+          salesLedgers = List<String>.from(
+            data['salesLedgers'] ?? [],
+          );
+
+          // cash ledgers
+          cashLedgers = List<String>.from(
+            data['cashLedgers'] ?? [],
+          );
+
+          // locations
+          locations = List<String>.from(
+            data['locations'] ?? [],
+          );
+
+          if (selectedVchType != null &&
+              !vchTypes.contains(selectedVchType)) {
+            selectedVchType = null;
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('VAN ALLOCATION FETCH ERROR: $e');
+    }
+  }
+
   void _resetForm() {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     setState(() {
       selectedUser = null;
       selectedLocation = null;
       selectedVchType = null;
       selectedSalesLedger = null;
       selectedCashLedger = null;
+
+      // This will reset Autocomplete field also
       formResetKey++;
 
+      // If no users are available after allocation filtering,
+      // selectedUser should always remain null
+      if (users.isEmpty) {
+        selectedUser = null;
+      }
     });
   }
 
@@ -313,15 +445,18 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
 
       if (response.statusCode == 200 ||
           response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        /*ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Allocation saved successfully'),
           ),
-        );
+        );*/
+
+        await fetchUsers(serial_no!);
+        await fetchVanAllocationData();
 
         _resetForm();
 
-        fetchAllocations();
+        // fetchAllocations();
       } else {
         String errorMessage = 'Something went wrong';
 
@@ -782,163 +917,163 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
         _fieldLabel('User Name'),
         const SizedBox(height: 8),
 
-        Autocomplete<UserModel>(
-          key: ValueKey('user_$formResetKey'),
+        if (users.isEmpty)
+          TextField(
+            enabled: false,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              color: Colors.grey.shade700,
+            ),
+            decoration: _inputDecoration(
+              Icons.person_off_outlined,
+              'No user available',
+            ).copyWith(
+              hintText: 'No user available',
+            ),
+          )
+        else
+          Autocomplete<UserModel>(
+            key: ValueKey('user_$formResetKey'),
 
-          displayStringForOption: (UserModel option) => option.name,
-          optionsBuilder: (TextEditingValue textEditingValue) {
-            if (textEditingValue.text.isEmpty) {
-              return users;
-            }
+            displayStringForOption: (UserModel option) => option.name,
 
-            return users.where(
-                  (user) =>
-              user.name.toLowerCase().contains(
-                textEditingValue.text.toLowerCase(),
-              ) ||
-                  user.email.toLowerCase().contains(
-                    textEditingValue.text.toLowerCase(),
-                  ),
-            );
-          },
+            optionsBuilder: (TextEditingValue textEditingValue) {
+              if (textEditingValue.text.isEmpty) {
+                return users;
+              }
 
-          initialValue: TextEditingValue(
-            text: selectedUser?.name ?? '',
-          ),
+              final query = textEditingValue.text.toLowerCase();
 
+              return users.where(
+                    (user) =>
+                user.name.toLowerCase().contains(query) ||
+                    user.email.toLowerCase().contains(query),
+              );
+            },
 
-          onSelected: (value) {
-            setState(() {
-              selectedUser = value;
-            });
-          },
+            initialValue: TextEditingValue(
+              text: selectedUser?.name ?? '',
+            ),
 
-          fieldViewBuilder:
-              (context, controller, focusNode, onEditingComplete) {
+            onSelected: (value) {
+              setState(() {
+                selectedUser = value;
+              });
+            },
 
+            fieldViewBuilder:
+                (context, controller, focusNode, onEditingComplete) {
+              return TextField(
+                controller: controller,
+                focusNode: focusNode,
+                style: GoogleFonts.poppins(fontSize: 13),
+                decoration: _inputDecoration(
+                  Icons.person_search_outlined,
+                  'Search and select user',
+                  showClear: controller.text.isNotEmpty || selectedUser != null,
+                  onClear: () {
+                    controller.clear();
 
+                    setState(() {
+                      selectedUser = null;
+                    });
+                  },
+                ),
+              );
+            },
 
+            optionsViewBuilder: (context, onSelected, options) {
+              final optionList = options.toList();
 
-            return TextField(
-              controller: controller,
-              focusNode: focusNode,
-              style: GoogleFonts.poppins(fontSize: 13),
-
-              decoration: _inputDecoration(
-                Icons.person_search_outlined,
-                'Search and select user',
-
-                showClear: controller.text.isNotEmpty || selectedUser != null,
-
-                onClear: () {
-                  controller.clear();
-
-                  setState(() {
-                    selectedUser = null;
-                  });
-                },
-              ),
-            );
-          },
-
-
-
-          optionsViewBuilder: (context, onSelected, options) {
-            return Align(
-              alignment: Alignment.topLeft,
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  constraints: const BoxConstraints(maxHeight: 300),
-                  width: MediaQuery.of(context).size.width * 0.9,
-
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 18,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(10),
-                    itemCount: options.length,
-
-                    itemBuilder: (context, index) {
-                      final option = options.elementAt(index);
-
-                      return InkWell(
-                        borderRadius: BorderRadius.circular(14),
-                        onTap: () => onSelected(option),
-
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.all(12),
-
-                          decoration: BoxDecoration(
-                            color: backgroundColor,
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-
-                          child: Row(
-                            children: [
-                              Container(
-                                height: 42,
-                                width: 42,
-                                decoration: BoxDecoration(
-                                  color: primaryColor.withOpacity(0.12),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.person_outline,
-                                  color: primaryColor,
-                                ),
-                              ),
-
-                              const SizedBox(width: 12),
-
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      option.name,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12.5,
-                                        fontWeight: FontWeight.w600,
-                                        color: textColor,
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 3),
-
-                                    Text(
-                                      option.email,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 11,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+              return Align(
+                alignment: Alignment.topLeft,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    constraints: const BoxConstraints(maxHeight: 300),
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 18,
+                          offset: const Offset(0, 6),
                         ),
-                      );
-                    },
+                      ],
+                    ),
+
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(10),
+                      itemCount: optionList.length,
+                      itemBuilder: (context, index) {
+                        final option = optionList[index];
+
+                        return InkWell(
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: () => onSelected(option),
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: backgroundColor,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  height: 42,
+                                  width: 42,
+                                  decoration: BoxDecoration(
+                                    color: primaryColor.withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.person_outline,
+                                    color: primaryColor,
+                                  ),
+                                ),
+
+                                const SizedBox(width: 12),
+
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        option.name,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12.5,
+                                          fontWeight: FontWeight.w600,
+                                          color: textColor,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 3),
+
+                                      Text(
+                                        option.email,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 11,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
-        ),
+              );
+            },
+          ),
       ],
     );
   }
@@ -956,6 +1091,22 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       children: [
         _fieldLabel(title),
         const SizedBox(height: 8),
+
+        if (items.isEmpty)
+          TextField(
+            enabled: false,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              color: Colors.grey.shade700,
+            ),
+            decoration: _inputDecoration(
+              icon,
+              'No $title available',
+            ).copyWith(
+              hintText: 'No $title available',
+            ),
+          )
+        else
         Autocomplete<String>(
           key: ValueKey('${title}_$formResetKey'),
           optionsBuilder: (TextEditingValue textEditingValue) {

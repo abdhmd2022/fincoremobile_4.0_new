@@ -158,6 +158,12 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       debugPrint('Price level API skipped: selected price level is null/empty');
       debugPrint('selected item -> $_selecteditem');
       debugPrint('selected party ledger -> $_selectedpartyledger');
+
+      setStateDialog(() {
+        isRateFieldEnabled = true;
+        showRateField = true;
+      });
+
       return;
     }
     setStateDialog(() {
@@ -2963,11 +2969,11 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                             refdatetxt = formatlastsaledate(refdatestring);
                             _refdateController.text = refdatetxt;
 
-                            _selectedvchtypename = vchtypenamedata[0];
+                            // _selectedvchtypename = vchtypenamedata[0];
                             fetchvchnos(_selectedvchtypename);
-                            _selectedpartyledger = partyledgerdata[0];
-                            _partyLedgerController.text = _selectedpartyledger['name'];
-                            _selectedsalesledger = salesledger_data[0];
+                            _selectedpartyledger = null;
+                            _partyLedgerController.clear();
+                            // _selectedsalesledger = salesledger_data[0];
                             _selectedledger = ledgerdata.isNotEmpty ? ledgerdata[0]['name'] : null;
                             _selectedvatledger = vatledgerdata[0];
                             _selecteditem = '${itemdata[0]['name']}';
@@ -3739,6 +3745,10 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
   Future<void> _showItemDetailsPopup(BuildContext context) async {
     _selecteditem = null;
     _itemController.clear();
+
+    itemRateController.clear();
+    itemAmountController.clear();
+
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -3908,25 +3918,9 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     child: const Icon(Icons.inventory_outlined, color: Colors.white),
                                   ),
 
-                                  // 👉 Close + Dropdown icons
                                   suffixIcon: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      if (isPriceLevelLoading)
-                                        Padding(
-                                          padding: const EdgeInsets.only(right: 8),
-                                          child: SizedBox(
-                                            height: 20,
-                                            width: 20,
-                                            child: Theme.of(context).platform == TargetPlatform.iOS
-                                                ? const CupertinoActivityIndicator(radius: 10)
-                                                : CircularProgressIndicator(
-                                              strokeWidth: 2.3,
-                                              valueColor: AlwaysStoppedAnimation<Color>(app_color),
-                                            ),
-                                          ),
-                                        ),
-
                                       if (!isPriceLevelLoading && _itemController.text.isNotEmpty)
                                         IconButton(
                                           icon: const Icon(Icons.close, color: Colors.grey, size: 20),
@@ -3987,6 +3981,35 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                             ),
                           ),
 
+
+                          if (isPriceLevelLoading)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 12),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height: 22,
+                                    width: 22,
+                                    child: Theme.of(context).platform == TargetPlatform.iOS
+                                        ? const CupertinoActivityIndicator(radius: 11)
+                                        : CircularProgressIndicator(
+                                      strokeWidth: 2.4,
+                                      valueColor: AlwaysStoppedAnimation<Color>(app_color),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    "Loading item details...",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           // 📍 Location
                           /*Visibility(
                             visible: isVisibleLocation,
@@ -4053,284 +4076,296 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                           ),*/
 
 
-                          // 📦 Unit
-                          Visibility(
-                            visible: isVisibleUnit,
-                            child: Column(
-                              children: [
-                                const SizedBox(height: 14),
+                    if (!isPriceLevelLoading) ...[
 
-                                DropdownButtonFormField<String>(
-                                  value: _selectedunit,
-                                  items: unitdata.map((u) {
-                                    return DropdownMenuItem(value: u.name, child: Text(
-                                      u.name,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black87,
-                                      ),
-                                    ),);
-                                  }).toList(),
-                                  onChanged: (val) {
-                                    setStateDialog(() {
-                                      _selectedunit = val!;
-                                      itemQuantityController.text = "1";
-                                      selectedMultiplier = unitdata.firstWhere((u) => u.name == _selectedunit).multiplier;
-                                      updateRateAndAmount();
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    labelStyle: GoogleFonts.poppins(
+                      // 📦 Unit
+                      Visibility(
+                        visible: isVisibleUnit,
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 14),
+
+                            DropdownButtonFormField<String>(
+                              value: _selectedunit,
+                              items: unitdata.map((u) {
+                                return DropdownMenuItem(value: u.name, child: Text(
+                                  u.name,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black87,
+                                  ),
+                                ),);
+                              }).toList(),
+                              onChanged: (val) {
+                                setStateDialog(() {
+                                  _selectedunit = val!;
+                                  itemQuantityController.text = "1";
+                                  selectedMultiplier = unitdata.firstWhere((u) => u.name == _selectedunit).multiplier;
+                                  updateRateAndAmount();
+                                });
+                              },
+                              decoration: InputDecoration(
+                                labelStyle: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[700],
+                                ),
+                                labelText: "Unit",
+                                prefixIcon: Container(
+                                  margin: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [Colors.purple, Colors.deepPurpleAccent],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                  child: const Icon(Icons.straighten, color: Colors.white),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(color: Colors.grey.shade400),
+                                ),
+
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(color: Colors.grey.shade300),
+                                ),
+
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(color: app_color, width: 1.5),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      // 🔢 Quantity
+                      TextFormField(
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                        controller: itemQuantityController,
+                        keyboardType: TextInputType.number,
+                        onChanged: (_) => updateRateAndAmount(),
+                        decoration: InputDecoration(
+                          labelStyle: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[700],
+                          ),
+
+                          hintStyle: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.grey[600],
+                          ),
+                          labelText: "Quantity",
+                          prefixIcon: Container(
+                            margin: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.green, Colors.lightGreen],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                            ),
+                            child: const Icon(Icons.confirmation_num, color: Colors.white),
+                          ),
+
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: Colors.grey.shade400),
+                          ),
+
+                          disabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: app_color, width: 1.5),
+                          ),
+
+                        ),
+                      ),
+
+
+
+                      // 💲 Rate
+
+                      Visibility(
+                        visible: showRateField,
+                        child:  Column(
+                          children: [
+
+                            const SizedBox(height: 14),
+                            TextFormField(
+                              enabled: isRateFieldEnabled,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: isRateFieldEnabled ? Colors.black87 : Colors.grey[700],
+                              ),
+                              controller: itemRateController,
+                              keyboardType: TextInputType.number,
+
+                              // ✅ only allow manual amount update when rate is editable
+                              onChanged: isRateFieldEnabled ? (_) => updateAmount() : null,
+
+                              decoration: InputDecoration(
+                                labelStyle: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: isRateFieldEnabled ? Colors.grey[700] : Colors.grey[500],
+                                ),
+                                hintStyle: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  color: Colors.grey[600],
+                                ),
+                                labelText: "Rate",
+
+                                // ✅ disabled field background
+                                filled: !isRateFieldEnabled,
+                                fillColor: !isRateFieldEnabled ? Colors.grey.shade100 : null,
+
+                                prefix: Container(
+                                  margin: const EdgeInsets.only(right: 8),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: isRateFieldEnabled
+                                          ? [Colors.blue, Colors.blue]
+                                          : [Colors.grey, Colors.grey],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                  child: Text(
+                                    getCurrencySymbol(currencycode),
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
                                       fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey[700],
-                                    ),
-                                    labelText: "Unit",
-                                    prefixIcon: Container(
-                                      margin: const EdgeInsets.all(8),
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [Colors.purple, Colors.deepPurpleAccent],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.all(Radius.circular(8)),
-                                      ),
-                                      child: const Icon(Icons.straighten, color: Colors.white),
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: Colors.grey.shade400),
-                                    ),
-
-                                    disabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: Colors.grey.shade300),
-                                    ),
-
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: app_color, width: 1.5),
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
 
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(color: Colors.grey.shade400),
+                                ),
+
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(color: Colors.grey.shade300),
+                                ),
+
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(color: app_color, width: 1.5),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+
+
+                      const SizedBox(height: 14),
+
+                      // 💰 Amount (Disabled with Gradient Currency Symbol)
+                      TextFormField(
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                        controller: itemAmountController,
+                        enabled: false,
+                        decoration: InputDecoration(
+                          labelStyle: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: isRateFieldEnabled ? Colors.grey[700] : Colors.grey[500],
                           ),
+                          hintStyle: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.grey[600],
+                          ),
+                          labelText: "Amount",
 
-                          const SizedBox(height: 14),
+                          // ✅ disabled field background
+                          filled: true,
+                          fillColor: Colors.grey.shade100,
 
-                          // 🔢 Quantity
-                          TextFormField(
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
+                          prefix: Container(
+                            margin: const EdgeInsets.only(right: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.grey, Colors.grey],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: const BorderRadius.all(Radius.circular(8)),
                             ),
-                            controller: itemQuantityController,
-                            keyboardType: TextInputType.number,
-                            onChanged: (_) => updateRateAndAmount(),
-                            decoration: InputDecoration(
-                              labelStyle: GoogleFonts.poppins(
+                            child: Text(
+                              getCurrencySymbol(currencycode),
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
                                 fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey[700],
+                                fontWeight: FontWeight.bold,
                               ),
-
-                              hintStyle: GoogleFonts.poppins(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                              labelText: "Quantity",
-                              prefixIcon: Container(
-                                margin: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [Colors.green, Colors.lightGreen],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                                ),
-                                child: const Icon(Icons.confirmation_num, color: Colors.white),
-                              ),
-
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.grey.shade400),
-                              ),
-
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.grey.shade300),
-                              ),
-
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: app_color, width: 1.5),
-                              ),
-
                             ),
                           ),
 
-                          const SizedBox(height: 14),
-
-                          // 💲 Rate
-
-                          Visibility(
-                            visible: showRateField,
-                            child:  TextFormField(
-                            enabled: isRateFieldEnabled,
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: isRateFieldEnabled ? Colors.black87 : Colors.grey[700],
-                            ),
-                            controller: itemRateController,
-                            keyboardType: TextInputType.number,
-
-                            // ✅ only allow manual amount update when rate is editable
-                            onChanged: isRateFieldEnabled ? (_) => updateAmount() : null,
-
-                            decoration: InputDecoration(
-                              labelStyle: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: isRateFieldEnabled ? Colors.grey[700] : Colors.grey[500],
-                              ),
-                              hintStyle: GoogleFonts.poppins(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                              labelText: "Rate",
-
-                              // ✅ disabled field background
-                              filled: !isRateFieldEnabled,
-                              fillColor: !isRateFieldEnabled ? Colors.grey.shade100 : null,
-
-                              prefix: Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: isRateFieldEnabled
-                                        ? [Colors.blue, Colors.blue]
-                                        : [Colors.grey, Colors.grey],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                                ),
-                                child: Text(
-                                  getCurrencySymbol(currencycode),
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.grey.shade400),
-                              ),
-
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.grey.shade300),
-                              ),
-
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: app_color, width: 1.5),
-                              ),
-                            ),
-                          ),),
-
-
-                          const SizedBox(height: 14),
-
-                          // 💰 Amount (Disabled with Gradient Currency Symbol)
-                          TextFormField(
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
-                            ),
-                            controller: itemAmountController,
-                            enabled: false,
-                            decoration: InputDecoration(
-                              labelStyle: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: isRateFieldEnabled ? Colors.grey[700] : Colors.grey[500],
-                              ),
-                              hintStyle: GoogleFonts.poppins(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                              labelText: "Amount",
-
-                              // ✅ disabled field background
-                              filled: true,
-                              fillColor: Colors.grey.shade100,
-
-                              prefix: Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [Colors.grey, Colors.grey],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                                ),
-                                child: Text(
-                                  getCurrencySymbol(currencycode),
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.grey.shade400),
-                              ),
-
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.grey.shade300),
-                              ),
-
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: app_color, width: 1.5),
-                              ),
-                            ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
+
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: Colors.grey.shade400),
+                          ),
+
+                          disabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: app_color, width: 1.5),
+                          ),
+                        ),
+                      ),
+                    ]
+
+
                         ],
                       ),
                     ),
@@ -5304,7 +5339,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                                     SizedBox(height: 8,),
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                                       child: TextFormField(
                                         controller: _dateController,
                                         readOnly: true,
@@ -5378,7 +5413,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     ),
 
 
-                                    Padding(
+                                   /* Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
                                       child: TextFormField(
                                         controller: _vchnoController,
@@ -5475,6 +5510,92 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                                           contentPadding:
                                           const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                                        ),
+                                      ),
+                                    ),*/
+
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                                      child: TextFormField(
+                                        controller: _vchnoController,
+
+                                        // Always disabled from user editing
+                                        readOnly: true,
+                                        enableInteractiveSelection: false,
+                                        onChanged: null,
+
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.grey,
+                                        ),
+
+                                        decoration: InputDecoration(
+                                          labelText: "Voucher No.",
+                                          labelStyle: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.grey[700],
+                                          ),
+
+                                          errorText: errorMessageVchNo.isNotEmpty ? errorMessageVchNo : null,
+
+                                          filled: true,
+                                          fillColor: Colors.grey.shade100,
+
+                                          prefixIcon: Container(
+                                            margin: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              gradient: const LinearGradient(
+                                                colors: [Colors.deepOrangeAccent, Colors.orangeAccent],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius: BorderRadius.all(Radius.circular(12)),
+                                            ),
+                                            child: const Icon(
+                                              Icons.confirmation_num_outlined,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey.shade300,
+                                              width: 1,
+                                            ),
+                                          ),
+
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey.shade300,
+                                              width: 1,
+                                            ),
+                                          ),
+
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                            borderSide: const BorderSide(
+                                              color: Colors.redAccent,
+                                              width: 1.5,
+                                            ),
+                                          ),
+
+                                          focusedErrorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                            borderSide: const BorderSide(
+                                              color: Colors.redAccent,
+                                              width: 1.5,
+                                            ),
+                                          ),
+
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            vertical: 16,
+                                            horizontal: 14,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -5788,10 +5909,10 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                                                 debugPrint('selected party ledger -> $_selectedpartyledger');
                                                 debugPrint('selected price level -> $selectedPartyLedgerPriceLevel');
+                                                FocusManager.instance.primaryFocus?.unfocus();
                                               });
+
                                             },
-
-
 
                                           // 🔹 Empty result text
                                           emptyBuilder: (context) => Padding(

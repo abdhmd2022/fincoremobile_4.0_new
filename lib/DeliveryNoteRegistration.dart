@@ -3115,11 +3115,25 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
         'Authorization' : 'Bearer $token',
         "Content-Type": "application/json"
       };
+      final String currentSerialNo = serial_no?.trim() ?? '';
+      final bool isUniGasSerial = uniGasSerialNo.contains(currentSerialNo);
+
+      debugPrint('loadData serial_no -> $currentSerialNo');
+      debugPrint('loadData uniGasSerialNo -> $uniGasSerialNo');
+      debugPrint('loadData isUniGasSerial -> $isUniGasSerial');
+      debugPrint('loadData assigned godownName -> $godownName');
+
       var body = jsonEncode({
+        "type": "delivery note",
+        if (isUniGasSerial && godownName.isNotEmpty)
+          "godownName": godownName,
+      });
+
+      /*var body = jsonEncode({
         "type": "delivery note",
         if (godownName.isNotEmpty)
           "godownName": godownName,
-      });
+      });*/
 
       debugPrint('body load data -> $body');
       final response = await http.post
@@ -4389,9 +4403,12 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                         resetItemDialogFields();
                       });
 
-                      setState(() {
+                      /*setState(() {
                         resetItemDialogFields();
-                      });
+                      });*/
+
+                      _selectedledger =null;
+                      ledgerAmountController.clear();
 
                       Navigator.of(context).pop();
                     },
@@ -5200,6 +5217,9 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     final NumberFormat currencyFormat = NumberFormat(
       "#,##0.${'0' * decimal!}",  // 👈 dynamically repeat '0' for decimal places
     );
+    final bool canEditVoucherNo =
+        SecuritybtnAcessHolder.toString().toLowerCase() == 'true';
+
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
@@ -5257,6 +5277,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
           tickerProvider: this
       ),
       body:WillPopScope(
+
           onWillPop: () async {
             Navigator.pushReplacement(
               context,
@@ -5526,20 +5547,27 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                       ),
                                     ),*/
 
+
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
                                       child: TextFormField(
                                         controller: _vchnoController,
 
-                                        // Always disabled from user editing
-                                        readOnly: true,
-                                        enableInteractiveSelection: false,
-                                        onChanged: null,
+                                        // Editable only when security access is true
+                                        readOnly: !canEditVoucherNo,
+                                        enableInteractiveSelection: canEditVoucherNo,
+                                        onChanged: canEditVoucherNo
+                                            ? (value) {
+                                          checkVchNoExistence(value.trim());
+                                        }
+                                            : null,
+
+                                        keyboardType: TextInputType.text,
 
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
-                                          color: Colors.grey,
+                                          color: canEditVoucherNo ? Colors.black87 : Colors.grey,
                                         ),
 
                                         decoration: InputDecoration(
@@ -5553,29 +5581,45 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                           errorText: errorMessageVchNo.isNotEmpty ? errorMessageVchNo : null,
 
                                           filled: true,
-                                          fillColor: Colors.grey.shade100,
+                                          fillColor: canEditVoucherNo ? Colors.white : Colors.grey.shade100,
 
                                           prefixIcon: Container(
                                             margin: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
-                                              gradient: const LinearGradient(
-                                                colors: [Colors.deepOrangeAccent, Colors.orangeAccent],
+                                              gradient: LinearGradient(
+                                                colors: canEditVoucherNo
+                                                    ? [Colors.teal, Colors.tealAccent]
+                                                    : [Colors.deepOrangeAccent, Colors.orangeAccent],
                                                 begin: Alignment.topLeft,
                                                 end: Alignment.bottomRight,
                                               ),
-                                              borderRadius: BorderRadius.all(Radius.circular(12)),
+                                              borderRadius: const BorderRadius.all(Radius.circular(12)),
                                             ),
-                                            child: const Icon(
-                                              Icons.confirmation_num_outlined,
+                                            child: Icon(
+                                              canEditVoucherNo
+                                                  ? Icons.edit_note_rounded
+                                                  : Icons.confirmation_num_outlined,
                                               color: Colors.white,
                                               size: 20,
                                             ),
                                           ),
 
+                                          suffixIcon: canEditVoucherNo
+                                              ? const Icon(
+                                            Icons.edit,
+                                            color: Colors.teal,
+                                            size: 20,
+                                          )
+                                              : const Icon(
+                                            Icons.lock_outline,
+                                            color: Colors.grey,
+                                            size: 20,
+                                          ),
+
                                           enabledBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(16),
                                             borderSide: BorderSide(
-                                              color: Colors.grey.shade300,
+                                              color: canEditVoucherNo ? Colors.teal.shade200 : Colors.grey.shade300,
                                               width: 1,
                                             ),
                                           ),
@@ -5583,8 +5627,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(16),
                                             borderSide: BorderSide(
-                                              color: Colors.grey.shade300,
-                                              width: 1,
+                                              color: canEditVoucherNo ? Colors.teal : Colors.grey.shade300,
+                                              width: 1.5,
                                             ),
                                           ),
 

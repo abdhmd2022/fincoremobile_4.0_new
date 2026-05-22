@@ -174,7 +174,7 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
       String? email_nav = prefs.getString('email_nav');
       String? name_nav = prefs.getString('name_nav');
 
-      HttpURL_loadData = '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=receipt&isSynced=false';
+      HttpURL_loadData = '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=receipt';
       HttpURL_deleteEntry = '$hostname/api/entry/deleteEntry/$company_lowercase/$serial_no';
       if (email_nav!=null && name_nav!= null)
       {

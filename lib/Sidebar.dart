@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:FincoreGo/addVanAllocations.dart';
@@ -27,7 +28,7 @@ class Sidebar extends StatelessWidget {
   bool isReceiptEntryVisible = false, isReceiptEntryEnable = true;
   bool isVanAllocationVisible = false, isVanAllocationEnable = true;
 
-  String SalesEntryHolder = '',VanAllocationHolder = '', username_prefs = '', password_prefs = '', ReceiptEntryHolder = '',serial_no='', company_name='';
+  String SalesEntryHolder = '',VanAllocationHolder = '', username_prefs = '', password_prefs = '', ReceiptEntryHolder = '',serial_no='', company_name='', assignedGodown = '';
   String? socketId = '', deviceIdentifier = '';
   late IO.Socket socket;
 
@@ -82,6 +83,26 @@ class Sidebar extends StatelessWidget {
     username_prefs = prefs.getString('username') ?? '';
     serial_no = prefs.getString('serial_no') ?? '';
     company_name = prefs.getString('company_name') ?? '';
+
+    final allocationString = prefs.getString('spectra_allocations');
+
+    if (allocationString != null && allocationString.isNotEmpty) {
+      try {
+        final List<dynamic> allocations = jsonDecode(allocationString);
+
+        if (allocations.isNotEmpty) {
+          final Map<String, dynamic> allocation =
+          Map<String, dynamic>.from(allocations.first);
+
+          assignedGodown = allocation['godown']?.toString().trim() ?? '';
+        }
+      } catch (e) {
+        debugPrint('Error reading assigned godown in sidebar -> $e');
+      }
+    }
+
+    debugPrint('Sidebar assignedGodown -> $assignedGodown');
+    debugPrint('Sidebar is UniGas -> ${uniGasSerialNo.contains(serial_no.trim())}');
 
     print('van allocation value - > $VanAllocationHolder');
     password_prefs = prefs.getString('password') ?? '';
@@ -261,6 +282,34 @@ class Sidebar extends StatelessWidget {
                                   ),
                                 ],
                               ),
+
+                              if (uniGasSerialNo.contains(serial_no.trim()) &&
+                                  assignedGodown.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.local_shipping_outlined,
+                                      size: 14,
+                                      color: Colors.white70,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Flexible(
+                                      fit: FlexFit.loose,
+                                      child: Text(
+                                        assignedGodown,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: Colors.white,
+                                        ),
+                                        softWrap: true,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ]
 
                             ],
                           ),

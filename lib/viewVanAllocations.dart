@@ -289,63 +289,56 @@ class _ViewVanAllocationScreenState
         child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
-              physics:
-              const AlwaysScrollableScrollPhysics(),
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
-
-              child: ConstrainedBox(
+              child: filteredAllocations.isEmpty
+                  ? ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
+                  minHeight: constraints.maxHeight - 32,
                 ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSearchBar(),
 
-                child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
-                  children: [
-                    _buildSearchBar(),
+                      const SizedBox(height: 18),
 
-                    const SizedBox(height: 18),
+                      _buildStatsRow(),
 
-                    _buildStatsRow(),
+                      const SizedBox(height: 18),
 
-                    const SizedBox(height: 18),
-
-                    filteredAllocations.isEmpty
-                        ? SizedBox(
-                      height:
-                      constraints.maxHeight *
-                          0.55,
-                      child: Center(
+                      Expanded(
                         child: _emptyState(),
                       ),
-                    )
-                        : ListView.separated(
-                      shrinkWrap: true,
-                      physics:
-                      const NeverScrollableScrollPhysics(),
-                      itemCount:
-                      filteredAllocations
-                          .length,
-                      separatorBuilder:
-                          (_, __) =>
-                      const SizedBox(
-                        height: 14,
-                      ),
-                      itemBuilder:
-                          (context, index) {
-                        final allocation =
-                        filteredAllocations[
-                        index];
-
-                        return _allocationCard(
-                          allocation,
-                        );
-                      },
-                    ),
-
-                    const SizedBox(height: 90),
-                  ],
+                    ],
+                  ),
                 ),
+              )
+                  : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSearchBar(),
+
+                  const SizedBox(height: 18),
+
+                  _buildStatsRow(),
+
+                  const SizedBox(height: 18),
+
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: filteredAllocations.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 14),
+                    itemBuilder: (context, index) {
+                      final allocation = filteredAllocations[index];
+                      return _allocationCard(allocation);
+                    },
+                  ),
+
+                  const SizedBox(height: 90),
+                ],
               ),
             );
           },
@@ -828,102 +821,91 @@ class _ViewVanAllocationScreenState
   Widget _emptyState() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(30),
-
+      padding: const EdgeInsets.all(24),
       decoration: _cardDecoration(),
-
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-
-        children: [
-          Container(
-            height: 90,
-            width: 90,
-
-            decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.08),
-              shape: BoxShape.circle,
-            ),
-
-            child: Icon(
-              Icons.inbox_outlined,
-              size: 42,
-              color: primaryColor,
-            ),
-          ),
-
-          const SizedBox(height: 22),
-
-          Text(
-            "No Allocations Found",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: textColor,
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          Padding(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 20),
-
-            child: Text(
-              "There are currently no allocations available. Tap the button below to create a new allocation.",
-              textAlign: TextAlign.center,
-
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                height: 1.5,
-                color: Colors.grey.shade600,
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) =>
-                  const VanAllocationScreen(),
+      child: Center(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 82,
+                width: 82,
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.08),
+                  shape: BoxShape.circle,
                 ),
-              );
-            },
-
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 14,
+                child: Icon(
+                  Icons.inbox_outlined,
+                  size: 40,
+                  color: primaryColor,
+                ),
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius:
-                BorderRadius.circular(16),
-              ),
-            ),
 
-            icon: const Icon(
-              Icons.add_rounded,
-              color: Colors.white,
-            ),
+              const SizedBox(height: 20),
 
-            label: Text(
-              "Create Allocation",
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
+              Text(
+                "No Allocations Found",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: textColor,
+                ),
               ),
-            ),
+
+              const SizedBox(height: 10),
+
+              Text(
+                "There are currently no allocations available. Tap the button below to create a new allocation.",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  height: 1.5,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const VanAllocationScreen(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                icon: const Icon(
+                  Icons.add_rounded,
+                  color: Colors.white,
+                ),
+                label: Text(
+                  "Create Allocation",
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

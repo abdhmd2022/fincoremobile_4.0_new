@@ -1265,7 +1265,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     if(allitems_visibility || fastmovingitems_visibility || inactiveitems_visibility) {
       isVisibleParent = true;
       isVisibleListLayout = true;
-      fetchParentData();
+      await fetchParentData();
     }
     else
       {

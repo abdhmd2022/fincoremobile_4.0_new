@@ -943,7 +943,9 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
 
      tickerProvider = this;
 
-     // do something with _prefs
+     await fetchSerial();
+
+
    }
 
    @override
@@ -974,7 +976,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
     socket.connect();
 
     _initSharedPreferences();
-    fetchSerial();
+
   }
 
   @override
@@ -1329,7 +1331,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
         _isLoading=true;
       });
 
-      getadmindata(serial_no);
+      await getadmindata(serial_no);
     }
   }
 
@@ -1714,7 +1716,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                  _isLoading = true;
                });
              }
-             getroledata(context, serial_no, role_id);
+             await getroledata(context, serial_no, role_id);
            }
 
          }

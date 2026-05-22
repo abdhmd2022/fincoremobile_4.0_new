@@ -317,7 +317,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                     );
                   },
                 ),
-              if(serial_no == uniGasSerialNo && (isDeliveryNoteEntryVisible))
+              if(uniGasSerialNo.contains(serial_no) && (isDeliveryNoteEntryVisible))
               _buildEntryOption(
                 icon: Icons.local_shipping,
                 label: "Delivery Note",

@@ -4953,7 +4953,7 @@ _itemController.text = _selecteditem;
         isUserVisible = false;
       }
     });
-    loadData();
+    await loadData();
   }
 
   @override

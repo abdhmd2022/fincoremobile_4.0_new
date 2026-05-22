@@ -3357,7 +3357,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
         isRolesVisible = false;
         isUserVisible = false;
       }});
-    loadData();
+    await loadData();
   }
 
   @override

@@ -1408,8 +1408,8 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
           CostCentreEntriesHolder = _selectedrole[0]["isCostCentreEntries"];
           PostDatedTransactionsHolder = _selectedrole[0]["isPostDatedTransactions"]?? "True";
 
-          VanAllocationHolder = _selectedrole[0]["isVanAllocationSetup"]?? "False";
-          DeliveryNoteEntryHolder = _selectedrole[0]["isDeliveryNoteEntry"]?? "False";
+          VanAllocationHolder = _selectedrole[0]["isVanAllocationSetup"]?? "True";
+          DeliveryNoteEntryHolder = _selectedrole[0]["isDeliveryNoteEntry"]?? "True";
 
 
             prefs.setString("vanallocation", VanAllocationHolder);

@@ -3830,7 +3830,7 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
         isUserVisible = false;
       }
     });
-    loadData();
+    await loadData();
   }
 
   @override

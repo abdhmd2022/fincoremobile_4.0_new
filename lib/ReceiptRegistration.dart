@@ -3125,7 +3125,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         isRolesVisible = false;
         isUserVisible = false;
       }});
-    loadData();
+    await loadData();
   }
   Future<void> _selectDateRangeVchNo(BuildContext context) async {
 

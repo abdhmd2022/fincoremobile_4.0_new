@@ -4265,7 +4265,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
         isUserVisible = false;
       }
     });
-    loadData();
+    await loadData();
   }
 
   @override

@@ -4242,7 +4242,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
         isUserVisible = false;
       }
     });
-    loadData();
+    await loadData();
   }
 
   @override

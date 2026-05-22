@@ -391,6 +391,9 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
   }*/
 
   Future<void> _initSharedPreferences() async {
+
+    fetchUniGasSerialNumbers();
+
     prefs_login = await SharedPreferences.getInstance();
 
     username_prefs = usernamee;

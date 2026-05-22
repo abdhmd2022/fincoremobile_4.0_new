@@ -11,14 +11,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Constants.dart';
 import 'Sidebar.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'constants.dart';
 
 class Deliverynoteregistration extends StatefulWidget {
   const Deliverynoteregistration({Key? key}) : super(key: key);
@@ -144,7 +143,9 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
   bool isSalesLedgerLocked = false;
 
   Future<void> fetchPriceLevelDetailsForSelectedItem(StateSetter setStateDialog) async {
-    if (serial_no != uniGasSerialNo) {
+    if (serial_no == null ||
+        serial_no!.trim().isEmpty ||
+        !uniGasSerialNo.contains(serial_no!.trim())) {
       return;
     }
 
@@ -3148,8 +3149,17 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
             fetchvchnos(_selectedvchtypename);
           }
 
-          if (serial_no == uniGasSerialNo) {
+
+          final String currentSerialNo = serial_no?.trim() ?? '';
+
+          debugPrint('uniGasSerialNo set -> $uniGasSerialNo');
+          debugPrint('selected serial_no -> $currentSerialNo');
+          debugPrint('is unigas serial -> ${uniGasSerialNo.contains(currentSerialNo)}');
+
+
+          if (uniGasSerialNo.contains(currentSerialNo)) {
             // NEW RESPONSE FORMAT:
+            debugPrint('NEW RESPONSE FORMAT:');
             // partyLedgers = [
             //   { "name": "25 Degree North Restaurant", "price_level": "563PL Unigas Tech.&" },
             //   { "name": "Smile Cuisine Cafe FZE", "price_level": null }
@@ -5148,7 +5158,9 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
         isUserVisible = false;
       }
     });
-    loadData();
+
+
+    await loadData();
   }
 
   @override

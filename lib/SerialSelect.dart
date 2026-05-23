@@ -268,7 +268,6 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
      }
    }
 
-
    void _showExpiredLicenseDialog(
        BuildContext context, String serialNo, String expiryDate) {
      showGeneralDialog(
@@ -529,7 +528,6 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
      );
    }
 
-
    @override
    void didChangeDependencies() {
      super.didChangeDependencies();
@@ -616,8 +614,6 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
      });
      return lastsyncvalue;
    }*/
-
-
 
    String normalizeCompany(String value) {
      value = value.trim();
@@ -706,7 +702,6 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
        });
      }
    }
-
 
    Future<void> _getDeviceIdentifier() async {
      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -944,7 +939,6 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
      tickerProvider = this;
 
      await fetchSerial();
-
 
    }
 
@@ -1257,7 +1251,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                                             prefs.setString("serial_no", serial_no);
 
                                             // _isLoading = false;
-                                            getadmindata(serial_no);
+                                            await getadmindata(serial_no);
                                           })),
 
                                   Visibility(
@@ -1626,7 +1620,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
             if (!todayDate.isAfter(expiryDate))
             {
 
-              fetchAllowedCompany(serial_no,username_prefs!);
+              await fetchAllowedCompany(serial_no,username_prefs!);
 
 
               DateTime dt1 = DateTime.parse(license_expiry);
@@ -1685,7 +1679,6 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
       setState(()
       {
         _isVisibleCompany = false;
-        _isLoading = false;
       });
     }
 
@@ -1698,7 +1691,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
      setState(() {
        _isLoading = true;
      });
-     myData_company.clear();
+
      final url = Uri.parse('$BASE_URL_config/api/admin/getCompany');
 
      Map<String, String> headers = {
@@ -1709,14 +1702,16 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
      var body = jsonEncode({'serialno': selectedserial});
      final response = await http.post(url, body: body, headers: headers);
 
+     myData_company.clear();
      if (response.statusCode == 200) {
        final company_data = jsonDecode(response.body);
 
        debugPrint('company_data -> $company_data');
        if (company_data != null) {
          setState(() {
-           myData_company = company_data;
            _isVisibleCompany = true;
+           myData_company = company_data;
+
            _selectcompany = myData_company.first;
          });
 
@@ -1829,7 +1824,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
          myData_company = company_data;
 
          if (myData_company.isEmpty) {
-           fetchCompany(serial_no);
+           await fetchCompany(serial_no);
          } else {
            setState(() {
              _isVisibleCompany = true;
@@ -1909,7 +1904,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
        Map<String, dynamic> data = json.decode(response.body);
        String error = data['error'] ?? 'Something went wrong!!!';
        Fluttertoast.showToast(msg: error);
-       setState(() => _isLoading = false);
+
      }
 
      setState(() {

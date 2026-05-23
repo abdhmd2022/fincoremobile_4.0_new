@@ -948,6 +948,52 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
 
    }
 
+   Widget _buildProgressOverlay() {
+     if (!_isLoading) return const SizedBox.shrink();
+
+     return Positioned.fill(
+       child: AbsorbPointer(
+         absorbing: true,
+         child: Container(
+           color: Colors.black.withOpacity(0.25),
+           child: Center(
+             child: Container(
+               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
+               decoration: BoxDecoration(
+                 color: Colors.white,
+                 borderRadius: BorderRadius.circular(22),
+                 boxShadow: [
+                   BoxShadow(
+                     color: Colors.black.withOpacity(0.12),
+                     blurRadius: 18,
+                     offset: const Offset(0, 8),
+                   ),
+                 ],
+               ),
+               child: Column(
+                 mainAxisSize: MainAxisSize.min,
+                 children: [
+                   CircularProgressIndicator.adaptive(
+                     valueColor: AlwaysStoppedAnimation<Color>(app_color),
+                   ),
+                   const SizedBox(height: 16),
+                   Text(
+                     "Please wait...",
+                     style: GoogleFonts.poppins(
+                       fontSize: 14,
+                       fontWeight: FontWeight.w600,
+                       color: Colors.black87,
+                     ),
+                   ),
+                 ],
+               ),
+             ),
+           ),
+         ),
+       ),
+     );
+   }
+
    @override
    void initState() {
     super.initState();
@@ -1028,75 +1074,78 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
 
 
 
-            body: SingleChildScrollView(
-          child: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            body: Stack(
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: Stack(
-                      children: [
 
-                        // Card Content
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: app_color.withOpacity(0.9),
-                                blurRadius: 1,
-                                offset: Offset(1, 1),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                SingleChildScrollView(
+                    child: Container(
+                        height: MediaQuery.of(context).size.height,
+                        width: MediaQuery.of(context).size.width,
+                        child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(Icons.person_outline, size: 20, color: Colors.white),
-                                  SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      admin_email,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Icon(Icons.group, size: 18, color: Colors.white),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Users Allowed: ',
-                                    style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
-                                  ),
-                                  Text(
-                                    '$allowed_user',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              /*SizedBox(height: 6),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(24),
+                                      child: Stack(
+                                        children: [
+
+                                          // Card Content
+                                          Container(
+                                            width: double.infinity,
+                                            padding: EdgeInsets.all(20),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(24),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: app_color.withOpacity(0.9),
+                                                  blurRadius: 1,
+                                                  offset: Offset(1, 1),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Icon(Icons.person_outline, size: 20, color: Colors.white),
+                                                    SizedBox(width: 10),
+                                                    Expanded(
+                                                      child: Text(
+                                                        admin_email,
+                                                        style: GoogleFonts.poppins(
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.w600,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 12),
+                                                Row(
+                                                  children: [
+                                                    Icon(Icons.group, size: 18, color: Colors.white),
+                                                    SizedBox(width: 8),
+                                                    Text(
+                                                      'Users Allowed: ',
+                                                      style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+                                                    ),
+                                                    Text(
+                                                      '$allowed_user',
+                                                      style: GoogleFonts.poppins(
+                                                        fontSize: 14,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                /*SizedBox(height: 6),
                               Row(
                                 children: [
                                   Icon(Icons.lock_clock, size: 18, color: Colors.white),
@@ -1116,164 +1165,169 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
 
                                 ],
                               ),*/
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-
-
-
-                Container(
-                  margin: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 20),
-                  child: DropdownButtonFormField<dynamic>(
-                      style: GoogleFonts.poppins(),
-                      decoration: InputDecoration(
-                        labelText: "Serial Number",
-                        labelStyle: GoogleFonts.poppins(color: app_color),
-                        prefixIcon: Icon(Icons.confirmation_number_outlined, color: app_color),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        focusedBorder: OutlineInputBorder( // 👈 selected/focused state border
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(
-                            color: app_color, // your highlight color
-                            width: 1.0,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder( // 👈 default border
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        fillColor: Colors.grey.shade50,
-                        filled: true,
-
-                      ),
-                      hint: Text("Serial No",
-                        style: GoogleFonts.poppins(fontSize: 13),
-                      ),
-                      value: _selectedserial,
-                    items: myData.map((item) {
-                      return DropdownMenuItem<dynamic>(
-                        value: item,
-                        child: Row(
-                          children: [
-                            SizedBox(width: 8),
-                            Text(item['serial_no'],
-                            style: GoogleFonts.poppins(
-                              color: Colors.black,
-                              fontWeight: item == _selectedserial
-                                  ? FontWeight.bold
-                                  : FontWeight.w500,
-                            ),),
-                          ]));
-                    }).toList(),
-                    onChanged: (value) async {
-                      setState(() {
-                        _selectedserial = value!;
-                        // ✅ Update spectra allocations on serial change
-                        if (_selectedserial['spectra_allocations'] != null) {
-                          prefs.setString(
-                            'spectra_allocations',
-                            jsonEncode(_selectedserial['spectra_allocations']),
-                          );
-                        } else {
-                          prefs.remove('spectra_allocations');
-                        }
-
-                        _isLoading = true;
-                      });
-
-                      Map<String, dynamic> selected_data = _selectedserial;
-                      serial_no = selected_data['serial_no'] as String;
-                      role_id = selected_data['role_id'].toString();
-                      hostname = selected_data['website_url'] as String;
-                      token = selected_data['token'].toString();
-
-                      if (role_id == "0")
-                      {
-                        secbtnaccess = "True";
-                      }
-                      else
-                      {
-                        secbtnaccess = "False";
-                      }
-                      prefs.setString("hostname", hostname);
-                      prefs.setString("secbtnaccess", secbtnaccess);
-                      prefs.setString("serial_no", serial_no);
-
-                      getadmindata(serial_no);
-                    })),
-
-                Visibility(
-                    visible: _isVisibleCompany,
-                    child : Expanded(
-                      child: Container(
-                        margin: EdgeInsets.only(left: 15, right: 10, top: 0, bottom: 20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: ListView.builder(
-                                itemCount: myData_company.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  String firstThreeLetters = myData_company[index]["company_name"].substring(0, 3);
-                                  return Card(
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                    child: ListTile(
-                                        tileColor: Colors.white,
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                        leading: CircleAvatar(
-                                          backgroundColor: app_color,
-
-                                          child: Text(firstThreeLetters, style: GoogleFonts.poppins(color: Colors.white70)),
-                                        ),
-                                        title: Text(myData_company[index]['company_name'], style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
-                                        trailing: Icon(Icons.chevron_right, color: app_color),
-                                      onTap: () async {
-
-                                        String lastsync = '';
-                                        String company_name = '';
-                                        print('click');
-                                        _selectcompany = myData_company[index];
-                                        company_name = _selectcompany['company_name'].toString();
-                                        Map<String, String> result = await getCompanyLastSync(context, company_name, serial_no);
-
-                                        lastsync = result['lastSync'] ?? "Not Available";
-                                        String trn = result['trn'].toString();
-                                        String address = result['address'].toString();
-                                        String emirate = result['emirate'].toString();
-                                        String country = result['country'].toString();
-
-                                        prefs.setString("company_trn", trn);
-                                        prefs.setString("company_address", address);
-                                        prefs.setString("company_emirate", emirate);
-                                        prefs.setString("company_country", country);
-
-                                        print("trn of $company_name is $trn");
-                                        print("address of $company_name is $address");
-                                        print("emirate of $company_name is $emirate");
-                                        print("country of $company_name is $country");
-                                        _showContinueDialog(context,company_name,lastsync);
-                                        }
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ])))
-                ),
-                if (_isLoading)
-                  Center(child: CircularProgressIndicator.adaptive())
-              ]))))),
+                                  ),
+
+
+
+
+                                  Container(
+                                      margin: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 20),
+                                      child: DropdownButtonFormField<dynamic>(
+                                          style: GoogleFonts.poppins(),
+                                          decoration: InputDecoration(
+                                            labelText: "Serial Number",
+                                            labelStyle: GoogleFonts.poppins(color: app_color),
+                                            prefixIcon: Icon(Icons.confirmation_number_outlined, color: app_color),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(16),
+                                              borderSide: BorderSide(color: Colors.grey),
+                                            ),
+                                            focusedBorder: OutlineInputBorder( // 👈 selected/focused state border
+                                              borderRadius: BorderRadius.circular(16),
+                                              borderSide: BorderSide(
+                                                color: app_color, // your highlight color
+                                                width: 1.0,
+                                              ),
+                                            ),
+                                            enabledBorder: OutlineInputBorder( // 👈 default border
+                                              borderRadius: BorderRadius.circular(16),
+                                              borderSide: BorderSide(color: Colors.grey),
+                                            ),
+                                            fillColor: Colors.grey.shade50,
+                                            filled: true,
+
+                                          ),
+                                          hint: Text("Serial No",
+                                            style: GoogleFonts.poppins(fontSize: 13),
+                                          ),
+                                          value: _selectedserial,
+                                          items: myData.map((item) {
+                                            return DropdownMenuItem<dynamic>(
+                                                value: item,
+                                                child: Row(
+                                                    children: [
+                                                      SizedBox(width: 8),
+                                                      Text(item['serial_no'],
+                                                        style: GoogleFonts.poppins(
+                                                          color: Colors.black,
+                                                          fontWeight: item == _selectedserial
+                                                              ? FontWeight.bold
+                                                              : FontWeight.w500,
+                                                        ),),
+                                                    ]));
+                                          }).toList(),
+                                          onChanged: (value) async {
+                                            setState(() {
+                                              _selectedserial = value!;
+                                              // ✅ Update spectra allocations on serial change
+                                              if (_selectedserial['spectra_allocations'] != null) {
+                                                prefs.setString(
+                                                  'spectra_allocations',
+                                                  jsonEncode(_selectedserial['spectra_allocations']),
+                                                );
+                                              } else {
+                                                prefs.remove('spectra_allocations');
+                                              }
+
+                                              _isLoading = true;
+                                            });
+
+                                            Map<String, dynamic> selected_data = _selectedserial;
+                                            serial_no = selected_data['serial_no'] as String;
+                                            role_id = selected_data['role_id'].toString();
+                                            hostname = selected_data['website_url'] as String;
+                                            token = selected_data['token'].toString();
+
+                                            if (role_id == "0")
+                                            {
+                                              secbtnaccess = "True";
+                                            }
+                                            else
+                                            {
+                                              secbtnaccess = "False";
+                                            }
+                                            prefs.setString("hostname", hostname);
+                                            prefs.setString("secbtnaccess", secbtnaccess);
+                                            prefs.setString("serial_no", serial_no);
+
+                                            // _isLoading = false;
+                                            getadmindata(serial_no);
+                                          })),
+
+                                  Visibility(
+                                      visible: _isVisibleCompany,
+                                      child : Expanded(
+                                          child: Container(
+                                              margin: EdgeInsets.only(left: 15, right: 10, top: 0, bottom: 20),
+                                              child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Expanded(
+                                                      child: ListView.builder(
+                                                        itemCount: myData_company.length,
+                                                        itemBuilder: (BuildContext context, int index) {
+                                                          String firstThreeLetters = myData_company[index]["company_name"].substring(0, 3);
+                                                          return Card(
+                                                            elevation: 4,
+                                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                                            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                                            child: ListTile(
+                                                                tileColor: Colors.white,
+                                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                                                leading: CircleAvatar(
+                                                                  backgroundColor: app_color,
+
+                                                                  child: Text(firstThreeLetters, style: GoogleFonts.poppins(color: Colors.white70)),
+                                                                ),
+                                                                title: Text(myData_company[index]['company_name'], style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+                                                                trailing: Icon(Icons.chevron_right, color: app_color),
+                                                                onTap: () async {
+
+                                                                  String lastsync = '';
+                                                                  String company_name = '';
+                                                                  print('click');
+                                                                  _selectcompany = myData_company[index];
+                                                                  company_name = _selectcompany['company_name'].toString();
+                                                                  Map<String, String> result = await getCompanyLastSync(context, company_name, serial_no);
+
+                                                                  lastsync = result['lastSync'] ?? "Not Available";
+                                                                  String trn = result['trn'].toString();
+                                                                  String address = result['address'].toString();
+                                                                  String emirate = result['emirate'].toString();
+                                                                  String country = result['country'].toString();
+
+                                                                  prefs.setString("company_trn", trn);
+                                                                  prefs.setString("company_address", address);
+                                                                  prefs.setString("company_emirate", emirate);
+                                                                  prefs.setString("company_country", country);
+
+                                                                  print("trn of $company_name is $trn");
+                                                                  print("address of $company_name is $address");
+                                                                  print("emirate of $company_name is $emirate");
+                                                                  print("country of $company_name is $country");
+                                                                  _showContinueDialog(context,company_name,lastsync);
+                                                                }
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ])))
+                                  ),
+
+                                ])))),
+                _buildProgressOverlay(),
+
+              ],
+            ),
+        ),
           onWillPop: () async {
         _showConfirmationDialogAndExit(context);
         return true;
@@ -1336,6 +1390,9 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
   }
 
   Future<void> getroledata(BuildContext context, String serialno,String roleid) async {
+    setState(() {
+      _isLoading = true;
+    });
     final url = Uri.parse('$BASE_URL_config/api/roles/get');
 
     Map<String,String> headers = {
@@ -1511,6 +1568,10 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
   }
 
   Future<void> getadmindata(String selectedserial) async {
+
+     setState(() {
+       _isLoading = true;
+     });
     final url = Uri.parse('$BASE_URL_config/api/admin/getConfig');
 
     Map<String,String> headers = {
@@ -1627,9 +1688,16 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
         _isLoading = false;
       });
     }
+
+     setState(() {
+       _isLoading = false;
+     });
   }
 
    Future<void> fetchCompany(String selectedserial) async {
+     setState(() {
+       _isLoading = true;
+     });
      myData_company.clear();
      final url = Uri.parse('$BASE_URL_config/api/admin/getCompany');
 
@@ -1732,11 +1800,17 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
        Map<String, dynamic> data = json.decode(response.body);
        String error = data['error'] ?? 'Something went wrong!!!';
        Fluttertoast.showToast(msg: error);
-       setState(() => _isLoading = false);
+
      }
+     setState(() {
+       _isLoading = false;
+     });
    }
 
    Future<void> fetchAllowedCompany(String selectedserial, String email) async {
+     setState(() {
+       _isLoading = true;
+     });
      myData_company.clear();
      final url = Uri.parse(
          '$BASE_URL_config/api/roles/allowed_companies?user_name=$email&serial_no=$selectedserial');
@@ -1837,6 +1911,10 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
        Fluttertoast.showToast(msg: error);
        setState(() => _isLoading = false);
      }
+
+     setState(() {
+       _isLoading = false;
+     });
    }
 
 }

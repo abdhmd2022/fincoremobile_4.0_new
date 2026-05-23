@@ -2741,6 +2741,13 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       String refnoValue = controller_refno.text;
       roundedtotalAmount = double.parse(totalAmount.toStringAsFixed(decimal!));
 
+      String selectedReferenceDate = refdatestring;
+
+      if (selectedReferenceDate.trim().isEmpty && _refdateController.text.trim().isNotEmpty) {
+        final parsedDate = DateFormat('dd-MM-yyyy').parse(_refdateController.text.trim());
+        selectedReferenceDate = _dateFormat.format(parsedDate);
+      }
+
       jsonEntryData["DATE"] = saledatestring;
       jsonEntryData["VOUCHERTYPENAME"] = _selectedvchtypename;
       jsonEntryData["PARTYLEDGERNAME"] = _selectedpartyledger;
@@ -2748,7 +2755,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       jsonEntryData["NARRATION"] = narrationValue;
       jsonEntryData["VOUCHERNUMBER"] = vchnoValue;
       jsonEntryData["REFERENCE"] = refnoValue;
-      jsonEntryData["REFERENCEDATE"] = refdatestring;
+      jsonEntryData["REFERENCEDATE"] = selectedReferenceDate;
 
       double totalItemAmount = 0.0;
 
@@ -3155,13 +3162,12 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                 .map((e) => e.toString()),
           );
 
-          _selectedvchtypename =
-          vchtypenamedata.isNotEmpty ? vchtypenamedata[0] : null;
+          _selectedvchtypename = vchtypenamedata.isNotEmpty ? vchtypenamedata[0] : null;
 
-          if (_selectedvchtypename != null &&
+         /* if (_selectedvchtypename != null &&
               _selectedvchtypename.toString().isNotEmpty) {
             fetchvchnos(_selectedvchtypename);
-          }
+          }*/
 
 
           final String currentSerialNo = serial_no?.trim() ?? '';
@@ -3253,6 +3259,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
           itemdata = (jsonResponse["items"] ?? [])
               .where((e) => e != null)
               .toList();
+
 
           // _selecteditem = itemdata.isNotEmpty ? '${itemdata[0]['name']}' : null;
 
@@ -3388,6 +3395,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
           _selectedvchtypename = vchtypenamedata[0];
 
           isVoucherTypeLocked = false;
+
+          fetchvchnos(_selectedvchtypename);
         }
 
         setState(() {});
@@ -3722,6 +3731,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       _isFocused_refno = false;
       _isFocused_narration = false;
     });
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: refdate,
@@ -3738,14 +3748,20 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
         );
       },
     );
-    if (picked != null && picked != refdate)
+
+    if (picked != null) {
       setState(() {
         refdate = picked;
-        refdatestring = _dateFormat.format(refdate);
-        refdatetxt = formatlastsaledate(refdatestring);
+        refdatestring = _dateFormat.format(picked); // yyyyMMdd for API body
+        refdatetxt = formatlastsaledate(refdatestring); // display text
         _refdateController.text = refdatetxt;
       });
+
+      debugPrint("Updated Reference Date Display: ${_refdateController.text}");
+      debugPrint("Updated Reference Date Body: $refdatestring");
+    }
   }
+
 
   void resetItemDialogFields() {
     _selecteditem = null;
@@ -6118,9 +6134,14 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     ),
 
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 20,right:20, bottom: 8,top:12),
+                                      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 8, top: 12),
                                       child: TextFormField(
                                         controller: _refdateController,
+                                        readOnly: true,
+                                        enableInteractiveSelection: false,
+                                        onTap: () async {
+                                          await _selectrefDate(context);
+                                        },
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
@@ -6135,55 +6156,45 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                           ),
                                           filled: true,
                                           fillColor: Colors.white.withOpacity(0.95),
-
-                                          // Prefix Icon with new gradient (pink → purple)
-                                          prefixIcon: GestureDetector(
-                                            onTap: () => _selectrefDate(context),
-                                            child: Container(
-                                              margin: const EdgeInsets.all(8),
-                                              decoration: const BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: [Colors.pinkAccent, Colors.deepPurpleAccent],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                borderRadius: BorderRadius.all(Radius.circular(12)),
+                                          prefixIcon: Container(
+                                            margin: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [app_color, app_color.withOpacity(0.7)],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
                                               ),
-                                              child: const Icon(
-                                                Icons.event, // changed icon for variety
-                                                color: Colors.white,
-                                                size: 20,
-                                              ),
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                            child: const Icon(
+                                              Icons.event_note_rounded,
+                                              color: Colors.white,
+                                              size: 20,
                                             ),
                                           ),
-
-                                          // Borders
+                                          suffixIcon: Icon(
+                                            Icons.keyboard_arrow_down_rounded,
+                                            color: Colors.grey.shade600,
+                                          ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(14),
                                             borderSide: BorderSide(
                                               color: Colors.grey.shade300,
                                               width: 1,
                                             ),
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(14),
                                             borderSide: BorderSide(
                                               color: app_color,
                                               width: 1.5,
                                             ),
                                           ),
-                                          errorBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(16),
-                                            borderSide: const BorderSide(
-                                              color: Colors.redAccent,
-                                              width: 1.5,
-                                            ),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            vertical: 16,
+                                            horizontal: 14,
                                           ),
-
-                                          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
                                         ),
-                                        readOnly: true,
-                                        onTap: () => _selectrefDate(context),
                                       ),
                                     ),
 

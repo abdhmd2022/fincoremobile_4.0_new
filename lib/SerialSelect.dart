@@ -657,8 +657,6 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
          String emirate = jsonMap['state'].toString();
          String country = jsonMap['country'].toString();
 
-
-
          // Define the input format of the "lastSync" string
          DateFormat inputFormat = DateFormat('yyyy-MM-dd hh:mm:ss a');
 

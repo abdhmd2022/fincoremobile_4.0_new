@@ -135,7 +135,7 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
                 children: [
                   Flexible(
                     child: Text(
-                      "Help" ?? '',
+                      "Help",
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,

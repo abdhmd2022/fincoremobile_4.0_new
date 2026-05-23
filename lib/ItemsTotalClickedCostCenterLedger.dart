@@ -404,7 +404,7 @@ class _ItemsTotalClickedCostCenterLedgerPageState extends State<ItemsTotalClicke
     try
     {
 
-      final url = Uri.parse(HttpURL!);
+      final url = Uri.parse(HttpURL);
 
       Map<String,String> headers = {
         'Authorization' : 'Bearer $token',
@@ -438,9 +438,6 @@ class _ItemsTotalClickedCostCenterLedgerPageState extends State<ItemsTotalClicke
           bills_list.addAll(values_list.map((json) => Bills.fromJson(json)).toList());
           filteredItems_Bills = bills_list;
 
-        } else {
-
-          throw Exception('Failed to fetch data');
         }
         setState(() {
           _isLoading = false;
@@ -485,7 +482,7 @@ class _ItemsTotalClickedCostCenterLedgerPageState extends State<ItemsTotalClicke
     try
     {
 
-      final url = Uri.parse(HttpURL!);
+      final url = Uri.parse(HttpURL);
 
       Map<String,String> headers = {
         'Authorization' : 'Bearer $token',
@@ -519,9 +516,6 @@ class _ItemsTotalClickedCostCenterLedgerPageState extends State<ItemsTotalClicke
           vouchertype_list.addAll(values_list.map((json) => Vouchertype.fromJson(json)).toList());
           filteredItems_vouchertype = vouchertype_list;
 
-        } else {
-
-          throw Exception('Failed to fetch data');
         }
         setState(() {
           _isLoading = false;

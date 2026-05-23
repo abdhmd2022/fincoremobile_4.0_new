@@ -388,41 +388,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   }
 */
 
-  Widget _buildDrCrItem({
-    required String title,
-    required double amount,
-    required Color color,
-    required IconData icon,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, color: color, size: 18),
-        const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Text(
-              formatAmount(amount.toString()),
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: color,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 
   double getTotalAmount() {
     if (vchtypes == "Receivable" || vchtypes == "Payable") {
@@ -3022,7 +2987,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                 ),
                                 Expanded(
                                   child: Text(
-                                   formatOpening(opening_value!)  ?? '',
+                                   formatOpening(opening_value!),
                                     textAlign: TextAlign.right,
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,

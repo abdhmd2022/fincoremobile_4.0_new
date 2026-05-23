@@ -286,7 +286,7 @@ class _ItemsTotalClickedCostCenterLedgerVchTypePageState extends State<ItemsTota
 
     try
     {
-      final url = Uri.parse(HttpURL!);
+      final url = Uri.parse(HttpURL);
 
       Map<String,String> headers = {
         'Authorization' : 'Bearer $token',
@@ -323,10 +323,7 @@ class _ItemsTotalClickedCostCenterLedgerVchTypePageState extends State<ItemsTota
           filteredItems_Bills = bills_list;
 
         }
-        else
-        {
-          throw Exception('Failed to fetch data');
-        }
+
         setState(() {
           _isLoading = false;
         });
@@ -442,7 +439,7 @@ class _ItemsTotalClickedCostCenterLedgerVchTypePageState extends State<ItemsTota
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                type ?? '',
+                type,
                 style:  GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 18,

@@ -352,7 +352,6 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
   }
 
   String convertAmountToWords(num amount) {
-    if (amount == null) return "Invalid input";
 
     List<String> units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
     List<String> teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
@@ -366,7 +365,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     String formattedAmount = formatter.format(amount);
 
     int integerPart = amount.toInt();
-    String decimalPartStr = formattedAmount.split('.')[1] ?? "0";
+    String decimalPartStr = formattedAmount.split('.')[1];
     int decimalPart = int.parse(decimalPartStr);
 
     String currencyWords = getCurrencyWords(currencycode);
@@ -5269,7 +5268,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
               children: [
                 Flexible(
                   child: Text(
-                    "New Delivery Note" ?? '',
+                    "New Delivery Note",
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,

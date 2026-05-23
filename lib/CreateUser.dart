@@ -345,10 +345,7 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
 
 
         }
-        else
-        {
-          throw Exception('Failed to fetch data');
-        }
+
         setState(() {
           _isLoading = false;
         });
@@ -390,11 +387,7 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
           }).toList();
         });
       }
-      else
-      {
 
-        throw Exception('Failed to fetch data');
-      }
       setState(() {
         _isLoading = false;
       });

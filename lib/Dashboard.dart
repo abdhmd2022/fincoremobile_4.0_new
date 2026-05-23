@@ -1,6 +1,5 @@
 import'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'dart:ui';
 import 'package:FincoreGo/PendingDeliveryNoteEntry.dart';
 import 'package:flutter/foundation.dart';
@@ -15,9 +14,7 @@ import 'package:flutter/material.dart';
 import 'utils/currency_helper.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:intl/intl.dart';
-import 'package:random_color/random_color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'DashboardAnalytics.dart';
 import 'Items.dart';
@@ -81,8 +78,6 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
   String pendingsalesorderparty = '';
   String party_suppliers = '';
   String party_customers = '';
-
-  String? _selectedEntry ;
 
   String ledgerentries = '';
   String inventoryentries = '';
@@ -3232,53 +3227,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildTile(String label, IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 100,
-        height: 80,
-        padding: EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: Offset(0, 4),
-            ),
-          ],
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: app_color, size: 26),
-            SizedBox(height: 10),
-            Text(label, style: GoogleFonts.poppins(fontSize: 12)),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildLegend(Color color, String title) {
-    return Row(
-      children: [
-        Container(
-          width: 14,
-          height: 14,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-        SizedBox(width: 6),
-        Text(title, style: GoogleFonts.poppins(fontSize: 12)),
-      ],
-    );
-  }
   Widget buildButtonTile({
     required String label,
     required String value,

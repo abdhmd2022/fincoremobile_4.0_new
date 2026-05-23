@@ -224,7 +224,7 @@ class _ItemsClickedPageState extends State<ItemsClicked> with TickerProviderStat
         purchase_maxrate = 'Not Available';
         try
         {
-          final url = Uri.parse(HttpURL_Main!);
+          final url = Uri.parse(HttpURL_Main);
 
           Map<String,String> headers = {
             'Authorization' : 'Bearer $token',
@@ -305,7 +305,6 @@ class _ItemsClickedPageState extends State<ItemsClicked> with TickerProviderStat
 
 
                 for (var entry in data_list.asMap().entries) {
-                  int index = entry.key;
                   dynamic item = entry.value;
 
                   String vchtype = item['vchtype'].toString();
@@ -323,7 +322,7 @@ class _ItemsClickedPageState extends State<ItemsClicked> with TickerProviderStat
                     sales_maxrate = formatRate(item['maxRate'].toString(),decimals: decimal!);
 
 
-                    final url_sales = Uri.parse(HttpURL_months_sales!);
+                    final url_sales = Uri.parse(HttpURL_months_sales);
 
                     Map<String,String> headers_month_sales= {
                       'Authorization' : 'Bearer $token',
@@ -353,7 +352,6 @@ class _ItemsClickedPageState extends State<ItemsClicked> with TickerProviderStat
                       {
                         for (var entry in sales_months_list.asMap().entries) {
                           int index = entry.key;
-                          dynamic item = entry.value;
 
                           list_sale.add(Sale_Purc.fromJson(sales_months_list[index]));
 
@@ -375,7 +373,7 @@ class _ItemsClickedPageState extends State<ItemsClicked> with TickerProviderStat
                     purchase_maxrate = formatRate(item['maxRate'].toString(),decimals: decimal!);
 
 
-                    final url_purchase = Uri.parse(HttpURL_months_sales!);
+                    final url_purchase = Uri.parse(HttpURL_months_sales);
 
                     Map<String,String> headers_month_purchase= {
                       'Authorization' : 'Bearer $token',
@@ -709,7 +707,7 @@ class _ItemsClickedPageState extends State<ItemsClicked> with TickerProviderStat
 
         setState(() {
           _startDate = selectedDateRange!.start;
-          _endDate = selectedDateRange!.end;
+          _endDate = selectedDateRange.end;
 
 
 

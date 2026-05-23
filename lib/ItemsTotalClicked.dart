@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'ItemsTotalClickedCostCenter.dart';
 import 'ItemsTotalClickedVchType.dart';
-import 'SerialSelect.dart';
 import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'package:pdf/pdf.dart';
@@ -1114,7 +1113,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     try
     {
 
-      final url = Uri.parse(HttpURL!);
+      final url = Uri.parse(HttpURL);
 
       Map<String,String> headers = {
         'Authorization' : 'Bearer $token',
@@ -1146,10 +1145,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
           filteredItems_Bills = bills_list;
 
         }
-        else
-        {
-          throw Exception('Failed to fetch data');
-        }
+
         setState(() {
           _isLoading = false;
         });
@@ -1235,7 +1231,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     try
     {
 
-      final url = Uri.parse(HttpURL!);
+      final url = Uri.parse(HttpURL);
 
       Map<String,String> headers = {
         'Authorization' : 'Bearer $token',
@@ -1267,9 +1263,6 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
           ledger_list.addAll(values_list.map((json) => Ledger.fromJson(json)).toList());
           filteredItems_ledger = ledger_list;
 
-        } else {
-
-          throw Exception('Failed to fetch data');
         }
         setState(() {
           _isLoading = false;
@@ -1361,7 +1354,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     try
     {
 
-      final url = Uri.parse(HttpURL!);
+      final url = Uri.parse(HttpURL);
       Map<String,String> headers = {
         'Authorization' : 'Bearer $token',
         "Content-Type": "application/json"
@@ -1392,9 +1385,6 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
           vouchertype_list.addAll(values_list.map((json) => Vouchertype.fromJson(json)).toList());
           filteredItems_vouchertype = vouchertype_list;
 
-        } else {
-
-          throw Exception('Failed to fetch data');
         }
         setState(() {
           _isLoading = false;
@@ -1481,7 +1471,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     try
     {
 
-      final url = Uri.parse(HttpURL!);
+      final url = Uri.parse(HttpURL);
 
       Map<String,String> headers = {
         'Authorization' : 'Bearer $token',
@@ -1513,9 +1503,6 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
           costcenter_list.addAll(values_list.map((json) => Costcenter.fromJson(json)).toList());
           filteredItems_costcenter = costcenter_list;
 
-        } else {
-
-          throw Exception('Failed to fetch data');
         }
         setState(() {
           _isLoading = false;

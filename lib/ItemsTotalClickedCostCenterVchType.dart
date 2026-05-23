@@ -378,7 +378,7 @@ class _ItemsTotalClickedCostCenterVchTypePageState extends State<ItemsTotalClick
     try
     {
 
-      final url = Uri.parse(HttpURL!);
+      final url = Uri.parse(HttpURL);
 
       Map<String,String> headers = {
         'Authorization' : 'Bearer $token',
@@ -413,9 +413,6 @@ class _ItemsTotalClickedCostCenterVchTypePageState extends State<ItemsTotalClick
           bills_list.addAll(values_list.map((json) => Bills.fromJson(json)).toList());
           filteredItems_Bills = bills_list;
 
-        } else {
-
-          throw Exception('Failed to fetch data');
         }
         setState(() {
           _isLoading = false;
@@ -457,7 +454,7 @@ class _ItemsTotalClickedCostCenterVchTypePageState extends State<ItemsTotalClick
 
     try
     {
-      final url = Uri.parse(HttpURL!);
+      final url = Uri.parse(HttpURL);
 
       Map<String,String> headers = {
         'Authorization' : 'Bearer $token',
@@ -492,9 +489,6 @@ class _ItemsTotalClickedCostCenterVchTypePageState extends State<ItemsTotalClick
           ledger_list.addAll(values_list.map((json) => Ledger.fromJson(json)).toList());
           filteredItems_ledger = ledger_list;
 
-        } else {
-
-          throw Exception('Failed to fetch data');
         }
         setState(() {
           _isLoading = false;
@@ -830,7 +824,7 @@ class _ItemsTotalClickedCostCenterVchTypePageState extends State<ItemsTotalClick
                                 children: [
 
                                   Text(
-                                    costcentername!,
+                                    costcentername,
                                     style: GoogleFonts.poppins(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 15,

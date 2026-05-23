@@ -1128,31 +1128,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       ),
     );
   }
-  /// existing pie chart -> end
-  Widget _buildToggleButton(String text, bool active) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          showPercentage = text == "%";
-        });
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: active ? app_color : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          text,
-          style: GoogleFonts.poppins(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: active ? Colors.white : Colors.black54,
-          ),
-        ),
-      ),
-    );
-  }
+
 }
 
 Widget _buildLegend(Color color, String title) {

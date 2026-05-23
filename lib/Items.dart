@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:FincoreGo/Dashboard.dart';
 import 'package:FincoreGo/currencyFormat.dart';
 import 'package:FincoreGo/utils/currency_helper.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +11,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'ItemsClicked.dart';
-import 'SerialSelect.dart';
-import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -694,10 +691,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
           all_items_list.addAll(values_list.map((json) => items.fromJson(json)).toList());
           filteredItems_all_items = all_items_list;
         }
-        else
-        {
-          throw Exception('Failed to fetch data');
-        }
+
       }
     }
     catch (e)
@@ -845,10 +839,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
           }
             filteredItems_active_items = active_items_list;
         }
-        else
-        {
-          throw Exception('Failed to fetch data');
-        }
+
       }
     }
     catch (e)
@@ -993,10 +984,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
           filteredItems_active_items = active_items_list;
 
         }
-        else
-        {
-          throw Exception('Failed to fetch data');
-        }
+
       }
     }
     catch (e)
@@ -1092,11 +1080,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
           }
           filteredItems_inactive_items = inactive_items_list;
         }
-        else
-        {
 
-          throw Exception('Failed to fetch data');
-        }
       }
     }
     catch (e)

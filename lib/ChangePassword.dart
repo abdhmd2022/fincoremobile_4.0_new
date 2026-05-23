@@ -210,18 +210,6 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
     );
   }
 
-  Widget _buildField(String label, TextEditingController controller) {
-    return TextField(
-      controller: controller,
-      obscureText: true,
-      style: GoogleFonts.poppins(),
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-
   Widget _buildRule(String text, bool valid) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),

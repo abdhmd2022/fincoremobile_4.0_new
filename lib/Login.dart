@@ -120,7 +120,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
         isOTPVerified = true;
         isAnotherDevice = true;
 
-        await _directlogin();
+         _directlogin();
 
         if (mounted) {
           setState(() {

@@ -51,7 +51,7 @@ Future<void> fetchUniGasSerialNumbers() async {
       debugPrint('Decoded serial config -> $decodedData');
 
       final dynamic rawSerialList =
-      decodedData['serial_no_van_delivernote'];
+      decodedData['serial_no_van_deliverynote'];
 
       if (rawSerialList is List) {
         final Set<String> fetchedSerialNos = rawSerialList
@@ -69,7 +69,7 @@ Future<void> fetchUniGasSerialNumbers() async {
         }
       } else {
         debugPrint(
-          'serial_no_van_delivernote key not found or not a List. Keeping fallback uniGasSerialNo -> $uniGasSerialNo',
+          'serial_no_van_deliverynote key not found or not a List. Keeping fallback uniGasSerialNo -> $uniGasSerialNo',
         );
       }
     } else {

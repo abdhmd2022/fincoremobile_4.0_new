@@ -517,7 +517,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         print(startDateString);
         print(endDateString);
 
-        await fetchDashData(startDateString, endDateString);
+         fetchDashData(startDateString, endDateString);
 
         setState(() {
           _isTextEnabled = false;
@@ -559,7 +559,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         startdate_text = startDay + "-" + startMonth + "-" + startYear.toString();
         enddate_text = endDay + "-" + endMonth + "-" + endYear.toString();
 
-        await fetchDashData(startDateString, endDateString);
+         fetchDashData(startDateString, endDateString);
 
         setState(() {
           _isTextEnabled = false;
@@ -593,7 +593,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         startdate_text = startDay + "-" + startMonth + "-" + startYear.toString();
         enddate_text = endDay + "-" + endMonth + "-" + endYear.toString();
 
-        await fetchDashData(startDateString, endDateString);
+         fetchDashData(startDateString, endDateString);
 
         setState(() {
           _isTextEnabled = false;
@@ -626,7 +626,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         print(startDateString);
         print(endDateString);
 
-        await fetchDashData(startDateString, endDateString);
+         fetchDashData(startDateString, endDateString);
 
         setState(() {
           _isTextEnabled = false;
@@ -665,7 +665,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         print(startDateString);
         print(endDateString);
 
-        await fetchDashData(startDateString, endDateString);
+         fetchDashData(startDateString, endDateString);
 
         setState(() {
           _isTextEnabled = false;
@@ -701,7 +701,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         print(startDateString);
         print(endDateString);
 
-        await fetchDashData(startDateString, endDateString);
+         fetchDashData(startDateString, endDateString);
 
         setState(() {
           _isTextEnabled = false;
@@ -738,7 +738,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         print(startDateString);
         print(endDateString);
 
-        await fetchDashData(startDateString, endDateString);
+         fetchDashData(startDateString, endDateString);
 
         setState(() {
           _isTextEnabled = false;
@@ -784,7 +784,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
 
 
-        await fetchDashData(startDateString, endDateString);
+         fetchDashData(startDateString, endDateString);
 
         setState(() {
           _isTextEnabled = false;
@@ -829,7 +829,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
             startDay + "-" + startMonth + "-" + startYear.toString();
         enddate_text = endDay + "-" + endMonth + "-" + endYear.toString();
 
-        await fetchDashData(startDateString, endDateString);
+         fetchDashData(startDateString, endDateString);
 
         setState(() {
           _isTextEnabled = false;
@@ -864,7 +864,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         startdate_text = startDay + "-" + startMonth + "-" + startYear.toString();
         enddate_text = endDay + "-" + endMonth + "-" + endYear.toString();
 
-        await fetchDashData(startDateString, endDateString);
+         fetchDashData(startDateString, endDateString);
 
         setState(() {
           _isTextEnabled = false;
@@ -898,7 +898,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         print(startDateString);
         print(endDateString);
 
-        await fetchDashData(startDateString, endDateString);
+         fetchDashData(startDateString, endDateString);
 
         setState(() {
           _isTextEnabled = false;
@@ -940,7 +940,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         print(startDateString);
         print(endDateString);
 
-        await fetchDashData(startDateString, endDateString);
+         fetchDashData(startDateString, endDateString);
 
         setState(() {
           _isTextEnabled = false;
@@ -975,7 +975,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         print(startDateString);
         print(endDateString);
 
-        await fetchDashData(startDateString, endDateString);
+        fetchDashData(startDateString, endDateString);
 
         setState(() {
           _isTextEnabled = false;
@@ -1013,7 +1013,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         print(startDateString);
         print(endDateString);
 
-        await fetchDashData(startDateString, endDateString);
+        fetchDashData(startDateString, endDateString);
 
         setState(() {
           _isTextEnabled = false;
@@ -1479,7 +1479,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
             print(startDateString);
             print(endDateString);
 
-            await fetchDashData(startDateString, endDateString);
+            fetchDashData(startDateString, endDateString);
           });
         }
 
@@ -1538,7 +1538,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
           cash_value = cash!;
         }*/
 
-        await fetchDashData(startDateString, endDateString);
+        fetchDashData(startDateString, endDateString);
 
         prefs.setString('startdate', startDateString);
         prefs.setString('enddate', endDateString);
@@ -1624,7 +1624,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
             print(endDateString);
 
 
-            await fetchDashData(startDateString, endDateString);
+            fetchDashData(startDateString, endDateString);
           });
         }
 
@@ -1768,7 +1768,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
             print(startDateString);
             print(endDateString);
 
-            await fetchDashData(startDateString, endDateString);
+            fetchDashData(startDateString, endDateString);
           });
         }
 
@@ -1860,7 +1860,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                 outstandingpayable_value = payable!;
                 cash_value = cash!;
               }*/
-            await fetchDashData(startDateString, endDateString);
+            fetchDashData(startDateString, endDateString);
           });
         }
 
@@ -1947,7 +1947,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
     token = prefs.getString('token')!;
     base_currency = prefs.getString('base_currency')!;
 
-   await  _loadNumberScale();
+     _loadNumberScale();
 
     print('base_currency -> $base_currency');
     SalesEntryHolder = prefs.getString('salesentry') ?? "False";
@@ -2203,7 +2203,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       else if (SecuritybtnAcessHolder == "False") {
         val = "";
       }
-      await fetchUserData(username!, serial_no!, val);
+       fetchUserData(username!, serial_no!, val);
     }
     if (SecuritybtnAcessHolder == "True") {
       isRolesVisible = true;
@@ -2247,7 +2247,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       print(startDateString);
       print(endDateString);
 
-       await fetchDashData(startDateString, endDateString);
+      fetchDashData(startDateString, endDateString);
 
       setState(() {
         _isTextEnabled = false;
@@ -2286,7 +2286,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       startdate_text = startDay + "-" + startMonth + "-" + startYear.toString();
       enddate_text = endDay + "-" + endMonth + "-" + endYear.toString();
 
-      await fetchDashData(startDateString, endDateString);
+      fetchDashData(startDateString, endDateString);
 
       setState(() {
         _isTextEnabled = false;
@@ -2321,7 +2321,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       startdate_text = startDay + "-" + startMonth + "-" + startYear.toString();
       enddate_text = endDay + "-" + endMonth + "-" + endYear.toString();
 
-      await fetchDashData(startDateString, endDateString);
+      fetchDashData(startDateString, endDateString);
 
       setState(() {
         _isTextEnabled = false;
@@ -2354,7 +2354,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       print(startDateString);
       print(endDateString);
 
-      await fetchDashData(startDateString, endDateString);
+       fetchDashData(startDateString, endDateString);
 
       setState(() {
         _isTextEnabled = false;
@@ -2395,7 +2395,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       print(startDateString);
       print(endDateString);
 
-      await fetchDashData(startDateString, endDateString);
+       fetchDashData(startDateString, endDateString);
 
       setState(() {
         _isTextEnabled = false;
@@ -2431,7 +2431,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       print(startDateString);
       print(endDateString);
 
-      await fetchDashData(startDateString, endDateString);
+       fetchDashData(startDateString, endDateString);
 
       setState(() {
         _isTextEnabled = false;
@@ -2468,7 +2468,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       print(startDateString);
       print(endDateString);
 
-      await fetchDashData(startDateString, endDateString);
+       fetchDashData(startDateString, endDateString);
 
       setState(() {
         _isTextEnabled = false;

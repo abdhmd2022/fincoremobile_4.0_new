@@ -451,8 +451,8 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           ),
         );*/
 
-        await fetchUsers(serial_no!);
-        await fetchVanAllocationData();
+         fetchUsers(serial_no!);
+         fetchVanAllocationData();
 
         _resetForm();
 

@@ -936,7 +936,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
 
      tickerProvider = this;
 
-     await fetchSerial();
+      fetchSerial();
 
    }
 

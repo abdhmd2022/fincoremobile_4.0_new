@@ -618,13 +618,9 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
    String normalizeCompany(String value) {
      value = value.trim();
 
-     // 1. Remove dot before brackets (e.g. "L.L.C. (1-jan)" → "L.L.C (1-jan)")
-     value = value.replaceAllMapped(
-       RegExp(r'\.(\s*\()'),
-           (match) => match.group(1)!,
-     );
 
-     // 2. Remove trailing dot (e.g. "L.L.C." → "L.L.C")
+
+     // 1. Remove trailing dot (e.g. "L.L.C." → "L.L.C")
      value = value.replaceAll(RegExp(r'\.$'), '');
 
      return value;

@@ -1674,112 +1674,103 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
 
         body: Stack(
           children: [
-            Visibility(
-              visible: _isLoading,
-              child: Center(
-                child: CircularProgressIndicator.adaptive(),
-              ),
-            ),
             Column(
-                children : [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Container(
-                        padding: EdgeInsets.all(10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildTextFieldCard(),
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (_isLoading)
+                          Center(
+                            child: Padding(padding: EdgeInsets.only(top:5, bottom:10),
+        child: CircularProgressIndicator.adaptive(),)
+                          ),
+                          _buildTextFieldCard(),
+                          const SizedBox(height: 10),
 
-                            const SizedBox(height: 10),
+                          _buildPermissionCard(
+                            title: 'Dashboard Access',
+                            isChecked: isDashAccessCheck,
+                            onToggle: (val) => _toggleDashboard(val!),
+                            icon: Icons.dashboard,
+                            children: _buildPermissionList(dashboardPermissions),
+                          ),
 
-                            // Dashboard Access
-                            _buildPermissionCard(
-                              title: 'Dashboard Access',
-                              isChecked: isDashAccessCheck,
-                              onToggle: (val) => _toggleDashboard(val!),
-                              icon: Icons.dashboard,
-                              children: _buildPermissionList(dashboardPermissions),
-                            ),
+                          const SizedBox(height: 10),
 
+                          _buildPermissionCard(
+                            title: 'Items Access',
+                            isChecked: isItemsAccessCheck,
+                            icon: Icons.inventory_outlined,
+                            onToggle: (val) => _toggleItems(val!),
+                            children: _buildPermissionList(itemsPermissions),
+                          ),
 
-                            const SizedBox(height: 10),
+                          const SizedBox(height: 10),
 
-                            // Items Access
-                            _buildPermissionCard(
-                              title: 'Items Access',
-                              isChecked: isItemsAccessCheck,
-                              icon: Icons.inventory_outlined,
+                          _buildPermissionCard(
+                            title: 'Party Access',
+                            isChecked: isPartyAccessCheck,
+                            icon: Icons.person,
+                            onToggle: (val) => _toggleParty(val!),
+                            children: _buildPermissionList(partyPermissions),
+                          ),
 
-                              onToggle: (val) => _toggleItems(val!),
-                              children: _buildPermissionList(itemsPermissions),
-                            ),
+                          const SizedBox(height: 10),
 
-                            const SizedBox(height: 10),
+                          _buildPermissionCard(
+                            title: 'Transactions Access',
+                            isChecked: isTransactionAccessCheck,
+                            icon: Icons.app_registration,
+                            onToggle: (val) => _toggleTransactions(val!),
+                            children: _buildPermissionList(transactionPermissions),
+                          ),
 
-                            // Party Access
-                            _buildPermissionCard(
-                              title: 'Party Access',
-                              isChecked: isPartyAccessCheck,
-                              icon: Icons.person,
-                              onToggle: (val) => _toggleParty(val!),
-                              children: _buildPermissionList(partyPermissions),
-                            ),
+                          const SizedBox(height: 10),
 
-                            const SizedBox(height: 10),
+                          _buildPermissionCard(
+                            title: 'Entry Access',
+                            icon: Icons.type_specimen,
+                            isChecked: isEntryAccessCheck,
+                            onToggle: (val) => _toggleEntry(val!),
+                            children: _buildPermissionList(entryPermissions),
+                          ),
 
-                            // Transactions Access
-                            _buildPermissionCard(
-                              title: 'Transactions Access',
-                              isChecked: isTransactionAccessCheck,
-                              icon: Icons.app_registration,
+                          const SizedBox(height: 22),
 
-                              onToggle: (val) => _toggleTransactions(val!),
-                              children: _buildPermissionList(transactionPermissions),
-                            ),
-
-                            const SizedBox(height: 10),
-
-                            // Entry Access
-                            _buildPermissionCard(
-                              title: 'Entry Access',
-                              icon: Icons.type_specimen,
-
-                              isChecked: isEntryAccessCheck,
-                              onToggle: (val) => _toggleEntry(val!),
-                              children: _buildPermissionList(entryPermissions),
-                            ),
-
-                            const SizedBox(height: 22),
-
-                            Center(
-                              child: ElevatedButton(
-                                onPressed: modifyrolefn,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: app_color,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                          Center(
+                            child: ElevatedButton(
+                              onPressed: modifyrolefn,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: app_color,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
                                 ),
-                                child: Text(
-                                  'Modify',
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
+                                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                              ),
+                              child: Text(
+                                'Modify',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
+                          ),
 
-                            const SizedBox(height: 40),
-                          ],
-                        ),
+                          const SizedBox(height: 40),
+                        ],
                       ),
                     ),
                   ),
-                ]
-            )
+                ),
+              ],
+            ),
+
+
           ],
         ),
       ),

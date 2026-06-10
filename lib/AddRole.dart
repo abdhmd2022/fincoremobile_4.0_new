@@ -1704,8 +1704,6 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
         ),
         body: Stack(
           children: [
-            if (_isLoading)
-              const Center(child: CircularProgressIndicator.adaptive()),
             SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -1713,7 +1711,11 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
                 children: [
 
 
-
+                  if (_isLoading)
+                    Center(
+                        child: Padding(padding: EdgeInsets.only(top:5, bottom:10),
+                          child: CircularProgressIndicator.adaptive(),)
+                    ),
                   // Copy Role Section
                   _buildCopyRoleCard(icon: Icons.import_contacts_outlined),
 

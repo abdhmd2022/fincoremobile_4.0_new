@@ -345,8 +345,7 @@ class Sidebar extends StatelessWidget {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => UserView()));
                   }),
 
-                if(uniGasSerialNo.contains(serial_no) && (isVanAllocationVisible))
-                _buildTile(
+                if (uniGasSerialNo.contains(serial_no.trim()) && isVanAllocationVisible)                _buildTile(
                   title: 'Van Allocation',
                   icon: Icons.local_shipping_outlined,
                   onTap: () {

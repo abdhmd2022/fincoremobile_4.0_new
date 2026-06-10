@@ -311,9 +311,9 @@ class _CreateUserPageState extends State<CreateUser> with TickerProviderStateMix
   }
 
   Future<void> fetchRoles(String selectedserial) async {
-    setState(() {
+    /*setState(() {
       _isLoading = true;
-    });
+    });*/
 
     try
     {

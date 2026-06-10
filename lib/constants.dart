@@ -38,17 +38,19 @@ Future<void> fetchUniGasSerialNumbers() async {
   try {
     debugPrint('Fetching serial numbers from cloud...');
 
-    final response = await http.get(
-      Uri.parse('https://mobile.chaturvedigroup.com/serial_no/serial_numbers.json'),
-    );
+    final url =
+        'https://raw.githubusercontent.com/saadancsh/fincore-config/main/serial_numbers.json?v=${DateTime.now().millisecondsSinceEpoch}';
+
+
+    final response = await http
+        .get(Uri.parse(url))
+        .timeout(const Duration(seconds: 45));
 
     debugPrint('Serial config status -> ${response.statusCode}');
     debugPrint('Serial config body -> ${response.body}');
 
     if (response.statusCode == 200) {
       final decodedData = jsonDecode(response.body);
-
-      debugPrint('Decoded serial config -> $decodedData');
 
       final dynamic rawSerialList =
       decodedData['serial_no_van_deliverynote'];
@@ -61,26 +63,15 @@ Future<void> fetchUniGasSerialNumbers() async {
 
         if (fetchedSerialNos.isNotEmpty) {
           uniGasSerialNo = fetchedSerialNos;
-          debugPrint('Updated uniGasSerialNo -> $uniGasSerialNo');
-        } else {
+
           debugPrint(
-            'Cloud serial list is empty. Keeping fallback uniGasSerialNo -> $uniGasSerialNo',
+            'Updated uniGasSerialNo -> $uniGasSerialNo',
           );
         }
-      } else {
-        debugPrint(
-          'serial_no_van_deliverynote key not found or not a List. Keeping fallback uniGasSerialNo -> $uniGasSerialNo',
-        );
       }
-    } else {
-      debugPrint(
-        'Failed to fetch serial numbers. Keeping fallback uniGasSerialNo -> $uniGasSerialNo',
-      );
     }
   } catch (e) {
-    debugPrint(
-      'Error fetching serial numbers -> $e. Keeping fallback uniGasSerialNo -> $uniGasSerialNo',
-    );
+    debugPrint('Error fetching serial numbers -> $e');
   }
 }
 

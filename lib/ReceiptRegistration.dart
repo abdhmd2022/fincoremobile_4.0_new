@@ -1630,11 +1630,16 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
         patternGroups.putIfAbsent(patternKey, () => []);
 
-        patternGroups[patternKey]!.add({
-          "original": vch,
-          "number": number,
-          "length": numberPart.length,
-        });
+        bool exists = patternGroups[patternKey]!
+            .any((e) => e["number"] == number);
+
+        if (!exists) {
+          patternGroups[patternKey]!.add({
+            "original": vch,
+            "number": number,
+            "length": numberPart.length,
+          });
+        }
       }
     }
 
@@ -1653,6 +1658,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     // 🔥 STEP 1: Extract & sort numbers
     List<int> numbers =
     selectedList.map((e) => e["number"] as int).toList();
+    numbers = numbers.toSet().toList();
 
     numbers.sort();
 
@@ -2078,7 +2084,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
   } // bill due date selection
 
-  Future<void> _showBillsDetailsPopup(BuildContext context) async {
+  /*Future<void> _showBillsDetailsPopup(BuildContext context) async {
     setState(() {
       showDialog(
         context: context,
@@ -2087,8 +2093,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             titlePadding: EdgeInsets.zero,
-            title:
-            Column(
+            title: Column(
               children: [
                 Container(
                   alignment: Alignment.center,
@@ -2401,9 +2406,534 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         },
       );
     });
+  }*/
+
+  Future<void> _showBillsDetailsPopup(BuildContext context) async {
+    setState(() {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        enableDrag: false,
+        backgroundColor: Colors.transparent,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              final mediaQuery = MediaQuery.of(context);
+              final screenHeight = mediaQuery.size.height;
+              final isKeyboardOpen = mediaQuery.viewInsets.bottom > 0;
+
+              double sheetHeight;
+
+              if (isKeyboardOpen) {
+                if (screenHeight < 700) {
+                  sheetHeight = 0.95;
+                } else if (screenHeight < 850) {
+                  sheetHeight = 0.88;
+                } else {
+                  sheetHeight = 0.78;
+                }
+              } else {
+                if (isVisibleBillNo || isVisibleDueDate) {
+                  if (screenHeight < 700) {
+                    sheetHeight = 0.86;
+                  } else if (screenHeight < 850) {
+                    sheetHeight = 0.70;
+                  } else {
+                    sheetHeight = 0.60;
+                  }
+                } else {
+                  if (screenHeight < 700) {
+                    sheetHeight = 0.62;
+                  } else if (screenHeight < 850) {
+                    sheetHeight = 0.50;
+                  } else {
+                    sheetHeight = 0.42;
+                  }
+                }
+              }
+
+              return AnimatedPadding(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOut,
+                padding: EdgeInsets.only(
+                  bottom: mediaQuery.viewInsets.bottom,
+                ),
+                child: FractionallySizedBox(
+                  heightFactor: sheetHeight,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(24),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 10),
+
+                        Container(
+                          width: 45,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        if (!isKeyboardOpen) ...[
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: app_color,
+                            ),
+                            child: const Icon(
+                              Icons.receipt_long,
+                              color: Colors.white,
+                              size: 26,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+
+                        Text(
+                          "Add Bill",
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        Expanded(
+                          child: SingleChildScrollView(
+                            keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.manual,
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                            child: Form(
+                              key: _billsFormkey,
+                              child: Column(
+                                children: <Widget>[
+                                  DropdownButtonFormField<String>(
+                                    isExpanded: true,
+                                    decoration: InputDecoration(
+                                      labelText: "Bill Type",
+                                      hintText: "Select Bill Type",
+                                      labelStyle: GoogleFonts.poppins(
+                                        fontSize: 12.5,
+                                        color: Colors.grey[700],
+                                      ),
+                                      hintStyle: GoogleFonts.poppins(
+                                        fontSize: 12.5,
+                                        color: Colors.grey[400],
+                                      ),
+                                      prefixIcon: Container(
+                                        margin: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [Colors.indigo, Colors.cyan],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius:
+                                          BorderRadius.circular(10),
+                                        ),
+                                        child: const Icon(
+                                          Icons.book,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                        borderSide: BorderSide(
+                                          color: Colors.grey.shade300,
+                                        ),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                        borderSide: BorderSide(
+                                          color: Colors.grey.shade300,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                        borderSide: BorderSide(
+                                          color: app_color,
+                                          width: 1.3,
+                                        ),
+                                      ),
+                                      contentPadding:
+                                      const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 10,
+                                      ),
+                                    ),
+                                    value: _selectedbill,
+                                    items: billsdata.map((String value) {
+                                      return DropdownMenuItem(
+                                        value: value,
+                                        child: Text(
+                                          value,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        _selectedbill = newValue!;
+
+                                        if (_selectedbill == 'New Ref' ||
+                                            _selectedbill == 'Agst Ref') {
+                                          isVisibleDueDate = true;
+                                          isVisibleBillNo = true;
+                                        } else {
+                                          isVisibleDueDate = false;
+                                          isVisibleBillNo = false;
+                                          billNoController.clear();
+                                          _billduedateController.clear();
+                                        }
+
+                                        _billsFormkey = GlobalKey<FormState>();
+                                      });
+                                    },
+                                  ),
+
+                                  Visibility(
+                                    visible: isVisibleBillNo,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 12),
+                                      child: TextFormField(
+                                        controller: billNoController,
+                                        validator: (value) => value!.isEmpty
+                                            ? 'Please enter bill no'
+                                            : null,
+                                        decoration: InputDecoration(
+                                          labelText: "Bill No",
+                                          hintText: "Enter Bill No",
+                                          labelStyle: GoogleFonts.poppins(
+                                            fontSize: 12.5,
+                                            color: Colors.grey[700],
+                                          ),
+                                          hintStyle: GoogleFonts.poppins(
+                                            fontSize: 12.5,
+                                            color: Colors.grey[400],
+                                          ),
+                                          prefixIcon: Container(
+                                            margin: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              gradient: const LinearGradient(
+                                                colors: [
+                                                  Colors.orange,
+                                                  Colors.deepOrangeAccent,
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius:
+                                              BorderRadius.circular(12),
+                                            ),
+                                            child: const Icon(
+                                              Icons.confirmation_num_outlined,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(16),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(16),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey.shade300,
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(16),
+                                            borderSide: BorderSide(
+                                              color: app_color,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                          contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 10,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  Visibility(
+                                    visible: isVisibleDueDate,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 12),
+                                      child: TextFormField(
+                                        controller: _billduedateController,
+                                        validator: (value) {
+                                          if (value!.isNotEmpty) {
+                                            if (double.tryParse(value) == null) {
+                                              return 'Invalid input, please enter a number';
+                                            } else if (double.parse(value) < 0) {
+                                              return 'Due date days cannot be negative';
+                                            }
+                                          }
+                                          return null;
+                                        },
+                                        decoration: InputDecoration(
+                                          labelText: "Due Date (days)",
+                                          hintText: "Enter due date",
+                                          labelStyle: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            color: Colors.grey[700],
+                                          ),
+                                          hintStyle: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            color: Colors.grey[400],
+                                          ),
+                                          prefixIcon: Container(
+                                            margin: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              gradient: const LinearGradient(
+                                                colors: [
+                                                  Colors.pinkAccent,
+                                                  Colors.redAccent,
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius:
+                                              BorderRadius.circular(12),
+                                            ),
+                                            child: const Icon(
+                                              Icons.calendar_today,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(16),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(16),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey.shade300,
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(16),
+                                            borderSide: BorderSide(
+                                              color: app_color,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                          contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 10,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 12),
+                                    child: TextFormField(
+                                      controller: billAmountController,
+                                      keyboardType: TextInputType.number,
+                                      validator: (value) {
+                                        if (value!.isEmpty) {
+                                          return 'Please enter amount';
+                                        }
+                                        if (!isNumeric(value)) {
+                                          return 'Enter valid amount';
+                                        }
+                                        if (double.parse(value) == 0) {
+                                          return 'Amount should not be 0';
+                                        }
+                                        return null;
+                                      },
+                                      decoration: InputDecoration(
+                                        labelText: "Amount",
+                                        hintText: "0",
+                                        labelStyle: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Colors.grey[700],
+                                        ),
+                                        hintStyle: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Colors.grey[400],
+                                        ),
+                                        prefix: Container(
+                                          margin:
+                                          const EdgeInsets.only(right: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.green,
+                                                Colors.teal,
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(8),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            getCurrencySymbol(currencycode),
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(16),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(16),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.shade300,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(16),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                        const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 10,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SafeArea(
+                          top: false,
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, -2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      _selectedbill = billsdata.first;
+                                      isVisibleDueDate =
+                                          _selectedbill == 'New Ref' ||
+                                              _selectedbill == 'Agst Ref';
+                                      isVisibleBillNo = isVisibleDueDate;
+                                      _billduedateController.clear();
+                                      billAmountController.clear();
+                                    },
+                                    child: Text(
+                                      'Cancel',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(width: 12),
+
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: app_color,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      if (_billsFormkey.currentState!
+                                          .validate()) {
+                                        _billsFormkey.currentState!.save();
+                                        addBill();
+                                      }
+                                    },
+                                    child: Text(
+                                      "Add Bill",
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      );
+    });
   }
 
-  Future<void> _showChequeDetailsPopup(BuildContext context) async {
+  /*Future<void> _showChequeDetailsPopup(BuildContext context) async {
     setState(() {
       showDialog(
           context: context,
@@ -2756,6 +3286,546 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                   ],
                 );
               },);}
+      );
+    });
+  }*/
+
+  Future<void> _showChequeDetailsPopup(BuildContext context) async {
+    setState(() {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        enableDrag: false,
+        backgroundColor: Colors.transparent,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (context, setStateDialog) {
+              final mediaQuery = MediaQuery.of(context);
+              final screenHeight = mediaQuery.size.height;
+              final isKeyboardOpen = mediaQuery.viewInsets.bottom > 0;
+
+              double sheetHeight;
+
+              if (isKeyboardOpen) {
+                if (screenHeight < 700) {
+                  sheetHeight = 0.95;
+                } else if (screenHeight < 850) {
+                  sheetHeight = 0.88;
+                } else {
+                  sheetHeight = 0.78;
+                }
+              } else {
+                if (screenHeight < 700) {
+                  sheetHeight = 0.90;
+                } else if (screenHeight < 850) {
+                  sheetHeight = 0.74;
+                } else {
+                  sheetHeight = 0.64;
+                }
+              }
+
+              return AnimatedPadding(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOut,
+                padding: EdgeInsets.only(
+                  bottom: mediaQuery.viewInsets.bottom,
+                ),
+                child: FractionallySizedBox(
+                  heightFactor: sheetHeight,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(24),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 10),
+
+                        Container(
+                          width: 45,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        if (!isKeyboardOpen) ...[
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: app_color,
+                            ),
+                            child: const Icon(
+                              Icons.payment,
+                              color: Colors.white,
+                              size: 26,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+
+                        Text(
+                          "$_selectedpaymentmode Details",
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        Expanded(
+                          child: SingleChildScrollView(
+                            keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.manual,
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                            child: Form(
+                              key: _chequedetailsFormkey,
+                              child: Column(
+                                children: <Widget>[
+                                  Padding(
+                                    padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                    child: TextFormField(
+                                      controller: instNoController,
+                                      decoration: InputDecoration(
+                                        labelText: 'Inst No',
+                                        hintText: 'Enter Inst No',
+                                        labelStyle: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Colors.grey.shade700,
+                                        ),
+                                        contentPadding:
+                                        const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 10,
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                        Colors.white.withOpacity(0.95),
+                                        prefixIcon: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.orange,
+                                                Colors.deepOrangeAccent,
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(12),
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.confirmation_number_outlined,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(14),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.shade300,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(14),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  Padding(
+                                    padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                    child: TextFormField(
+                                      controller: instDateController,
+                                      readOnly: true,
+                                      onTap: () => _selectinstDate(context),
+                                      decoration: InputDecoration(
+                                        labelText: 'Inst Date',
+                                        hintText: 'Select Date',
+                                        labelStyle: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Colors.grey.shade700,
+                                        ),
+                                        contentPadding:
+                                        const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 10,
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                        Colors.white.withOpacity(0.95),
+                                        prefixIcon: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [Colors.teal, Colors.cyan],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(12),
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.calendar_today,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(14),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.shade300,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(14),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  Padding(
+                                    padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                    child: TypeAheadField<String>(
+                                      suggestionsCallback: (pattern) {
+                                        return bankname_data.where((item) {
+                                          final name =
+                                          item.toString().toLowerCase();
+                                          return name.contains(
+                                            pattern.toLowerCase(),
+                                          );
+                                        }).toList();
+                                      },
+                                      builder:
+                                          (context, controller, focusNode) {
+                                        controller.text =
+                                            _banknameController.text;
+
+                                        return TextField(
+                                          controller: controller,
+                                          focusNode: focusNode,
+                                          decoration: InputDecoration(
+                                            labelText: "Bank",
+                                            hintText: 'Search Bank',
+                                            labelStyle: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              color: Colors.grey.shade700,
+                                            ),
+                                            contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 10,
+                                            ),
+                                            filled: true,
+                                            fillColor:
+                                            Colors.white.withOpacity(0.95),
+                                            prefixIcon: Container(
+                                              margin: const EdgeInsets.all(8),
+                                              decoration: const BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Colors.purple,
+                                                    Colors.deepPurpleAccent,
+                                                  ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(12),
+                                                ),
+                                              ),
+                                              child: const Icon(
+                                                Icons
+                                                    .account_balance_outlined,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
+                                            ),
+                                            suffixIcon: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                if (controller.text.isNotEmpty)
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        controller.clear();
+                                                        selectedbankname = "";
+                                                      });
+                                                    },
+                                                    child: const Icon(
+                                                      Icons.close,
+                                                      color: Colors.grey,
+                                                      size: 20,
+                                                    ),
+                                                  ),
+                                                const SizedBox(width: 4),
+                                                const Icon(
+                                                  Icons.arrow_drop_down,
+                                                  color: Colors.black87,
+                                                ),
+                                                const SizedBox(width: 8),
+                                              ],
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(14),
+                                              borderSide: BorderSide(
+                                                color: Colors.grey.shade300,
+                                                width: 1,
+                                              ),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(14),
+                                              borderSide: BorderSide(
+                                                color: app_color,
+                                                width: 1.5,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      itemBuilder:
+                                          (context, String suggestion) {
+                                        return ListTile(
+                                          title: Text(
+                                            suggestion,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      onSelected: (String suggestion) {
+                                        FocusScope.of(context).unfocus();
+
+                                        setStateDialog(() {
+                                          selectedbankname = suggestion;
+                                          _banknameController.text = suggestion;
+                                        });
+                                      },
+                                      emptyBuilder: (context) =>
+                                      const Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text(
+                                          'No matching bank found',
+                                          style:
+                                          TextStyle(color: Colors.grey),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  Padding(
+                                    padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                    child: TextFormField(
+                                      controller: chequeAmountController,
+                                      keyboardType: TextInputType.number,
+                                      validator: (value) {
+                                        if (value!.isEmpty) {
+                                          return 'Please enter amount';
+                                        }
+                                        if (double.parse(value) == 0) {
+                                          return 'Amount should not be 0';
+                                        }
+                                        return null;
+                                      },
+                                      decoration: InputDecoration(
+                                        labelText: 'Amount',
+                                        hintText: '0',
+                                        contentPadding:
+                                        const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 10,
+                                        ),
+                                        labelStyle: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Colors.grey.shade700,
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                        Colors.white.withOpacity(0.95),
+                                        prefixIcon: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          width: 32,
+                                          height: 32,
+                                          decoration: BoxDecoration(
+                                            gradient: const LinearGradient(
+                                              colors: [
+                                                Colors.grey,
+                                                Colors.brown,
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius:
+                                            BorderRadius.circular(12),
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            getCurrencySymbol('$currencycode'),
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(14),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.shade300,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(14),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SafeArea(
+                          top: false,
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, -2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                        BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+
+                                      setState(() {
+                                        selectedbankname = bankname_data.first;
+                                        _banknameController.text =
+                                            selectedbankname;
+                                        instNoController.clear();
+                                        instdate = DateTime.now();
+                                        instdatestring =
+                                            _dateFormat.format(instdate);
+                                        instdatetxt =
+                                            formatlastsaledate(instdatestring);
+                                        instDateController.text = instdatetxt;
+                                        chequeAmountController.clear();
+                                      });
+                                    },
+                                    child: Text(
+                                      'Cancel',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(width: 12),
+
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: app_color,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                        BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      if (_chequedetailsFormkey.currentState !=
+                                          null &&
+                                          _chequedetailsFormkey.currentState!
+                                              .validate()) {
+                                        _chequedetailsFormkey.currentState!
+                                            .save();
+                                        addCheque();
+                                      }
+                                    },
+                                    child: Text(
+                                      'Add $_selectedpaymentmode',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       );
     });
   }
@@ -3948,6 +5018,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                           isChequeVisible = false;
                                         }
                                       }
+
+                                      FocusScope.of(context).unfocus();
+
                                     },
 
                                     // ✅ Replaces old `noItemsFoundBuilder`

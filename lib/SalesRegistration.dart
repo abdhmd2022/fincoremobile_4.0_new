@@ -558,11 +558,16 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
         patternGroups.putIfAbsent(patternKey, () => []);
 
-        patternGroups[patternKey]!.add({
-          "original": vch,
-          "number": number,
-          "length": numberPart.length,
-        });
+        bool exists = patternGroups[patternKey]!
+            .any((e) => e["number"] == number);
+
+        if (!exists) {
+          patternGroups[patternKey]!.add({
+            "original": vch,
+            "number": number,
+            "length": numberPart.length,
+          });
+        }
       }
     }
 
@@ -581,6 +586,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
     // 🔥 STEP 1: Extract & sort numbers
     List<int> numbers =
     selectedList.map((e) => e["number"] as int).toList();
+    numbers = numbers.toSet().toList();
 
     numbers.sort();
 
@@ -3328,6 +3334,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
         );
       },
     );
+
     if (picked != null && picked != refdate)
       setState(() {
         refdate = picked;
@@ -3337,7 +3344,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       });
   }
 
-  Future<void> _showItemDetailsPopup(BuildContext context) async {
+  /*Future<void> _showItemDetailsPopup(BuildContext context) async {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -3719,9 +3726,669 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
             },);}
     );
+  }*/
+
+  Future<void> _showItemDetailsPopup(BuildContext context) async {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            final mediaQuery = MediaQuery.of(context);
+            final screenHeight = mediaQuery.size.height;
+            final isKeyboardOpen = mediaQuery.viewInsets.bottom > 0;
+
+            final bool hasExtraFields = isVisibleLocation || isVisibleUnit;
+
+            double sheetHeight;
+
+            if (isKeyboardOpen) {
+              if (screenHeight < 700) {
+                sheetHeight = 0.95;
+              } else if (screenHeight < 850) {
+                sheetHeight = 0.88;
+              } else {
+                sheetHeight = 0.78;
+              }
+            } else {
+              if (hasExtraFields) {
+                if (screenHeight < 700) {
+                  sheetHeight = 0.92;
+                } else if (screenHeight < 850) {
+                  sheetHeight = 0.78;
+                } else {
+                  sheetHeight = 0.68;
+                }
+              } else {
+                if (screenHeight < 700) {
+                  sheetHeight = 0.72;
+                } else if (screenHeight < 850) {
+                  sheetHeight = 0.60;
+                } else {
+                  sheetHeight = 0.50;
+                }
+              }
+            }
+
+            return AnimatedPadding(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOut,
+              padding: EdgeInsets.only(
+                bottom: mediaQuery.viewInsets.bottom,
+              ),
+              child: FractionallySizedBox(
+                heightFactor: sheetHeight,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 10),
+
+                      Container(
+                        width: 45,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      if (!isKeyboardOpen) ...[
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [Colors.teal, Colors.greenAccent],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.add_shopping_cart,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+
+                      Text(
+                        "Add Item",
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      Expanded(
+                        child: SingleChildScrollView(
+                          keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.manual,
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                          child: Form(
+                            key: _itemFormkey,
+                            child: Column(
+                              children: [
+                                TypeAheadField<Map<String, dynamic>>(
+                                  controller: _itemController,
+
+                                  suggestionsCallback: (pattern) async {
+                                    return itemdata
+                                        .where((item) {
+                                      final name = item['name']
+                                          ?.toString()
+                                          .toLowerCase() ??
+                                          '';
+                                      final part = item['part']
+                                          ?.toString()
+                                          .toLowerCase() ??
+                                          '';
+
+                                      return name.contains(
+                                        pattern.toLowerCase(),
+                                      ) ||
+                                          part.contains(
+                                            pattern.toLowerCase(),
+                                          );
+                                    })
+                                        .cast<Map<String, dynamic>>()
+                                        .toList();
+                                  },
+
+                                  itemBuilder: (context, suggestion) {
+                                    return ListTile(
+                                      title: Text(
+                                        suggestion['name'] ?? '',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        suggestion['part'] ?? '',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    );
+                                  },
+
+                                  onSelected: (suggestion) {
+                                    FocusScope.of(context).unfocus();
+
+                                    setStateDialog(() {
+                                      _selecteditem = suggestion['name'] ?? '';
+                                      _itemController.text = _selecteditem;
+
+                                      if (locationsdata.isNotEmpty) {
+                                        selectedLocation = locationsdata[0];
+                                        isVisibleLocation = true;
+                                      } else {
+                                        isVisibleLocation = false;
+                                      }
+
+                                      _updateUnitDropdown(_selecteditem);
+                                      isVisibleUnit = true;
+                                    });
+                                  },
+
+                                  builder: (context, controller, focusNode) {
+                                    return TextField(
+                                      controller: controller,
+                                      focusNode: focusNode,
+                                      decoration: InputDecoration(
+                                        labelText: "Item",
+                                        hintText: "Search item",
+                                        prefixIcon: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.blue,
+                                                Colors.lightBlueAccent,
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(8),
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.inventory_outlined,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        suffixIcon: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (_itemController.text.isNotEmpty)
+                                              IconButton(
+                                                icon: const Icon(
+                                                  Icons.close,
+                                                  color: Colors.grey,
+                                                  size: 20,
+                                                ),
+                                                onPressed: () {
+                                                  _itemController.clear();
+
+                                                  setStateDialog(() {
+                                                    _selecteditem = "";
+                                                    isVisibleLocation = false;
+                                                    isVisibleUnit = false;
+                                                  });
+                                                },
+                                              ),
+                                            const Icon(
+                                              Icons.arrow_drop_down,
+                                              color: Colors.grey,
+                                            ),
+                                            const SizedBox(width: 6),
+                                          ],
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.shade300,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                        const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 14,
+                                        ),
+                                      ),
+                                    );
+                                  },
+
+                                  decorationBuilder: (context, child) {
+                                    return Material(
+                                      elevation: 6,
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: Colors.white,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: child,
+                                      ),
+                                    );
+                                  },
+
+                                  emptyBuilder: (context) =>
+                                  const SizedBox.shrink(),
+                                ),
+
+                                const SizedBox(height: 14),
+
+                                AnimatedSize(
+                                  duration: const Duration(milliseconds: 250),
+                                  child: Visibility(
+                                    visible: isVisibleLocation,
+                                    child: DropdownButtonFormField<String>(
+                                      isExpanded: true,
+                                      value: selectedLocation,
+                                      items: locationsdata.map((value) {
+                                        return DropdownMenuItem(
+                                          value: value,
+                                          child: SizedBox(
+                                            width: double.infinity,
+                                            child: Text(
+                                              value,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                      onChanged: (val) => setStateDialog(
+                                            () => selectedLocation = val!,
+                                      ),
+                                      decoration: InputDecoration(
+                                        labelText: "Location",
+                                        prefixIcon: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.orange,
+                                                Colors.redAccent,
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(8),
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.location_on,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.shade300,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 14),
+
+                                AnimatedSize(
+                                  duration: const Duration(milliseconds: 250),
+                                  child: Visibility(
+                                    visible: isVisibleUnit,
+                                    child: DropdownButtonFormField<String>(
+                                      value: _selectedunit,
+                                      isExpanded: true,
+                                      items: unitdata.map((u) {
+                                        return DropdownMenuItem(
+                                          value: u.name,
+                                          child: Text(
+                                            u.name,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        );
+                                      }).toList(),
+                                      onChanged: (val) {
+                                        setStateDialog(() {
+                                          _selectedunit = val!;
+                                          itemQuantityController.text = "1";
+                                          selectedMultiplier = unitdata
+                                              .firstWhere(
+                                                (u) => u.name == _selectedunit,
+                                          )
+                                              .multiplier;
+                                          updateRateAndAmount();
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        labelText: "Unit",
+                                        prefixIcon: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.purple,
+                                                Colors.deepPurpleAccent,
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(8),
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.straighten,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.shade300,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 14),
+
+                                TextFormField(
+                                  controller: itemQuantityController,
+                                  keyboardType: TextInputType.number,
+                                  onChanged: (_) => updateRateAndAmount(),
+                                  decoration: InputDecoration(
+                                    labelText: "Quantity",
+                                    prefixIcon: Container(
+                                      margin: const EdgeInsets.all(8),
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.green,
+                                            Colors.lightGreen,
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(8),
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.confirmation_num,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(
+                                        color: Colors.grey.shade300,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(
+                                        color: app_color,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 14),
+
+                                TextFormField(
+                                  controller: itemRateController,
+                                  keyboardType: TextInputType.number,
+                                  onChanged: (_) => updateAmount(),
+                                  decoration: InputDecoration(
+                                    labelText: "Rate",
+                                    prefix: Container(
+                                      margin: const EdgeInsets.only(right: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.blue,
+                                            Colors.blue,
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(8),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        getCurrencySymbol(currencycode),
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(
+                                        color: Colors.grey.shade300,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(
+                                        color: app_color,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 14),
+
+                                TextFormField(
+                                  controller: itemAmountController,
+                                  enabled: false,
+                                  decoration: InputDecoration(
+                                    labelText: "Amount",
+                                    filled: true,
+                                    fillColor: Colors.grey.shade100,
+                                    prefix: Container(
+                                      margin: const EdgeInsets.only(right: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.green,
+                                            Colors.teal,
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(8),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        getCurrencySymbol(currencycode),
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(
+                                        color: Colors.grey.shade300,
+                                        width: 1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      SafeArea(
+                        top: false,
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 10,
+                                offset: const Offset(0, -2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: Text(
+                                    "Cancel",
+                                    style: GoogleFonts.poppins(
+                                      color: app_color,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(width: 12),
+
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: app_color,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  icon: const Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                  ),
+                                  label: Text(
+                                    "Add Item",
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    if (_itemFormkey.currentState!.validate()) {
+                                      addItem();
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
-  void _showLedgerDetailsPopup(BuildContext context) {
+  /*void _showLedgerDetailsPopup(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
@@ -3900,7 +4567,469 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
         });
       },
     );
+  }*/
+
+  void _showLedgerDetailsPopup(BuildContext context) {
+    final TextEditingController _ledgerController = TextEditingController();
+
+    _ledgerController.clear();
+    _selectedledger = null;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final mediaQuery = MediaQuery.of(context);
+            final screenHeight = mediaQuery.size.height;
+            final isKeyboardOpen = mediaQuery.viewInsets.bottom > 0;
+
+            double sheetHeight;
+
+            if (isKeyboardOpen) {
+              if (screenHeight < 700) {
+                sheetHeight = 0.95;
+              } else if (screenHeight < 850) {
+                sheetHeight = 0.88;
+              } else {
+                sheetHeight = 0.78;
+              }
+            } else {
+              if (screenHeight < 700) {
+                sheetHeight = 0.62;
+              } else if (screenHeight < 850) {
+                sheetHeight = 0.52;
+              } else {
+                sheetHeight = 0.42;
+              }
+            }
+
+            return AnimatedPadding(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOut,
+              padding: EdgeInsets.only(
+                bottom: mediaQuery.viewInsets.bottom,
+              ),
+              child: FractionallySizedBox(
+                heightFactor: sheetHeight,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 10),
+
+                      Container(
+                        width: 45,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      if (!isKeyboardOpen) ...[
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.deepPurple,
+                                Colors.purpleAccent,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.account_balance,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+
+                      Text(
+                        "Add Ledger",
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      Expanded(
+                        child: SingleChildScrollView(
+                          keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.manual,
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                          child: Form(
+                            key: _ledgerFormkey,
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                    horizontal: 4,
+                                  ),
+                                  child: SizedBox(
+                                    width: MediaQuery.of(context).size.width,
+                                    child: TypeAheadField<String>(
+                                      controller: _ledgerController,
+
+                                      suggestionsCallback: (pattern) async {
+                                        return ledgerdata
+                                            .map<String>(
+                                              (ledger) =>
+                                              ledger['name'].toString(),
+                                        )
+                                            .where(
+                                              (item) => item
+                                              .toLowerCase()
+                                              .contains(
+                                            pattern.toLowerCase(),
+                                          ),
+                                        )
+                                            .toList();
+                                      },
+
+                                      builder:
+                                          (context, textController, focusNode) {
+                                        return TextField(
+                                          controller: textController,
+                                          focusNode: focusNode,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black87,
+                                          ),
+                                          decoration: InputDecoration(
+                                            hintText:
+                                            _selectedledger?.isNotEmpty ==
+                                                true
+                                                ? _selectedledger
+                                                : "Select Ledger",
+                                            labelText: "Ledger Name",
+                                            hintStyle: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              color: Colors.grey[600],
+                                            ),
+                                            labelStyle: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.grey[700],
+                                            ),
+                                            prefixIcon: Container(
+                                              margin: const EdgeInsets.all(8),
+                                              decoration: const BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Colors.blue,
+                                                    Colors.lightBlueAccent,
+                                                  ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(12),
+                                                ),
+                                              ),
+                                              child: const Icon(
+                                                Icons.account_balance_wallet,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
+                                            ),
+                                            suffixIcon: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                if (_ledgerController
+                                                    .text.isNotEmpty)
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                      Icons.close,
+                                                      color: Colors.grey,
+                                                      size: 20,
+                                                    ),
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        _ledgerController
+                                                            .clear();
+                                                        _selectedledger = "";
+                                                      });
+                                                    },
+                                                  ),
+                                                const Icon(
+                                                  Icons.arrow_drop_down,
+                                                  color: Colors.grey,
+                                                ),
+                                                const SizedBox(width: 6),
+                                              ],
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(16),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(16),
+                                              borderSide: BorderSide(
+                                                color: Colors.grey.shade300,
+                                                width: 1,
+                                              ),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(16),
+                                              borderSide: BorderSide(
+                                                color: app_color,
+                                                width: 1.5,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+
+                                      decorationBuilder: (context, child) {
+                                        return Material(
+                                          elevation: 6,
+                                          borderRadius:
+                                          BorderRadius.circular(16),
+                                          color: Colors.white,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                            BorderRadius.circular(16),
+                                            child: child,
+                                          ),
+                                        );
+                                      },
+
+                                      itemBuilder:
+                                          (context, String suggestion) {
+                                        return ListTile(
+                                          title: Text(
+                                            suggestion,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                        );
+                                      },
+
+                                      onSelected: (String suggestion) {
+                                        FocusScope.of(context).unfocus();
+
+                                        setState(() {
+                                          _selectedledger = suggestion;
+                                          _ledgerController.text = suggestion;
+                                        });
+                                      },
+
+                                      emptyBuilder: (context) => Padding(
+                                        padding: const EdgeInsets.all(12),
+                                        child: Text(
+                                          "No ledger found",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            color: Colors.redAccent,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 10),
+
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                    horizontal: 4,
+                                  ),
+                                  child: TextFormField(
+                                    controller: ledgerAmountController,
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.allow(
+                                        RegExp(r'^-?\d*\.?\d*'),
+                                      ),
+                                    ],
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter amount';
+                                      } else if (double.tryParse(value) == 0.0) {
+                                        return 'Amount cannot be 0';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: InputDecoration(
+                                      labelText: "Amount",
+                                      hintText: "Enter Amount",
+                                      prefix: Container(
+                                        margin: const EdgeInsets.only(right: 8),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: const BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.orange,
+                                              Colors.redAccent,
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(8),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          getCurrencySymbol(currencycode),
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                        borderSide: BorderSide(
+                                          color: Colors.grey.shade300,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                        borderSide: BorderSide(
+                                          color: app_color,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      SafeArea(
+                        top: false,
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 10,
+                                offset: const Offset(0, -2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+
+                                    _selectedledger = ledgerdata.isNotEmpty
+                                        ? ledgerdata[0]['name']
+                                        : null;
+
+                                    ledgerAmountController.clear();
+                                  },
+                                  child: Text(
+                                    "Cancel",
+                                    style: GoogleFonts.poppins(
+                                      color: app_color,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(width: 12),
+
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: app_color,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  icon: const Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                  ),
+                                  label: Text(
+                                    "Add Ledger",
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    if (_ledgerFormkey.currentState!
+                                        .validate()) {
+                                      _ledgerFormkey.currentState!.save();
+                                      addLedger();
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
+
+
 
   void _recalculateTotals() {
     // Agar items empty hain to heading chhupao

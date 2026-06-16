@@ -4917,7 +4917,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                       ),
                                     ),
 
-                                    const SizedBox(height: 14),
+                                    /*const SizedBox(height: 14),
 
                                     TextFormField(
                                       controller: itemAmountController,
@@ -4931,7 +4931,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                         label: "Amount",
                                         enabled: false,
                                       ),
-                                    ),
+                                    ),*/
                                   ],
                                 ],
                               ),
@@ -7683,10 +7683,10 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                                         ],
                                                       ),
 
-                                                      const SizedBox(height: 12),
+                                                     //  const SizedBox(height: 12),
 
                                                       // Rate Section
-                                                      Row(
+                                                      /*Row(
                                                         crossAxisAlignment: CrossAxisAlignment.center,
                                                         children: [
                                                           Text(
@@ -7715,7 +7715,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                                             ),
                                                           ),
                                                         ],
-                                                      ),
+                                                      ),*/
                                                     ],
                                                   ),
                                                 ),
@@ -8175,7 +8175,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                                     ,],),),
 
-                              Padding(
+                              /*Padding(
                                 padding: const EdgeInsets.only(top: 15, left: 20, right: 20, bottom: 0),
                                 child: TextFormField(
                                   enabled: false,
@@ -8262,7 +8262,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     });
                                   },
                                 ),
-                              ),
+                              ),*/
 
                               Container(
                                 padding: const EdgeInsets.only(top: 20),

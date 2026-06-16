@@ -1248,10 +1248,10 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                                       label: "Date",
                                       value: formattedDate,
                                     ),
-                                    DetailRowTile(
+                                    /*DetailRowTile(
                                       label: "Total Amount",
                                       value: formatAmount(totalAmount.toString()),
-                                    ),
+                                    ),*/
 
 
 

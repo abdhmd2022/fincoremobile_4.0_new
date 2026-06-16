@@ -793,7 +793,7 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
 
                                         // Receipt Text
                                         Expanded(child: Text(
-                                          "Receipt #$vchno",
+                                          "$vchno",
                                           style: GoogleFonts.poppins(
                                             fontSize: 15,
                                             fontWeight: FontWeight.w700,

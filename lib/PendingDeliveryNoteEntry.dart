@@ -1178,7 +1178,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                                                 // Invoice Text
                                                 Expanded(
                                                   child: Text(
-                                                    "D/O #$vchno",
+                                                    "$vchno",
                                                     style: GoogleFonts.poppins(
                                                       fontSize: 15,
                                                       fontWeight: FontWeight.w700,
@@ -1187,7 +1187,6 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                                                     softWrap: true,
                                                   ),
                                                 ),
-
                                               ],
                                             ),
                                           ),

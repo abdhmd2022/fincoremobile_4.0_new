@@ -770,7 +770,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                                           // Order Text
                                           Expanded(
                                             child: Text(
-                                              "Order #$vchno",
+                                              "$vchno",
                                               style: GoogleFonts.poppins(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w700,

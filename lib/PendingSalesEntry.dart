@@ -770,7 +770,7 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
                                               // Invoice Text
                                               Expanded(
                                                 child: Text(
-                                                  "Invoice #$vchno",
+                                                  "$vchno",
                                                   style: GoogleFonts.poppins(
                                                     fontSize: 15,
                                                     fontWeight: FontWeight.w700,

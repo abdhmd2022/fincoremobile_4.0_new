@@ -12,6 +12,7 @@ const String devServer = "http://192.168.2.185";
 
 // Production Environment
 const String BASE_URL_config = "$prodServer/main";
+const String meterReadingSerialNo = '725463756';
 
 // Dev Environment
 // const String BASE_URL_config = "$devServer:5000";

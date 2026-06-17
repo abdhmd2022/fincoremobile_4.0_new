@@ -102,7 +102,7 @@ class Sidebar extends StatelessWidget {
     }
 
     debugPrint('Sidebar assignedGodown -> $assignedGodown');
-    debugPrint('Sidebar is UniGas -> ${uniGasSerialNo.contains(serial_no.trim())}');
+    debugPrint('Sidebar is Van Sales -> ${vanSalesSerialNo.contains(serial_no.trim())}');
 
     print('van allocation value - > $VanAllocationHolder');
     password_prefs = prefs.getString('password') ?? '';
@@ -283,7 +283,7 @@ class Sidebar extends StatelessWidget {
                                 ],
                               ),
 
-                              if (uniGasSerialNo.contains(serial_no.trim()) &&
+                              if (vanSalesSerialNo.contains(serial_no.trim()) &&
                                   assignedGodown.isNotEmpty) ...[
                                 const SizedBox(height: 4),
                                 Row(
@@ -345,7 +345,7 @@ class Sidebar extends StatelessWidget {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => UserView()));
                   }),
 
-                if (uniGasSerialNo.contains(serial_no.trim()) && isVanAllocationVisible)                _buildTile(
+                if (vanSalesSerialNo.contains(serial_no.trim()) && isVanAllocationVisible)                _buildTile(
                   title: 'Van Allocation',
                   icon: Icons.local_shipping_outlined,
                   onTap: () {

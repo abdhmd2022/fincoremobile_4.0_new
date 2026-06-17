@@ -181,7 +181,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       {'label': 'Sales Order Entry', 'value': isSalesOrderEntryAccess, 'onChanged': (v) => _updateEntry('salesorder', v)},
     ];
 
-    if (uniGasSerialNo.contains(serial_no)) {
+    if (vanSalesSerialNo.contains(serial_no)) {
       permissions.addAll([
         {'label': 'Delivery Note Entry', 'value': isDeliveryNoteEntryAccess, 'onChanged': (v) => _updateEntry('deliverynoteentry', v)},
         {'label': 'Van Allocation', 'value': isVanAllocationSetupAccess, 'onChanged': (v) => _updateEntry('vanallocationsetup', v)},
@@ -323,7 +323,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
   }
 
   void _syncEntryMasterToggle() {
-    if (uniGasSerialNo.contains(serial_no)) {
+    if (vanSalesSerialNo.contains(serial_no)) {
       isEntryAccessCheck = isSalesEntryAccess &&
           isReceiptEntryAccess &&
           isSalesOrderEntryAccess &&
@@ -914,13 +914,13 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
          salesorderentrycheck = "False";
 
        }
-       if (uniGasSerialNo.contains(serial_no) && isDeliveryNoteEntryAccess) {
+       if (vanSalesSerialNo.contains(serial_no) && isDeliveryNoteEntryAccess) {
          deliverynoteentrycheck = "True";
        } else {
          deliverynoteentrycheck = "False";
        }
 
-       if (uniGasSerialNo.contains(serial_no) && isVanAllocationSetupAccess) {
+       if (vanSalesSerialNo.contains(serial_no) && isVanAllocationSetupAccess) {
          vanallocationsetupcheck = "True";
        } else {
          vanallocationsetupcheck = "False";
@@ -1250,7 +1250,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
           {
             isSalesOrderEntryAccess = false;
           }
-          if (uniGasSerialNo.contains(serial_no)) {
+          if (vanSalesSerialNo.contains(serial_no)) {
             if (DeliveryNoteEntryHolder == "True") {
               isDeliveryNoteEntryAccess = true;
             } else {
@@ -1267,7 +1267,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
             isVanAllocationSetupAccess = false;
           }
 
-          if (uniGasSerialNo.contains(serial_no)) {
+          if (vanSalesSerialNo.contains(serial_no)) {
             isEntryAccessCheck = isSalesEntryAccess &&
                 isReceiptEntryAccess &&
                 isSalesOrderEntryAccess &&
@@ -1580,7 +1580,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       isReceiptEntryAccess = value;
       isSalesOrderEntryAccess = value;
 
-      if (uniGasSerialNo.contains(serial_no)) {
+      if (vanSalesSerialNo.contains(serial_no)) {
         isDeliveryNoteEntryAccess = value;
         isVanAllocationSetupAccess = value;
       } else {

@@ -703,13 +703,13 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
           salesorderentrycheck = "False";
 
         }
-        if (uniGasSerialNo.contains(serial_no) && isDeliveryNoteEntryAccess) {
+        if (vanSalesSerialNo.contains(serial_no) && isDeliveryNoteEntryAccess) {
           deliverynoteentrycheck = "True";
         } else {
           deliverynoteentrycheck = "False";
         }
 
-        if (uniGasSerialNo.contains(serial_no) && isVanAllocationSetupAccess) {
+        if (vanSalesSerialNo.contains(serial_no) && isVanAllocationSetupAccess) {
           vanallocationsetupcheck = "True";
         } else {
           vanallocationsetupcheck = "False";
@@ -1210,7 +1210,7 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
             isSalesOrderEntryAccess = false;
           }
 
-          if (uniGasSerialNo.contains(serial_no)) {
+          if (vanSalesSerialNo.contains(serial_no)) {
             if (DeliveryNoteEntryHolder == "True") {
               isDeliveryNoteEntryAccess = true;
             } else {
@@ -1230,7 +1230,7 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
 
 
 
-          if (uniGasSerialNo.contains(serial_no)) {
+          if (vanSalesSerialNo.contains(serial_no)) {
             isEntryAccessCheck = isSalesEntryAccess &&
                 isReceiptEntryAccess &&
                 isSalesOrderEntryAccess &&
@@ -1383,7 +1383,7 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
       {'label': 'Sales Order Entry', 'value': isSalesOrderEntryAccess, 'onChanged': (v) => _updateEntry('salesorder', v)},
     ];
 
-    if (uniGasSerialNo.contains(serial_no)) {
+    if (vanSalesSerialNo.contains(serial_no)) {
       permissions.addAll([
         {'label': 'Delivery Note Entry', 'value': isDeliveryNoteEntryAccess, 'onChanged': (v) => _updateEntry('deliverynoteentry', v)},
         {'label': 'Van Allocation', 'value': isVanAllocationSetupAccess, 'onChanged': (v) => _updateEntry('vanallocationsetup', v)},
@@ -1524,7 +1524,7 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
   }
 
   void _syncEntryMasterToggle() {
-    if (uniGasSerialNo.contains(serial_no)) {
+    if (vanSalesSerialNo.contains(serial_no)) {
       isEntryAccessCheck = isSalesEntryAccess &&
           isReceiptEntryAccess &&
           isSalesOrderEntryAccess &&
@@ -1604,7 +1604,7 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
       isReceiptEntryAccess = value;
       isSalesOrderEntryAccess = value;
 
-      if (uniGasSerialNo.contains(serial_no)) {
+      if (vanSalesSerialNo.contains(serial_no)) {
         isDeliveryNoteEntryAccess = value;
         isVanAllocationSetupAccess = value;
       } else {

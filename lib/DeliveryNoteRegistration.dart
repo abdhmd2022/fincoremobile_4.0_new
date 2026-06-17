@@ -162,7 +162,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
   Future<void> fetchPriceLevelDetailsForSelectedItem(StateSetter setStateDialog) async {
     if (serial_no == null ||
         serial_no!.trim().isEmpty ||
-        !uniGasSerialNo.contains(serial_no!.trim())) {
+        !vanSalesSerialNo.contains(serial_no!.trim())) {
       return;
     }
 
@@ -1734,7 +1734,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                                 item.value.itemName,
                                                 style: pw.TextStyle(fontSize: 10),
                                               ),
-                                              if (isMeterReadingSerial &&
+                                              if (isUniGasMeterReadingSerial &&
                                                   item.value.meterFrom.isNotEmpty &&
                                                   item.value.meterTo.isNotEmpty)
                                                 pw.Text(
@@ -3143,18 +3143,18 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     );
   }
 
-  bool get isUniGasSerial {
+  bool get isVanSalesSerial {
     return serial_no != null &&
         serial_no!.trim().isNotEmpty &&
-        uniGasSerialNo.contains(serial_no!.trim());
+        vanSalesSerialNo.contains(serial_no!.trim());
   }
 
-  bool get isMeterReadingSerial {
+  bool get isUniGasMeterReadingSerial {
     final currentSerial = serial_no?.trim() ?? '';
 
     // 👇 put only that one serial here
 
-    return currentSerial == meterReadingSerialNo;
+    return currentSerial == uniGasSerialNumber;
   }
 
   Future<void> loadData() async {
@@ -3196,10 +3196,10 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
         "Content-Type": "application/json"
       };
       final String currentSerialNo = serial_no?.trim() ?? '';
-      final bool isUniGasSerial = uniGasSerialNo.contains(currentSerialNo);
+      final bool isUniGasSerial = vanSalesSerialNo.contains(currentSerialNo);
 
       debugPrint('loadData serial_no -> $currentSerialNo');
-      debugPrint('loadData uniGasSerialNo -> $uniGasSerialNo');
+      debugPrint('loadData uniGasSerialNo -> $vanSalesSerialNo');
       debugPrint('loadData isUniGasSerial -> $isUniGasSerial');
       debugPrint('loadData assigned godownName -> $godownName');
 
@@ -3242,15 +3242,14 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
             fetchvchnos(_selectedvchtypename);
           }
 
-
           final String currentSerialNo = serial_no?.trim() ?? '';
 
-          debugPrint('uniGasSerialNo set -> $uniGasSerialNo');
+          debugPrint('vanSalesSerialNo set -> $vanSalesSerialNo');
           debugPrint('selected serial_no -> $currentSerialNo');
-          debugPrint('is unigas serial -> ${uniGasSerialNo.contains(currentSerialNo)}');
+          debugPrint('is van sales serial -> ${vanSalesSerialNo.contains(currentSerialNo)}');
 
 
-          if (uniGasSerialNo.contains(currentSerialNo)) {
+          if (vanSalesSerialNo.contains(currentSerialNo)) {
             // NEW RESPONSE FORMAT:
             debugPrint('NEW RESPONSE FORMAT:');
             // partyLedgers = [
@@ -4950,7 +4949,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                       ),
                                     ),
 
-                                    if (isMeterReadingSerial) ...[
+                                    if (isUniGasMeterReadingSerial) ...[
                                       const SizedBox(height: 12),
 
                                       Padding(
@@ -6210,7 +6209,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     final meterFrom = voucherStartReadingController.text.trim();
     final meterTo = voucherEndReadingController.text.trim();
 
-    if (isMeterReadingSerial) {
+    if (isUniGasMeterReadingSerial) {
       final meterFrom = voucherStartReadingController.text.trim();
       final meterTo = voucherEndReadingController.text.trim();
 
@@ -8476,7 +8475,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     if (_formKey.currentState != null &&
                                         _formKey.currentState!.validate()) {
                                       _formKey.currentState!.save();
-                                      if (isMeterReadingSerial) {
+                                      if (isUniGasMeterReadingSerial) {
                                         final startText = voucherStartReadingController.text.trim();
                                         final endText = voucherEndReadingController.text.trim();
 

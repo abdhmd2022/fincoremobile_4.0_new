@@ -34,16 +34,22 @@ class SaleItem {
   final String itemUnit;
   late Map<String, dynamic> accountingAllocationList;
   late Map<String, dynamic> batchAllocationList;
+  final String meterFrom;
+  final String meterTo;
+
 
   SaleItem({
     required this.itemName,
     required this.itemQuantity,
     required this.itemPrice,
     required this.itemAmount,
+
     required this.itemLocation,
     required this.itemUnit,
     required this.accountingAllocationList,
     required this.batchAllocationList,
+    required this.meterFrom,
+    required this.meterTo,
   });
 
   SaleItem updateQuantity(String newQuantity) {
@@ -56,6 +62,9 @@ class SaleItem {
       itemUnit: this.itemUnit,
       accountingAllocationList: this.accountingAllocationList,
       batchAllocationList: this.batchAllocationList,
+      meterFrom: this.meterFrom,
+      meterTo: this.meterTo,
+
     );
   }
 
@@ -69,6 +78,9 @@ class SaleItem {
       itemUnit: this.itemUnit,
       accountingAllocationList: this.accountingAllocationList,
       batchAllocationList: this.batchAllocationList,
+      meterFrom: this.meterFrom,
+      meterTo: this.meterTo
+
     );
   }
 }
@@ -116,11 +128,16 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
   bool isVchEditable = false; // state variable
 
+  String? meterReadingError;
+
   String startfrom = '';
 
   TextEditingController _itemController = TextEditingController();
   TextEditingController _partyLedgerController = TextEditingController();
   String? selectedPartyLedgerPriceLevel;
+
+  final TextEditingController voucherStartReadingController = TextEditingController();
+  final TextEditingController voucherEndReadingController = TextEditingController();
 
   String? selectedItemMasterId;
   bool isPriceLevelLoading = false;
@@ -767,6 +784,14 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       totalitemAmount += double.parse(item.itemAmount.toStringAsFixed(decimal!));
     }
 
+    final startReading = voucherStartReadingController.text.trim();
+    final endReading = voucherEndReadingController.text.trim();
+
+    final meterReadingText =
+    startReading.isEmpty && endReading.isEmpty
+        ? ''
+        : '${startReading.isEmpty ? 'No Value' : startReading} - ${endReading.isEmpty ? 'No Value' : endReading}';
+
     List<String> placeParts = [];
 
     // Address
@@ -1075,6 +1100,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                                         pw.SizedBox(height: 2),
                                                         pw.Text(controller_narration.text),
 
+
+
                                                       ]
 
 
@@ -1105,6 +1132,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                             ]
                                         ),
                                       ),
+
                                     ]
                                 )
                             ),),
@@ -1697,13 +1725,27 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                         flex: 3,
                                         child: pw.Container(
                                           padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                          alignment: pw.Alignment.center,
+                                          alignment: pw.Alignment.topLeft,
 
-                                          child: pw.Text(
-                                            item.value.itemName,
-                                            style: pw.TextStyle(
-                                              fontSize: 10,
-                                            ),
+                                          child: pw.Column(
+                                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                            children: [
+                                              pw.Text(
+                                                item.value.itemName,
+                                                style: pw.TextStyle(fontSize: 10),
+                                              ),
+                                              if (isMeterReadingSerial &&
+                                                  item.value.meterFrom.isNotEmpty &&
+                                                  item.value.meterTo.isNotEmpty)
+                                                pw.Text(
+                                                  'Meter Reading: ${item.value.meterFrom} - ${item.value.meterTo}',
+                                                  style: pw.TextStyle(
+                                                    fontSize: 7,
+                                                    fontStyle: pw.FontStyle.italic,
+                                                    color: PdfColors.grey500,
+                                                  ),
+                                                ),
+                                            ],
                                           ),
                                         ),
                                       ),
@@ -2363,6 +2405,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       _selectedvchtypename = vchtypenamedata[0];
       fetchvchnos(_selectedvchtypename);
       _selectedpartyledger = partyledgerdata[0];
+      voucherStartReadingController.clear();
+      voucherEndReadingController.clear();
 
       _selectedsalesledger = salesledger_data[0];
 
@@ -2797,7 +2841,9 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
           "ACTUALQTY": "${item.itemQuantity} ${item.itemUnit}",
           "BILLEDQTY":"${item.itemQuantity} ${item.itemUnit}",
           "BATCHALLOCATIONS.LIST" : item.batchAllocationList,
-          "ACCOUNTINGALLOCATIONS.LIST" : item.accountingAllocationList
+          "ACCOUNTINGALLOCATIONS.LIST" : item.accountingAllocationList,
+          "METER_FROM": item.meterFrom.trim().isEmpty ? null : item.meterFrom.trim(),
+          "METER_TO": item.meterTo.trim().isEmpty ? null : item.meterTo.trim(),
         };
       }).toList();
 
@@ -2977,6 +3023,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                             controller_narration.clear();
                             controller_refno.clear();
                             _textFieldFocusNodeNarration.unfocus();
+                            voucherStartReadingController.clear();
+                            voucherEndReadingController.clear();
 
                             saledate = DateTime.now();
                             saledatestring = _dateFormat.format(saledate);
@@ -3093,6 +3141,20 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
         );
       },
     );
+  }
+
+  bool get isUniGasSerial {
+    return serial_no != null &&
+        serial_no!.trim().isNotEmpty &&
+        uniGasSerialNo.contains(serial_no!.trim());
+  }
+
+  bool get isMeterReadingSerial {
+    final currentSerial = serial_no?.trim() ?? '';
+
+    // 👇 put only that one serial here
+
+    return currentSerial == meterReadingSerialNo;
   }
 
   Future<void> loadData() async {
@@ -3791,6 +3853,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     isVisibleUnit = false;
     isPriceLevelLoading = false;
     isRateFieldEnabled = true;
+
   }
 
   /*Future<void> _showItemDetailsPopup(BuildContext context) async {
@@ -4471,6 +4534,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     _itemController.clear();
     itemRateController.clear();
     itemAmountController.clear();
+    voucherStartReadingController.clear();
+    voucherEndReadingController.clear();
 
     showModalBottomSheet(
       context: context,
@@ -4884,6 +4949,104 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                         ],
                                       ),
                                     ),
+
+                                    if (isMeterReadingSerial) ...[
+                                      const SizedBox(height: 12),
+
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: TextFormField(
+                                                    controller: voucherStartReadingController,
+                                                    keyboardType: TextInputType.number,
+                                                    onChanged: (_) {
+                                                      setState(() {
+                                                        final start = double.tryParse(voucherStartReadingController.text.trim());
+                                                        final end = double.tryParse(voucherEndReadingController.text.trim());
+
+                                                        if (start != null && end != null && end <= start) {
+                                                          meterReadingError = "End reading must be greater than start reading";
+                                                        } else {
+                                                          meterReadingError = null;
+                                                        }
+                                                      });
+                                                    },
+                                                    decoration: _inputDecoration(
+                                                      label: "Start Reading",
+                                                      icon: Icons.speed,
+                                                      gradientColors: const [Colors.orange, Colors.deepOrangeAccent],
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                const SizedBox(width: 10),
+
+                                                Expanded(
+                                                  child: TextFormField(
+                                                    controller: voucherEndReadingController,
+                                                    keyboardType: TextInputType.number,
+                                                    onChanged: (_) {
+                                                      setState(() {
+                                                        final start = double.tryParse(voucherStartReadingController.text.trim());
+                                                        final end = double.tryParse(voucherEndReadingController.text.trim());
+
+                                                        if (start != null && end != null && end <= start) {
+                                                          meterReadingError = "End reading must be greater than start reading";
+                                                        } else {
+                                                          meterReadingError = null;
+                                                        }
+                                                      });
+                                                    },
+                                                    decoration: _inputDecoration(
+                                                      label: "End Reading",
+                                                      icon: Icons.speed_outlined,
+                                                      gradientColors: meterReadingError == null
+                                                          ? const [Colors.red, Colors.redAccent]
+                                                          : const [Colors.red, Colors.deepOrange],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+
+                                            AnimatedSwitcher(
+                                              duration: const Duration(milliseconds: 220),
+                                              child: meterReadingError == null
+                                                  ? const SizedBox.shrink()
+                                                  : Padding(
+                                                key: const ValueKey("meter_error"),
+                                                padding: const EdgeInsets.only(top: 8, left: 4),
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.error_outline_rounded,
+                                                      color: Colors.redAccent,
+                                                      size: 16,
+                                                    ),
+                                                    const SizedBox(width: 6),
+                                                    Expanded(
+                                                      child: Text(
+                                                        meterReadingError!,
+                                                        style: GoogleFonts.poppins(
+                                                          color: Colors.redAccent,
+                                                          fontSize: 11.5,
+                                                          fontWeight: FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
 
                                     AnimatedSize(
                                       duration:
@@ -6044,6 +6207,40 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     final itemLocation = selectedLocation;
     final itemUnit = _selectedunit;
 
+    final meterFrom = voucherStartReadingController.text.trim();
+    final meterTo = voucherEndReadingController.text.trim();
+
+    if (isMeterReadingSerial) {
+      final meterFrom = voucherStartReadingController.text.trim();
+      final meterTo = voucherEndReadingController.text.trim();
+
+      // ✅ If one field is entered and other is empty, restrict saving
+      if ((meterFrom.isNotEmpty && meterTo.isEmpty) ||
+          (meterFrom.isEmpty && meterTo.isNotEmpty)) {
+        Fluttertoast.showToast(
+          msg: "Please enter both start and end readings",
+          backgroundColor: Colors.redAccent,
+          textColor: Colors.white,
+        );
+        return;
+      }
+
+      // ✅ If both fields have value, validate end > start
+      if (meterFrom.isNotEmpty && meterTo.isNotEmpty) {
+        final start = double.tryParse(meterFrom);
+        final end = double.tryParse(meterTo);
+
+        if (start == null || end == null || end <= start) {
+          Fluttertoast.showToast(
+            msg: "End reading must be greater than start reading",
+            backgroundColor: Colors.redAccent,
+            textColor: Colors.white,
+          );
+          return;
+        }
+      }
+    }
+
     if (itemName.isNotEmpty && itemQuantity.isNotEmpty && itemPrice.isNotEmpty) {
       Navigator.of(context).pop();
 
@@ -6084,11 +6281,12 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
           itemUnit: itemUnit,
           accountingAllocationList: {},
           batchAllocationList: batchAllocation,
+          meterFrom: meterFrom,
+          meterTo: meterTo,
         );
 
         setState(() {
           saleItems.add(newItem);
-          // Rest of your code...
         });
       }
 
@@ -7285,6 +7483,9 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                       ),
                                     ),
 
+
+
+
                                     Padding(
                                       padding: const EdgeInsets.only(left: 20, right: 20, bottom: 8, top: 12),
                                       child: TextFormField(
@@ -8275,6 +8476,73 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     if (_formKey.currentState != null &&
                                         _formKey.currentState!.validate()) {
                                       _formKey.currentState!.save();
+                                      if (isMeterReadingSerial) {
+                                        final startText = voucherStartReadingController.text.trim();
+                                        final endText = voucherEndReadingController.text.trim();
+
+                                        final isStartFilled = startText.isNotEmpty;
+                                        final isEndFilled = endText.isNotEmpty;
+
+                                        // Case 1: One field is filled and other is empty
+                                        if ((isStartFilled && !isEndFilled) || (!isStartFilled && isEndFilled)) {
+                                          setState(() {
+                                            meterReadingError = "Please enter both start and end reading";
+                                          });
+
+                                          Fluttertoast.showToast(
+                                            msg: "Please enter both start and end reading",
+                                            backgroundColor: Colors.redAccent,
+                                            textColor: Colors.white,
+                                          );
+
+                                          return;
+                                        }
+
+                                        // Case 2: Both are empty, allow save
+                                        if (!isStartFilled && !isEndFilled) {
+                                          setState(() {
+                                            meterReadingError = null;
+                                          });
+                                        }
+
+                                        // Case 3: Both filled, validate end > start
+                                        if (isStartFilled && isEndFilled) {
+                                          final start = double.tryParse(startText);
+                                          final end = double.tryParse(endText);
+
+                                          if (start == null || end == null) {
+                                            setState(() {
+                                              meterReadingError = "Please enter valid meter readings";
+                                            });
+
+                                            Fluttertoast.showToast(
+                                              msg: "Please enter valid meter readings",
+                                              backgroundColor: Colors.redAccent,
+                                              textColor: Colors.white,
+                                            );
+
+                                            return;
+                                          }
+
+                                          if (end <= start) {
+                                            setState(() {
+                                              meterReadingError = "End reading must be greater than start reading";
+                                            });
+
+                                            Fluttertoast.showToast(
+                                              msg: "End reading must be greater than start reading",
+                                              backgroundColor: Colors.redAccent,
+                                              textColor: Colors.white,
+                                            );
+
+                                            return;
+                                          }
+
+                                          setState(() {
+                                            meterReadingError = null;
+                                          });
+                                        }
+                                      }
                                       saveEntry();
                                     }
                                   },

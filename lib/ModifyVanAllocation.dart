@@ -7,7 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'Constants.dart';
+import 'constants.dart';
 
 class ModifyVanAllocationScreen extends StatefulWidget {
   final Map<String, dynamic> allocation;

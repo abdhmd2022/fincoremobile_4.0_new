@@ -5,7 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Constants.dart';
+import 'constants.dart';
 import 'ModifySalesOrderEntry.dart';
 import 'SalesOrderRegistration.dart';
 import 'Sidebar.dart';
@@ -79,6 +79,18 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
 
   String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";
 
+
+  bool get isVanSalesSerial {
+    final currentSerial = serial_no?.trim().toLowerCase();
+
+    if (currentSerial == null || currentSerial.isEmpty) {
+      return false;
+    }
+
+    return vanSalesSerialNo.any(
+          (s) => s.trim().toLowerCase() == currentSerial,
+    );
+  }
 
   String formatAmount(String amount) {
     String amount_string = "";
@@ -848,7 +860,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                                   child:  Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      if (card.isSynced != 1) ...[
+                                      if (card.isSynced != 1 && !isVanSalesSerial) ...[
                                         _buildGradientAction(
                                           icon: Icons.edit,
                                           text: "Modify",

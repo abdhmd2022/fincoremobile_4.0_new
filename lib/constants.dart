@@ -12,7 +12,9 @@ const String devServer = "http://192.168.2.185";
 
 // Production Environment
 const String BASE_URL_config = "$prodServer/main";
-const String meterReadingSerialNo = '725463756';
+
+// uni gas serial number
+const String uniGasSerialNumber = '725463756';
 
 // Dev Environment
 // const String BASE_URL_config = "$devServer:5000";
@@ -30,12 +32,13 @@ const String serialNumbersConfigUrl =
 
 /// Default/fallback serial numbers.
 /// If internet/API fails, app will still use these values.
-Set<String> uniGasSerialNo = {
+Set<String> vanSalesSerialNo = {
  /* '725463756',
   '767060064',*/
 };
 
-Future<void> fetchUniGasSerialNumbers() async {
+
+Future<void> fetchvanSalesSerialNumbers() async {
   try {
     debugPrint('Fetching serial numbers from cloud...');
 
@@ -63,11 +66,13 @@ Future<void> fetchUniGasSerialNumbers() async {
             .toSet();
 
         if (fetchedSerialNos.isNotEmpty) {
-          uniGasSerialNo = fetchedSerialNos;
+          vanSalesSerialNo = fetchedSerialNos;
 
           debugPrint(
-            'Updated uniGasSerialNo -> $uniGasSerialNo',
+            'Updated vanSalesSerialNo -> $vanSalesSerialNo',
           );
+
+
         }
       }
     }
@@ -77,9 +82,12 @@ Future<void> fetchUniGasSerialNumbers() async {
 }
 
 bool hasVanDeliveryNoteAccess(String? serialNo) {
-  return serialNo != null && uniGasSerialNo.contains(serialNo.trim());
+  return serialNo != null && vanSalesSerialNo.contains(serialNo.trim());
 }
 
+void closeKeyboard(BuildContext context) {
+  FocusScope.of(context).unfocus();
+}
 const Color app_color = Colors.teal;
 
 String formatAmount(String amount) {

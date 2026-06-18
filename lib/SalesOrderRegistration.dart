@@ -10,7 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Constants.dart';
+import 'constants.dart';
 import 'PendingSalesOrderEntry.dart';
 import 'Sidebar.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';

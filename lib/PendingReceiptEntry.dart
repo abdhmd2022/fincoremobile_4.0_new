@@ -8,7 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Constants.dart';
+import 'constants.dart';
 import 'ModifyReceiptEntry.dart';
 import 'SerialSelect.dart';
 import 'Sidebar.dart';
@@ -59,6 +59,8 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
       _isLoading = false,
       isVisibleNoReceiptEntryFound = false,
       _isExtended = false;
+
+
 
   String? HttpURL_loadData,HttpURL_deleteEntry,token = '';
 
@@ -158,6 +160,7 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
   Future<void> _initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
 
+
     setState(() {
 
       hostname = prefs.getString('hostname');
@@ -167,6 +170,10 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
       username = prefs.getString('username');
       token = prefs.getString('token')!;
       _isExtended = true;
+
+      print("serial_no: $serial_no");
+      print("isVanSalesSerial: $isVanSalesSerial");
+      print("vanSalesSerialNo: $vanSalesSerialNo");
 
 
       SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
@@ -502,6 +509,18 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
     super.initState();
     _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     _initSharedPreferences();
+  }
+
+  bool get isVanSalesSerial {
+    final currentSerial = serial_no?.trim().toLowerCase();
+
+    if (currentSerial == null || currentSerial.isEmpty) {
+      return false;
+    }
+
+    return vanSalesSerialNo.any(
+          (s) => s.trim().toLowerCase() == currentSerial,
+    );
   }
 
   Future<void> _refresh() async
@@ -870,7 +889,7 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
                               child:  Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  if (card.isSynced != 1) ...[
+                                  if (card.isSynced != 1 && !isVanSalesSerial) ...[
                                     _buildGradientAction(
                                       icon: Icons.edit,
                                       text: "Modify",
@@ -890,16 +909,19 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
                                         );
                                       },
                                     ),
-                                    const SizedBox(width: 10),
-                                    _buildGradientAction(
-                                      icon: Icons.delete_outline,
-                                      text: "Delete",
+                                      const SizedBox(width: 10),
 
-                                      colors: [Color(0xFFEF5350), Color(0xFFD32F2F)],
-                                      onTap: () {
-                                        _showConfirmationDialogAndNavigate(context, card.id);
-                                      },
-                                    ),
+                                      _buildGradientAction(
+                                        icon: Icons.delete_outline,
+                                        text: "Delete",
+
+                                        colors: [Color(0xFFEF5350), Color(0xFFD32F2F)],
+                                        onTap: () {
+                                          _showConfirmationDialogAndNavigate(context, card.id);
+                                        },
+                                      ),
+
+
                                   ]
                                 ],
                               ),)

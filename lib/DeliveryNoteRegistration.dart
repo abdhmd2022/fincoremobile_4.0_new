@@ -3142,11 +3142,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     );
   }
 
-  bool get isVanSalesSerial {
-    return serial_no != null &&
-        serial_no!.trim().isNotEmpty &&
-        vanSalesSerialNo.contains(serial_no!.trim());
-  }
+
 
   bool get isUniGasMeterReadingSerial {
     final currentSerial = serial_no?.trim() ?? '';

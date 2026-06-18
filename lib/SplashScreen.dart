@@ -11,7 +11,7 @@ import 'package:in_app_update/in_app_update.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'Constants.dart';
+import 'constants.dart';
 import 'Login.dart';
 
 class SplashScreen extends StatefulWidget {

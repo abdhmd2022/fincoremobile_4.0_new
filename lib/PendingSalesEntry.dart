@@ -7,7 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Constants.dart';
+import 'constants.dart';
 import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'currencyFormat.dart';
@@ -93,6 +93,18 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
     }
     // Apply any transformations or formatting to the 'amount' variable here
     return amount_string;
+  }
+
+  bool get isVanSalesSerial {
+    final currentSerial = serial_no?.trim().toLowerCase();
+
+    if (currentSerial == null || currentSerial.isEmpty) {
+      return false;
+    }
+
+    return vanSalesSerialNo.any(
+          (s) => s.trim().toLowerCase() == currentSerial,
+    );
   }
 
   Future<void> _initSharedPreferences() async {
@@ -852,7 +864,7 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
                                     child:  Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        if (card.isSynced != 1) ...[
+                                        if (card.isSynced != 1 && !isVanSalesSerial) ...[
                                           _buildGradientAction(
                                             icon: Icons.edit,
                                             text: "Modify",

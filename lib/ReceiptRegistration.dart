@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:FincoreGo/Items.dart';
 import 'package:FincoreGo/PendingReceiptEntry.dart';
-import 'package:FincoreGo/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,6 +15,8 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+
+import 'constants.dart';
 
 class ReceiptRegistration extends StatefulWidget
 {
@@ -124,9 +125,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     return currentSerial == uniGasSerialNumber;
   }
 
-  void closeKeyboard() {
-    FocusScope.of(context).unfocus();
-  }
+
 
   void removeOutstandingBillFromReceipt(Map<String, dynamic> bill) {
     final String billNo = bill["billno"]?.toString() ?? "";
@@ -231,7 +230,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
   }
 
   Future<void> fetchPartyOutstanding(String ledgerName) async {
-    closeKeyboard();
+    closeKeyboard(context);
     if (ledgerName.trim().isEmpty) return;
 
     setState(() {
@@ -509,7 +508,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
                               return GestureDetector(
                                 onTap: () {
-                                  closeKeyboard();
+                                  closeKeyboard(context);
 
                                   if (!isAdded) {
                                     addOutstandingBillToReceipt(Map<String, dynamic>.from(bill));
@@ -4252,7 +4251,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                         );
                                       },
                                       onSelected: (String suggestion) {
-                                        closeKeyboard();
+                                        closeKeyboard(context);
 
                                         setStateDialog(() {
                                           selectedbankname = suggestion;
@@ -5045,7 +5044,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
-          closeKeyboard();
+          closeKeyboard(context);
         },
         child:  WillPopScope(
             onWillPop: () async {
@@ -5163,7 +5162,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                       // 🌈 Gradient Calendar Icon
                                       prefixIcon: GestureDetector(
                                         onTap: () {
-                                          closeKeyboard();
+                                          closeKeyboard(context);
 
                                           if (isUniGasUser) {
                                             Fluttertoast.showToast(
@@ -5208,7 +5207,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                     ),
                                     readOnly: true,
                                     onTap: () {
-                                      closeKeyboard();
+                                      closeKeyboard(context);
 
                                       if (isUniGasUser) {
                                         Fluttertoast.showToast(
@@ -5529,7 +5528,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                         },
 
                                         onSelected: (String suggestion) {
-                                          closeKeyboard();
+                                          closeKeyboard(context);
 
                                           setState(() {
                                             _selectedparty = suggestion;
@@ -5795,7 +5794,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                                 billAmountController.clear();
                                                 billNoController.clear();
                                                 _billduedateController.clear();
-                                                closeKeyboard();
+                                                closeKeyboard(context);
 
                                                 _showBillsDetailsPopup(context);
                                               },

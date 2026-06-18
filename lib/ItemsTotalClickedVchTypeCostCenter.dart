@@ -13,7 +13,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'Constants.dart';
+import 'constants.dart';
 
 class Bills{
 

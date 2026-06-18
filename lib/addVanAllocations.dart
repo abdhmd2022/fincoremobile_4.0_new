@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Constants.dart';
+
+import 'constants.dart';
 
 class VanAllocationScreen extends StatefulWidget {
   const VanAllocationScreen({super.key});
@@ -416,7 +417,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
         "company_name": company ?? "",
         "godown_name": selectedLocation!,
 
-        "voucher_type_name": selectedVchType! ?? null,
+        "voucher_type_name": selectedVchType! ,
         "sales_ledger":
         (selectedSalesLedger == null || selectedSalesLedger!.isEmpty)
             ? null
@@ -768,7 +769,14 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                 items: locations,
                 icon: Icons.location_on_outlined,
                 hint: 'Search and select location',
-                onSelected: (val) => setState(() => selectedLocation = val),
+                onSelected: (val) {
+                  closeKeyboard(context);
+                  setState(() {
+                    selectedLocation = val;
+                  });
+
+
+                }
               ),
               _searchableDropdownField(
                 title: 'Voucher Type',
@@ -776,7 +784,14 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                 items: vchTypes,
                 icon: Icons.receipt_long_outlined,
                 hint: 'Search and select voucher type',
-                onSelected: (val) => setState(() => selectedVchType = val),
+                  onSelected: (val) {
+                    closeKeyboard(context);
+                    setState(() {
+                      selectedVchType = val;
+                    });
+
+
+                  }
               ),
               _searchableDropdownField(
                 title: 'Sales Ledger',
@@ -784,7 +799,14 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                 items: salesLedgers,
                 icon: Icons.account_balance_wallet_outlined,
                 hint: 'Search and select sales ledger',
-                onSelected: (val) => setState(() => selectedSalesLedger = val),
+                  onSelected: (val) {
+                    closeKeyboard(context);
+                    setState(() {
+                      selectedSalesLedger = val;
+                    });
+
+
+                  }
               ),
               _searchableDropdownField(
                 title: 'Cash Ledger',
@@ -792,7 +814,12 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                 items: cashLedgers,
                 icon: Icons.payments_outlined,
                 hint: 'Search and select cash ledger',
-                onSelected: (val) => setState(() => selectedCashLedger = val),
+                  onSelected: (val) {
+                    closeKeyboard(context);
+                    setState(() {
+                      selectedCashLedger = val;
+                    });
+                  }
               ),
 
 
@@ -956,6 +983,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
             ),
 
             onSelected: (value) {
+              closeKeyboard(context);
               setState(() {
                 selectedUser = value;
               });

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'Constants.dart';
+import 'constants.dart';
 
 class FastMovingInactiveItemsCriteria extends StatefulWidget {
 

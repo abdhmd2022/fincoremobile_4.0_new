@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:FincoreGo/Items.dart';
 import 'package:FincoreGo/PendingDeliveryNoteEntry.dart';
-import 'package:FincoreGo/PendingSalesEntry.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6646,7 +6645,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
           onWillPop: () async {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => PendingSalesEntry()),
+              MaterialPageRoute(builder: (context) => PendingDeliveryNoteEntry()),
             );
             return false;
 

@@ -6655,6 +6655,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
             children: [
               ListView(
                   children:[
+
                    /* GestureDetector(
                       onTap: () => _selectDateRangeVchNo(context),
                       child: Container(
@@ -6724,7 +6725,6 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                         ),
                       ),
                     ),*/
-
 
                     Container(
                         child: Column(

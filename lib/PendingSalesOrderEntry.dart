@@ -19,16 +19,12 @@ class SalesOrderModel {
   final int isSynced;
   final String? message;
 
-
-
   SalesOrderModel({
     required this.id,
     required this.data,
     required this.type,
     required this.isSynced,
     this.message,
-
-
   });
 
   factory SalesOrderModel.fromJson(Map<String, dynamic> json) {
@@ -38,7 +34,6 @@ class SalesOrderModel {
       type: json['type'],
       isSynced: json['isSynced'],
       message: json['message'],
-
     );
   }
 }
@@ -78,7 +73,6 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
   late SharedPreferences prefs;
 
   String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";
-
 
   bool get isVanSalesSerial {
     final currentSerial = serial_no?.trim().toLowerCase();

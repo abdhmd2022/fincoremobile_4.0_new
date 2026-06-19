@@ -1256,240 +1256,10 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                                     ]
                                 ),)),
-                          // Right column
-                          /*pw.Expanded(
-                      flex: 1,
-                      child: pw.Container(
-                          decoration: pw.BoxDecoration(
-                            border: pw.Border(
-                              right: pw.BorderSide(
-                                  width: 1.0
-                              ),
-                              top: pw.BorderSide(
-                                  width: 1.0
-                              ),
 
-                              bottom: pw.BorderSide(
-                                  width: 1.0
-                              ),
-                              left:pw.BorderSide(
-                                  width: 1.0
-                              ), ),
-                          ),
-
-                          child: pw.Column(
-                              children: [
-                                // first row right column
-
-                                pw.Container(
-                                  decoration: pw.BoxDecoration(
-                                    border: pw.Border.all(width: 1
-
-                                    ),
-                                  ),
-                                  child: pw.Row(
-
-                                      children: [
-
-
-                                        // invoice no
-                                        pw.Expanded(child: pw.Container(
-                                            decoration: pw.BoxDecoration(
-                                              border: pw.Border(right: pw.BorderSide(width: 1)
-                                              ),
-                                            ),
-                                            padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
-
-                                            child: pw.Column(
-                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                                children: [
-
-                                                  pw.Text('Buyers Order No.'),
-                                                ]
-                                            ))
-                                        ),
-
-                                        pw.Expanded(child: pw.Container(
-                                            padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
-                                            child: pw.Column(
-                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                                children: [
-                                                  pw.Text('Dated:'),
-                                                ]
-                                            )
-                                        ),)
-                                      ]
-                                  ),
-                                ),
-
-                                //second row right column
-                                pw.Container(
-                                  decoration: pw.BoxDecoration(
-                                    border: pw.Border.all(width: 1
-                                    ),
-                                  ),
-                                  child: pw.Row(
-                                      children: [
-                                        pw.Expanded(child: pw.Container(
-                                            padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
-                                            decoration: pw.BoxDecoration(
-                                              border: pw.Border(right: pw.BorderSide(width: 1)
-                                              ),
-                                            ),
-                                            child: pw.Column(
-                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                                children: [
-
-                                                  pw.Text('Dispatch Document No.'),
-
-                                                ]
-
-
-                                            ))
-                                        ),
-
-
-
-                                        pw.Expanded(child: pw.Container(
-
-                                            padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
-                                            child: pw.Column(
-                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                                mainAxisAlignment: pw.MainAxisAlignment.start,
-                                                children: [
-
-                                                  pw.Text('Delivery Note Date.'),
-                                                  pw.Text(''),
-                                                ]
-
-
-                                            )
-                                        ),)
-
-                                      ]
-                                  ),
-                                ),
-
-                                // third row right column
-
-                                pw.Container(
-                                  decoration: pw.BoxDecoration(
-                                    border: pw.Border.all(width: 1
-
-                                    ),
-                                  ),
-                                  child: pw.Row(
-
-                                      children: [
-
-
-                                        pw.Expanded(child: pw.Container(
-
-                                            padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 25,right: 5),
-
-                                            child: pw.Column(
-                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                                children: [
-
-                                                  pw.Text('Dispatched through.'),
-
-                                                ]
-
-
-
-                                            ))
-                                        ),
-
-
-
-                                        pw.Expanded(child: pw.Container(
-                                            decoration: pw.BoxDecoration(
-                                              border: pw.Border(left: pw.BorderSide(width: 1)
-                                              ),
-                                            ),
-                                            padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 25,right: 5),
-                                            child: pw.Column(
-                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                                children: [
-
-                                                  pw.Text('Destination'),
-
-                                                ]
-
-
-                                            )
-                                        ),)
-
-                                      ]
-                                  ),
-                                ),
-                              ]
-                          )
-                      ),),*/
                         ],
                       ),
                     ),
-
-                    /*pw.Container(
-                decoration: pw.BoxDecoration(
-                  border: pw.Border(
-                      right: pw.BorderSide(
-                          width: 1.0
-                      ),
-
-                      left: pw.BorderSide(
-                          width: 1.0
-                      ),
-                      bottom: pw.BorderSide(
-                          width: 1.0
-                      )),
-                ),
-                child: pw.Row(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  mainAxisAlignment: pw.MainAxisAlignment.start,
-                  children: [
-                    // Left column
-                    pw.Expanded(
-                        flex: 1,
-                        child: pw.Container(
-                          decoration: pw.BoxDecoration(
-                            border: pw.Border(
-                              right: pw.BorderSide(
-                                  width: 1.0
-                              ),
-                            ),
-                          ),
-                          padding: pw.EdgeInsets.only(left: 5,top: 2,bottom: 10,right: 5),
-                          child: pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.start,
-                              mainAxisAlignment: pw.MainAxisAlignment.start,
-                              children: [
-                                pw.Text('Buyer'),
-                                pw.Text(_selectedpartyledger!),
-                              ]
-                          ),)),
-
-                    // Right column
-                    pw.Expanded(
-                      flex: 1,
-                      child: pw.Container(
-                          child: pw.Expanded(child: pw.Container(
-                              decoration: pw.BoxDecoration(
-                                border: pw.Border(right: pw.BorderSide(width: 1)
-                                ),
-                              ),
-                              padding: pw.EdgeInsets.only(left: 5,top: 2,bottom: 20,right: 5),
-                              child: pw.Column(
-                                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                  children: [
-                                    pw.Text('Buyers Order No.'),
-                                  ]
-                              ))
-                          ),
-                      ),),
-                  ],
-                ),
-              ),*/
 
                     pw.Container(
                       decoration: pw.BoxDecoration(
@@ -1581,6 +1351,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     ),
                                   ),
                                 ),
+                                if (!isUniGasMeterReadingSerial)
                                 pw.Expanded(
                                   flex: 1,
                                   child: pw.Container(
@@ -1627,6 +1398,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     ),
                                   ),
                                 ),
+                                if (!isUniGasMeterReadingSerial)
                                 pw.Expanded(
                                   flex: 1,
                                   child: pw.Container(
@@ -1650,7 +1422,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     ),
                                   ),
                                 ),
-                                pw.Expanded(
+                                if (!isUniGasMeterReadingSerial)
+                                  pw.Expanded(
                                   flex: 2,
                                   child: pw.Container(
                                     padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
@@ -1772,7 +1545,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                                         ),
                                       ),
-                                      pw.Expanded(
+                                      if (!isUniGasMeterReadingSerial)
+                                        pw.Expanded(
                                         flex: 1,
                                         child: pw.Container(
                                           padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
@@ -1802,6 +1576,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                           ),
                                         ),
                                       ),
+                                      if (!isUniGasMeterReadingSerial)
                                       pw.Expanded(
                                         flex: 1,
                                         child: pw.Container(
@@ -1815,7 +1590,9 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                           ),
                                         ),
                                       ),
-                                      pw.Expanded(
+
+                                      if (!isUniGasMeterReadingSerial)
+                                        pw.Expanded(
                                         flex: 2,
                                         child: pw.Container(
                                           padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
@@ -1833,7 +1610,9 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                 ]
                             ),
 
-                            pw.Table(
+
+                            if (!isUniGasMeterReadingSerial)
+                              pw.Table(
                                 border: pw.TableBorder(
                                   horizontalInside: pw.BorderSide.none,
                                   verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
@@ -1917,7 +1696,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                 ]
                             ),
 
-                            if(ledgerEntries.isNotEmpty)
+                            if(!isUniGasMeterReadingSerial && ledgerEntries.isNotEmpty)
                               for(var ledger  in ledgerEntries.asMap().entries)
                                 pw.Table(
                                     border: pw.TableBorder(
@@ -1978,6 +1757,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                             alignment: pw.Alignment.centerRight,
                                           ),
                                         ),
+
                                         pw.Expanded(
                                           flex: 2,
                                           child: pw.Container(
@@ -1997,7 +1777,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                 ),
 
 
-                            if(vatledgerdata.isNotEmpty && _selectedvatledger!='Not Applicable')
+                            if(!isUniGasMeterReadingSerial && vatledgerdata.isNotEmpty && _selectedvatledger!='Not Applicable')
                               pw.Table(
                                   border: pw.TableBorder(
                                       horizontalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
@@ -2081,7 +1861,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     ])
                                   ]
                               ),
-
+                            emptyStretchLines(),
+                            if (!isUniGasMeterReadingSerial)
                             pw.Table(
                                 border: pw.TableBorder(
                                     horizontalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
@@ -2089,6 +1870,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     bottom: pw.BorderSide.none
                                 ),
                                 children:[
+
 
                                   pw.TableRow(children: [
 
@@ -2181,6 +1963,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                 ]
                             ),
 
+                            if (!isUniGasMeterReadingSerial)
                             pw.Table(
                                 border: pw.TableBorder(
                                   horizontalInside: pw.BorderSide.none,
@@ -2384,7 +2167,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
     await Share.shareXFiles(
       [XFile(filePath, mimeType: 'application/pdf')],
-      text: 'Sharing D/O for $_selectedpartyledger',
+      text: 'Sharing Delivery Note for $_selectedpartyledger',
     );
 
     setState(() {
@@ -2403,13 +2186,15 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       _refdateController.text = refdatetxt;
       _selectedvchtypename = vchtypenamedata[0];
       fetchvchnos(_selectedvchtypename);
-      _selectedpartyledger = partyledgerdata[0];
+      _selectedpartyledger = null;
+      _partyLedgerController.clear();
       voucherStartReadingController.clear();
       voucherEndReadingController.clear();
 
       _selectedsalesledger = salesledger_data[0];
 
       _selectedledger = ledgerdata.isNotEmpty ? ledgerdata[0]['name'] : null;
+
 
       _selectedvatledger = vatledgerdata[0];
 
@@ -2521,231 +2306,32 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     });
   }
 
+  pw.Widget emptyStretchLines() {
+    final flexes = isUniGasMeterReadingSerial
+        ? [1, 3, 1, 1]
+        : [1, 3, 1, 1, 1, 1, 2];
 
-  /*Future<void> generateInvoicePDF(String trn, String address, String emirate, String country) async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
-    final pdf = pw.Document();
-
-    int totalQuantity = 0;
-    double totalitemAmount = 0;
-    for (var item in saleItems) {
-      int qty_int = int.tryParse(item.itemQuantity) ?? 0;
-      totalQuantity += qty_int;
-      totalitemAmount += item.itemAmount;
-    }
-
-    // 🧾 Build PDF
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Stack(
-            children: [
-              pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                children: [
-                  pw.Header(
-                    level: 0,
-                    decoration: const pw.BoxDecoration(
-                      border: pw.Border(bottom: pw.BorderSide.none),
-                    ),
-                    child: pw.Center(
-                      child: pw.Text(
-                        'Tax Invoice',
-                        textAlign: pw.TextAlign.center,
-                        style: pw.TextStyle(fontSize: 18),
-                      ),
-                    ),
-                  ),
-                  pw.SizedBox(height: 8),
-                  pw.Text(
-                    company ?? '',
-                    style: pw.TextStyle(
-                      fontSize: 16,
-                      fontWeight: pw.FontWeight.bold,
-                    ),
-                  ),
-                  pw.SizedBox(height: 6),
-                  pw.Text(
-                    'Party: ${_selectedpartyledger ?? "N/A"}',
-                    style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold),
-                  ),
-                  if (address.isNotEmpty && address != "null")
-                    pw.Text('Address: $address', style: pw.TextStyle(fontSize: 11)),
-                  if (emirate.isNotEmpty && emirate != "null")
-                    pw.Text('Emirate: $emirate', style: pw.TextStyle(fontSize: 11)),
-                  if (country.isNotEmpty && country != "null")
-                    pw.Text('Country: $country', style: pw.TextStyle(fontSize: 11)),
-                  if (trn.isNotEmpty && trn != "null")
-                    pw.Text('TRN: $trn', style: pw.TextStyle(fontSize: 11)),
-                  pw.SizedBox(height: 10),
-
-                  pw.Table.fromTextArray(
-                    border: pw.TableBorder.all(width: 1),
-                    headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-                    headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font),
-                    cellStyle: pw.TextStyle(fontSize: 10, font: font), // ✅ Use your font here too
-                    headers: ['Sr No', 'Item', 'Qty', 'Rate', 'Amount'],
-                    data: [
-                      for (int i = 0; i < saleItems.length; i++)
-                        [
-                          (i + 1).toString(),
-                          saleItems[i].itemName,
-                          saleItems[i].itemQuantity,
-                          formatAmountInvoice(saleItems[i].itemPrice.toString()),
-                          formatAmountInvoice(saleItems[i].itemAmount.toString()),
-                        ],
-                    ],
-                  ),
-
-                  pw.SizedBox(height: 10),
-
-                  pw.Row(
-                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pw.Text('Total Quantity: $totalQuantity',
-                          style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
-                      pw.Text(
-                          'Total Amount: ${formatAmountInvoice(totalitemAmount.toString())}',
-                          style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
-                    ],
-                  ),
-
-                  pw.SizedBox(height: 20),
-                  pw.Text(
-                    'This is a system-generated document',
-                    style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
-                  ),
-                ],
-              ),
-              pw.Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: pw.Container(
-                  padding: const pw.EdgeInsets.all(5),
-                  alignment: pw.Alignment.center,
-                  child: pw.Text(
-                    'Created by https://tallyuae.ae/',
-                    textAlign: pw.TextAlign.center,
-                    style: pw.TextStyle(
-                      fontSize: 10,
-                      color: PdfColor.fromInt(0xFFCCCCCC),
-                    ),
-                  ),
+    return pw.Container(
+      height: isUniGasMeterReadingSerial ? 260 : 0,
+      child: pw.Row(
+        crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+        children: List.generate(flexes.length, (colIndex) {
+          return pw.Expanded(
+            flex: flexes[colIndex],
+            child: pw.Container(
+              decoration: pw.BoxDecoration(
+                border: pw.Border(
+                  right: colIndex == flexes.length - 1
+                      ? pw.BorderSide.none
+                      : pw.BorderSide(width: 1),
                 ),
               ),
-            ],
+            ),
           );
-        },
+        }),
       ),
     );
-
-    // 🗂 Save to temp file
-    final pdfData = await pdf.save();
-    final tempDir = await getTemporaryDirectory();
-    final tempFilePath =
-        '${tempDir.path}/SaleInvoice_${_selectedpartyledger ?? "Unknown"}.pdf';
-    final file = File(tempFilePath);
-    await file.writeAsBytes(pdfData);
-
-    // ✅ Share using ShareXFiles (modern API)
-    final xfile = XFile(tempFilePath);
-    await Share.shareXFiles(
-      [xfile],
-      text: 'Sharing Sale Invoice for $_selectedpartyledger',
-    );
-
-    // ♻️ Reset all UI fields after sharing
-    setState(() {
-      controller_narration.clear();
-      controller_refno.clear();
-
-      _textFieldFocusNodeNarration.unfocus();
-
-      saledate = DateTime.now();
-      saledatestring = _dateFormat.format(saledate);
-      _dateController.text = formatlastsaledate(saledatestring);
-
-      refdate = DateTime.now();
-      refdatestring = _dateFormat.format(refdate);
-      _refdateController.text = formatlastsaledate(refdatestring);
-
-      _selectedvchtypename = vchtypenamedata[0];
-      fetchvchnos(_selectedvchtypename);
-      _selectedpartyledger = partyledgerdata[0];
-      _partyLedgerController.text = _selectedpartyledger;
-      _selectedsalesledger = salesledger_data[0];
-      _selectedledger = ledgerdata.isNotEmpty ? ledgerdata[0]['name'] : null;
-      _selectedvatledger = vatledgerdata[0];
-      _selecteditem = '${itemdata[0]['name']}';
-
-      if (locationsdata.isNotEmpty) {
-        selectedLocation = locationsdata[0];
-        isVisibleLocation = true;
-      } else {
-        isVisibleLocation = false;
-      }
-      _updateUnitDropdown(_selecteditem);
-
-      saleItems.clear();
-      ledgerEntries.clear();
-
-      totalPriceOfItems = saleItems.fold(0.0, (sum, item) {
-        return sum + (item.itemPrice * double.parse(item.itemQuantity));
-      });
-
-      totalAmountOfLedgers = ledgerEntries.fold(0.0, (sum, entry) {
-        return sum + entry.ledgerAmount;
-      });
-
-      if (_selectedvatledger != 'Not Applicable') {
-        double vatPerc = vatperc / 100;
-        itemsVatAmount = totalPriceOfItems * vatPerc;
-        totalVatAmount = itemsVatAmount + ledgerVatAmount;
-        roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
-        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
-        controller_vatamt.text = formatter.format(roundedtotalVatAmount);
-      } else {
-        totalVatAmount = 0;
-        roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
-        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
-        controller_vatamt.text = formatter.format(roundedtotalVatAmount);
-      }
-
-      isVisibleItemHeading = saleItems.isNotEmpty;
-      totalAmountForVatAppEntries = ledgerEntries
-          .where((entry) => entry.vatApp)
-          .fold(0.0, (sum, entry) => sum + entry.ledgerAmount);
-
-      if (_selectedvatledger != 'Not Applicable') {
-        double vatPerc = vatperc / 100;
-        ledgerVatAmount = totalAmountForVatAppEntries * vatPerc;
-        totalVatAmount = itemsVatAmount + ledgerVatAmount;
-        roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
-        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
-        controller_vatamt.text = formatter.format(roundedtotalVatAmount);
-      } else {
-        totalVatAmount = 0;
-        roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
-        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
-        controller_vatamt.text = formatter.format(roundedtotalVatAmount);
-      }
-
-      isVisibleLedgerHeading = ledgerEntries.isNotEmpty;
-      totalAmount = totalPriceOfItems + totalAmountOfLedgers + totalVatAmount;
-      roundedtotalAmount = double.parse(totalAmount.toStringAsFixed(decimal!));
-      NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
-      controller_totalamt.text = formatter.format(roundedtotalAmount);
-
-      _isFocused_vchno = false;
-      _isFocused_item = false;
-      _isFocused_unit = false;
-      _isFocused_ledger = false;
-      _isFocused_narration = false;
-      _isFocused_totalamt = false;
-      _isFocused_vatamt = false;
-    });
-  }*/
+  }
 
   String getCurrencySymbol(String currencyCode) {
     NumberFormat format;
@@ -3141,8 +2727,6 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       },
     );
   }
-
-
 
   bool get isUniGasMeterReadingSerial {
     final currentSerial = serial_no?.trim() ?? '';
@@ -8101,7 +7685,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                         // 🌈 VAT Ledger Dropdown
                                         Expanded(
                                           child: Padding(
-                                            padding: const EdgeInsets.only(top: 20, left: 20, right: 5),
+                                            padding: EdgeInsets.only(top: 20, left: 20, right: isUniGasMeterReadingSerial ? 20:10),
                                             child: DropdownButtonFormField<String>(
                                               isExpanded: true,
                                               decoration: InputDecoration(
@@ -8206,9 +7790,10 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                           ),
                                         ),
 
+                                        if(!isUniGasMeterReadingSerial)
                                         Expanded(
                                           child: Padding(
-                                            padding: const EdgeInsets.only(top: 20, left: 5, right: 20),
+                                            padding: const EdgeInsets.only(top: 20, left: 0, right: 20),
                                             child: TextFormField(
                                               enabled: false,
                                               controller: controller_vatamt,

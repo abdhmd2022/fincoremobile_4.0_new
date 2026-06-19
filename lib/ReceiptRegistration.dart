@@ -454,9 +454,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                       SizedBox(
                         height: 22,
                         width: 22,
-                        child: CircularProgressIndicator(
+                        child: CircularProgressIndicator.adaptive(
                           strokeWidth: 2,
-                          color: app_color,
+                          //color: app_color,
                         ),
                       )
                     else

@@ -72,19 +72,25 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
   final TextEditingController serialController = TextEditingController();
 
   String? selectedLocation;
-  String? selectedVchType;
+  String? selectedDeliveryNoteVchType;
   String? selectedSalesLedger;
   String? selectedCashLedger;
-
+  String? selectedSalesVchType;
+  String? selectedReceiptVchType;
   UserModel? selectedUser;
   String? selectedCompany;
+
+
 
 
   List<UserModel> users = [];
 
   List<String> locations = [];
 
-  List<String> vchTypes = [];
+  List<String> deliveryNoteVchTypes = [];
+
+  List<String> salesVchTypes = [];
+  List<String> receiptVchTypes = [];
 
   List<String> salesLedgers = [];
 
@@ -101,7 +107,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
     final usersUrl = Uri.parse('$BASE_URL_config/api/login/get');
 
     // Replace this with your actual get allocations API
-    final allocationsUrl = Uri.parse('$BASE_URL_config/api/spectra/Allocations');
+    final allocationsUrl = Uri.parse('$BASE_URL_config/api/spectra/Allocations?serial_no=$serial_no&company_name=$company');
 
     Map<String, String> headers = {
       'Authorization': 'Bearer $authTokenBase',
@@ -264,7 +270,9 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
   bool get isFormValid =>
       selectedUser != null &&
           selectedLocation != null &&
-          selectedVchType != null &&
+          selectedDeliveryNoteVchType != null &&
+          selectedSalesVchType != null &&
+          selectedReceiptVchType != null &&
           selectedSalesLedger != null &&
           selectedCashLedger != null;
 
@@ -280,9 +288,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          "type": "delivery note",
-        }),
+        body: jsonEncode({}),
       );
 
       debugPrint("VAN ALLOCATION RESPONSE: ${response.body}");
@@ -290,11 +296,8 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        // -----------------------------------------
-        // STEP 1: Fetch existing allocations
-        // -----------------------------------------
         final allocationsUrl = Uri.parse(
-          '$BASE_URL_config/api/spectra/Allocations',
+          '$BASE_URL_config/api/spectra/Allocations?serial_no=$serial_no&company_name=$company',
         );
 
         final allocationResponse = await http.get(
@@ -305,7 +308,10 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           },
         );
 
-        final Set<String> allocatedVchTypes = {};
+        final Set<String> allocatedDeliveryNoteVchTypes = {};
+        final Set<String> allocatedSalesVchTypes = {};
+        final Set<String> allocatedReceiptVchTypes = {};
+        final Set<String> allocatedLocations = {};
 
         if (allocationResponse.statusCode == 200) {
           final List<dynamic> allocationJsonList =
@@ -315,53 +321,113 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
             final map = item as Map<String, dynamic>;
 
             final serialNo = map['serial_no']?.toString().trim();
-            final vchType =
-            map['voucher_type_name']?.toString().trim().toLowerCase();
 
-            // Only check voucher types for current serial number
-            if (serialNo == serial_no &&
-                vchType != null &&
-                vchType.isNotEmpty) {
-              allocatedVchTypes.add(vchType);
+            if (serialNo == serial_no) {
+              final deliveryNoteVchType =
+              map['voucher_type_name']?.toString().trim().toLowerCase();
+
+              final salesVchType =
+              map['sales_voucher_type']?.toString().trim().toLowerCase();
+
+              final receiptVchType =
+              map['receipt_voucher_type']?.toString().trim().toLowerCase();
+
+              final godownName =
+              map['godown_name']?.toString().trim().toLowerCase();
+
+              if (godownName != null && godownName.isNotEmpty) {
+                allocatedLocations.add(godownName);
+              }
+
+              if (deliveryNoteVchType != null &&
+                  deliveryNoteVchType.isNotEmpty) {
+                allocatedDeliveryNoteVchTypes.add(deliveryNoteVchType);
+              }
+
+              if (salesVchType != null && salesVchType.isNotEmpty) {
+                allocatedSalesVchTypes.add(salesVchType);
+              }
+
+              if (receiptVchType != null && receiptVchType.isNotEmpty) {
+                allocatedReceiptVchTypes.add(receiptVchType);
+              }
             }
           }
         }
 
-        debugPrint("Already Allocated Vch Types: $allocatedVchTypes");
+        debugPrint("Allocated Delivery Note Vch Types: $allocatedDeliveryNoteVchTypes");
+        debugPrint("Allocated Sales Vch Types: $allocatedSalesVchTypes");
+        debugPrint("Allocated Receipt Vch Types: $allocatedReceiptVchTypes");
+
+        final List<dynamic> apiVchTypes = data['vchTypes'] ?? [];
+
+        List<String> getVchTypesByParent(String parentName) {
+          for (final item in apiVchTypes) {
+            final map = item as Map<String, dynamic>;
+
+            final parent =
+                map['parent']?.toString().trim().toLowerCase() ?? '';
+
+            if (parent == parentName.toLowerCase()) {
+              return List<String>.from(map['name'] ?? [])
+                  .where((vch) => vch.toString().trim().isNotEmpty)
+                  .toSet()
+                  .toList();
+            }
+          }
+
+          return [];
+        }
 
         setState(() {
-          // voucher types without already allocated duplicates
-          vchTypes = List<String>.from(data['vchTypes'] ?? [])
+          deliveryNoteVchTypes = getVchTypesByParent('delivery note')
               .where((vch) {
             final vchName = vch.toString().trim().toLowerCase();
+            return !allocatedDeliveryNoteVchTypes.contains(vchName);
+          }).toList();
 
-            if (vchName.isEmpty) {
-              return false;
-            }
+          salesVchTypes = getVchTypesByParent('sales')
+              .where((vch) {
+            final vchName = vch.toString().trim().toLowerCase();
+            return !allocatedSalesVchTypes.contains(vchName);
+          }).toList();
 
-            return !allocatedVchTypes.contains(vchName);
-          })
-              .toSet()
-              .toList();
+          receiptVchTypes = getVchTypesByParent('receipt')
+              .where((vch) {
+            final vchName = vch.toString().trim().toLowerCase();
+            return !allocatedReceiptVchTypes.contains(vchName);
+          }).toList();
 
-          // sales ledgers
-          salesLedgers = List<String>.from(
-            data['salesLedgers'] ?? [],
-          );
+          salesLedgers = List<String>.from(data['salesLedgers'] ?? []);
 
-          // cash ledgers
-          cashLedgers = List<String>.from(
-            data['cashLedgers'] ?? [],
-          );
+          cashLedgers = List<String>.from(data['cashLedgers'] ?? []);
 
-          // locations
-          locations = List<String>.from(
-            data['locations'] ?? [],
-          );
+          locations = List<String>.from(data['locations'] ?? [])
+              .where((location) {
+            final locationName = location.toString().trim().toLowerCase();
+            return locationName.isNotEmpty &&
+                !allocatedLocations.contains(locationName);
+          }).toSet().toList();
 
-          if (selectedVchType != null &&
-              !vchTypes.contains(selectedVchType)) {
-            selectedVchType = null;
+          if (selectedLocation != null &&
+              !locations.contains(selectedLocation)) {
+            selectedLocation = null;
+          }
+          debugPrint("Allocated Locations: $allocatedLocations");
+
+          if (selectedDeliveryNoteVchType != null &&
+              !deliveryNoteVchTypes.contains(selectedDeliveryNoteVchType)) {
+            selectedDeliveryNoteVchType = null;
+          }
+
+          if (selectedSalesVchType != null &&
+              !salesVchTypes.contains(selectedSalesVchType)) {
+            selectedSalesVchType = null;
+          }
+
+          if (selectedReceiptVchType != null &&
+              !receiptVchTypes.contains(selectedReceiptVchType)) {
+            selectedReceiptVchType = null;
           }
         });
       }
@@ -376,9 +442,11 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
     setState(() {
       selectedUser = null;
       selectedLocation = null;
-      selectedVchType = null;
+      selectedDeliveryNoteVchType = null;
       selectedSalesLedger = null;
       selectedCashLedger = null;
+      selectedReceiptVchType = null;
+      selectedSalesVchType = null;
 
       // This will reset Autocomplete field also
       formResetKey++;
@@ -416,8 +484,9 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
         "serial_no": serial_no ?? "",
         "company_name": company ?? "",
         "godown_name": selectedLocation!,
-
-        "voucher_type_name": selectedVchType! ,
+        "voucher_type_name": selectedDeliveryNoteVchType!,
+        "sales_voucher_type": selectedSalesVchType!,
+        "receipt_voucher_type": selectedReceiptVchType!,
         "sales_ledger":
         (selectedSalesLedger == null || selectedSalesLedger!.isEmpty)
             ? null
@@ -640,7 +709,6 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                           /*const SizedBox(height: 14),
                             _buildSummaryCards(isMobile),*/
 
-                          const SizedBox(height: 16),
                           _buildAllocationForm(isMobile),
 
                           const SizedBox(height: 30),
@@ -779,19 +847,45 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                 }
               ),
               _searchableDropdownField(
-                title: 'Voucher Type',
-                value: selectedVchType,
-                items: vchTypes,
+                title: 'Delivery Note Voucher Type',
+                value: selectedDeliveryNoteVchType,
+                items: deliveryNoteVchTypes,
                 icon: Icons.receipt_long_outlined,
-                hint: 'Search and select voucher type',
-                  onSelected: (val) {
-                    closeKeyboard(context);
-                    setState(() {
-                      selectedVchType = val;
-                    });
+                hint: 'Search and select delivery note voucher type',
+                onSelected: (val) {
+                  closeKeyboard(context);
+                  setState(() {
+                    selectedDeliveryNoteVchType = val;
+                  });
+                },
+              ),
 
+              _searchableDropdownField(
+                title: 'Sales Voucher Type',
+                value: selectedSalesVchType,
+                items: salesVchTypes,
+                icon: Icons.point_of_sale_outlined,
+                hint: 'Search and select sales voucher type',
+                onSelected: (val) {
+                  closeKeyboard(context);
+                  setState(() {
+                    selectedSalesVchType = val;
+                  });
+                },
+              ),
 
-                  }
+              _searchableDropdownField(
+                title: 'Receipt Voucher Type',
+                value: selectedReceiptVchType,
+                items: receiptVchTypes,
+                icon: Icons.payments_outlined,
+                hint: 'Search and select receipt voucher type',
+                onSelected: (val) {
+                  closeKeyboard(context);
+                  setState(() {
+                    selectedReceiptVchType = val;
+                  });
+                },
               ),
               _searchableDropdownField(
                 title: 'Sales Ledger',

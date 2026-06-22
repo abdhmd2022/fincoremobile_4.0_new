@@ -37,14 +37,24 @@ class _ModifyVanAllocationScreenState
   String serial_no = "";
 
   String? selectedLocation;
-  String? selectedVchType;
+  String? selectedDeliveryNoteVchType;
+  String? selectedSalesVchType;
+  String? selectedReceiptVchType;
   String? selectedSalesLedger;
   String? selectedCashLedger;
 
   List<String> locations = [];
-  List<String> vchTypes = [];
+  List<String> deliveryNoteVchTypes = [];
+  List<String> salesVchTypes = [];
+  List<String> receiptVchTypes = [];
   List<String> salesLedgers = [];
   List<String> cashLedgers = [];
+
+  String? hostname = "",
+      company = "",
+      company_lowercase = "",
+      username = "",
+      base_currency = "";
 
   Widget _searchableDropdownField({
     required String title,
@@ -337,9 +347,16 @@ class _ModifyVanAllocationScreenState
     selectedLocation =
     widget.allocation['godown_name'];
 
-    selectedVchType =
+    selectedDeliveryNoteVchType =
     widget.allocation[
     'voucher_type_name'];
+
+    hostname = prefs.getString('hostname');
+    company = prefs.getString('company_name');
+    company_lowercase = company!.replaceAll(' ', '').toLowerCase();
+    selectedSalesVchType = widget.allocation['sales_voucher_type'];
+
+    selectedReceiptVchType = widget.allocation['receipt_voucher_type'];
 
     selectedSalesLedger =
     widget.allocation['sales_ledger'];
@@ -352,54 +369,157 @@ class _ModifyVanAllocationScreenState
 
   Future<void> fetchDropdownData() async {
     try {
-      final hostname =
-      await SharedPreferences.getInstance();
-
-      final company =
-      hostname.getString('company_name');
-
-      final company_lowercase = company!
-          .replaceAll(' ', '')
-          .toLowerCase();
-
-      final host =
-      hostname.getString('hostname');
-
       final response = await http.post(
         Uri.parse(
-          '$host/api/entry/getSpectra/$company_lowercase/$serial_no',
+          '$hostname/api/entry/getSpectra/$company/$serial_no',
         ),
         headers: {
-          'Authorization':
-          'Bearer $token',
-          'Content-Type':
-          'application/json',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          "type": "delivery note",
-        }),
+        body: jsonEncode({}),
       );
 
+      debugPrint("MODIFY DROPDOWN RESPONSE: ${response.body}");
+
       if (response.statusCode == 200) {
-        final data =
-        jsonDecode(response.body);
+        final data = jsonDecode(response.body);
 
-        locations = List<String>.from(
-          data['locations'] ?? [],
+        final allocationsUrl = Uri.parse(
+          '$BASE_URL_config/api/spectra/Allocations?serial_no=$serial_no&company_name=${widget.allocation['company_name']}',
         );
 
-        vchTypes = List<String>.from(
-          data['vchTypes'] ?? [],
+        final allocationResponse = await http.get(
+          allocationsUrl,
+          headers: {
+            'Authorization': 'Bearer $authTokenBase',
+            'Content-Type': 'application/json',
+          },
         );
 
-        salesLedgers =
-        List<String>.from(
-          data['salesLedgers'] ?? [],
-        );
+        final Set<String> allocatedLocations = {};
+        final Set<String> allocatedDeliveryNoteVchTypes = {};
+        final Set<String> allocatedSalesVchTypes = {};
+        final Set<String> allocatedReceiptVchTypes = {};
 
-        cashLedgers = List<String>.from(
-          data['cashLedgers'] ?? [],
-        );
+        final currentLocation =
+        widget.allocation['godown_name']?.toString().trim().toLowerCase();
+
+        final currentDeliveryNoteVchType =
+        widget.allocation['voucher_type_name']?.toString().trim().toLowerCase();
+
+        final currentSalesVchType =
+        widget.allocation['sales_voucher_type']?.toString().trim().toLowerCase();
+
+        final currentReceiptVchType =
+        widget.allocation['receipt_voucher_type']?.toString().trim().toLowerCase();
+
+        if (allocationResponse.statusCode == 200) {
+          final List<dynamic> allocationJsonList =
+          jsonDecode(allocationResponse.body);
+
+          for (final item in allocationJsonList) {
+            final map = item as Map<String, dynamic>;
+
+            final serialNo = map['serial_no']?.toString().trim();
+
+            if (serialNo == serial_no) {
+              final location =
+              map['godown_name']?.toString().trim().toLowerCase();
+
+              final deliveryNoteVchType =
+              map['voucher_type_name']?.toString().trim().toLowerCase();
+
+              final salesVchType =
+              map['sales_voucher_type']?.toString().trim().toLowerCase();
+
+              final receiptVchType =
+              map['receipt_voucher_type']?.toString().trim().toLowerCase();
+
+              if (location != null &&
+                  location.isNotEmpty &&
+                  location != currentLocation) {
+                allocatedLocations.add(location);
+              }
+
+              if (deliveryNoteVchType != null &&
+                  deliveryNoteVchType.isNotEmpty &&
+                  deliveryNoteVchType != currentDeliveryNoteVchType) {
+                allocatedDeliveryNoteVchTypes.add(deliveryNoteVchType);
+              }
+
+              if (salesVchType != null &&
+                  salesVchType.isNotEmpty &&
+                  salesVchType != currentSalesVchType) {
+                allocatedSalesVchTypes.add(salesVchType);
+              }
+
+              if (receiptVchType != null &&
+                  receiptVchType.isNotEmpty &&
+                  receiptVchType != currentReceiptVchType) {
+                allocatedReceiptVchTypes.add(receiptVchType);
+              }
+            }
+          }
+        }
+
+        debugPrint("Modify Allocated Locations: $allocatedLocations");
+        debugPrint("Modify Allocated Delivery Note: $allocatedDeliveryNoteVchTypes");
+        debugPrint("Modify Allocated Sales: $allocatedSalesVchTypes");
+        debugPrint("Modify Allocated Receipt: $allocatedReceiptVchTypes");
+
+        final List<dynamic> apiVchTypes = data['vchTypes'] ?? [];
+
+        List<String> getVchTypesByParent(String parentName) {
+          for (final item in apiVchTypes) {
+            final map = item as Map<String, dynamic>;
+
+            final parent =
+                map['parent']?.toString().trim().toLowerCase() ?? '';
+
+            if (parent == parentName.toLowerCase()) {
+              return List<String>.from(map['name'] ?? [])
+                  .where((vch) => vch.toString().trim().isNotEmpty)
+                  .toSet()
+                  .toList();
+            }
+          }
+
+          return [];
+        }
+
+        locations = List<String>.from(data['locations'] ?? [])
+            .where((location) {
+          final locationName = location.toString().trim().toLowerCase();
+
+          return locationName.isNotEmpty &&
+              !allocatedLocations.contains(locationName);
+        }).toSet().toList();
+
+        deliveryNoteVchTypes = getVchTypesByParent('delivery note')
+            .where((vch) {
+          final vchName = vch.toString().trim().toLowerCase();
+
+          return !allocatedDeliveryNoteVchTypes.contains(vchName);
+        }).toList();
+
+        salesVchTypes = getVchTypesByParent('sales')
+            .where((vch) {
+          final vchName = vch.toString().trim().toLowerCase();
+
+          return !allocatedSalesVchTypes.contains(vchName);
+        }).toList();
+
+        receiptVchTypes = getVchTypesByParent('receipt')
+            .where((vch) {
+          final vchName = vch.toString().trim().toLowerCase();
+
+          return !allocatedReceiptVchTypes.contains(vchName);
+        }).toList();
+
+        salesLedgers = List<String>.from(data['salesLedgers'] ?? []);
+
+        cashLedgers = List<String>.from(data['cashLedgers'] ?? []);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -445,7 +565,12 @@ class _ModifyVanAllocationScreenState
           selectedLocation,
 
           "voucher_type_name":
-          selectedVchType,
+          selectedDeliveryNoteVchType,
+
+
+          "sales_voucher_type": selectedSalesVchType,
+
+          "receipt_voucher_type": selectedReceiptVchType,
 
           "sales_ledger":
           selectedSalesLedger,
@@ -617,14 +742,44 @@ class _ModifyVanAllocationScreenState
                   height: 16),
 
               _searchableDropdownField(
-                title: 'Voucher Type',
-                value: selectedVchType,
-                items: vchTypes,
+                title: 'Delivery Note Voucher Type',
+                value: selectedDeliveryNoteVchType,
+                items: deliveryNoteVchTypes,
                 icon: Icons.receipt_long_outlined,
-                hint: 'Search and select voucher type',
+                hint: 'Search and select delivery note voucher type',
                 onSelected: (val) {
                   setState(() {
-                    selectedVchType = val;
+                    selectedDeliveryNoteVchType = val;
+                  });
+                },
+              ),
+
+              const SizedBox(height: 16),
+
+              _searchableDropdownField(
+                title: 'Sales Voucher Type',
+                value: selectedSalesVchType,
+                items: salesVchTypes,
+                icon: Icons.point_of_sale_outlined,
+                hint: 'Search and select sales voucher type',
+                onSelected: (val) {
+                  setState(() {
+                    selectedSalesVchType = val;
+                  });
+                },
+              ),
+
+              const SizedBox(height: 16),
+
+              _searchableDropdownField(
+                title: 'Receipt Voucher Type',
+                value: selectedReceiptVchType,
+                items: receiptVchTypes,
+                icon: Icons.receipt_outlined,
+                hint: 'Search and select receipt voucher type',
+                onSelected: (val) {
+                  setState(() {
+                    selectedReceiptVchType = val;
                   });
                 },
               ),

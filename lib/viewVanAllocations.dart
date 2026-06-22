@@ -33,6 +33,11 @@ class _ViewVanAllocationScreenState
   List<Map<String, dynamic>> allocations = [];
   List<Map<String, dynamic>> filteredAllocations = [];
 
+  dynamic serial_no="", company = "",
+      company_lowercase = "";
+
+  Set<int> expandedCards = {};
+
   @override
   void initState() {
     super.initState();
@@ -44,7 +49,9 @@ class _ViewVanAllocationScreenState
 
     hostname = prefs.getString('hostname') ?? '';
     token = prefs.getString('token') ?? '';
-
+    serial_no = prefs.getString('serial_no');
+    company = prefs.getString('company_name');
+    company_lowercase = company!.replaceAll(' ', '').toLowerCase();
     await fetchAllocations();
   }
 
@@ -54,16 +61,19 @@ class _ViewVanAllocationScreenState
         isLoading = true;
       });
 
+      var url = Uri.parse(
+        '$BASE_URL_config/api/spectra/allocations?serial_no=$serial_no&company_name=$company',
+      );
       final response = await http.get(
-        Uri.parse(
-          '$BASE_URL_config/api/spectra/Allocations',
-        ),
+        url,
         headers: {
           'Authorization': 'Bearer $authTokenBase',
           'Content-Type': 'application/json',
         },
       );
 
+      debugPrint(
+          "VIEW ALLOCATION URL: ${url}");
       debugPrint(
           "VIEW ALLOCATION RESPONSE: ${response.body}");
 
@@ -333,7 +343,7 @@ class _ViewVanAllocationScreenState
                     separatorBuilder: (_, __) => const SizedBox(height: 14),
                     itemBuilder: (context, index) {
                       final allocation = filteredAllocations[index];
-                      return _allocationCard(allocation);
+                      return _allocationCard(allocation, index);
                     },
                   ),
 
@@ -501,7 +511,7 @@ class _ViewVanAllocationScreenState
 
         Expanded(
           child: _statCard(
-            'Vans',
+            "Vehicle's",
             allocations
                 .map((e) =>
             e['godown_name'])
@@ -579,21 +589,20 @@ class _ViewVanAllocationScreenState
     );
   }
 
-  Widget _allocationCard(
-      Map<String, dynamic> allocation) {
+  Widget _allocationCard(Map<String, dynamic> allocation, int index) {
+    final bool isExpanded = expandedCards.contains(index);
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: _cardDecoration(),
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor:
-                primaryColor.withOpacity(0.12),
+                backgroundColor: primaryColor.withOpacity(0.12),
                 child: Icon(
                   Icons.person_outline,
                   color: primaryColor,
@@ -604,17 +613,13 @@ class _ViewVanAllocationScreenState
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      allocation['user_name'] ??
-                          '',
-                      style:
-                      GoogleFonts.poppins(
+                      allocation['user_name'] ?? '',
+                      style: GoogleFonts.poppins(
                         fontSize: 14,
-                        fontWeight:
-                        FontWeight.w700,
+                        fontWeight: FontWeight.w700,
                         color: textColor,
                       ),
                     ),
@@ -622,13 +627,10 @@ class _ViewVanAllocationScreenState
                     const SizedBox(height: 4),
 
                     Text(
-                      allocation['company_name'] ??
-                          '',
-                      style:
-                      GoogleFonts.poppins(
+                      allocation['godown_name'] ?? '',
+                      style: GoogleFonts.poppins(
                         fontSize: 11.5,
-                        color: Colors
-                            .grey.shade600,
+                        color: Colors.grey.shade600,
                       ),
                     ),
                   ],
@@ -637,9 +639,7 @@ class _ViewVanAllocationScreenState
 
               PopupMenuButton<String>(
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                  BorderRadius.circular(
-                      16),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 onSelected: (value) {
                   if (value == 'delete') {
@@ -657,12 +657,12 @@ class _ViewVanAllocationScreenState
                     );
                   }
                 },
-                itemBuilder: (_) => [
-                  const PopupMenuItem(
+                itemBuilder: (_) => const [
+                  PopupMenuItem(
                     value: 'edit',
                     child: Text('Modify'),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'delete',
                     child: Text('Delete'),
                   ),
@@ -671,7 +671,7 @@ class _ViewVanAllocationScreenState
             ],
           ),
 
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
 
           Wrap(
             spacing: 10,
@@ -679,60 +679,99 @@ class _ViewVanAllocationScreenState
             children: [
               _infoChip(
                 Icons.location_on_outlined,
-                allocation['godown_name'] ??
-                    '',
+                "Vehicle",
+                allocation['godown_name'] ?? '',
               ),
               _infoChip(
                 Icons.receipt_long_outlined,
-                allocation[
-                'voucher_type_name'] ??
-                    '',
-              ),
-              _infoChip(
-                Icons.account_balance_wallet_outlined,
-                allocation['sales_ledger'] ??
-                    '',
-              ),
-              _infoChip(
-                Icons.payments_outlined,
-                allocation['cash_ledger'] ??
-                    '',
+                'D/O Voucher',
+                allocation['voucher_type_name'] ?? '',
               ),
             ],
           ),
 
-          /*const SizedBox(height: 18),
+          AnimatedCrossFade(
+            firstChild: const SizedBox.shrink(),
+            secondChild: Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  _infoChip(
+                    Icons.point_of_sale_outlined,
+                    'Sales Voucher',
+                    allocation['sales_voucher_type'] ?? '',
+                  ),
+                  _infoChip(
+                    Icons.receipt_outlined,
+                    'Receipt Voucher',
+                    allocation['receipt_voucher_type'] ?? '',
+                  ),
+                  _infoChip(
+                    Icons.account_balance_wallet_outlined,
+                    'Sales Ledger',
+                    allocation['sales_ledger'] ?? '',
+                  ),
+                  _infoChip(
+                    Icons.payments_outlined,
+                    'Cash Ledger',
+                    allocation['cash_ledger'] ?? '',
+                  ),
+                ],
+              ),
+            ),
+            crossFadeState: isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 220),
+          ),
 
-          Row(
-            children: [
-              Expanded(
-                child: _actionButton(
-                  "Modify",
-                  Icons.edit_outlined,
-                  Colors.blue,
+          const SizedBox(height: 12),
+
+          Center(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () {
+                setState(() {
+                  if (isExpanded) {
+                    expandedCards.remove(index);
+                  } else {
+                    expandedCards.add(index);
+                  }
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      isExpanded ? 'View Less' : 'View More',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: primaryColor,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      isExpanded
+                          ? Icons.keyboard_arrow_up_rounded
+                          : Icons.keyboard_arrow_down_rounded,
+                      color: primaryColor,
+                      size: 20,
+                    ),
+                  ],
                 ),
               ),
-
-              const SizedBox(width: 10),
-
-              Expanded(
-                child: _actionButton(
-                  "Delete",
-                  Icons.delete_outline,
-                  Colors.red,
-                  onTap: () {
-                    showDeleteDialog(
-                      allocation
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),*/
+            ),
+          ),
         ],
       ),
     );
   }
+
 
   Widget _actionButton(
       String title,
@@ -781,36 +820,32 @@ class _ViewVanAllocationScreenState
     );
   }
 
-  Widget _infoChip(
-      IconData icon, String value) {
+  Widget _infoChip(IconData icon, String label, String value) {
     return Container(
-      padding:
-      const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius:
-        BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 16,
-            color: primaryColor,
-          ),
-
+          Icon(icon, size: 16, color: primaryColor),
           const SizedBox(width: 6),
-
           Text(
-            value,
+            '$label: ',
+            style: GoogleFonts.poppins(
+              fontSize: 10.5,
+              color: Colors.grey.shade600,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          Text(
+            value.isEmpty ? '-' : value,
             style: GoogleFonts.poppins(
               fontSize: 11.5,
-              fontWeight:
-              FontWeight.w500,
+              fontWeight: FontWeight.w700,
+              color: textColor,
             ),
           ),
         ],

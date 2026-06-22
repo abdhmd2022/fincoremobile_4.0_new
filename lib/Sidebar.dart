@@ -101,10 +101,10 @@ class Sidebar extends StatelessWidget {
       }
     }
 
-    debugPrint('Sidebar assignedGodown -> $assignedGodown');
+    /*debugPrint('Sidebar assignedGodown -> $assignedGodown');
     debugPrint('Sidebar is Van Sales -> ${vanSalesSerialNo.contains(serial_no.trim())}');
 
-    print('van allocation value - > $VanAllocationHolder');
+    print('van allocation value - > $VanAllocationHolder');*/
     password_prefs = prefs.getString('password') ?? '';
     isSalesEntryVisible = SalesEntryHolder == 'True';
     isReceiptEntryVisible = ReceiptEntryHolder == 'True';

@@ -60,6 +60,9 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
    String socketId = ''; // To store the socket ID.
    String? deviceIdentifier = '';
 
+   bool _showAllSerials = false;
+   bool _showAllCompanies = false;
+
    late IO.Socket socket;
    String? username_prefs ='',password_prefs = '';
 
@@ -72,6 +75,8 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
    late GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey;
 
    late String admin_email = "",allowed_user = "";
+
+   Map<String, Map<String, String>> companySyncInfo = {};
 
    bool _isVisibleCompany = false;
    dynamic _selectedserial,_selectcompany,_selectedadmin,_selectedrole;
@@ -109,6 +114,26 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
        'mailto:example@example.com?subject=License%20Expiry&body=My%20license%20is%20expiring%20soon.',
      );
    }*/
+
+   Future<void> loadCompanySyncInfo() async {
+     companySyncInfo.clear();
+
+     for (final company in myData_company) {
+       final companyName = company['company_name'].toString();
+
+       final result = await getCompanyLastSync(
+         context,
+         companyName,
+         serial_no,
+       );
+
+       companySyncInfo[companyName] = result;
+     }
+
+     if (mounted) {
+       setState(() {});
+     }
+   }
 
    void checkExpiryDate(String expiryDate, String serial_no) {
      final DateTime now = DateTime.now();
@@ -1046,7 +1071,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                   children: [
                     Flexible(
                       child: Text(
-                        "Fincore",
+                        "Fincore Go",
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -1074,240 +1099,42 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                             child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(24),
-                                      child: Stack(
+                                  Expanded(
+                                    child: SingleChildScrollView(
+                                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
+                                          _buildInfoHeader(),
 
-                                          // Card Content
-                                          Container(
-                                            width: double.infinity,
-                                            padding: EdgeInsets.all(20),
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(24),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: app_color.withOpacity(0.9),
-                                                  blurRadius: 1,
-                                                  offset: Offset(1, 1),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Icon(Icons.person_outline, size: 20, color: Colors.white),
-                                                    SizedBox(width: 10),
-                                                    Expanded(
-                                                      child: Text(
-                                                        admin_email,
-                                                        style: GoogleFonts.poppins(
-                                                          fontSize: 16,
-                                                          fontWeight: FontWeight.w600,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                SizedBox(height: 12),
-                                                Row(
-                                                  children: [
-                                                    Icon(Icons.group, size: 18, color: Colors.white),
-                                                    SizedBox(width: 8),
-                                                    Text(
-                                                      'Users Allowed: ',
-                                                      style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
-                                                    ),
-                                                    Text(
-                                                      '$allowed_user',
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 14,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                /*SizedBox(height: 6),
-                              Row(
-                                children: [
-                                  Icon(Icons.lock_clock, size: 18, color: Colors.white),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'License Expiry: ',
-                                    style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
-                                  ),
-                                  Text(
-                                    license_expiry_text,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: getExpiryColor(license_expiry), // ✅ dynamic color
-                                    ),
-                                  ),
+                                          const SizedBox(height: 18),
 
-                                ],
-                              ),*/
-                                              ],
-                                            ),
+                                          _buildSectionHeader(
+                                            title: "Serial Numbers",
+                                            count: myData.length,
+                                            icon: Icons.confirmation_number_outlined,
                                           ),
+
+                                          const SizedBox(height: 10),
+
+                                          _buildSerialList(),
+
+                                          const SizedBox(height: 22),
+
+                                          if (_isVisibleCompany) ...[
+                                            _buildSectionHeader(
+                                              title: "Companies",
+                                              count: myData_company.length,
+                                              icon: Icons.business_rounded,
+                                            ),
+
+                                            const SizedBox(height: 10),
+
+                                            _buildCompanyList(),
+                                          ],
                                         ],
                                       ),
                                     ),
-                                  ),
-
-
-
-
-                                  Container(
-                                      margin: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 20),
-                                      child: DropdownButtonFormField<dynamic>(
-                                          style: GoogleFonts.poppins(),
-                                          decoration: InputDecoration(
-                                            labelText: "Serial Number",
-                                            labelStyle: GoogleFonts.poppins(color: app_color),
-                                            prefixIcon: Icon(Icons.confirmation_number_outlined, color: app_color),
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(16),
-                                              borderSide: BorderSide(color: Colors.grey),
-                                            ),
-                                            focusedBorder: OutlineInputBorder( // 👈 selected/focused state border
-                                              borderRadius: BorderRadius.circular(16),
-                                              borderSide: BorderSide(
-                                                color: app_color, // your highlight color
-                                                width: 1.0,
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder( // 👈 default border
-                                              borderRadius: BorderRadius.circular(16),
-                                              borderSide: BorderSide(color: Colors.grey),
-                                            ),
-                                            fillColor: Colors.grey.shade50,
-                                            filled: true,
-
-                                          ),
-                                          hint: Text("Serial No",
-                                            style: GoogleFonts.poppins(fontSize: 13),
-                                          ),
-                                          value: _selectedserial,
-                                          items: myData.map((item) {
-                                            return DropdownMenuItem<dynamic>(
-                                                value: item,
-                                                child: Row(
-                                                    children: [
-                                                      SizedBox(width: 8),
-                                                      Text(item['serial_no'],
-                                                        style: GoogleFonts.poppins(
-                                                          color: Colors.black,
-                                                          fontWeight: item == _selectedserial
-                                                              ? FontWeight.bold
-                                                              : FontWeight.w500,
-                                                        ),),
-                                                    ]));
-                                          }).toList(),
-                                          onChanged: (value) async {
-                                            setState(() {
-                                              _selectedserial = value!;
-                                              // ✅ Update spectra allocations on serial change
-                                              if (_selectedserial['spectra_allocations'] != null) {
-                                                prefs.setString(
-                                                  'spectra_allocations',
-                                                  jsonEncode(_selectedserial['spectra_allocations']),
-                                                );
-                                              } else {
-                                                prefs.remove('spectra_allocations');
-                                              }
-
-                                              _isLoading = true;
-                                            });
-
-                                            Map<String, dynamic> selected_data = _selectedserial;
-                                            serial_no = selected_data['serial_no'] as String;
-                                            role_id = selected_data['role_id'].toString();
-                                            hostname = selected_data['website_url'] as String;
-                                            token = selected_data['token'].toString();
-
-                                            if (role_id == "0")
-                                            {
-                                              secbtnaccess = "True";
-                                            }
-                                            else
-                                            {
-                                              secbtnaccess = "False";
-                                            }
-                                            prefs.setString("hostname", hostname);
-                                            prefs.setString("secbtnaccess", secbtnaccess);
-                                            prefs.setString("serial_no", serial_no);
-
-                                            // _isLoading = false;
-                                            await getadmindata(serial_no);
-                                          })),
-
-                                  Visibility(
-                                      visible: _isVisibleCompany,
-                                      child : Expanded(
-                                          child: Container(
-                                              margin: EdgeInsets.only(left: 15, right: 10, top: 0, bottom: 20),
-                                              child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    Expanded(
-                                                      child: ListView.builder(
-                                                        itemCount: myData_company.length,
-                                                        itemBuilder: (BuildContext context, int index) {
-                                                          String firstThreeLetters = myData_company[index]["company_name"].substring(0, 3);
-                                                          return Card(
-                                                            elevation: 4,
-                                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                                            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                                            child: ListTile(
-                                                                tileColor: Colors.white,
-                                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                                                leading: CircleAvatar(
-                                                                  backgroundColor: app_color,
-
-                                                                  child: Text(firstThreeLetters, style: GoogleFonts.poppins(color: Colors.white70)),
-                                                                ),
-                                                                title: Text(myData_company[index]['company_name'], style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
-                                                                trailing: Icon(Icons.chevron_right, color: app_color),
-                                                                onTap: () async {
-
-                                                                  String lastsync = '';
-                                                                  String company_name = '';
-                                                                  print('click');
-                                                                  _selectcompany = myData_company[index];
-                                                                  company_name = _selectcompany['company_name'].toString();
-                                                                  Map<String, String> result = await getCompanyLastSync(context, company_name, serial_no);
-
-                                                                  lastsync = result['lastSync'] ?? "Not Available";
-                                                                  String trn = result['trn'].toString();
-                                                                  String address = result['address'].toString();
-                                                                  String emirate = result['emirate'].toString();
-                                                                  String country = result['country'].toString();
-
-                                                                  prefs.setString("company_trn", trn);
-                                                                  prefs.setString("company_address", address);
-                                                                  prefs.setString("company_emirate", emirate);
-                                                                  prefs.setString("company_country", country);
-
-                                                                  print("trn of $company_name is $trn");
-                                                                  print("address of $company_name is $address");
-                                                                  print("emirate of $company_name is $emirate");
-                                                                  print("country of $company_name is $country");
-                                                                  _showContinueDialog(context,company_name,lastsync);
-                                                                }
-                                                            ),
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ])))
                                   ),
 
                                 ])))),
@@ -1321,6 +1148,428 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
         return true;
       });
   }
+
+   Widget _buildInfoHeader() {
+     return Container(
+       width: double.infinity,
+       padding: const EdgeInsets.all(16),
+       decoration: BoxDecoration(
+         color: app_color.withOpacity(0.06),
+         borderRadius: BorderRadius.circular(22),
+         border: Border.all(color: app_color.withOpacity(0.12)),
+       ),
+       child: Row(
+         children: [
+           Container(
+             height: 44,
+             width: 44,
+             decoration: BoxDecoration(
+               color: app_color.withOpacity(0.12),
+               borderRadius: BorderRadius.circular(16),
+             ),
+             child: Icon(Icons.person_outline_rounded, color: app_color),
+           ),
+           const SizedBox(width: 12),
+           Expanded(
+             child: Column(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               children: [
+                 Text(
+                   admin_email.isEmpty ? "Account" : admin_email,
+                   maxLines: 1,
+                   overflow: TextOverflow.ellipsis,
+                   style: GoogleFonts.poppins(
+                     fontSize: 14.5,
+                     fontWeight: FontWeight.w600,
+                     color: Colors.black87,
+                   ),
+                 ),
+                 const SizedBox(height: 4),
+                 Text(
+                   "Users Allowed: $allowed_user",
+                   style: GoogleFonts.poppins(
+                     fontSize: 12.5,
+                     color: Colors.black54,
+                     fontWeight: FontWeight.w500,
+                   ),
+                 ),
+               ],
+             ),
+           ),
+         ],
+       ),
+     );
+   }
+
+   Widget _buildSectionHeader({
+     required String title,
+     required int count,
+     required IconData icon,
+   }) {
+     return Row(
+       children: [
+         Icon(icon, size: 18, color: app_color),
+         const SizedBox(width: 8),
+         Text(
+           title,
+           style: GoogleFonts.poppins(
+             fontSize: 15,
+             fontWeight: FontWeight.w700,
+             color: Colors.black87,
+           ),
+         ),
+         const SizedBox(width: 8),
+         Container(
+           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+           decoration: BoxDecoration(
+             color: app_color.withOpacity(0.08),
+             borderRadius: BorderRadius.circular(20),
+           ),
+           child: Text(
+             "$count",
+             style: GoogleFonts.poppins(
+               fontSize: 11,
+               fontWeight: FontWeight.w600,
+               color: app_color,
+             ),
+           ),
+         ),
+       ],
+     );
+   }
+
+   Widget _buildSerialList() {
+     final visibleSerials =
+     _showAllSerials ? myData : myData.take(3).toList();
+
+     return Column(
+       children: [
+         ...visibleSerials.map((item) {
+           final bool isSelected = item == _selectedserial;
+           final serialText = item['serial_no']?.toString() ?? '';
+
+           return InkWell(
+             borderRadius: BorderRadius.circular(18),
+             onTap: () async {
+               await _selectSerialItem(item);
+             },
+             child: AnimatedContainer(
+               duration: const Duration(milliseconds: 220),
+               margin: const EdgeInsets.only(bottom: 10),
+               padding: const EdgeInsets.all(14),
+               decoration: BoxDecoration(
+                 color: isSelected ? app_color.withOpacity(0.08) : Colors.grey.shade50,
+                 borderRadius: BorderRadius.circular(18),
+                 border: Border.all(
+                   color: isSelected ? app_color : Colors.grey.shade200,
+                   width: isSelected ? 1.4 : 1,
+                 ),
+               ),
+               child: Row(
+                 children: [
+                   Container(
+                     height: 38,
+                     width: 38,
+                     decoration: BoxDecoration(
+                       color: isSelected ? app_color : Colors.white,
+                       borderRadius: BorderRadius.circular(14),
+                       border: Border.all(
+                         color: isSelected ? app_color : Colors.grey.shade200,
+                       ),
+                     ),
+                     child: Icon(
+                       Icons.qr_code_2_rounded,
+                       size: 20,
+                       color: isSelected ? Colors.white : app_color,
+                     ),
+                   ),
+                   const SizedBox(width: 12),
+                   Expanded(
+                     child: Text(
+                       serialText,
+                       maxLines: 1,
+                       overflow: TextOverflow.ellipsis,
+                       style: GoogleFonts.poppins(
+                         fontSize: 14,
+                         fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                         color: Colors.black87,
+                       ),
+                     ),
+                   ),
+                   if (isSelected)
+                     Icon(Icons.check_circle_rounded, color: app_color, size: 21),
+                 ],
+               ),
+             ),
+           );
+         }).toList(),
+
+         if (myData.length > 3)
+           _buildViewMoreButton(
+             expanded: _showAllSerials,
+             onTap: () {
+               setState(() {
+                 _showAllSerials = !_showAllSerials;
+               });
+             },
+           ),
+       ],
+     );
+   }
+
+   Widget _buildCompanyList() {
+     final visibleCompanies =
+     _showAllCompanies ? myData_company : myData_company.take(3).toList();
+
+     return Column(
+       children: [
+         ...visibleCompanies.map((item) {
+           final companyName = item['company_name']?.toString() ?? '';
+           final firstLetters = companyName.length >= 2
+               ? companyName.substring(0, 2).toUpperCase()
+               : companyName.toUpperCase();
+
+           final syncData = companySyncInfo[companyName];
+           final lastSync = syncData?['lastSync'] ?? "Loading...";
+           final trn = syncData?['trn'] ?? "";
+
+           return InkWell(
+             borderRadius: BorderRadius.circular(18),
+             onTap: () async {
+               await _continueWithCompanyDirect(item);
+             },
+             child: Container(
+               margin: const EdgeInsets.only(bottom: 10),
+               padding: const EdgeInsets.all(14),
+               decoration: BoxDecoration(
+                 color: Colors.white,
+                 borderRadius: BorderRadius.circular(18),
+                 border: Border.all(color: Colors.grey.shade200),
+               ),
+               child: Row(
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+                   Container(
+                     height: 42,
+                     width: 42,
+                     alignment: Alignment.center,
+                     decoration: BoxDecoration(
+                       color: app_color.withOpacity(0.09),
+                       borderRadius: BorderRadius.circular(14),
+                     ),
+                     child: Text(
+                       firstLetters,
+                       style: GoogleFonts.poppins(
+                         color: app_color,
+                         fontWeight: FontWeight.w700,
+                         fontSize: 12,
+                       ),
+                     ),
+                   ),
+
+                   const SizedBox(width: 12),
+
+                   Expanded(
+                     child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         Text(
+                           companyName,
+                           maxLines: 2,
+                           overflow: TextOverflow.ellipsis,
+                           style: GoogleFonts.poppins(
+                             fontSize: 13.5,
+                             fontWeight: FontWeight.w700,
+                             color: Colors.black87,
+                           ),
+                         ),
+
+                         const SizedBox(height: 8),
+
+                         Row(
+                           children: [
+                             Icon(
+                               Icons.sync_rounded,
+                               size: 15,
+                               color: lastSync == "Loading..."
+                                   ? Colors.orange
+                                   : Colors.green,
+                             ),
+                             const SizedBox(width: 5),
+                             Expanded(
+                               child: Text(
+                                 "Last Sync: $lastSync",
+                                 maxLines: 1,
+                                 overflow: TextOverflow.ellipsis,
+                                 style: GoogleFonts.poppins(
+                                   fontSize: 11.5,
+                                   fontWeight: FontWeight.w500,
+                                   color: Colors.black54,
+                                 ),
+                               ),
+                             ),
+                           ],
+                         ),
+
+                         /*if (trn.isNotEmpty &&
+                             trn != "Not Available" &&
+                             trn != "null") ...[
+                           const SizedBox(height: 5),
+                           Row(
+                             children: [
+                               Icon(
+                                 Icons.receipt_long_outlined,
+                                 size: 14,
+                                 color: Colors.black45,
+                               ),
+                               const SizedBox(width: 5),
+                               Expanded(
+                                 child: Text(
+                                   "TRN: $trn",
+                                   maxLines: 1,
+                                   overflow: TextOverflow.ellipsis,
+                                   style: GoogleFonts.poppins(
+                                     fontSize: 11.3,
+                                     fontWeight: FontWeight.w500,
+                                     color: Colors.black45,
+                                   ),
+                                 ),
+                               ),
+                             ],
+                           ),
+                         ],*/
+                       ],
+                     ),
+                   ),
+
+                   const SizedBox(width: 8),
+
+                   Icon(
+                     Icons.arrow_forward_ios_rounded,
+                     size: 15,
+                     color: app_color,
+                   ),
+                 ],
+               ),
+             ),
+           );
+         }).toList(),
+
+         if (myData_company.length > 3)
+           _buildViewMoreButton(
+             expanded: _showAllCompanies,
+             onTap: () {
+               setState(() {
+                 _showAllCompanies = !_showAllCompanies;
+               });
+             },
+           ),
+       ],
+     );
+   }
+
+   Future<void> _selectSerialItem(dynamic value) async {
+     setState(() {
+       _selectedserial = value;
+       _showAllCompanies = false;
+
+       if (_selectedserial['spectra_allocations'] != null) {
+         prefs.setString(
+           'spectra_allocations',
+           jsonEncode(_selectedserial['spectra_allocations']),
+         );
+       } else {
+         prefs.remove('spectra_allocations');
+       }
+
+       _isLoading = true;
+     });
+
+     Map<String, dynamic> selectedData = _selectedserial;
+
+     serial_no = selectedData['serial_no'] as String;
+     role_id = selectedData['role_id'].toString();
+     hostname = selectedData['website_url'] as String;
+     token = selectedData['token'].toString();
+
+     secbtnaccess = role_id == "0" ? "True" : "False";
+
+     prefs.setString("hostname", hostname);
+     prefs.setString("secbtnaccess", secbtnaccess);
+     prefs.setString("serial_no", serial_no);
+
+     await getadmindata(serial_no);
+   }
+
+   Future<void> _continueWithCompanyDirect(dynamic companyItem) async {
+     _selectcompany = companyItem;
+
+     final companyName = _selectcompany['company_name'].toString();
+
+     final syncData = companySyncInfo[companyName] ??
+         await getCompanyLastSync(context, companyName, serial_no);
+
+     startfrom = _selectcompany['startfrom'].toString();
+     currency = _selectcompany['base_currency'].toString();
+
+     prefs.setString("company_name", normalizeCompany(companyName));
+     prefs.setString("startfrom", startfrom);
+     prefs.setString("serial_no", serial_no);
+     prefs.setString("base_currency", currency);
+
+     prefs.setString("company_trn", syncData['trn'] ?? "");
+     prefs.setString("company_address", syncData['address'] ?? "");
+     prefs.setString("company_emirate", syncData['emirate'] ?? "");
+     prefs.setString("company_country", syncData['country'] ?? "");
+
+     if (secbtnaccess == "True") {
+       for (String key in [
+         "salesdash", "purchasedash", "barchartdash", "linechartdash", "piechartdash",
+         "salesentry", "receiptentry", "salesorderentry", "outstandingreceivabledash",
+         "outstandingpayabledash", "cashdash", "receiptsdash", "paymentsdash", "allitems",
+         "activeitems", "inactiveitems", "rate", "item_amount", "item_sales",
+         "item_purchase", "salesparty", "purchaseparty", "creditnoteparty", "journalparty",
+         "payableparty", "pendingpurchaseorderparty", "receiptparty", "paymentparty",
+         "debitnoteparty", "receivableparty", "pendingsalesorderparty", "party_suppliers",
+         "party_customers", "ledgerentries", "inventoryentries", "postdatedtransactions",
+         "billsentries", "costcentreentries", "vanallocation", "deliverynoteentry"
+       ]) {
+         prefs.setString(key, "True");
+       }
+
+       Navigator.pushReplacement(
+         context,
+         MaterialPageRoute(builder: (context) => Dashboard()),
+       );
+     } else {
+       await getroledata(context, serial_no, role_id);
+     }
+   }
+   Widget _buildViewMoreButton({
+     required bool expanded,
+     required VoidCallback onTap,
+   }) {
+     return Align(
+       alignment: Alignment.center,
+       child: TextButton.icon(
+         onPressed: onTap,
+         icon: Icon(
+           expanded
+               ? Icons.keyboard_arrow_up_rounded
+               : Icons.keyboard_arrow_down_rounded,
+           color: app_color,
+         ),
+         label: Text(
+           expanded ? "View less" : "View more",
+           style: GoogleFonts.poppins(
+             color: app_color,
+             fontWeight: FontWeight.w600,
+             fontSize: 13,
+           ),
+         ),
+       ),
+     );
+   }
 
   Future<void> fetchSerial() async {
     prefs = await SharedPreferences.getInstance();
@@ -1502,12 +1751,12 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
             prefs.setString("costcentreentries", CostCentreEntriesHolder);
 
 
-        Fluttertoast.showToast(
+        /*Fluttertoast.showToast(
           msg: "Auto-login to $company_name (Serial: $serial_no)",
           backgroundColor: Colors.black87,
           textColor: Colors.white,
           fontSize: 14.0,
-        );
+        );*/
 
         // ✅ Fade transition to Dashboard
         if (mounted) {
@@ -1708,6 +1957,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
 
            _selectcompany = myData_company.first;
          });
+         await loadCompanySyncInfo();
 
          // ✅ Auto-navigate when single serial + single company
          if (myData.length == 1 && myData_company.length == 1) {
@@ -1824,6 +2074,8 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
              _isVisibleCompany = true;
              _selectcompany = myData_company.first;
            });
+
+           await loadCompanySyncInfo();
 
            // ✅ Auto-prompt to Dashboard if only one serial + one company
            if (myData.length == 1 && myData_company.length == 1) {

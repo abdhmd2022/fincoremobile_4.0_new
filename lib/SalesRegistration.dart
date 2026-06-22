@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:FincoreGo/Items.dart';
 import 'package:FincoreGo/PendingSalesEntry.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -118,6 +119,21 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
   TextEditingController _itemController = TextEditingController();
   TextEditingController _partyLedgerController = TextEditingController();
 
+  String? selectedPartyLedgerPriceLevel;
+  String? selectedItemMasterId;
+
+  bool isPriceLevelLoading = false;
+  bool isRateFieldEnabled = true;
+  bool showRateField = true;
+
+  bool isVoucherTypeLocked = false;
+  bool isSalesLedgerLocked = false;
+
+  String startfrom = '';
+
+
+  Map<String, String?> partyLedgerPriceLevelMap = {};
+
   double ledgerVatAmount = 0,
          itemsVatAmount = 0,
          totalVatAmount = 0,
@@ -129,6 +145,214 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
   late AnimationController _animationController;
   late Animation<double> _animation;
 
+
+  void resetItemDialogFields() {
+    _selecteditem = null;
+    selectedItemMasterId = null;
+    _selectedunit = null;
+
+    _itemController.clear();
+    itemQuantityController.clear();
+    itemRateController.clear();
+    itemAmountController.clear();
+
+    selectedMultiplier = 0.0;
+    selectedLocation = '';
+
+    isVisibleLocation = false;
+    isVisibleUnit = false;
+    isPriceLevelLoading = false;
+    isRateFieldEnabled = true;
+
+  }
+
+  InputDecoration _inputDecoration({
+    required String label,
+    required IconData icon,
+    required List<Color> gradientColors,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: GoogleFonts.poppins(
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+        color: Colors.grey[700],
+      ),
+      prefixIcon: Container(
+        margin: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: gradientColors),
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+        ),
+        child: Icon(icon, color: Colors.white),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Colors.grey.shade400),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: app_color, width: 1.5),
+      ),
+    );
+  }
+
+  InputDecoration _currencyDecoration({
+    required String label,
+    required bool enabled,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      filled: !enabled,
+      fillColor: !enabled ? Colors.grey.shade100 : null,
+      labelStyle: GoogleFonts.poppins(
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+        color: enabled ? Colors.grey[700] : Colors.grey[500],
+      ),
+      prefix: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: enabled
+                ? const [Colors.blue, Colors.blue]
+                : const [Colors.grey, Colors.grey],
+          ),
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+        ),
+        child: Text(
+          getCurrencySymbol(currencycode),
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Colors.grey.shade400),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: app_color, width: 1.5),
+      ),
+    );
+  }
+
+  Future<void> fetchPriceLevelDetailsForSelectedItem(StateSetter setStateDialog) async {
+    if (serial_no == null ||
+        serial_no!.trim().isEmpty ||
+        !vanSalesSerialNo.contains(serial_no!.trim())) {
+      return;
+    }
+
+    if (selectedItemMasterId == null || selectedItemMasterId!.trim().isEmpty) {
+      debugPrint('Price level API skipped: selected item masterid is null/empty');
+      return;
+    }
+
+    if (selectedPartyLedgerPriceLevel == null ||
+        selectedPartyLedgerPriceLevel.toString().trim().isEmpty) {
+      setStateDialog(() {
+        isRateFieldEnabled = true;
+        showRateField = true;
+      });
+      return;
+    }
+
+    setStateDialog(() {
+      isPriceLevelLoading = true;
+    });
+
+    try {
+      final String selectedDate = saledatestring.isNotEmpty
+          ? saledatestring
+          : DateFormat('yyyyMMdd').format(DateTime.now());
+
+      final Uri url = Uri.parse(
+        '$hostname/api/item/getPriceLevelDetails/$company_lowercase/$serial_no',
+      ).replace(
+        queryParameters: {
+          'date': selectedDate,
+          'itemId': selectedItemMasterId!,
+          'name': selectedPartyLedgerPriceLevel!,
+        },
+      );
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final decodedResponse = jsonDecode(response.body);
+
+        if (decodedResponse is List && decodedResponse.isNotEmpty) {
+          final Map<String, dynamic> priceData =
+          Map<String, dynamic>.from(decodedResponse.first);
+
+          final double apiRate =
+              double.tryParse(priceData['rate']?.toString() ?? '0') ?? 0.0;
+
+          final double qty = double.tryParse(
+            itemQuantityController.text.trim().isEmpty
+                ? '1'
+                : itemQuantityController.text.trim(),
+          ) ??
+              1.0;
+
+          final double amount = apiRate * qty;
+
+          setStateDialog(() {
+            itemRateController.text = apiRate.toStringAsFixed(decimal ?? 2);
+            itemAmountController.text = amount.toStringAsFixed(decimal ?? 2);
+            isRateFieldEnabled = false;
+            showRateField = true;
+          });
+        } else {
+          setStateDialog(() {
+            itemRateController.clear();
+            itemAmountController.clear();
+            isRateFieldEnabled = true;
+            showRateField = true;
+          });
+        }
+      } else {
+        setStateDialog(() {
+          isRateFieldEnabled = true;
+          showRateField = true;
+        });
+      }
+    } catch (e) {
+      setStateDialog(() {
+        isRateFieldEnabled = true;
+        showRateField = true;
+      });
+    } finally {
+      setStateDialog(() {
+        isPriceLevelLoading = false;
+      });
+    }
+  }
 
   void _deleteLedger(int index) {
     setState(() {
@@ -2171,11 +2395,11 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       refdatestring = _dateFormat.format(refdate);
       refdatetxt = formatlastsaledate(refdatestring);
       _refdateController.text = refdatetxt;
-      _selectedvchtypename = vchtypenamedata[0];
+      // _selectedvchtypename = vchtypenamedata[0];
       fetchvchnos(_selectedvchtypename);
-      _selectedpartyledger = partyledgerdata[0];
-
-      _selectedsalesledger = salesledger_data[0];
+      _selectedpartyledger = null;
+      _partyLedgerController.clear();
+      // _selectedsalesledger = salesledger_data[0];
 
       _selectedledger = ledgerdata.isNotEmpty ? ledgerdata[0]['name'] : null;
 
@@ -2786,11 +3010,11 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                             refdatetxt = formatlastsaledate(refdatestring);
                             _refdateController.text = refdatetxt;
 
-                            _selectedvchtypename = vchtypenamedata[0];
+                            //_selectedvchtypename = vchtypenamedata[0];
                             fetchvchnos(_selectedvchtypename);
-                            _selectedpartyledger = partyledgerdata[0];
-                            _partyLedgerController.text = _selectedpartyledger;
-                            _selectedsalesledger = salesledger_data[0];
+                            _selectedpartyledger = null;
+                            _partyLedgerController.clear();
+                            // _selectedsalesledger = salesledger_data[0];
                             _selectedledger = ledgerdata.isNotEmpty ? ledgerdata[0]['name'] : null;
                             _selectedvatledger = vatledgerdata[0];
                             _selecteditem = '${itemdata[0]['name']}';
@@ -2907,6 +3131,288 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       _isLoading = true;
     });
 
+    try {
+      final url = Uri.parse(HttpURL_loadData!);
+
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
+      };
+
+      final String currentSerialNo = serial_no?.trim() ?? '';
+      final bool isUniGasSerial = vanSalesSerialNo.contains(currentSerialNo);
+
+      String godownName = '';
+      String? allocationString = prefs.getString('spectra_allocations');
+
+      if (isUniGasSerial &&
+          allocationString != null &&
+          allocationString.isNotEmpty) {
+        try {
+          List<dynamic> allocations = jsonDecode(allocationString);
+
+          if (allocations.isNotEmpty) {
+            godownName = allocations.first['godown']?.toString() ?? '';
+          }
+        } catch (e) {
+          debugPrint('allocation decode error -> $e');
+        }
+      }
+
+      var body = jsonEncode({
+        "type": "sales",
+        if (isUniGasSerial && godownName.isNotEmpty)
+          "godownName": godownName,
+      });
+
+      debugPrint('sales loadData serial_no -> $currentSerialNo');
+      debugPrint('sales loadData isUniGasSerial -> $isUniGasSerial');
+      debugPrint('sales loadData godownName -> $godownName');
+      debugPrint('sales loadData body -> $body');
+
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+
+        debugPrint('sales loadData response -> $jsonResponse');
+
+        setState(() {
+          vchtypenamedata = List<String>.from(
+            (jsonResponse["vchTypes"] ?? [])
+                .where((e) => e != null)
+                .map((e) => e.toString()),
+          );
+
+          _selectedvchtypename =
+          vchtypenamedata.isNotEmpty ? vchtypenamedata[0] : null;
+
+
+
+          if (vanSalesSerialNo.contains(currentSerialNo)) {
+            partyledgerdata.clear();
+            partyLedgerPriceLevelMap.clear();
+
+            for (var ledger in (jsonResponse["partyLedgers"] ?? [])) {
+              if (ledger == null) continue;
+
+              final String ledgerName =
+                  ledger['name']?.toString().trim() ?? '';
+
+              final dynamic rawPriceLevel = ledger['price_level'];
+
+              final String? priceLevel = rawPriceLevel == null ||
+                  rawPriceLevel.toString().trim().isEmpty ||
+                  rawPriceLevel.toString().trim().toLowerCase() == 'null'
+                  ? null
+                  : rawPriceLevel.toString().trim();
+
+              if (ledgerName.isEmpty) continue;
+
+              if (!partyledgerdata.contains(ledgerName)) {
+                partyledgerdata.add(ledgerName);
+              }
+
+              partyLedgerPriceLevelMap[ledgerName] = priceLevel;
+            }
+          }
+          else {
+            partyledgerdata = List<String>.from(
+              (jsonResponse["partyLedgers"] ?? [])
+                  .where((e) => e != null)
+                  .map((e) => e.toString()),
+            );
+          }
+
+          // _selectedpartyledger = partyledgerdata.isNotEmpty ? partyledgerdata[0] : null;
+
+          // _partyLedgerController.text = _selectedpartyledger ?? '';
+
+
+
+          salesledger_data = List<String>.from(
+            (jsonResponse["salesLedgers"] ?? [])
+                .where((e) => e != null)
+                .map((e) => e.toString()),
+          );
+
+          _selectedsalesledger =
+          salesledger_data.isNotEmpty ? salesledger_data[0] : null;
+
+          if (allocationString != null &&
+              allocationString.isNotEmpty) {
+
+            List<dynamic> allocations =
+            jsonDecode(allocationString);
+
+            if (allocations.isNotEmpty) {
+
+              final allocation =
+              allocations.first as Map<String, dynamic>;
+
+              final savedSalesLedger =
+              allocation['sales_ledger']?.toString();
+
+              if (savedSalesLedger != null &&
+                  savedSalesLedger.isNotEmpty &&
+                  salesledger_data.contains(savedSalesLedger)) {
+
+                _selectedsalesledger = savedSalesLedger;
+
+                // LOCK DROPDOWN
+                isSalesLedgerLocked = true;
+
+              } else if (salesledger_data.isNotEmpty) {
+
+                _selectedsalesledger = salesledger_data[0];
+
+                isSalesLedgerLocked = false;
+              }
+            }
+          }
+          else if (salesledger_data.isNotEmpty) {
+
+            _selectedsalesledger = salesledger_data[0];
+
+            isSalesLedgerLocked = false;
+          }
+
+          ledgerdata = List<Map<String, dynamic>>.from(
+            jsonResponse['otherLedgers'] ?? [],
+          );
+
+          _selectedledger =
+          ledgerdata.isNotEmpty ? ledgerdata[0]['name'] : null;
+
+          vatledgerdata.add('Not Applicable');
+          vatledgerdata.addAll(
+            List<String>.from(
+              (jsonResponse["vatLedgers"] ?? [])
+                  .where((e) => e != null)
+                  .map((e) => e.toString()),
+            ),
+          );
+
+          _selectedvatledger =
+          vatledgerdata.isNotEmpty ? vatledgerdata[0] : null;
+
+          itemdata = jsonResponse["items"] ?? [];
+
+          if (itemdata.isNotEmpty) {
+            _selecteditem = '${itemdata[0]['name']}';
+            _itemController.text = _selecteditem;
+            _updateUnitDropdown(_selecteditem);
+          }
+
+          locationsdata = List<String>.from(
+            (jsonResponse['locations'] ?? [])
+                .where((e) => e != null)
+                .map((e) => e.toString()),
+          );
+
+          if (locationsdata.isNotEmpty) {
+            selectedLocation = locationsdata[0];
+            isVisibleLocation = true;
+          } else {
+            isVisibleLocation = false;
+          }
+
+          if (isUniGasSerial &&
+              godownName.isNotEmpty &&
+              locationsdata.contains(godownName)) {
+            selectedLocation = godownName;
+            isVisibleLocation = true;
+          }
+
+          if (allocationString != null) {
+            List<dynamic> allocations = jsonDecode(allocationString);
+
+            if (allocations.isNotEmpty) {
+              final allocation = allocations.first;
+
+              // GODOWN
+              if (allocation['godown'] != null &&
+                  locationsdata.contains(allocation['godown'])) {
+                selectedLocation = allocation['godown'];
+
+                isVisibleLocation = true;
+
+              }
+
+              // SALES LEDGER
+              /*if (allocation['sales_ledger'] != null &&
+            salesledger_data.contains(allocation['sales_ledger'])) {
+          _selectedsalesledger = allocation['sales_ledger'];
+        }*/
+
+              // VOUCHER TYPE
+              final savedVoucherType =
+              allocation['sales_voucher_type']?.toString();
+
+              if (savedVoucherType != null &&
+                  savedVoucherType.isNotEmpty &&
+                  vchtypenamedata.contains(savedVoucherType)) {
+
+                _selectedvchtypename = savedVoucherType;
+
+                isVoucherTypeLocked = true;
+
+                // optional if your app fetches voucher numbers on selection
+                fetchvchnos(_selectedvchtypename);
+
+              } else if (vchtypenamedata.isNotEmpty) {
+
+                _selectedvchtypename = vchtypenamedata[0];
+
+                isVoucherTypeLocked = false;
+
+                fetchvchnos(_selectedvchtypename);
+              }
+
+              setState(() {});
+            }
+          }
+
+        });
+      } else {
+        Map<String, dynamic> data = json.decode(response.body);
+        String error = '';
+
+        if (data.containsKey('error')) {
+          error = data['error'];
+        } else {
+          error = 'Something went wrong!!!';
+        }
+
+        Fluttertoast.showToast(msg: error);
+      }
+    } catch (e) {
+      print(e);
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  /*Future<void> loadData() async {
+    vchtypenamedata.clear();
+    itemdata.clear();
+    salesledger_data.clear();
+    partyledgerdata.clear();
+    vatledgerdata.clear();
+
+    ledgerdata.clear();
+    locationsdata.clear();
+
+    setState(() {
+      _isLoading = true;
+    });
+
     // vchtype fetching
     try {
       final url = Uri.parse(HttpURL_loadData!);
@@ -2925,12 +3431,53 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
 
-        /*print(response.body);*/
+        *//*print(response.body);*//*
         setState(() {
           vchtypenamedata = jsonResponse["vchTypes"].cast<String>();
           _selectedvchtypename = vchtypenamedata[0];
           fetchvchnos(_selectedvchtypename);
-          partyledgerdata = jsonResponse["partyLedgers"].cast<String>();
+
+
+          final String currentSerialNo = serial_no?.trim() ?? '';
+
+          if (vanSalesSerialNo.contains(currentSerialNo)) {
+            partyledgerdata.clear();
+            partyLedgerPriceLevelMap.clear();
+
+            for (var ledger in (jsonResponse["partyLedgers"] ?? [])) {
+              if (ledger == null) continue;
+
+              final String ledgerName = ledger['name']?.toString().trim() ?? '';
+              final dynamic rawPriceLevel = ledger['price_level'];
+
+              final String? priceLevel = rawPriceLevel == null ||
+                  rawPriceLevel.toString().trim().isEmpty ||
+                  rawPriceLevel.toString().trim().toLowerCase() == 'null'
+                  ? null
+                  : rawPriceLevel.toString().trim();
+
+              if (ledgerName.isEmpty) continue;
+
+              if (!partyledgerdata.contains(ledgerName)) {
+                partyledgerdata.add(ledgerName);
+              }
+
+              partyLedgerPriceLevelMap[ledgerName] = priceLevel;
+            }
+          } else {
+            partyledgerdata = List<String>.from(
+              (jsonResponse["partyLedgers"] ?? [])
+                  .where((e) => e != null)
+                  .map((e) => e.toString()),
+            );
+          }
+
+          _selectedpartyledger = partyledgerdata.isNotEmpty ? partyledgerdata[0] : null;
+          _partyLedgerController.text = _selectedpartyledger ?? '';
+          selectedPartyLedgerPriceLevel =
+          partyLedgerPriceLevelMap[_selectedpartyledger];
+
+
           _selectedpartyledger = partyledgerdata[0];
           _partyLedgerController.text = _selectedpartyledger;
 
@@ -2991,7 +3538,49 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
     setState(() {
       _isLoading = false;
     });
-  }
+
+    if (allocationString != null && allocationString.isNotEmpty) {
+      List<dynamic> allocations = jsonDecode(allocationString);
+
+      if (allocations.isNotEmpty) {
+        final allocation = allocations.first as Map<String, dynamic>;
+
+        final savedSalesLedger = allocation['sales_ledger']?.toString();
+
+        if (savedSalesLedger != null &&
+            savedSalesLedger.isNotEmpty &&
+            salesledger_data.contains(savedSalesLedger)) {
+          _selectedsalesledger = savedSalesLedger;
+          isSalesLedgerLocked = true;
+        } else if (salesledger_data.isNotEmpty) {
+          _selectedsalesledger = salesledger_data[0];
+          isSalesLedgerLocked = false;
+        }
+
+        if (allocation['godown'] != null &&
+            locationsdata.contains(allocation['godown'])) {
+          selectedLocation = allocation['godown'];
+          isVisibleLocation = true;
+        }
+
+        final savedVoucherType = allocation['voucher_type']?.toString();
+
+        if (savedVoucherType != null &&
+            savedVoucherType.isNotEmpty &&
+            vchtypenamedata.contains(savedVoucherType)) {
+          _selectedvchtypename = savedVoucherType;
+          isVoucherTypeLocked = true;
+          fetchvchnos(_selectedvchtypename);
+        } else if (vchtypenamedata.isNotEmpty) {
+          _selectedvchtypename = vchtypenamedata[0];
+          isVoucherTypeLocked = false;
+          fetchvchnos(_selectedvchtypename);
+        }
+
+        setState(() {});
+      }
+    }
+  }*/
 
   Future<void> loadLedgerData() async {
 
@@ -3072,7 +3661,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
   Future<void> fetchvchnos(String vchname) async {
 
     // Format the dates as yyyyMMdd
-    String formattedStartDateVchNo = DateFormat('yyyyMMdd').format(yearStartDate);
+    String formattedStartDateVchNo = startfrom;
     String formattedEndDateVchNo = DateFormat('yyyyMMdd').format(yearEndDate);
 
     vchnos.clear();
@@ -3095,6 +3684,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
         "vchname" : vchname,
       };
 
+      debugPrint('body vch no -> $jsonDatabody');
+
       String jsonDatabodyString = jsonEncode(jsonDatabody);
 
       var body =jsonDatabodyString;
@@ -3108,7 +3699,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       if (response.statusCode == 200)
       {
         /*print(response.body);*/
-      /*  setState(() {
+        /*  setState(() {
           final Map<String, dynamic> jsonResponse = json.decode(response.body);
 
           final List<dynamic> vchnosJson = jsonResponse['vchnos'];
@@ -3124,7 +3715,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
           final Map<String, dynamic> jsonResponse = json.decode(response.body);
           final List<dynamic> vchnosJson = jsonResponse['vchnos'];
 
-         print(response.body);
+          print(response.body);
           vchnos = vchnosJson.cast<String>();
 
           // SORT first
@@ -3134,6 +3725,9 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
             int numB = int.tryParse(regExp.firstMatch(b)?.group(0) ?? '0') ?? 0;
             return numA.compareTo(numB);
           });
+
+          debugPrint(' vch nos from api -> $vchnos');
+
 
           // GENERATE NEXT
           String nextVch = generateNextVchNo(vchnos);
@@ -3729,81 +4323,83 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
   }*/
 
   Future<void> _showItemDetailsPopup(BuildContext context) async {
+    _selecteditem = null;
+    _itemController.clear();
+    itemRateController.clear();
+    itemAmountController.clear();
+
+    final String currentSerialNo = serial_no?.trim() ?? '';
+
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
       enableDrag: false,
+
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
             final mediaQuery = MediaQuery.of(context);
             final screenHeight = mediaQuery.size.height;
-            final isKeyboardOpen = mediaQuery.viewInsets.bottom > 0;
+            final keyboardOpen = mediaQuery.viewInsets.bottom > 0;
 
-            final bool hasExtraFields = isVisibleLocation || isVisibleUnit;
+            final bool hasItemDetails =
+                isVisibleUnit || showRateField || itemAmountController.text.isNotEmpty;
 
-            double sheetHeight;
+            double sheetSize;
 
-            if (isKeyboardOpen) {
+            if (keyboardOpen) {
+              sheetSize = screenHeight < 700 ? 0.95 : 0.82;
+            } else if (hasItemDetails) {
               if (screenHeight < 700) {
-                sheetHeight = 0.95;
+                sheetSize = 0.90;
               } else if (screenHeight < 850) {
-                sheetHeight = 0.88;
+                sheetSize = 0.78;
               } else {
-                sheetHeight = 0.78;
+                sheetSize = 0.68;
               }
             } else {
-              if (hasExtraFields) {
-                if (screenHeight < 700) {
-                  sheetHeight = 0.92;
-                } else if (screenHeight < 850) {
-                  sheetHeight = 0.78;
-                } else {
-                  sheetHeight = 0.68;
-                }
+              if (screenHeight < 700) {
+                sheetSize = 0.65;
+              } else if (screenHeight < 850) {
+                sheetSize = 0.55;
               } else {
-                if (screenHeight < 700) {
-                  sheetHeight = 0.72;
-                } else if (screenHeight < 850) {
-                  sheetHeight = 0.60;
-                } else {
-                  sheetHeight = 0.50;
-                }
+                sheetSize = 0.45;
               }
             }
 
-            return AnimatedPadding(
-              duration: const Duration(milliseconds: 220),
-              curve: Curves.easeOut,
+            return Padding(
               padding: EdgeInsets.only(
                 bottom: mediaQuery.viewInsets.bottom,
               ),
-              child: FractionallySizedBox(
-                heightFactor: sheetHeight,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(24),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 10),
-
-                      Container(
-                        width: 45,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+              child: DraggableScrollableSheet(
+                initialChildSize: sheetSize,
+                minChildSize: sheetSize,
+                maxChildSize: keyboardOpen ? 0.95 : 0.90,
+                expand: false,
+                builder: (context, scrollController) {
+                  return Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(24),
                       ),
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 10),
 
-                      const SizedBox(height: 12),
+                        Container(
+                          width: 45,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
 
-                      if (!isKeyboardOpen) ...[
+                        const SizedBox(height: 14),
+
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: const BoxDecoration(
@@ -3820,566 +4416,535 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                             size: 28,
                           ),
                         ),
+
                         const SizedBox(height: 10),
-                      ],
 
-                      Text(
-                        "Add Item",
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                        Text(
+                          "Add Item",
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
                         ),
-                      ),
 
-                      const SizedBox(height: 10),
+                        const SizedBox(height: 12),
 
-                      Expanded(
-                        child: SingleChildScrollView(
-                          keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.manual,
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
-                          child: Form(
-                            key: _itemFormkey,
-                            child: Column(
-                              children: [
-                                TypeAheadField<Map<String, dynamic>>(
-                                  controller: _itemController,
+                        Expanded(
+                          child: SingleChildScrollView(
+                            controller: scrollController,
+                            keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.manual,
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                            child: Form(
+                              key: _itemFormkey,
+                              child: Column(
+                                children: [
+                                  TypeAheadField<Map<String, dynamic>>(
+                                    controller: _itemController,
+                                    decorationBuilder: (context, child) {
+                                      return Material(
+                                        elevation: 6,
+                                        borderRadius: BorderRadius.circular(16),
+                                        color: Colors.white,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(16),
+                                          child: child,
+                                        ),
+                                      );
+                                    },
+                                    suggestionsCallback: (pattern) async {
+                                      return itemdata.where((item) {
+                                        final name = item['name']
+                                            ?.toString()
+                                            .toLowerCase() ??
+                                            '';
+                                        final part = item['part']
+                                            ?.toString()
+                                            .toLowerCase() ??
+                                            '';
 
-                                  suggestionsCallback: (pattern) async {
-                                    return itemdata
-                                        .where((item) {
-                                      final name = item['name']
-                                          ?.toString()
-                                          .toLowerCase() ??
-                                          '';
-                                      final part = item['part']
-                                          ?.toString()
-                                          .toLowerCase() ??
-                                          '';
+                                        return name.contains(
+                                          pattern.toLowerCase(),
+                                        ) ||
+                                            part.contains(
+                                              pattern.toLowerCase(),
+                                            );
+                                      }).cast<Map<String, dynamic>>().toList();
+                                    },
+                                    itemBuilder: (context, suggestion) {
+                                      return ListTile(
+                                        title: Text(
+                                          suggestion['name'] ?? '',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        subtitle: Text(
+                                          suggestion['part'] ?? '',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    onSelected: (suggestion) async {
+                                      FocusScope.of(context).unfocus();
 
-                                      return name.contains(
-                                        pattern.toLowerCase(),
-                                      ) ||
-                                          part.contains(
-                                            pattern.toLowerCase(),
-                                          );
-                                    })
-                                        .cast<Map<String, dynamic>>()
-                                        .toList();
-                                  },
+                                      setStateDialog(() {
+                                        _selecteditem =
+                                            suggestion['name']?.toString() ?? '';
 
-                                  itemBuilder: (context, suggestion) {
-                                    return ListTile(
-                                      title: Text(
-                                        suggestion['name'] ?? '',
+                                        selectedItemMasterId =
+                                            suggestion['masterid']?.toString() ??
+                                                suggestion['itemId']
+                                                    ?.toString() ??
+                                                suggestion['id']?.toString();
+
+                                        _itemController.text = _selecteditem;
+
+                                        if (locationsdata.isNotEmpty) {
+                                          selectedLocation = locationsdata[0];
+                                          isVisibleLocation = true;
+                                        } else {
+                                          isVisibleLocation = false;
+                                        }
+
+                                        _updateUnitDropdown(_selecteditem);
+                                        isVisibleUnit = true;
+                                      });
+
+                                      await fetchPriceLevelDetailsForSelectedItem(
+                                        setStateDialog,
+                                      );
+                                    },
+                                    builder: (context, controller, focusNode) {
+                                      return TextField(
+                                        controller: controller,
+                                        focusNode: focusNode,
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
+                                          fontWeight: FontWeight.w500,
                                           color: Colors.black87,
                                         ),
-                                      ),
-                                      subtitle: Text(
-                                        suggestion['part'] ?? '',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    );
-                                  },
-
-                                  onSelected: (suggestion) {
-                                    FocusScope.of(context).unfocus();
-
-                                    setStateDialog(() {
-                                      _selecteditem = suggestion['name'] ?? '';
-                                      _itemController.text = _selecteditem;
-
-                                      if (locationsdata.isNotEmpty) {
-                                        selectedLocation = locationsdata[0];
-                                        isVisibleLocation = true;
-                                      } else {
-                                        isVisibleLocation = false;
-                                      }
-
-                                      _updateUnitDropdown(_selecteditem);
-                                      isVisibleUnit = true;
-                                    });
-                                  },
-
-                                  builder: (context, controller, focusNode) {
-                                    return TextField(
-                                      controller: controller,
-                                      focusNode: focusNode,
-                                      decoration: InputDecoration(
-                                        labelText: "Item",
-                                        hintText: "Search item",
-                                        prefixIcon: Container(
-                                          margin: const EdgeInsets.all(8),
-                                          decoration: const BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                Colors.blue,
-                                                Colors.lightBlueAccent,
-                                              ],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(8),
-                                            ),
+                                        decoration: InputDecoration(
+                                          labelText: "Item",
+                                          hintText: "Search item",
+                                          labelStyle: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.grey[700],
                                           ),
-                                          child: const Icon(
-                                            Icons.inventory_outlined,
-                                            color: Colors.white,
+                                          hintStyle: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            color: Colors.grey[600],
                                           ),
-                                        ),
-                                        suffixIcon: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            if (_itemController.text.isNotEmpty)
-                                              IconButton(
-                                                icon: const Icon(
-                                                  Icons.close,
-                                                  color: Colors.grey,
-                                                  size: 20,
-                                                ),
-                                                onPressed: () {
-                                                  _itemController.clear();
-
-                                                  setStateDialog(() {
-                                                    _selecteditem = "";
-                                                    isVisibleLocation = false;
-                                                    isVisibleUnit = false;
-                                                  });
-                                                },
+                                          prefixIcon: Container(
+                                            margin: const EdgeInsets.all(8),
+                                            decoration: const BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  Colors.blue,
+                                                  Colors.lightBlueAccent,
+                                                ],
                                               ),
-                                            const Icon(
-                                              Icons.arrow_drop_down,
-                                              color: Colors.grey,
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(8),
+                                              ),
                                             ),
-                                            const SizedBox(width: 6),
-                                          ],
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
-                                            width: 1,
+                                            child: const Icon(
+                                              Icons.inventory_outlined,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          suffixIcon: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              if (!isPriceLevelLoading &&
+                                                  _itemController
+                                                      .text.isNotEmpty)
+                                                IconButton(
+                                                  icon: const Icon(
+                                                    Icons.close,
+                                                    color: Colors.grey,
+                                                    size: 20,
+                                                  ),
+                                                  onPressed: () {
+                                                    _itemController.clear();
+
+                                                    setStateDialog(() {
+                                                      _selecteditem = "";
+                                                      selectedItemMasterId = null;
+                                                      itemRateController.clear();
+                                                      isVisibleLocation = false;
+                                                      isVisibleUnit = false;
+                                                    });
+                                                  },
+                                                ),
+                                              if (!isPriceLevelLoading)
+                                                const Icon(
+                                                  Icons.arrow_drop_down,
+                                                  color: Colors.grey,
+                                                ),
+                                              const SizedBox(width: 6),
+                                            ],
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(16),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(16),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey.shade400,
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(16),
+                                            borderSide: BorderSide(
+                                              color: app_color,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                          contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 14,
                                           ),
                                         ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: app_color,
-                                            width: 1.5,
+                                      );
+                                    },
+                                    emptyBuilder: (context) => Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: Text(
+                                        "No item found",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Colors.redAccent,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  if (isPriceLevelLoading)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 12),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                        children: [
+                                          SizedBox(
+                                            height: 22,
+                                            width: 22,
+                                            child: Theme.of(context).platform ==
+                                                TargetPlatform.iOS
+                                                ? const CupertinoActivityIndicator(
+                                              radius: 11,
+                                            )
+                                                : CircularProgressIndicator(
+                                              strokeWidth: 2.4,
+                                              valueColor:
+                                              AlwaysStoppedAnimation<
+                                                  Color>(app_color),
+                                            ),
                                           ),
-                                        ),
-                                        contentPadding:
-                                        const EdgeInsets.symmetric(
-                                          horizontal: 14,
-                                          vertical: 14,
-                                        ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            "Loading item details...",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.grey[700],
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    );
-                                  },
+                                    ),
 
-                                  decorationBuilder: (context, child) {
-                                    return Material(
-                                      elevation: 6,
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: Colors.white,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(16),
-                                        child: child,
-                                      ),
-                                    );
-                                  },
-
-                                  emptyBuilder: (context) =>
-                                  const SizedBox.shrink(),
-                                ),
-
-                                const SizedBox(height: 14),
-
-                                AnimatedSize(
-                                  duration: const Duration(milliseconds: 250),
-                                  child: Visibility(
+                                  if(!vanSalesSerialNo.contains(currentSerialNo))
+                                  Visibility(
                                     visible: isVisibleLocation,
-                                    child: DropdownButtonFormField<String>(
-                                      isExpanded: true,
-                                      value: selectedLocation,
-                                      items: locationsdata.map((value) {
-                                        return DropdownMenuItem(
-                                          value: value,
-                                          child: SizedBox(
-                                            width: double.infinity,
-                                            child: Text(
-                                              value,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
+                                    child: Column(
+                                      children: [
+                                        const SizedBox(height: 14),
+
+                                        DropdownButtonFormField<String>(
+                                          isExpanded: true,
+
+                                          value: selectedLocation,
+                                          items: locationsdata.map((value) {
+                                            return DropdownMenuItem(
+
+                                              value: value,
+
+                                              child: SizedBox(
+                                                width: double.infinity,
+                                                child: Text(
+                                                  value,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black87,
+                                          ),
+                                          onChanged: (val) => setStateDialog(() => selectedLocation = val!),
+                                          decoration: InputDecoration(
+                                            labelText: "Location",
+                                            labelStyle: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.grey[700],
+                                            ),
+                                            prefixIcon: Container(
+                                              margin: const EdgeInsets.all(8),
+                                              decoration: const BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [Colors.orange, Colors.redAccent],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                                borderRadius: BorderRadius.all(Radius.circular(8)),
+                                              ),
+                                              child: const Icon(Icons.location_on, color: Colors.white),
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(16),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(16),
+                                              borderSide: BorderSide(color: app_color, width: 1.5),
                                             ),
                                           ),
-                                        );
-                                      }).toList(),
-                                      onChanged: (val) => setStateDialog(
-                                            () => selectedLocation = val!,
-                                      ),
-                                      decoration: InputDecoration(
-                                        labelText: "Location",
-                                        prefixIcon: Container(
-                                          margin: const EdgeInsets.all(8),
-                                          decoration: const BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                Colors.orange,
-                                                Colors.redAccent,
-                                              ],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(8),
-                                            ),
-                                          ),
-                                          child: const Icon(
-                                            Icons.location_on,
-                                            color: Colors.white,
-                                          ),
                                         ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
-                                            width: 1,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: app_color,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                      ),
+                                      ],
                                     ),
+
                                   ),
-                                ),
 
-                                const SizedBox(height: 14),
-
-                                AnimatedSize(
-                                  duration: const Duration(milliseconds: 250),
-                                  child: Visibility(
-                                    visible: isVisibleUnit,
-                                    child: DropdownButtonFormField<String>(
-                                      value: _selectedunit,
-                                      isExpanded: true,
-                                      items: unitdata.map((u) {
-                                        return DropdownMenuItem(
-                                          value: u.name,
-                                          child: Text(
-                                            u.name,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        );
-                                      }).toList(),
-                                      onChanged: (val) {
-                                        setStateDialog(() {
-                                          _selectedunit = val!;
-                                          itemQuantityController.text = "1";
-                                          selectedMultiplier = unitdata
-                                              .firstWhere(
-                                                (u) => u.name == _selectedunit,
-                                          )
-                                              .multiplier;
-                                          updateRateAndAmount();
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        labelText: "Unit",
-                                        prefixIcon: Container(
-                                          margin: const EdgeInsets.all(8),
-                                          decoration: const BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                Colors.purple,
-                                                Colors.deepPurpleAccent,
-                                              ],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
+                                  if (!isPriceLevelLoading) ...[
+                                    AnimatedSize(
+                                      duration:
+                                      const Duration(milliseconds: 250),
+                                      child: Visibility(
+                                        visible: isVisibleUnit,
+                                        child: Column(
+                                          children: [
+                                            const SizedBox(height: 14),
+                                            DropdownButtonFormField<String>(
+                                              value: _selectedunit,
+                                              isExpanded: true,
+                                              items: unitdata.map((u) {
+                                                return DropdownMenuItem(
+                                                  value: u.name,
+                                                  child: Text(
+                                                    u.name,
+                                                    overflow:
+                                                    TextOverflow.ellipsis,
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 13,
+                                                      fontWeight: FontWeight.w500,
+                                                      color: Colors.black87,
+                                                    ),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                              onChanged: (val) {
+                                                setStateDialog(() {
+                                                  _selectedunit = val!;
+                                                  itemQuantityController.text =
+                                                  "1";
+                                                  selectedMultiplier = unitdata
+                                                      .firstWhere(
+                                                        (u) =>
+                                                    u.name ==
+                                                        _selectedunit,
+                                                  )
+                                                      .multiplier;
+                                                  updateRateAndAmount();
+                                                });
+                                              },
+                                              decoration: _inputDecoration(
+                                                label: "Unit",
+                                                icon: Icons.straighten,
+                                                gradientColors: const [
+                                                  Colors.purple,
+                                                  Colors.deepPurpleAccent,
+                                                ],
+                                              ),
                                             ),
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(8),
-                                            ),
-                                          ),
-                                          child: const Icon(
-                                            Icons.straighten,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
-                                            width: 1,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: app_color,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                const SizedBox(height: 14),
-
-                                TextFormField(
-                                  controller: itemQuantityController,
-                                  keyboardType: TextInputType.number,
-                                  onChanged: (_) => updateRateAndAmount(),
-                                  decoration: InputDecoration(
-                                    labelText: "Quantity",
-                                    prefixIcon: Container(
-                                      margin: const EdgeInsets.all(8),
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.green,
-                                            Colors.lightGreen,
                                           ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(8),
                                         ),
                                       ),
-                                      child: const Icon(
-                                        Icons.confirmation_num,
+                                    ),
+
+                                    const SizedBox(height: 14),
+
+                                    TextFormField(
+                                      controller: itemQuantityController,
+                                      keyboardType: TextInputType.number,
+                                      onChanged: (_) => updateRateAndAmount(),
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black87,
+                                      ),
+                                      decoration: _inputDecoration(
+                                        label: "Quantity",
+                                        icon: Icons.confirmation_num,
+                                        gradientColors: const [
+                                          Colors.green,
+                                          Colors.lightGreen,
+                                        ],
+                                      ),
+                                    ),
+
+                                    AnimatedSize(
+                                      duration:
+                                      const Duration(milliseconds: 250),
+                                      child: Visibility(
+                                        visible: showRateField,
+                                        child: Column(
+                                          children: [
+                                            const SizedBox(height: 14),
+                                            TextFormField(
+                                              enabled: isRateFieldEnabled,
+                                              controller: itemRateController,
+                                              keyboardType: TextInputType.number,
+                                              onChanged: isRateFieldEnabled
+                                                  ? (_) => updateAmount()
+                                                  : null,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: isRateFieldEnabled
+                                                    ? Colors.black87
+                                                    : Colors.grey[700],
+                                              ),
+                                              decoration: _currencyDecoration(
+                                                label: "Rate",
+                                                enabled: isRateFieldEnabled,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 14),
+
+                                    TextFormField(
+                                      controller: itemAmountController,
+                                      enabled: false,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black87,
+                                      ),
+                                      decoration: _currencyDecoration(
+                                        label: "Amount",
+                                        enabled: false,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SafeArea(
+                          top: false,
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, -2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                     /* setStateDialog(() {
+                                        resetItemDialogFields();
+                                      });*/
+
+                                      _selectedledger = null;
+                                      ledgerAmountController.clear();
+
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      "Cancel",
+                                      style: GoogleFonts.poppins(
+                                        color: app_color,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: app_color,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                    icon: const Icon(
+                                      Icons.check,
+                                      color: Colors.white,
+                                    ),
+                                    label: Text(
+                                      "Add Item",
+                                      style: GoogleFonts.poppins(
                                         color: Colors.white,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
-                                        color: Colors.grey.shade300,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
-                                        color: app_color,
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                const SizedBox(height: 14),
-
-                                TextFormField(
-                                  controller: itemRateController,
-                                  keyboardType: TextInputType.number,
-                                  onChanged: (_) => updateAmount(),
-                                  decoration: InputDecoration(
-                                    labelText: "Rate",
-                                    prefix: Container(
-                                      margin: const EdgeInsets.only(right: 8),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.blue,
-                                            Colors.blue,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(8),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        getCurrencySymbol(currencycode),
-                                        style: GoogleFonts.poppins(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
-                                        color: Colors.grey.shade300,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
-                                        color: app_color,
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                const SizedBox(height: 14),
-
-                                TextFormField(
-                                  controller: itemAmountController,
-                                  enabled: false,
-                                  decoration: InputDecoration(
-                                    labelText: "Amount",
-                                    filled: true,
-                                    fillColor: Colors.grey.shade100,
-                                    prefix: Container(
-                                      margin: const EdgeInsets.only(right: 8),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.green,
-                                            Colors.teal,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(8),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        getCurrencySymbol(currencycode),
-                                        style: GoogleFonts.poppins(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    disabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
-                                        color: Colors.grey.shade300,
-                                        width: 1,
-                                      ),
-                                    ),
+                                    onPressed: () {
+                                      if (_itemFormkey.currentState!.validate()) {
+                                        addItem();
+                                      }
+                                    },
                                   ),
                                 ),
                               ],
                             ),
                           ),
                         ),
-                      ),
-
-                      SafeArea(
-                        top: false,
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
-                                blurRadius: 10,
-                                offset: const Offset(0, -2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton(
-                                  style: OutlinedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                  ),
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: Text(
-                                    "Cancel",
-                                    style: GoogleFonts.poppins(
-                                      color: app_color,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              const SizedBox(width: 12),
-
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: app_color,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                  ),
-                                  icon: const Icon(
-                                    Icons.check,
-                                    color: Colors.white,
-                                  ),
-                                  label: Text(
-                                    "Add Item",
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    if (_itemFormkey.currentState!.validate()) {
-                                      addItem();
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                      ],
+                    ),
+                  );
+                },
               ),
             );
           },
@@ -5339,6 +5904,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
       username = prefs.getString('username');
       token = prefs.getString('token')!;
       currencycode = prefs.getString('currencycode') ?? 'AED';
+      startfrom = prefs.getString('startfrom') ?? DateFormat('yyyyMMdd').format(yearStartDate);
 
       company_trn = prefs.getString("company_trn")?? "null";
       company_address = prefs.getString("company_address") ?? "null";
@@ -5434,6 +6000,9 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
     final NumberFormat currencyFormat = NumberFormat(
       "#,##0.${'0' * decimal!}",  // 👈 dynamically repeat '0' for decimal places
     );
+
+    final bool canEditVoucherNo =
+        SecuritybtnAcessHolder.toString().toLowerCase() == 'true';
     return Scaffold(
         key: _scaffoldKey,
       backgroundColor: Colors.white,
@@ -5504,7 +6073,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
               children: [
               ListView(
                 children:[
-            GestureDetector(
+            /*GestureDetector(
             onTap: () => _selectDateRangeVchNo(context),
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -5572,7 +6141,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
           ],
         ),
       ),
-    ),
+    ),*/
 
 
             Container(
@@ -5582,6 +6151,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                             key: _formKey,
                             child: Column(
                               children: [
+                                SizedBox(height: 8,),
                                 
     Padding(
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -5592,6 +6162,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
     fontWeight: FontWeight.w500,
     color: Colors.black87,
     ),
+      readOnly: true,
+      enableInteractiveSelection: false,
     decoration: InputDecoration(
     labelText: "Date",
     labelStyle: GoogleFonts.poppins(
@@ -5632,8 +6204,9 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
     ),
     contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
     ),
-    readOnly: true,
-    onTap: () => _selectsaleDate(context),
+
+   //  onTap: () => _selectsaleDate(context),
+        onTap:(){}
     ),
     ),
 
@@ -5643,18 +6216,21 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                   child: TextFormField(
                                     controller: _vchnoController,
 
-                                    readOnly: !isVchEditable, // 👈 MAIN CHANGE
-                                    enableInteractiveSelection: isVchEditable, // 👈 ADD THIS
-                                    onChanged: (value) {
-                                      if (isVchEditable) {
-                                        checkVchNoExistence(value);
-                                      }
-                                    },
+                                    // Editable only when security access is true
+                                    readOnly: !canEditVoucherNo,
+                                    enableInteractiveSelection: canEditVoucherNo,
+                                    onChanged: canEditVoucherNo
+                                        ? (value) {
+                                      checkVchNoExistence(value.trim());
+                                    }
+                                        : null,
+
+                                    keyboardType: TextInputType.text,
 
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: isVchEditable ? Colors.black87 : Colors.grey, // 👈 visual hint
+                                      color: canEditVoucherNo ? Colors.black87 : Colors.grey,
                                     ),
 
                                     decoration: InputDecoration(
@@ -5665,46 +6241,48 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                         color: Colors.grey[700],
                                       ),
 
-                                      errorText:
-                                      errorMessageVchNo.isNotEmpty ? errorMessageVchNo : null,
+                                      errorText: errorMessageVchNo.isNotEmpty ? errorMessageVchNo : null,
 
                                       filled: true,
-                                      fillColor: Colors.white.withOpacity(0.95),
+                                      fillColor: canEditVoucherNo ? Colors.white : Colors.grey.shade100,
 
                                       prefixIcon: Container(
                                         margin: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [Colors.deepOrangeAccent, Colors.orangeAccent],
+                                          gradient: LinearGradient(
+                                            colors: canEditVoucherNo
+                                                ? [Colors.teal, Colors.tealAccent]
+                                                : [Colors.deepOrangeAccent, Colors.orangeAccent],
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
                                           ),
-                                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                                          borderRadius: const BorderRadius.all(Radius.circular(12)),
                                         ),
-                                        child: const Icon(
-                                          Icons.confirmation_num_outlined,
+                                        child: Icon(
+                                          canEditVoucherNo
+                                              ? Icons.edit_note_rounded
+                                              : Icons.confirmation_num_outlined,
                                           color: Colors.white,
                                           size: 20,
                                         ),
                                       ),
 
-                                      // 👇 EDIT BUTTON
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                          isVchEditable ? Icons.lock_open : Icons.edit,
-                                          color: app_color,
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            isVchEditable = !isVchEditable;
-                                          });
-                                        },
+                                      suffixIcon: canEditVoucherNo
+                                          ? const Icon(
+                                        Icons.edit,
+                                        color: Colors.teal,
+                                        size: 20,
+                                      )
+                                          : const Icon(
+                                        Icons.lock_outline,
+                                        color: Colors.grey,
+                                        size: 20,
                                       ),
 
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(16),
                                         borderSide: BorderSide(
-                                          color: Colors.grey.shade300,
+                                          color: canEditVoucherNo ? Colors.teal.shade200 : Colors.grey.shade300,
                                           width: 1,
                                         ),
                                       ),
@@ -5712,7 +6290,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                       focusedBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(16),
                                         borderSide: BorderSide(
-                                          color: app_color,
+                                          color: canEditVoucherNo ? Colors.teal : Colors.grey.shade300,
                                           width: 1.5,
                                         ),
                                       ),
@@ -5733,8 +6311,10 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                         ),
                                       ),
 
-                                      contentPadding:
-                                      const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 16,
+                                        horizontal: 14,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -5774,96 +6354,145 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                   ),
                                 ),
 
-    Padding(
+                                Padding(
                                   padding: const EdgeInsets.only(
-                                      top: 12, left: 20, right: 20, bottom: 0),
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white.withOpacity(0.95),
-                                      labelText: "Voucher Type",
-                                      labelStyle: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[700],
-                                      ),
+                                    top: 12,
+                                    left: 20,
+                                    right: 20,
+                                    bottom: 0,
+                                  ),
+                                  child: IgnorePointer(
+                                    ignoring: isVoucherTypeLocked,
+                                    child: Opacity(
+                                      opacity: isVoucherTypeLocked ? 0.7 : 1,
+                                      child: DropdownButtonFormField<String>(
+                                        isExpanded: true,
 
-                                      // Prefix icon with gradient bg (different color)
-                                      prefixIcon: Container(
-                                        margin: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [Colors.purpleAccent, Colors.deepPurple],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
+                                        decoration: InputDecoration(
+                                          filled: true,
+
+                                          fillColor: isVoucherTypeLocked
+                                              ? Colors.grey.shade100
+                                              : Colors.white.withOpacity(0.95),
+
+                                          labelText: "Voucher Type",
+
+                                          labelStyle: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.grey[700],
                                           ),
-                                          borderRadius: BorderRadius.all(Radius.circular(12)),
-                                        ),
-                                        child: const Icon(
-                                          Icons.discount_outlined,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
 
-                                      // Borders
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: Colors.grey.shade300,
-                                          width: 1,
+                                          prefixIcon: Container(
+                                            margin: const EdgeInsets.all(8),
+
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: isVoucherTypeLocked
+                                                    ? [
+                                                  Colors.grey,
+                                                  Colors.grey.shade600,
+                                                ]
+                                                    : [
+                                                  Colors.purpleAccent,
+                                                  Colors.deepPurple,
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+
+                                              borderRadius:
+                                              const BorderRadius.all(
+                                                Radius.circular(12),
+                                              ),
+                                            ),
+
+                                            child: Icon(
+                                              isVoucherTypeLocked
+                                                  ? Icons.lock_outline
+                                                  : Icons.discount_outlined,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                            borderSide: BorderSide(
+                                              color: isVoucherTypeLocked
+                                                  ? Colors.grey.shade400
+                                                  : Colors.grey.shade300,
+                                              width: 1,
+                                            ),
+                                          ),
+
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                            borderSide: BorderSide(
+                                              color: app_color,
+                                              width: 1.5,
+                                            ),
+                                          ),
+
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                            borderSide: const BorderSide(
+                                              color: Colors.redAccent,
+                                              width: 1.5,
+                                            ),
+                                          ),
+
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 14,
+                                          ),
                                         ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: app_color,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      errorBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: const BorderSide(
-                                          color: Colors.redAccent,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                    ),
-                                    hint: Text(
-                                      "Voucher Type",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                    value: _selectedvchtypename,
-                                    items: vchtypenamedata.map((item) {
-                                      return DropdownMenuItem<String>(
-                                        value: item,
-                                        child: Text(
-                                          item,
+
+                                        hint: Text(
+                                          isVoucherTypeLocked
+                                              ? "Voucher Type Locked"
+                                              : "Voucher Type",
                                           style: GoogleFonts.poppins(
                                             fontSize: 13,
-                                            color: Colors.black87,
+                                            color: Colors.grey[600],
                                           ),
                                         ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) async {
-                                      setState(() {
-                                        _selectedvchtypename = value!;
-                                        fetchvchnos(_selectedvchtypename);
-                                      });
-                                    },
-                                    onTap: () {
-                                      setState(() {
-                                        _isFocused_vchno = false;
-                                        _isFocused_narration = false;
-                                        _isFocused_totalamt = false;
-                                      });
-                                    },
+
+                                        value: _selectedvchtypename,
+
+                                        items: vchtypenamedata.map((item) {
+                                          return DropdownMenuItem<String>(
+                                            value: item,
+                                            child: Text(
+                                              item,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+
+                                        onChanged: isVoucherTypeLocked
+                                            ? null
+                                            : (value) async {
+
+                                          setState(() {
+                                            _selectedvchtypename = value!;
+
+                                            fetchvchnos(_selectedvchtypename);
+                                          });
+                                        },
+
+                                        onTap: () {
+                                          setState(() {
+                                            _isFocused_vchno = false;
+                                            _isFocused_narration = false;
+                                            _isFocused_totalamt = false;
+                                          });
+                                        },
+                                      ),
+                                    ),
                                   ),
                                 ),
 
@@ -5927,17 +6556,17 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                             suffixIcon: Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                  if (_partyLedgerController.text.isNotEmpty)
-                                                    IconButton(
-                                                      icon: const Icon(Icons.close, color: Colors.grey, size: 20),
-                                                      onPressed: () {
-                                                        setState(() {
-                                                          _partyLedgerController.clear();
-                                                          _selectedpartyledger = "";
-                                                        });
-
-                                                      },
-                                                    ),
+                                                if (_partyLedgerController.text.isNotEmpty)
+                                                  IconButton(
+                                                    icon: const Icon(Icons.close, color: Colors.grey, size: 20),
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        _partyLedgerController.clear();
+                                                        _selectedpartyledger = "";
+                                                        selectedPartyLedgerPriceLevel = null;
+                                                      });
+                                                    },
+                                                  ),
 
                                                 const Icon(Icons.arrow_drop_down, color: Colors.grey),
                                                 const SizedBox(width: 6),
@@ -5991,12 +6620,18 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
 
                                       // 🔹 On item select
                                       onSelected: (String suggestion) {
-                                      setState(() {
-                                      _selectedpartyledger = suggestion;
-                                      _partyLedgerController.text = suggestion;   // instead of _partyLedgerController
-                                      });
-                                      },
+                                        setState(() {
+                                          _selectedpartyledger = suggestion;
+                                          _partyLedgerController.text = suggestion;
 
+                                          selectedPartyLedgerPriceLevel = partyLedgerPriceLevelMap[suggestion];
+
+                                          debugPrint('selected party ledger -> $_selectedpartyledger');
+                                          debugPrint('selected price level -> $selectedPartyLedgerPriceLevel');
+                                          FocusManager.instance.primaryFocus?.unfocus();
+                                        });
+
+                                      },
 
                                       // 🔹 Empty result text
                                       emptyBuilder: (context) => Padding(
@@ -6014,93 +6649,134 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                                 ),
 
                                 Padding(
-                                  padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 0),
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white.withOpacity(0.95),
-                                      labelText: "Sales Ledger",   // 👈 This makes it a heading
-                                      labelStyle: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        color: Colors.grey[700],
-                                      ),
-                                      // Prefix icon with gradient (blue)
-                                      prefixIcon: Container(
-                                        margin: const EdgeInsets.all(8),
-                                        decoration: const BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [Colors.blueAccent, Colors.indigo],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
+                                  padding: const EdgeInsets.only(
+                                    top: 12,
+                                    left: 20,
+                                    right: 20,
+                                    bottom: 0,
+                                  ),
+                                  child: IgnorePointer(
+                                    ignoring: isSalesLedgerLocked,
+                                    child: Opacity(
+                                      opacity: isSalesLedgerLocked ? 0.7 : 1,
+                                      child: DropdownButtonFormField<String>(
+                                        isExpanded: true,
+
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: isSalesLedgerLocked
+                                              ? Colors.grey.shade100
+                                              : Colors.white.withOpacity(0.95),
+
+                                          labelText: "Sales Ledger",
+
+                                          labelStyle: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            color: Colors.grey[700],
                                           ),
-                                          borderRadius: BorderRadius.all(Radius.circular(12)),
-                                        ),
-                                        child: const Icon(
-                                          Icons.sell_outlined,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
 
-                                      // Borders
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: Colors.grey.shade300,
-                                          width: 1,
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: app_color,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      errorBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: const BorderSide(
-                                          color: Colors.redAccent,
-                                          width: 1.5,
-                                        ),
-                                      ),
+                                          prefixIcon: Container(
+                                            margin: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: isSalesLedgerLocked
+                                                    ? [
+                                                  Colors.grey,
+                                                  Colors.grey.shade600,
+                                                ]
+                                                    : [
+                                                  Colors.blueAccent,
+                                                  Colors.indigo,
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius:
+                                              const BorderRadius.all(Radius.circular(12)),
+                                            ),
+                                            child: Icon(
+                                              isSalesLedgerLocked
+                                                  ? Icons.lock_outline
+                                                  : Icons.sell_outlined,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
 
-                                      contentPadding:
-                                      const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                    ),
-                                    hint: Text(
-                                      "Sales Ledger",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                    value: _selectedsalesledger,
-                                    items: salesledger_data.map((item) {
-                                      return DropdownMenuItem<String>(
-                                        value: item.toString(),
-                                        child: Text(
-                                          item.toString(),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                            borderSide: BorderSide(
+                                              color: isSalesLedgerLocked
+                                                  ? Colors.grey.shade400
+                                                  : Colors.grey.shade300,
+                                              width: 1,
+                                            ),
+                                          ),
+
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                            borderSide: BorderSide(
+                                              color: app_color,
+                                              width: 1.5,
+                                            ),
+                                          ),
+
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                            borderSide: const BorderSide(
+                                              color: Colors.redAccent,
+                                              width: 1.5,
+                                            ),
+                                          ),
+
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 14,
+                                          ),
+                                        ),
+
+                                        hint: Text(
+                                          isSalesLedgerLocked
+                                              ? "Sales Ledger Locked"
+                                              : "Sales Ledger",
                                           style: GoogleFonts.poppins(
                                             fontSize: 13,
-                                            color: Colors.black87,
+                                            color: Colors.grey[600],
                                           ),
                                         ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) async {
-                                      setState(() {
-                                        _selectedsalesledger = value!;
-                                      });
-                                    },
-                                    onTap: () {
-                                      setState(() {
-                                        _isFocused_vchno = false;
-                                        _isFocused_narration = false;
-                                        _isFocused_totalamt = false;
-                                      });
-                                    },
+
+                                        value: _selectedsalesledger,
+
+                                        items: salesledger_data.map((item) {
+                                          return DropdownMenuItem<String>(
+                                            value: item.toString(),
+                                            child: Text(
+                                              item.toString(),
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+
+                                        onChanged: isSalesLedgerLocked
+                                            ? null
+                                            : (value) async {
+                                          setState(() {
+                                            _selectedsalesledger = value!;
+                                          });
+                                        },
+
+                                        onTap: () {
+                                          setState(() {
+                                            _isFocused_vchno = false;
+                                            _isFocused_narration = false;
+                                            _isFocused_totalamt = false;
+                                          });
+                                        },
+                                      ),
+                                    ),
                                   ),
                                 ),
 

@@ -172,24 +172,17 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
     if (selectedPartyLedgerPriceLevel == null ||
         selectedPartyLedgerPriceLevel.toString().trim().isEmpty) {
-      debugPrint('Price level API skipped: selected price level is null/empty');
-      debugPrint('selected item -> $_selecteditem');
-      debugPrint('selected party ledger -> $_selectedpartyledger');
-
       setStateDialog(() {
         isRateFieldEnabled = true;
         showRateField = true;
       });
-
       return;
     }
+
     setStateDialog(() {
       isPriceLevelLoading = true;
     });
 
-
-    print('item master id-> $selectedItemMasterId');
-    print('selectedPartyLedgerPriceLevel-> $selectedPartyLedgerPriceLevel');
     try {
       final String selectedDate = saledatestring.isNotEmpty
           ? saledatestring
@@ -205,12 +198,6 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
         },
       );
 
-      debugPrint('price level details API url -> $url');
-      debugPrint('selected item name -> $_selecteditem');
-      debugPrint('selected item masterid -> $selectedItemMasterId');
-      debugPrint('selected party ledger -> $_selectedpartyledger');
-      debugPrint('selected price level -> $selectedPartyLedgerPriceLevel');
-
       final response = await http.get(
         url,
         headers: {
@@ -219,21 +206,16 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
         },
       );
 
-      debugPrint('price level details status -> ${response.statusCode}');
-      debugPrint('price level details response -> ${response.body}');
-
       if (response.statusCode == 200) {
         final decodedResponse = jsonDecode(response.body);
-        debugPrint('decoded price level details -> $decodedResponse');
 
         if (decodedResponse is List && decodedResponse.isNotEmpty) {
           final Map<String, dynamic> priceData =
           Map<String, dynamic>.from(decodedResponse.first);
 
-          final double apiRate = double.tryParse(
-            priceData['rate']?.toString() ?? '0',
-          ) ??
-              0.0;
+          final double apiRate =
+              double.tryParse(priceData['rate']?.toString() ?? '0') ?? 0.0;
+
           final double qty = double.tryParse(
             itemQuantityController.text.trim().isEmpty
                 ? '1'
@@ -249,36 +231,28 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
             isRateFieldEnabled = false;
             showRateField = false;
           });
-
-          debugPrint('applied price level rate -> $apiRate');
-          debugPrint('rateStr from API -> ${priceData['rateStr']}');
         } else {
-          debugPrint('No price level rate found for selected item and price level');
-
           setStateDialog(() {
             itemRateController.clear();
-            itemAmountController.clear(); // add this
-
+            itemAmountController.clear();
             isRateFieldEnabled = true;
             showRateField = true;
-
           });
         }
       } else {
-        debugPrint('price level details API failed -> ${response.body}');
-        isRateFieldEnabled = true;
-        showRateField = true;
-
+        setStateDialog(() {
+          isRateFieldEnabled = true;
+          showRateField = true;
+        });
       }
     } catch (e) {
-      debugPrint('price level details error -> $e');
-      isRateFieldEnabled = true;
-      showRateField = true;
-    }
-    finally {
+      setStateDialog(() {
+        isRateFieldEnabled = true;
+        showRateField = true;
+      });
+    } finally {
       setStateDialog(() {
         isPriceLevelLoading = false;
-
       });
     }
   }
@@ -2775,16 +2749,15 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
         "Content-Type": "application/json"
       };
       final String currentSerialNo = serial_no?.trim() ?? '';
-      final bool isUniGasSerial = vanSalesSerialNo.contains(currentSerialNo);
+      final bool isVanSalesSerial = vanSalesSerialNo.contains(currentSerialNo);
 
       debugPrint('loadData serial_no -> $currentSerialNo');
-      debugPrint('loadData uniGasSerialNo -> $vanSalesSerialNo');
-      debugPrint('loadData isUniGasSerial -> $isUniGasSerial');
+      debugPrint('loadData isVanSalesSerial -> $isVanSalesSerial');
       debugPrint('loadData assigned godownName -> $godownName');
 
       var body = jsonEncode({
         "type": "delivery note",
-        if (isUniGasSerial && godownName.isNotEmpty)
+        if (isVanSalesSerial && godownName.isNotEmpty)
           "godownName": godownName,
       });
 
@@ -2816,10 +2789,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
           _selectedvchtypename = vchtypenamedata.isNotEmpty ? vchtypenamedata[0] : null;
 
-          if (_selectedvchtypename != null &&
-              _selectedvchtypename.toString().isNotEmpty) {
-            fetchvchnos(_selectedvchtypename);
-          }
+
 
           final String currentSerialNo = serial_no?.trim() ?? '';
 
@@ -6089,8 +6059,10 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       String? email_nav = prefs.getString('email_nav');
       String? name_nav = prefs.getString('name_nav');
 
+
       HttpURL_loadData = '$hostname/api/entry/getSalesData/$company_lowercase/$serial_no';
       /*HttpURL_loadData = 'http://192.168.2.110:4999/api/entry/getSalesData/$company_lowercase/$serial_no';*/
+
 
       HttpURL_loadLedgerData = '$hostname/api/ledger/getLedger/$company_lowercase/$serial_no';
       /*HttpURL_loadLedgerData = 'http://192.168.2.110:4999/api/ledger/getLedger/$company_lowercase/$serial_no';*/

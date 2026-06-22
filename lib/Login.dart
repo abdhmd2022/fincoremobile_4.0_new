@@ -392,7 +392,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
   Future<void> _initSharedPreferences() async {
 
-    fetchUniGasSerialNumbers();
+    fetchvanSalesSerialNumbers();
 
     prefs_login = await SharedPreferences.getInstance();
 
@@ -1037,7 +1037,33 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                                 socket.emit('deleteMyId', data);
                                 _directlogin();
                               } else {
-                                sendOTP(username);
+                                if (isEmail(username)) {
+                                  sendOTP(username);
+                                  socket_data = data;
+
+                                  setState(() {
+                                    isVisibleLoginForm = false;
+                                    isVisibleResetPassForm = false;
+                                    _isButtonEnabled = false;
+                                    isVisibleTimer = true;
+                                    _isOtpVerifyingProgress = false;
+                                    _isVerifyingOtp = false;
+                                    otpController.clear();
+                                    currentText = '';
+
+                                    _startTimer();
+                                    isVisibleOTPForm = true;
+                                    maskedEmail = username;
+                                  });
+                                } else {
+                                  isOTPVerified = true;
+                                  isAnotherDevice = true;
+                                  socket.emit('deleteMyId', data);
+                                  _directlogin();
+                                }
+
+
+                               /* sendOTP(username);
                                 socket_data = data;
                                 setState(() {
                                   isVisibleLoginForm = false;
@@ -1052,7 +1078,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                                   _startTimer();
                                   isVisibleOTPForm = true;
                                   maskedEmail = username;
-                                });
+                                });*/
                               }
                             },
                             child: const Text(
@@ -1119,94 +1145,38 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
             if (isEmail(usernamee)) {
               sendOTP(usernamee);
+
+              socket_data = data;
+
+              setState(() {
+                isVisibleLoginForm = false;
+                isVisibleResetPassForm = false;
+                _isButtonEnabled = false;
+                isVisibleTimer = true;
+                _isOtpVerifyingProgress = false;
+                _isVerifyingOtp = false;
+                otpController.clear();
+                currentText = '';
+
+                _startTimer();
+                isVisibleOTPForm = true;
+                maskedEmail = usernamee;
+              });
+            } else {
+              isOTPVerified = true;
+              isAnotherDevice = true;
+              _directlogin();
+              // return;
+            }
+
+
+           /* if (isEmail(usernamee)) {
+              sendOTP(usernamee);
             } else {
               isOTPVerified = true;
               isAnotherDevice = true;
               _directlogin();
             }
-
-            /*showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                final TextEditingController otpController = TextEditingController();
-                final maskedEmail = usernamee;
-                String currentText = "";
-                return AlertDialog(
-                  title: Text('OTP Verification'),
-                  content: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Text(
-                        'OTP was sent to:',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-
-                      Flexible(child: Text(maskedEmail)),
-                      Padding(
-                        padding: EdgeInsets.only(left: 5,right: 5,top: 16),
-                        child: PinCodeTextField(
-                          appContext: context,
-                          pastedTextStyle: TextStyle(
-                            color: Colors.green.shade600,
-                            fontWeight: FontWeight.normal,
-                          ),
-                          length: 4, // Specify the length of OTP
-                          onChanged: (value) {
-                            currentText = value;
-                          },
-                          pinTheme: PinTheme(
-                            shape: PinCodeFieldShape.circle,
-                            borderRadius: BorderRadius.circular(10),
-                            fieldHeight: 50,
-                            fieldWidth: 50,
-                            activeFillColor: Colors.white,
-                            inactiveFillColor: Colors.white,
-                            activeColor: app_color,
-                            inactiveColor: Colors.grey,
-                            borderWidth: 1,
-                            selectedColor: app_color
-                          ),
-                          controller: otpController,
-                          keyboardType: TextInputType.number,
-                          onCompleted: (value) {
-                            // OTP entry is complete
-
-                          },
-                          obscureText: true,
-                          textStyle: TextStyle(
-                          fontWeight: FontWeight.normal, // Set the font weight to normal
-                          )))]),
-                  actions: <Widget>[
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _buttonColor,
-                      ),
-                      onPressed: () {
-                        if (currentText.length == 4) {
-                          final generatedOTP = generatedotp;
-                          final enteredOTP = currentText;
-
-                          if (enteredOTP == generatedOTP) {
-                            isOTPVerified = true;
-                            emitSaveId(jsonPayload, response_getusers);
-                          } else {
-                            isOTPVerified = false;
-
-                            Fluttertoast.showToast(msg: 'Incorrect OTP');
-                          }
-                        } else {
-                          isOTPVerified = false;
-
-                          Fluttertoast.showToast(msg: 'Please enter a 4-digit OTP');
-                        }
-                      },
-                      child: Text('Verify',
-                          style: TextStyle(
-                              color: Colors.white
-                          )),
-                    )]);});*/
 
             socket_data = data;
 
@@ -1223,7 +1193,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
               _startTimer();
               isVisibleOTPForm = true;
               maskedEmail = usernamee;
-            });
+            });*/
           }
           else
           {
@@ -1243,7 +1213,8 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
         _scaffoldMessengerKey.currentState?.showSnackBar(
           SnackBar(
             content: Text('User is active on another device.'),
-          ));}});
+          ));}}
+    );
 
     try
     {
@@ -1307,7 +1278,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 </div>''';
     try {
 
-      await send(message, smtpServer);
+      // await send(message, smtpServer);
 
       /*_scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(

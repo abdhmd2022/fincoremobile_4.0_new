@@ -134,13 +134,13 @@ class _ViewVanAllocationScreenState
       );
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        /*ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
               'Allocation deleted successfully',
             ),
           ),
-        );
+        );*/
 
         fetchAllocations();
       } else {
@@ -624,15 +624,15 @@ class _ViewVanAllocationScreenState
                       ),
                     ),
 
-                    const SizedBox(height: 4),
+                    /*const SizedBox(height: 4),
 
                     Text(
-                      allocation['godown_name'] ?? '',
+                      allocation['user_name'] ?? '',
                       style: GoogleFonts.poppins(
                         fontSize: 11.5,
                         color: Colors.grey.shade600,
                       ),
-                    ),
+                    ),*/
                   ],
                 ),
               ),

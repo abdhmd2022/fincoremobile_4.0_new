@@ -2553,41 +2553,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
   setState(() {});
   }
 
-  Widget _bottomNavTile(
-      String label,
-      IconData icon,
-      bool visible,
-      VoidCallback onTap,
-      ) {
-    if (!visible) return const SizedBox.shrink();
 
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 23, color: app_color),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -2612,12 +2578,12 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                 ),
               ),
               automaticallyImplyLeading: false,
-              leading: IconButton(
+              /*leading: IconButton(
                 icon: Icon(Icons.menu, color: Colors.white),
                 onPressed: () {
                   _scaffoldKey.currentState!.openDrawer();
                 },
-              ),
+              ),*/
               centerTitle: true,
               title: GestureDetector(
                 onTap: () {
@@ -2627,13 +2593,14 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                   );
                 },
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Flexible(
                       child: Text(
                         company ?? '',
                         style: GoogleFonts.poppins(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
@@ -2649,7 +2616,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
               ),
             ),
           ),
-          drawer: Sidebar(
+          /*drawer: Sidebar(
               isDashEnable: isDashEnable,
               isRolesVisible: isRolesVisible,
               isRolesEnable: isRolesEnable,
@@ -2657,19 +2624,10 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
               isUserVisible: isUserVisible,
               Username: name,
               Email: email,
-              tickerProvider: this), // add the Sidebar widget here
+              tickerProvider: this),*/ // add the Sidebar widget here
 
 
-        bottomNavigationBar: AppBottomNav(
-          parentContext: context,
-          showItems: isVisibleItemBtn,
-          showParty: isVisiblePartyBtn,
-          showRegister: isVisibleTransactionBtn,
-          showEntries: isVisibleEntriesBtn,
-          onEntriesTap: () {
-            _showEntriesBottomSheet(context);
-          },
-        ),
+        bottomNavigationBar: const AppBottomNav(),
 
 
           body: Stack(

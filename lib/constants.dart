@@ -37,13 +37,13 @@ Set<String> vanSalesSerialNo = {
 };
 
 
+
 Future<void> fetchvanSalesSerialNumbers() async {
   try {
     debugPrint('Fetching serial numbers from cloud...');
 
     final url =
         'https://raw.githubusercontent.com/saadancsh/fincore-config/main/serial_numbers.json?v=${DateTime.now().millisecondsSinceEpoch}';
-
 
     final response = await http
         .get(Uri.parse(url))
@@ -70,8 +70,6 @@ Future<void> fetchvanSalesSerialNumbers() async {
           debugPrint(
             'Updated vanSalesSerialNo -> $vanSalesSerialNo',
           );
-
-
         }
       }
     }
@@ -80,7 +78,7 @@ Future<void> fetchvanSalesSerialNumbers() async {
   }
 }
 
-bool hasVanDeliveryNoteAccess(String? serialNo) {
+bool isVanSalesAccess(String? serialNo) {
   return serialNo != null && vanSalesSerialNo.contains(serialNo.trim());
 }
 

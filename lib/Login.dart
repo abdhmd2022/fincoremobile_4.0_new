@@ -157,12 +157,19 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
         socket.emit('saveMyId', jsonPayload);
 
         socket.once('isIdSaved', (data)
-        {
+        async {
           if(data)
           {
             final responseData = json.decode(response.body);
 
+            if (responseData is List && responseData.isNotEmpty) {
+              final userName = responseData[0]['name']?.toString() ?? '';
+              await prefs_login.setString('name', userName);
+            }
+
             final myList = <Map<String, dynamic>>[];
+
+
 
             for (final data in responseData)
             {
@@ -186,6 +193,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
               prefs_login.setString('username_remember', usernamee);
               prefs_login.setString('password_remember', passwordd);
               prefs_login.setString('username', usernamee);
+
               prefs_login.setString('password', passwordd);
               prefs_login.remove('sync_pref');
               prefs_login.remove('serial_no');

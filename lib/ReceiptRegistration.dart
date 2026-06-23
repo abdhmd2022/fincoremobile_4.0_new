@@ -107,6 +107,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
   int visibleOutstandingBillCount = 5;
 
+  bool isVoucherTypeLocked = false;
+  bool isBankCashLedgerLocked = false;
+
   late List<String> vchtypenamedata = [];
 
   bool isOutstandingLoading = false;
@@ -265,6 +268,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         headers: headers,
         body: body,
       );
+      print('outstanding -> ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -2528,20 +2532,80 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
         /*print(response.body);*/
         setState(() {
+          final String currentSerialNo = serial_no?.trim() ?? '';
+          final bool isUniGasSerial = vanSalesSerialNo.contains(currentSerialNo);
+
+          String? allocationString = prefs.getString('spectra_allocations');
+          Map<String, dynamic>? allocation;
+
+          if (isUniGasSerial &&
+              allocationString != null &&
+              allocationString.isNotEmpty) {
+            try {
+              final List<dynamic> allocations = jsonDecode(allocationString);
+
+              if (allocations.isNotEmpty) {
+                allocation = Map<String, dynamic>.from(allocations.first);
+              }
+            } catch (e) {
+              debugPrint('receipt allocation decode error -> $e');
+            }
+          }
+
           vchtypenamedata = List<String>.from(jsonResponse['vchTypes']);
+
           _selectedvchtypename = vchtypenamedata.first;
+          isVoucherTypeLocked = false;
+
+          if (isUniGasSerial && allocation != null) {
+            final String savedReceiptVoucherType =
+                allocation['receipt_voucher_type']?.toString().trim() ??
+                    allocation['voucher_type']?.toString().trim() ??
+                    '';
+
+            if (savedReceiptVoucherType.isNotEmpty &&
+                vchtypenamedata.contains(savedReceiptVoucherType)) {
+              _selectedvchtypename = savedReceiptVoucherType;
+              isVoucherTypeLocked = true;
+            }
+          }
+
           fetchvchnos(_selectedvchtypename);
+
           partydata = List<String>.from(jsonResponse['partyLedgers']);
           partydata.sort();
-          /*_selectedparty = partydata.first;
-          _partyController.text = _selectedparty;
 
-          fetchPartyOutstanding(_selectedparty);*/
-
-          bankcashname_data = List<Map<String, String>>.from(jsonResponse['cashLedgers']?.map((cashLedger) => Map<String, String>.from(cashLedger)) ?? []);
+          bankcashname_data = List<Map<String, String>>.from(
+            jsonResponse['cashLedgers']
+                ?.map((cashLedger) => Map<String, String>.from(cashLedger)) ??
+                [],
+          );
 
           _selectedbankcashname = null;
-          _bankcashnameController.text = _selectedbankcashname!=null ? _selectedbankcashname!['name']! : "" ;
+          isBankCashLedgerLocked = false;
+
+          if (isUniGasSerial && allocation != null) {
+            final String savedCashLedger =
+                allocation['cash_ledger']?.toString().trim() ??
+                    allocation['cashledger']?.toString().trim() ??
+                    allocation['bank_cash_ledger']?.toString().trim() ??
+                    '';
+
+            if (savedCashLedger.isNotEmpty) {
+              final matchedCashLedger = bankcashname_data.where(
+                    (ledger) => ledger['name'] == savedCashLedger,
+              );
+
+              if (matchedCashLedger.isNotEmpty) {
+                _selectedbankcashname = matchedCashLedger.first;
+                isBankCashLedgerLocked = true;
+              }
+            }
+          }
+
+          _bankcashnameController.text =
+          _selectedbankcashname != null ? _selectedbankcashname!['name']! : "";
+
 
           if (_selectedbankcashname != null && _selectedbankcashname!['type'] == 'Cash-in-Hand') {
 
@@ -4825,6 +4889,8 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     await loadData();
   }
 
+
+
   Future<void> _selectDateRangeVchNo(BuildContext context) async {
 
     final initialDateRange = DateTimeRange(start: yearStartDate, end: yearEndDate);
@@ -5367,34 +5433,40 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                   child: DropdownButtonFormField<String>(
                                     isExpanded: true,
                                     decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white.withOpacity(0.95),
-                                      labelText: "Voucher Type",
+                                      labelText: "Voucher Type Name",
                                       labelStyle: GoogleFonts.poppins(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
-                                        color: Colors.grey[700],
+                                        color: isVoucherTypeLocked ? Colors.grey.shade500 : Colors.grey[700],
                                       ),
-
-                                      // 🌈 Gradient Icon
+                                      filled: true,
+                                      fillColor: isVoucherTypeLocked
+                                          ? Colors.grey.shade100
+                                          : Colors.white.withOpacity(0.95),
                                       prefixIcon: Container(
                                         margin: const EdgeInsets.all(8),
-                                        decoration: const BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [Colors.purpleAccent, Colors.deepPurple],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                                        decoration: BoxDecoration(
+                                          color: isVoucherTypeLocked ? Colors.grey.shade400 : app_color,
+                                          borderRadius: BorderRadius.circular(12),
                                         ),
-                                        child: const Icon(
-                                          Icons.discount_outlined,
+                                        child: Icon(
+                                          isVoucherTypeLocked ? Icons.lock_outline : Icons.receipt_long_outlined,
                                           color: Colors.white,
                                           size: 20,
                                         ),
                                       ),
-
+                                      suffixIcon: Icon(
+                                        isVoucherTypeLocked ? Icons.lock_outline : Icons.arrow_drop_down,
+                                        color: isVoucherTypeLocked ? Colors.grey : Colors.black87,
+                                      ),
                                       enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                        borderSide: BorderSide(
+                                          color: isVoucherTypeLocked ? Colors.grey.shade300 : Colors.grey.shade300,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      disabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(16),
                                         borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
                                       ),
@@ -5402,11 +5474,15 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                         borderRadius: BorderRadius.circular(16),
                                         borderSide: BorderSide(color: app_color, width: 1.5),
                                       ),
-                                      contentPadding:
-                                      const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                                     ),
-                                    hint: const Text("Voucher Type Name"),
-                                    value: _selectedvchtypename,
+                                    hint:  Text("Voucher Type Name",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: isVoucherTypeLocked ? Colors.grey.shade500 : Colors.grey[700],
+                                    ),),
+                                    value: _selectedvchtypename.isNotEmpty ? _selectedvchtypename : null,
                                     items: vchtypenamedata.map((item) {
                                       return DropdownMenuItem<String>(
                                         value: item,
@@ -5415,18 +5491,25 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                           style: GoogleFonts.poppins(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
-                                            color: Colors.black87,
+                                            color: isVoucherTypeLocked ? Colors.grey.shade600 : Colors.black87,
                                           ),
                                         ),
                                       );
                                     }).toList(),
-                                    onChanged: (value) async {
+
+                                    // ✅ main lock fix
+                                    onChanged: isVoucherTypeLocked
+                                        ? null
+                                        : (value) {
+                                      if (value == null) return;
+
                                       setState(() {
-                                        _selectedvchtypename = value!;
-                                        fetchvchnos(_selectedvchtypename);
+                                        _selectedvchtypename = value;
                                       });
+
+                                      fetchvchnos(_selectedvchtypename);
                                     },
-                                  ),
+                                  )
                                 ),
 
                                 Padding(
@@ -5557,161 +5640,110 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                   padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 0),
                                   child: Container(
                                       width: MediaQuery.of(context).size.width,
-                                      child: TypeAheadField<String>(
-                                        suggestionsCallback: (pattern) {
+                                      child: TypeAheadField<Map<String, String>>(
+                                        controller: _bankcashnameController,
+
+                                        suggestionsCallback: (pattern) async {
+                                          if (isBankCashLedgerLocked) return [];
+
                                           return bankcashname_data
-                                              .where((ledger) {
-                                            final name = ledger['name']!.toLowerCase();
-                                            return name.contains(pattern.toLowerCase());
-                                          })
-                                              .map((ledger) => '${ledger['name']} (${ledger['type']})')
+                                              .where((item) =>
+                                              item['name']!
+                                                  .toLowerCase()
+                                                  .contains(pattern.toLowerCase()))
                                               .toList();
                                         },
 
-                                        builder: (context, controller, focusNode) {
-                                          _bankcashnameController = controller;
-
-                                          return TextField(
-                                            controller: controller,
-                                            focusNode: focusNode,
-                                            decoration: InputDecoration(
-                                              labelText: 'Bank/Cash Name',
-                                              hintText: _selectedbankcashname != null
-                                                  ? _selectedbankcashname!['name'] ?? ''
-                                                  : 'Search',
-                                              hintStyle: GoogleFonts.poppins(
-                                                fontSize: 13,
-                                                color: Colors.grey.shade500,
-                                              ),
-                                              labelStyle: GoogleFonts.poppins(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.grey[700],
-                                              ),
-                                              filled: true,
-                                              fillColor: Colors.white.withOpacity(0.95),
-
-                                              // 🌈 Gradient Prefix Icon
-                                              prefixIcon: Container(
-                                                margin: const EdgeInsets.all(8),
-                                                decoration: const BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    colors: [Colors.teal, Colors.blueAccent],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                                                ),
-                                                child: const Icon(
-                                                  Icons.account_balance_wallet,
-                                                  color: Colors.white,
-                                                  size: 20,
-                                                ),
-                                              ),
-
-                                              // ✖️ Clear + ⬇ Dropdown
-                                              suffixIcon: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  if (controller.text.isNotEmpty)
-                                                    GestureDetector(
-                                                      onTap: () {
-                                                        setState(() {
-                                                          controller.clear();
-                                                          _selectedbankcashname = null;
-                                                        });
-                                                      },
-                                                      child: const Icon(Icons.close, color: Colors.grey, size: 20),
-                                                    ),
-                                                  const SizedBox(width: 4),
-                                                  const Icon(Icons.arrow_drop_down, color: Colors.black87),
-                                                  const SizedBox(width: 8),
-                                                ],
-                                              ),
-
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: BorderSide(color: app_color, width: 1.5),
-                                              ),
-                                              contentPadding:
-                                              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                            ),
-                                          );
-                                        },
-
-                                        itemBuilder: (context, String suggestion) {
+                                        itemBuilder: (context, suggestion) {
                                           return ListTile(
                                             title: Text(
-                                              suggestion,
-                                              style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
+                                              suggestion['name']!,
+                                              style: GoogleFonts.poppins(fontSize: 14),
                                             ),
                                           );
                                         },
 
-                                        onSelected: (String suggestion) {
+                                        onSelected: isBankCashLedgerLocked
+                                            ? null
+                                            : (suggestion) {
                                           setState(() {
-                                            _selectedbankcashname = bankcashname_data.firstWhere(
-                                                  (ledger) =>
-                                              '${ledger['name']} (${ledger['type']})' == suggestion,
-                                            );
-                                            _bankcashnameController.text =
-                                                _selectedbankcashname!['name'] ?? '';
-                                            print("Selected Type: ${_selectedbankcashname!['type']}");
-                                            print("isPaymentModeVisible Before: $isPaymentModeVisible");
-                                            // 👇 your original cheque/payment logic preserved
-                                            if (_selectedbankcashname != null &&
-                                                _selectedbankcashname!['type'] == 'Cash-in-Hand') {
+                                            _selectedbankcashname = suggestion;
+                                            _bankcashnameController.text = suggestion['name']!;
+                                          });
+
+                                          if (_selectedbankcashname!['type'] == 'Cash-in-Hand') {
+                                            setState(() {
                                               isPaymentModeVisible = false;
                                               _selectedpaymentmode = paymentmode_data.first;
                                               cheque.clear();
                                               updateChequeAmount();
                                               isVisibleChequeHeading = false;
                                               isChequeVisible = false;
-
-
-                                            } else {
-                                              if (bills.isNotEmpty) {
-                                                if (cheque.isNotEmpty) {
-                                                  isPaymentModeVisible = true;
-                                                  isChequeVisible = true;
-                                                  isVisibleChequeHeading = true;
-                                                } else {
-                                                  isPaymentModeVisible = true;
-                                                  _selectedpaymentmode = paymentmode_data.first;
-                                                  cheque.clear();
-                                                  updateChequeAmount();
-                                                  isVisibleChequeHeading = false;
-                                                  isChequeVisible = true;
-                                                }
-                                              } else {
-                                                isPaymentModeVisible = false;
-                                                _selectedpaymentmode = paymentmode_data.first;
-                                                cheque.clear();
-                                                updateChequeAmount();
-                                                isVisibleChequeHeading = false;
-                                                isChequeVisible = false;
-                                              }
-                                            }
-                                          });
-
-
-
-                                          FocusScope.of(context).unfocus();
-
+                                            });
+                                          }
                                         },
 
-                                        // ✅ Replaces old `noItemsFoundBuilder`
-                                        emptyBuilder: (context) => const Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            'No matching Bank/Cash name found',
-                                            style: TextStyle(color: Colors.grey),
-                                          ),
-                                        ),
+                                        builder: (context, controller, focusNode) {
+                                          return TextFormField(
+                                            controller: controller,
+                                            focusNode: isBankCashLedgerLocked ? AlwaysDisabledFocusNode() : focusNode,
+                                            readOnly: isBankCashLedgerLocked,
+                                            enabled: !isBankCashLedgerLocked,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              color: isBankCashLedgerLocked ? Colors.grey.shade600 : Colors.black87,
+                                            ),
+
+                                            decoration: InputDecoration(
+                                              labelText: "Bank / Cash Ledger",
+                                              labelStyle: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.grey[700],
+                                              ),
+                                              filled: true,
+                                              hint:  Text("Bank / Cash Ledger",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: isVoucherTypeLocked ? Colors.grey.shade500 : Colors.grey[700],
+                                                ),),
+                                              fillColor: isBankCashLedgerLocked
+                                                  ? Colors.grey.shade100
+                                                  : Colors.white.withOpacity(0.95),
+                                              prefixIcon: Container(
+                                                margin: const EdgeInsets.all(8),
+                                                decoration: BoxDecoration(
+                                                  color: isBankCashLedgerLocked ? Colors.grey.shade400 : app_color,
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                                child: Icon(
+                                                  isBankCashLedgerLocked
+                                                      ? Icons.lock_outline
+                                                      : Icons.account_balance_wallet_outlined,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                              suffixIcon: Icon(
+                                                isBankCashLedgerLocked ? Icons.lock_outline : Icons.arrow_drop_down,
+                                                color: isBankCashLedgerLocked ? Colors.grey : Colors.black87,
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(16),
+                                                borderSide: BorderSide(color: Colors.grey.shade300),
+                                              ),
+                                              disabledBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(16),
+                                                borderSide: BorderSide(color: Colors.grey.shade300),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(16),
+                                                borderSide: BorderSide(color: app_color, width: 1.5),
+                                              ),
+                                            ),
+                                          );
+                                        },
                                       )
 
                                   ),
@@ -6460,3 +6492,8 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       ),
 
     );}}
+
+class AlwaysDisabledFocusNode extends FocusNode {
+  @override
+  bool get hasFocus => false;
+}

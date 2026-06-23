@@ -4979,7 +4979,8 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                           controller: controller,
                                           focusNode: focusNode,
                                           decoration: InputDecoration(
-                                            labelText: 'Bank/Cash Name',
+                                            labelText: 'Bank / Cash Ledger',
+
                                             hintText: _selectedbankcashname != null
                                                 ? _selectedbankcashname!['name'] ?? ''
                                                 : 'Search',

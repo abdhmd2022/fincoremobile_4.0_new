@@ -2,6 +2,7 @@ import'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:FincoreGo/PendingDeliveryNoteEntry.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 import 'package:flutter/foundation.dart';
 import 'package:FincoreGo/DashboardClicked.dart';
 import 'package:FincoreGo/PendingReceiptEntry.dart';
@@ -2552,7 +2553,41 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
   setState(() {});
   }
 
+  Widget _bottomNavTile(
+      String label,
+      IconData icon,
+      bool visible,
+      VoidCallback onTap,
+      ) {
+    if (!visible) return const SizedBox.shrink();
 
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 23, color: app_color),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.poppins(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -2623,6 +2658,19 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
               Username: name,
               Email: email,
               tickerProvider: this), // add the Sidebar widget here
+
+
+        bottomNavigationBar: AppBottomNav(
+          parentContext: context,
+          showItems: isVisibleItemBtn,
+          showParty: isVisiblePartyBtn,
+          showRegister: isVisibleTransactionBtn,
+          showEntries: isVisibleEntriesBtn,
+          onEntriesTap: () {
+            _showEntriesBottomSheet(context);
+          },
+        ),
+
 
           body: Stack(
               children: [
@@ -2974,7 +3022,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
           )
                 ),
 
-                Align(
+                /*Align(
                   alignment: Alignment.centerRight, // stick to right center
                   child: Padding(
                     padding: const EdgeInsets.only(right: 16.0), // distance from right edge
@@ -3007,9 +3055,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                       ],
                     ),
                   ),
-                ),
-
-
+                ),*/
 
                 if(isExpired)
                   AlertDialog(

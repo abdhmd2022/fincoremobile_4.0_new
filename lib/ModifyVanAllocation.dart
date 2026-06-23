@@ -386,7 +386,12 @@ class _ModifyVanAllocationScreenState
         final data = jsonDecode(response.body);
 
         final allocationsUrl = Uri.parse(
-          '$BASE_URL_config/api/spectra/Allocations?serial_no=$serial_no&company_name=${widget.allocation['company_name']}',
+          '$BASE_URL_config/api/spectra/Allocations',
+        ).replace(
+          queryParameters: {
+            'serial_no': serial_no,
+            'company_name': company,
+          },
         );
 
         final allocationResponse = await http.get(
@@ -396,6 +401,9 @@ class _ModifyVanAllocationScreenState
             'Content-Type': 'application/json',
           },
         );
+
+        debugPrint("ALLOCATION STATUS: ${allocationResponse.statusCode}");
+        debugPrint("ALLOCATION RESPONSE: ${allocationResponse.body}");
 
         final Set<String> allocatedLocations = {};
         final Set<String> allocatedDeliveryNoteVchTypes = {};
@@ -536,6 +544,37 @@ class _ModifyVanAllocationScreenState
         isSaving = true;
       });
 
+      dynamic body = jsonEncode({
+        "user_name":
+        widget.allocation[
+        'user_name'],
+
+        "serial_no":
+        widget.allocation[
+        'serial_no'],
+
+        "company_name":
+        widget.allocation[
+        'company_name'],
+
+        "godown_name":
+        selectedLocation,
+
+        "voucher_type_name":
+        selectedDeliveryNoteVchType,
+
+
+        "sales_voucher_type": selectedSalesVchType,
+
+        "receipt_voucher_type": selectedReceiptVchType,
+
+        "sales_ledger":
+        selectedSalesLedger,
+
+        "cash_ledger":
+        selectedCashLedger,
+      });
+
       final response = await http.put(
         Uri.parse(
           '$BASE_URL_config/api/spectra/Allocations',
@@ -548,51 +587,25 @@ class _ModifyVanAllocationScreenState
           'application/json',
         },
 
-        body: jsonEncode({
-          "user_name":
-          widget.allocation[
-          'user_name'],
-
-          "serial_no":
-          widget.allocation[
-          'serial_no'],
-
-          "company_name":
-          widget.allocation[
-          'company_name'],
-
-          "godown_name":
-          selectedLocation,
-
-          "voucher_type_name":
-          selectedDeliveryNoteVchType,
-
-
-          "sales_voucher_type": selectedSalesVchType,
-
-          "receipt_voucher_type": selectedReceiptVchType,
-
-          "sales_ledger":
-          selectedSalesLedger,
-
-          "cash_ledger":
-          selectedCashLedger,
-        }),
+        body: body,
       );
 
+      debugPrint(
+        "UPDATE RESPONSE BODY: ${body}",
+      );
       debugPrint(
         "UPDATE RESPONSE: ${response.body}",
       );
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context)
+        /*ScaffoldMessenger.of(context)
             .showSnackBar(
           const SnackBar(
             content: Text(
               'Allocation updated successfully',
             ),
           ),
-        );
+        );*/
 
         Navigator.pushReplacement(
           context,

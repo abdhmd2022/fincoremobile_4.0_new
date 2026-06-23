@@ -75,6 +75,8 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
 
   late SharedPreferences prefs;
 
+  final Set<int> expandedCards = {};
+
   String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";
 
   String formatAmount(String amount) {
@@ -1115,188 +1117,265 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                             final vchno = card.data['VOUCHERNUMBER'];
                             final vchtype = card.data['VOUCHERTYPENAME'] ?? 'N/A';
 
+                            final bool isExpanded = expandedCards.contains(card.id);
+
                             DateTime date = DateTime.parse(dateStr);
                             String formattedDate = DateFormat("dd-MMM-yyyy").format(date);
 
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 9),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                gradient: LinearGradient(
-                                  colors: [Colors.white, Colors.white],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 15,
-                                    offset: const Offset(0, 8),
+
+                            return GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
+                                setState(() {
+                                  isExpanded
+                                      ? expandedCards.remove(card.id)
+                                      : expandedCards.add(card.id);
+                                });
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 9),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  gradient: LinearGradient(
+                                    colors: [Colors.white, Colors.white],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
-                                ],
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // 🔹 Top Row: Invoice + Action Icons
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                                      child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 15,
+                                      offset: const Offset(0, 8),
+                                    ),
+                                  ],
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // 🔹 Top Row: Invoice + Action Icons
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
 
-                                          // LEFT SIDE (ICON + INVOICE)
-                                          Expanded(
-                                            child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children: [
-                                                // Gradient Icon
-                                                Container(
-                                                  width: 32,
-                                                  height: 32,
-                                                  decoration: BoxDecoration(
-                                                    gradient: const LinearGradient(
-                                                      colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
-                                                      begin: Alignment.topLeft,
-                                                      end: Alignment.bottomRight,
-                                                    ),
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.blue.withOpacity(0.25),
-                                                        blurRadius: 6,
-                                                        offset: const Offset(0, 3),
+                                            // LEFT SIDE (ICON + INVOICE)
+                                            Expanded(
+                                              child: Row(
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: [
+                                                  // Gradient Icon
+                                                  Container(
+                                                    width: 32,
+                                                    height: 32,
+                                                    decoration: BoxDecoration(
+                                                      gradient: const LinearGradient(
+                                                        colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
+                                                        begin: Alignment.topLeft,
+                                                        end: Alignment.bottomRight,
                                                       ),
-                                                    ],
+                                                      borderRadius: BorderRadius.circular(10),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.blue.withOpacity(0.25),
+                                                          blurRadius: 6,
+                                                          offset: const Offset(0, 3),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: const Icon(Icons.receipt_long, size: 18, color: Colors.white),
                                                   ),
-                                                  child: const Icon(Icons.receipt_long, size: 18, color: Colors.white),
-                                                ),
-                                                const SizedBox(width: 10),
+                                                  const SizedBox(width: 10),
 
-                                                // Invoice Text
+                                                  // Invoice Text
+                                                  Expanded(
+                                                    child: Text(
+                                                      "$vchno",
+                                                      style: GoogleFonts.poppins(
+                                                        fontSize: 15,
+                                                        fontWeight: FontWeight.w700,
+                                                        color: Colors.black87,
+                                                      ),
+                                                      softWrap: true,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+
+                                            const SizedBox(width: 8),
+
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: 0),
+                                              child: Row(
+                                                children: [
+                                                  _buildSyncChip(card.isSynced),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      if (card.isSynced == 2 && card.message != null)
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 16,right:16, top:16 ),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              color: Colors.red.shade50,
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(color: Colors.red.shade200),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.error_outline, color: Colors.red.shade700, size: 18),
+                                                const SizedBox(width: 8),
                                                 Expanded(
                                                   child: Text(
-                                                    "$vchno",
+                                                    card.message!,
                                                     style: GoogleFonts.poppins(
-                                                      fontSize: 15,
-                                                      fontWeight: FontWeight.w700,
-                                                      color: Colors.black87,
+                                                      fontSize: 12,
+                                                      color: Colors.red.shade700,
+                                                      fontWeight: FontWeight.w500,
                                                     ),
-                                                    softWrap: true,
                                                   ),
                                                 ),
                                               ],
                                             ),
                                           ),
+                                        ),
 
-                                          const SizedBox(width: 8),
-
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 0),
-                                            child: Row(
-                                              children: [
-                                                _buildSyncChip(card.isSynced),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
+                                      const SizedBox(height: 12),
+                                      // 🔹 Detail Rows
+                                      DetailRowTile(
+                                        label: "Party Ledger",
+                                        value: partyLedger ?? '',
                                       ),
-                                    ),
+                                      DetailRowTile(
+                                        label: "Date",
+                                        value: formattedDate,
+                                      ),
 
-                                    if (card.isSynced == 2 && card.message != null)
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 16,right:16, top:16 ),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red.shade50,
-                                            borderRadius: BorderRadius.circular(12),
-                                            border: Border.all(color: Colors.red.shade200),
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.error_outline, color: Colors.red.shade700, size: 18),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                child: Text(
-                                                  card.message!,
+                                      AnimatedSize(
+                                        duration: const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOutCubic,
+                                        alignment: Alignment.topCenter,
+                                        child: isExpanded
+                                            ? Column(
+                                          children: [
+                                            DetailRowTile(
+                                              label: "Voucher Type",
+                                              value: vchtype,
+                                            ),
+
+                                            if (serial_no != uniGasSerialNumber)
+                                              DetailRowTile(
+                                                label: "Total Amount",
+                                                value: formatAmount(totalAmount.toString()),
+                                              ),
+                                          ],
+                                        )
+                                            : const SizedBox.shrink(),
+                                      ),
+
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(right: 14, top: 6),
+                                          child: AnimatedContainer(
+                                            duration: const Duration(milliseconds: 250),
+                                            curve: Curves.easeInOut,
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                            decoration: BoxDecoration(
+                                              color: isExpanded ? Colors.grey.shade100 : app_color.withOpacity(0.08),
+                                              borderRadius: BorderRadius.circular(30),
+                                              border: Border.all(
+                                                color: isExpanded ? Colors.grey.shade300 : app_color.withOpacity(0.18),
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.touch_app_rounded,
+                                                  size: 15,
+                                                  color: isExpanded ? Colors.grey.shade700 : app_color,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  isExpanded ? "Show less" : "Tap to show more",
                                                   style: GoogleFonts.poppins(
-                                                    fontSize: 12,
-                                                    color: Colors.red.shade700,
-                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: isExpanded ? Colors.grey.shade700 : app_color,
                                                   ),
                                                 ),
-                                              ),
-                                            ],
+                                                const SizedBox(width: 3),
+                                                AnimatedRotation(
+                                                  turns: isExpanded ? 0.5 : 0,
+                                                  duration: const Duration(milliseconds: 250),
+                                                  child: Icon(
+                                                    Icons.keyboard_arrow_down_rounded,
+                                                    size: 16,
+                                                    color: isExpanded ? Colors.grey.shade700 : app_color,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
 
-                                    const SizedBox(height: 12),
-                                    // 🔹 Detail Rows
-                                    DetailRowTile(
-                                      label: "Party Ledger",
-                                      value: partyLedger,
-                                    ),
-                                    DetailRowTile(
-                                      label: "Voucher Type",
-                                      value: vchtype,
-                                    ),
-                                    DetailRowTile(
-                                      label: "Date",
-                                      value: formattedDate,
-                                    ),
-                                    /*DetailRowTile(
-                                      label: "Total Amount",
-                                      value: formatAmount(totalAmount.toString()),
-                                    ),*/
 
+                                      if(card.isSynced != 1 && (serial_no != uniGasSerialNumber))
+                                        Padding(padding: EdgeInsets.only(top: 16),
+                                          child:  Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              if (card.isSynced != 1) ...[
+                                                _buildGradientAction(
+                                                  icon: Icons.edit,
+                                                  text: "Modify",
 
+                                                  colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
+                                                  onTap: () {
+                                                    Navigator.pushReplacement(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) => ModifySalesEntry(
+                                                          type: card.type,
+                                                          id: card.id,
+                                                          isSynced: card.isSynced,
+                                                          data: card.data,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                                const SizedBox(width: 10),
+                                                _buildGradientAction(
+                                                  icon: Icons.delete_outline,
+                                                  text: "Delete",
 
-                                   /* Padding(padding: EdgeInsets.only(top: 16),
-                                      child:  Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          if (card.isSynced != 1) ...[
-                                            _buildGradientAction(
-                                              icon: Icons.edit,
-                                              text: "Modify",
+                                                  colors: [Color(0xFFEF5350), Color(0xFFD32F2F)],
+                                                  onTap: () {
+                                                    _showConfirmationDialogAndNavigate(context, card.id);
+                                                  },
+                                                ),
+                                              ]
+                                            ],
+                                          ),)
 
-                                              colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
-                                              onTap: () {
-                                                Navigator.pushReplacement(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) => ModifySalesEntry(
-                                                      type: card.type,
-                                                      id: card.id,
-                                                      isSynced: card.isSynced,
-                                                      data: card.data,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                            const SizedBox(width: 10),
-                                            _buildGradientAction(
-                                              icon: Icons.delete_outline,
-                                              text: "Delete",
-
-                                              colors: [Color(0xFFEF5350), Color(0xFFD32F2F)],
-                                              onTap: () {
-                                                _showConfirmationDialogAndNavigate(context, card.id);
-                                              },
-                                            ),
-                                          ]
-                                        ],
-                                      ),)*/
-
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            );
+                              ));
+
+
+
 
 
                           },

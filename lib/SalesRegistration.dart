@@ -3191,6 +3191,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
           _selectedvchtypename =
           vchtypenamedata.isNotEmpty ? vchtypenamedata[0] : null;
 
+          fetchvchnos(_selectedvchtypename);
+
 
 
           if (vanSalesSerialNo.contains(currentSerialNo)) {
@@ -5660,7 +5662,18 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
     final itemLocation = selectedLocation;
     final itemUnit = _selectedunit;
 
-    if (itemName.isNotEmpty && itemQuantity.isNotEmpty && itemPrice.isNotEmpty) {
+    final qty = double.tryParse(itemQuantity.replaceAll(',', '').trim()) ?? 0;
+
+    if (itemQuantity.trim().isEmpty || qty <= 0) {
+      Fluttertoast.showToast(
+        msg: "Quantity must be greater than 0",
+        backgroundColor: Colors.redAccent,
+        textColor: Colors.white,
+      );
+      return;
+    }
+
+    if (itemName.isNotEmpty && itemPrice.isNotEmpty) {
       Navigator.of(context).pop();
 
       double parsedAmount = double.parse(itemAmount.replaceAll(',', ''));

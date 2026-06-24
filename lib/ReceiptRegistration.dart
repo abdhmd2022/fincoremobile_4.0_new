@@ -67,6 +67,8 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
   late DateTime now = DateTime.now();
 
+  bool showOutstandingBills = false; // temporary hide
+
   bool isVchEditable = false; // state variable
 
   // Current year start date
@@ -307,6 +309,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
   }
 
   Widget buildOutstandingCard() {
+    if (!showOutstandingBills) return const SizedBox.shrink();
     if (!showOutstandingCard) return const SizedBox.shrink();
 
     final int totalBills = outstandingBills.length;
@@ -2705,7 +2708,10 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
           _dateController.text = receiptdatetxt;
           if (_selectedparty != null &&
               _selectedparty.toString().trim().isNotEmpty) {
-            fetchPartyOutstanding(_selectedparty.toString());
+            if (showOutstandingBills) {
+              fetchPartyOutstanding(_selectedparty.toString());
+            }
+
           }
         });
       }
@@ -5618,7 +5624,10 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                             _partyController.text = _selectedparty;
                                           });
 
-                                          fetchPartyOutstanding(suggestion);
+                                          if (showOutstandingBills) {
+                                            fetchPartyOutstanding(suggestion);
+                                          }
+
                                         },
 
                                         // ✅ new API → emptyBuilder replaces noItemsFoundBuilder

@@ -187,7 +187,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
 
   void _initSocket() {
     socket = IO.io(SOCKET_URL, <String, dynamic>{
-      'transports': ['websocket', 'polling'],
+      'transports': ['websocket'],
       'path': '/main/socket.io',
       'secure': true,
       'autoConnect': false,

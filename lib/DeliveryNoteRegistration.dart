@@ -138,6 +138,8 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
   final TextEditingController voucherStartReadingController = TextEditingController();
   final TextEditingController voucherEndReadingController = TextEditingController();
 
+
+
   String? selectedItemMasterId;
   bool isPriceLevelLoading = false;
   double ledgerVatAmount = 0,
@@ -4084,6 +4086,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     itemAmountController.clear();
     voucherStartReadingController.clear();
     voucherEndReadingController.clear();
+    const bool showMeterReading = false;
 
     showModalBottomSheet(
       context: context,
@@ -4498,7 +4501,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                       ),
                                     ),
 
-                                    if (isUniGasMeterReadingSerial) ...[
+                                    if (isUniGasMeterReadingSerial && showMeterReading) ...[
                                       const SizedBox(height: 12),
 
                                       Padding(

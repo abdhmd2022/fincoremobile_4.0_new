@@ -1013,7 +1013,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
   _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     // Initialize Socket.IO connection
     socket = IO.io(SOCKET_URL, <String, dynamic>{
-      'transports': ['websocket','polling'],
+      'transports': ['websocket'],
       'path': '/main/socket.io',
       'secure': true,
       'autoConnect': false,
@@ -1329,9 +1329,9 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                ? companyName.substring(0, 2).toUpperCase()
                : companyName.toUpperCase();
 
-           final syncData = companySyncInfo[companyName];
+           /*final syncData = companySyncInfo[companyName];
            final lastSync = syncData?['lastSync'] ?? "Loading...";
-           final trn = syncData?['trn'] ?? "";
+           final trn = syncData?['trn'] ?? "";*/
 
            return InkWell(
              borderRadius: BorderRadius.circular(18),
@@ -1347,7 +1347,8 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                  border: Border.all(color: Colors.grey.shade200),
                ),
                child: Row(
-                 crossAxisAlignment: CrossAxisAlignment.start,
+                 crossAxisAlignment: CrossAxisAlignment.center,
+
                  children: [
                    Container(
                      height: 42,
@@ -1372,6 +1373,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                    Expanded(
                      child: Column(
                        crossAxisAlignment: CrossAxisAlignment.start,
+                       mainAxisAlignment: MainAxisAlignment.center,
                        children: [
                          Text(
                            companyName,
@@ -1384,7 +1386,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                            ),
                          ),
 
-                         const SizedBox(height: 8),
+                         /*const SizedBox(height: 8),
 
                          Row(
                            children: [
@@ -1409,7 +1411,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                                ),
                              ),
                            ],
-                         ),
+                         ),*/
 
                          /*if (trn.isNotEmpty &&
                              trn != "Not Available" &&
@@ -1957,7 +1959,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
 
            _selectcompany = myData_company.first;
          });
-         await loadCompanySyncInfo();
+         // await loadCompanySyncInfo();
 
          // ✅ Auto-navigate when single serial + single company
          if (myData.length == 1 && myData_company.length == 1) {
@@ -2075,7 +2077,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
              _selectcompany = myData_company.first;
            });
 
-           await loadCompanySyncInfo();
+           // await loadCompanySyncInfo();
 
            // ✅ Auto-prompt to Dashboard if only one serial + one company
            if (myData.length == 1 && myData_company.length == 1) {

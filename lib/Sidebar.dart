@@ -47,7 +47,7 @@ class Sidebar extends StatelessWidget {
     _getDeviceIdentifier();
 
     socket = IO.io(SOCKET_URL, <String, dynamic>{
-      'transports': ['websocket','polling'],
+      'transports': ['websocket'],
       'path': '/main/socket.io',
       'secure': true,
       'autoConnect': false,

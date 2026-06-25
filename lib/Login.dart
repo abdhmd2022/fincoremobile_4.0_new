@@ -906,7 +906,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
     // Initialize Socket.IO connection
     socket = IO.io(SOCKET_URL, <String, dynamic>{
-      'transports': ['websocket','polling'],
+      'transports': ['websocket'],
       'path': '/main/socket.io',
       'secure': true,
       'autoConnect': false,
@@ -1286,7 +1286,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 </div>''';
     try {
 
-      // await send(message, smtpServer);
+      await send(message, smtpServer);
 
       /*_scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(

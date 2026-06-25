@@ -2538,7 +2538,62 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                     style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
-                  Row(
+
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: <Widget>[
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            // keep your existing reset code same here
+                          });
+                        },
+                        icon: const Icon(Icons.close_rounded, size: 18, color: Colors.white),
+                        label: Text(
+                          'No, Thanks',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                      ),
+
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await generateSalesOrderPDF();
+                        },
+                        icon: const Icon(Icons.share_rounded, size: 18, color: Colors.white),
+                        label: Text(
+                          'Share',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: app_color,
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  /*Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       ElevatedButton.icon(
@@ -2705,7 +2760,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
                         ),
                       ),
                     ],
-                  ),
+                  ),*/
                 ],
               ),
             ),

@@ -2989,7 +2989,135 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                     style: GoogleFonts.poppins(fontSize: 16.0, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
-                  Row(
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: <Widget>[
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            controller_narration.clear();
+                            controller_refno.clear();
+                            _textFieldFocusNodeNarration.unfocus();
+
+                            saledate = DateTime.now();
+                            saledatestring = _dateFormat.format(saledate);
+                            saledatetxt = formatlastsaledate(saledatestring);
+                            _dateController.text = saledatetxt;
+
+                            refdate = DateTime.now();
+                            refdatestring = _dateFormat.format(refdate);
+                            refdatetxt = formatlastsaledate(refdatestring);
+                            _refdateController.text = refdatetxt;
+
+                            fetchvchnos(_selectedvchtypename);
+
+                            _selectedpartyledger = null;
+                            _partyLedgerController.clear();
+
+                            _selectedledger =
+                            ledgerdata.isNotEmpty ? ledgerdata[0]['name'] : null;
+                            _selectedvatledger = vatledgerdata[0];
+
+                            _selecteditem = '${itemdata[0]['name']}';
+                            _itemController.text = _selecteditem;
+
+                            if (locationsdata.isNotEmpty) {
+                              selectedLocation = locationsdata[0];
+                              isVisibleLocation = true;
+                            } else {
+                              isVisibleLocation = false;
+                            }
+
+                            _updateUnitDropdown(_selecteditem);
+
+                            saleItems.clear();
+                            ledgerEntries.clear();
+
+                            totalPriceOfItems = 0.0;
+                            totalAmountOfLedgers = 0.0;
+                            totalVatAmount = 0.0;
+
+                            controller_vatamt.clear();
+                            controller_totalamt.clear();
+
+                            isVisibleItemHeading = false;
+                            isVisibleLedgerHeading = false;
+
+                            _isFocused_vchno = false;
+                            _isFocused_item = false;
+                            _isFocused_unit = false;
+                            _isFocused_ledger = false;
+                            _isFocused_narration = false;
+                            _isFocused_totalamt = false;
+                            _isFocused_vatamt = false;
+                          });
+                        },
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          'No, Thanks',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                          shadowColor: Colors.redAccent.withOpacity(0.3),
+                        ),
+                      ),
+
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await generateInvoicePDF(trn, address, emirate, country);
+                        },
+                        icon: const Icon(
+                          Icons.share_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          'Share',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: app_color,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                          shadowColor: app_color.withOpacity(0.3),
+                        ),
+                      ),
+                    ],
+                  ),
+
+
+                  /*Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       ElevatedButton.icon(
@@ -3096,7 +3224,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
                         ),
                       )
                     ],
-                  ),
+                  ),*/
                 ],
               ),
             ),

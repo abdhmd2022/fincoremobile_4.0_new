@@ -2443,7 +2443,67 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
                     style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
-                  Row(
+
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: <Widget>[
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            // keep your existing reset code here same
+                          });
+                        },
+                        icon: const Icon(Icons.close_rounded, size: 18, color: Colors.white),
+                        label: Text(
+                          'No, Thanks',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                          shadowColor: Colors.redAccent.withOpacity(0.3),
+                        ),
+                      ),
+
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await generateSalesOrderPDF();
+                        },
+                        icon: const Icon(Icons.share_rounded, size: 18, color: Colors.white),
+                        label: Text(
+                          'Share',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: app_color,
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                          shadowColor: app_color.withOpacity(0.3),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  /*Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       ElevatedButton.icon(
@@ -2610,7 +2670,7 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
                         ),
                       ),
                     ],
-                  ),
+                  ),*/
                 ],
               ),
             ),

@@ -741,7 +741,83 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Row(
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: <Widget>[
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PendingReceiptEntry(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          'No, Thanks',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                          shadowColor: Colors.redAccent.withOpacity(0.3),
+                        ),
+                      ),
+
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await generateVoucherPDF();
+                        },
+                        icon: const Icon(
+                          Icons.share_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          'Share',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: app_color,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                          shadowColor: app_color.withOpacity(0.3),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  /*Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       ElevatedButton.icon(
@@ -806,7 +882,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                         ),
                       )
                     ],
-                  ),
+                  ),*/
                 ],
               ),
             ),
@@ -1715,7 +1791,10 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       fetchvchnos(_selectedvchtypename);
       _selectedparty = partydata.first;
 
-      _selectedbankcashname = bankcashname_data.first;
+      if(serial_no != uniGasSerialNumber){
+        _selectedbankcashname = bankcashname_data.first;
+      }
+
 
       bills.clear();
       cheque.clear();

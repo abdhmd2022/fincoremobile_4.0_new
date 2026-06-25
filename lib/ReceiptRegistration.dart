@@ -954,7 +954,116 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Row(
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: <Widget>[
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _selectedparty = null;
+                            _partyController.clear();
+                            showOutstandingCard = false;
+                            totalOutstanding = 0.0;
+                            outstandingError = "";
+                            isChequeVisible = false;
+                            openingOutstanding = 0.0;
+                            outstandingBills.clear();
+
+                            controller_narration.clear();
+                            _textFieldFocusNodeNarration.unfocus();
+
+                            receiptdate = DateTime.now();
+                            receiptdatestring = _dateFormat.format(receiptdate);
+                            receiptdatetxt = formatlastsaledate(receiptdatestring);
+                            _dateController.text = receiptdatetxt;
+
+                            if(serial_no != uniGasSerialNumber){
+                              _selectedvchtypename = vchtypenamedata.first;
+                            }
+                            fetchvchnos(_selectedvchtypename);
+
+                            if(serial_no != uniGasSerialNumber){
+                              _selectedbankcashname = null;
+                              _bankcashnameController.text = "";
+                            }
+
+
+                            bills.clear();
+                            cheque.clear();
+
+                            updateChequeAmount();
+
+                            totalBillAmount = bills.fold(
+                              0.0,
+                                  (double previousAmount, Bills bill) {
+                                return previousAmount + bill.billAmount;
+                              },
+                            );
+
+                            roundedtotalBillAmount = double.parse(
+                              totalBillAmount.toStringAsFixed(decimal!),
+                            );
+
+                            NumberFormat formatter = NumberFormat(
+                              '#,##0.${'0' * decimal!}',
+                              'en_US',
+                            );
+
+                            controller_totalamt.text =
+                                formatter.format(roundedtotalBillAmount);
+
+                            isVisibleBillHeading = bills.isNotEmpty;
+                            isVisibleChequeHeading = cheque.isNotEmpty;
+                          });
+
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.close_rounded, size: 18, color: Colors.white),
+                        label: Text(
+                          'No, Thanks',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                      ),
+
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await generateVoucherPDF();
+                        },
+                        icon: const Icon(Icons.share_rounded, size: 18, color: Colors.white),
+                        label: Text(
+                          'Share',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: app_color,
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  /*Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       ElevatedButton.icon(
@@ -1079,7 +1188,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                         ),
                       ),
                     ],
-                  ),
+                  ),*/
                 ],
               ),
             ),
@@ -2107,14 +2216,20 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       receiptdatestring = _dateFormat.format(receiptdate);
       receiptdatetxt = formatlastsaledate(receiptdatestring);
       _dateController.text = receiptdatetxt;
-      _selectedvchtypename = vchtypenamedata.first;
+      if(serial_no != uniGasSerialNumber){
+        _selectedvchtypename = vchtypenamedata.first;
+      }
+
       fetchvchnos(_selectedvchtypename);
 
-      _selectedbankcashname = null;
-      _bankcashnameController.text =
-      _selectedbankcashname != null
-          ? _selectedbankcashname!['name']!
-          : "";
+      if(serial_no != uniGasSerialNumber){
+        _selectedbankcashname = null;
+        _bankcashnameController.text =
+        _selectedbankcashname != null
+            ? _selectedbankcashname!['name']!
+            : "";
+      }
+
       bills.clear();
       cheque.clear();
 

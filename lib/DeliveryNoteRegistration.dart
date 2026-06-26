@@ -2847,7 +2847,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
     return currentSerial == uniGasSerialNumber;
   }
 
-  Future<void> loadData() async {
+  /*Future<void> loadData() async {
     vchtypenamedata.clear();
     itemdata.clear();
     salesledger_data.clear();
@@ -2898,11 +2898,11 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
           "godownName": godownName,
       });
 
-      /*var body = jsonEncode({
+      *//*var body = jsonEncode({
         "type": "delivery note",
         if (godownName.isNotEmpty)
           "godownName": godownName,
-      });*/
+      });*//*
 
       debugPrint('body load data -> $body');
       final response = await http.post
@@ -2916,7 +2916,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
       {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
 
-        /*print(response.body);*/
+        *//*print(response.body);*//*
         setState(() {
           vchtypenamedata = List<String>.from(
             (jsonResponse["vchTypes"] ?? [])
@@ -3128,18 +3128,15 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
         }
 
         // SALES LEDGER
-        /*if (allocation['sales_ledger'] != null &&
+        *//*if (allocation['sales_ledger'] != null &&
             salesledger_data.contains(allocation['sales_ledger'])) {
           _selectedsalesledger = allocation['sales_ledger'];
-        }*/
+        }*//*
 
         // VOUCHER TYPE
-        final savedVoucherType =
-        allocation['voucher_type']?.toString();
+        final savedVoucherType = allocation['voucher_type']?.toString();
 
-        if (savedVoucherType != null &&
-            savedVoucherType.isNotEmpty &&
-            vchtypenamedata.contains(savedVoucherType)) {
+        if (savedVoucherType != null && savedVoucherType.isNotEmpty && vchtypenamedata.contains(savedVoucherType)) {
 
           _selectedvchtypename = savedVoucherType;
 
@@ -3160,6 +3157,222 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
         setState(() {});
       }
     }
+  }*/
+
+  Future<void> loadData() async {
+    vchtypenamedata.clear();
+    itemdata.clear();
+    salesledger_data.clear();
+    partyledgerdata.clear();
+    vatledgerdata.clear();
+    ledgerdata.clear();
+    locationsdata.clear();
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+
+    String godownName = '';
+    String? savedVoucherType;
+    String? savedSalesLedger;
+
+    String? allocationString = prefs.getString('spectra_allocations');
+
+    if (allocationString != null && allocationString.isNotEmpty) {
+      List<dynamic> allocations = jsonDecode(allocationString);
+
+      if (allocations.isNotEmpty) {
+        final allocation = allocations.first as Map<String, dynamic>;
+
+        godownName = allocation['godown']?.toString() ?? '';
+        savedVoucherType = allocation['voucher_type']?.toString().trim();
+        savedSalesLedger = allocation['sales_ledger']?.toString().trim();
+      }
+    }
+
+    try {
+      final url = Uri.parse(HttpURL_loadData!);
+
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
+      };
+
+      final String currentSerialNo = serial_no?.trim() ?? '';
+      final bool isVanSalesSerial = vanSalesSerialNo.contains(currentSerialNo);
+
+      debugPrint('loadData serial_no -> $currentSerialNo');
+      debugPrint('loadData isVanSalesSerial -> $isVanSalesSerial');
+      debugPrint('loadData assigned godownName -> $godownName');
+
+      var body = jsonEncode({
+        "type": "delivery note",
+        if (isVanSalesSerial && godownName.isNotEmpty)
+          "godownName": godownName,
+      });
+
+      debugPrint('body load data -> $body');
+
+      final response = await http.post(
+        url,
+        body: body,
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+
+        String? voucherTypeToFetch;
+
+        setState(() {
+          vchtypenamedata = List<String>.from(
+            (jsonResponse["vchTypes"] ?? [])
+                .where((e) => e != null)
+                .map((e) => e.toString()),
+          );
+
+          final bool hasValidSavedVoucherType =
+              savedVoucherType != null &&
+                  savedVoucherType!.isNotEmpty &&
+                  savedVoucherType!.toLowerCase() != 'null' &&
+                  vchtypenamedata.contains(savedVoucherType);
+
+          _selectedvchtypename = hasValidSavedVoucherType
+              ? savedVoucherType
+              : (vchtypenamedata.isNotEmpty ? vchtypenamedata[0] : null);
+
+          isVoucherTypeLocked = hasValidSavedVoucherType;
+          voucherTypeToFetch = _selectedvchtypename;
+
+          debugPrint('vanSalesSerialNo set -> $vanSalesSerialNo');
+          debugPrint('selected serial_no -> $currentSerialNo');
+          debugPrint('is van sales serial -> ${vanSalesSerialNo.contains(currentSerialNo)}');
+
+          if (vanSalesSerialNo.contains(currentSerialNo)) {
+            debugPrint('NEW RESPONSE FORMAT:');
+
+            partyledgerdata.clear();
+            partyLedgerPriceLevelMap.clear();
+
+            for (var ledger in (jsonResponse["partyLedgers"] ?? [])) {
+              if (ledger == null) continue;
+
+              final String ledgerName = ledger['name']?.toString().trim() ?? '';
+              final dynamic rawPriceLevel = ledger['price_level'];
+
+              final String? priceLevel = rawPriceLevel == null ||
+                  rawPriceLevel.toString().trim().isEmpty ||
+                  rawPriceLevel.toString().trim().toLowerCase() == 'null'
+                  ? null
+                  : rawPriceLevel.toString().trim();
+
+              if (ledgerName.isEmpty) continue;
+
+              if (!partyledgerdata.contains(ledgerName)) {
+                partyledgerdata.add(ledgerName);
+              }
+
+              partyLedgerPriceLevelMap[ledgerName] = priceLevel;
+            }
+
+            debugPrint('party ledger data -> $partyledgerdata');
+            debugPrint('party price level map -> $partyLedgerPriceLevelMap');
+          } else {
+            partyledgerdata = List<String>.from(
+              (jsonResponse["partyLedgers"] ?? [])
+                  .where((e) => e != null)
+                  .map((e) => e.toString()),
+            );
+          }
+
+          salesledger_data = List<String>.from(
+            (jsonResponse["salesLedgers"] ?? [])
+                .where((e) => e != null)
+                .map((e) => e.toString()),
+          );
+
+          if (savedSalesLedger != null &&
+              savedSalesLedger!.isNotEmpty &&
+              salesledger_data.contains(savedSalesLedger)) {
+            _selectedsalesledger = savedSalesLedger;
+            isSalesLedgerLocked = true;
+          } else {
+            _selectedsalesledger =
+            salesledger_data.isNotEmpty ? salesledger_data[0] : null;
+            isSalesLedgerLocked = false;
+          }
+
+          ledgerdata = List<Map<String, dynamic>>.from(
+            (jsonResponse['otherLedgers'] ?? []).where((e) => e != null),
+          );
+
+          _selectedledger = ledgerdata.isNotEmpty
+              ? ledgerdata[0]['name']?.toString() ?? ''
+              : '';
+
+          vatledgerdata.add('Not Applicable');
+          vatledgerdata.addAll(
+            List<String>.from(
+              (jsonResponse["vatLedgers"] ?? [])
+                  .where((e) => e != null)
+                  .map((e) => e.toString()),
+            ),
+          );
+
+          _selectedvatledger =
+          vatledgerdata.isNotEmpty ? vatledgerdata[0] : null;
+
+          itemdata = (jsonResponse["items"] ?? [])
+              .where((e) => e != null)
+              .toList();
+
+          locationsdata = List<String>.from(
+            (jsonResponse['locations'] ?? [])
+                .where((e) => e != null)
+                .map((e) => e.toString()),
+          );
+
+          if (locationsdata.isNotEmpty) {
+            if (godownName.isNotEmpty && locationsdata.contains(godownName)) {
+              selectedLocation = godownName;
+            } else {
+              selectedLocation = locationsdata[0];
+            }
+
+            isVisibleLocation = true;
+          } else {
+            isVisibleLocation = false;
+          }
+
+          if (_selecteditem != null) {
+            _updateUnitDropdown(_selecteditem);
+          }
+        });
+
+        if (voucherTypeToFetch != null && voucherTypeToFetch!.isNotEmpty) {
+          await fetchvchnos(voucherTypeToFetch!);
+        }
+      } else {
+        Map<String, dynamic> data = json.decode(response.body);
+        String error = '';
+
+        if (data.containsKey('error')) {
+          error = data['error'];
+        } else {
+          error = 'Something went wrong!!!';
+        }
+
+        Fluttertoast.showToast(msg: error);
+      }
+    } catch (e) {
+      print('error -> $e');
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> loadLedgerData() async {

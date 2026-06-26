@@ -2601,7 +2601,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
   }
 
 
-  Future<void> loadData() async {
+  /*Future<void> loadData() async {
     vchtypenamedata.clear();
     partydata.clear();
     bankcashname_data.clear();
@@ -2648,7 +2648,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
 
-        /*print(response.body);*/
+        *//*print(response.body);*//*
         setState(() {
           final String currentSerialNo = serial_no?.trim() ?? '';
           final bool isUniGasSerial = vanSalesSerialNo.contains(currentSerialNo);
@@ -2789,6 +2789,202 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     }
     catch (e)
     {
+      *//*print(e);*//*
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }*/
+
+  Future<void> loadData() async {
+    vchtypenamedata.clear();
+    partydata.clear();
+    bankcashname_data.clear();
+    bills.clear();
+
+    totalBillAmount = bills.fold(
+      0.0,
+          (double previousAmount, Bills bill) {
+        return previousAmount + bill.billAmount;
+      },
+    );
+
+    roundedtotalBillAmount = double.parse(totalBillAmount.toStringAsFixed(decimal!));
+    NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+    String formattedtotal = formatter.format(roundedtotalBillAmount);
+    controller_totalamt.text = formattedtotal.toString();
+
+    cheque.clear();
+    updateChequeAmount();
+
+    billAmountController.clear();
+    chequeAmountController.clear();
+    instNoController.clear();
+    selectedbankname = bankname_data.first;
+    _banknameController.text = selectedbankname;
+    controller_totalamt.text = '0';
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final url = Uri.parse(HttpURL_loadData!);
+
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
+      };
+
+      final response = await http.post(
+        url,
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+
+        final String currentSerialNo = serial_no?.trim() ?? '';
+        final bool isUniGasSerial = vanSalesSerialNo.contains(currentSerialNo);
+
+        String? allocationString = prefs.getString('spectra_allocations');
+        Map<String, dynamic>? allocation;
+
+        if (isUniGasSerial &&
+            allocationString != null &&
+            allocationString.isNotEmpty) {
+          try {
+            final List<dynamic> allocations = jsonDecode(allocationString);
+
+            if (allocations.isNotEmpty) {
+              allocation = Map<String, dynamic>.from(allocations.first);
+            }
+          } catch (e) {
+            debugPrint('receipt allocation decode error -> $e');
+          }
+        }
+
+        String? voucherTypeToFetch;
+
+        setState(() {
+          vchtypenamedata = List<String>.from(
+            (jsonResponse['vchTypes'] ?? [])
+                .where((e) => e != null)
+                .map((e) => e.toString()),
+          );
+
+          String savedReceiptVoucherType = '';
+
+          if (isUniGasSerial && allocation != null) {
+            final String receiptVoucherType =
+                allocation['receipt_voucher_type']?.toString().trim() ?? '';
+
+            final String commonVoucherType = allocation['voucher_type']?.toString().trim() ?? '';
+
+            savedReceiptVoucherType = receiptVoucherType.isNotEmpty
+                ? receiptVoucherType
+                : commonVoucherType;
+          }
+
+          final bool hasValidSavedVoucherType =
+              savedReceiptVoucherType.isNotEmpty &&
+                  savedReceiptVoucherType.toLowerCase() != 'null' &&
+                  vchtypenamedata.contains(savedReceiptVoucherType);
+
+          _selectedvchtypename = (hasValidSavedVoucherType
+              ? savedReceiptVoucherType
+              : (vchtypenamedata.isNotEmpty ? vchtypenamedata.first : null))!;
+
+          isVoucherTypeLocked = hasValidSavedVoucherType;
+          voucherTypeToFetch = _selectedvchtypename;
+
+          partydata = List<String>.from(jsonResponse['partyLedgers']);
+          partydata.sort();
+
+          bankcashname_data = List<Map<String, String>>.from(
+            jsonResponse['cashLedgers']
+                ?.map((cashLedger) => Map<String, String>.from(cashLedger)) ??
+                [],
+          );
+
+          _selectedbankcashname = null;
+          isBankCashLedgerLocked = false;
+
+          if (isUniGasSerial && allocation != null) {
+            final String savedCashLedger =
+                allocation!['cash_ledger']?.toString().trim() ??
+                    allocation!['cashledger']?.toString().trim() ??
+                    allocation!['bank_cash_ledger']?.toString().trim() ??
+                    '';
+
+            if (savedCashLedger.isNotEmpty) {
+              final matchedCashLedger = bankcashname_data.where(
+                    (ledger) => ledger['name'] == savedCashLedger,
+              );
+
+              if (matchedCashLedger.isNotEmpty) {
+                _selectedbankcashname = matchedCashLedger.first;
+                isBankCashLedgerLocked = true;
+              }
+            }
+          }
+
+          _bankcashnameController.text =
+          _selectedbankcashname != null ? _selectedbankcashname!['name']! : "";
+
+          if (_selectedbankcashname != null &&
+              _selectedbankcashname!['type'] == 'Cash-in-Hand') {
+            isPaymentModeVisible = false;
+            _selectedpaymentmode = paymentmode_data.first;
+            cheque.clear();
+            updateChequeAmount();
+
+            isVisibleChequeHeading = false;
+            isChequeVisible = false;
+          } else {
+            if (bills.isNotEmpty) {
+              if (cheque.isNotEmpty) {
+                isPaymentModeVisible = true;
+                isChequeVisible = true;
+                isVisibleChequeHeading = true;
+              } else {
+                isPaymentModeVisible = true;
+                _selectedpaymentmode = paymentmode_data.first;
+                cheque.clear();
+                updateChequeAmount();
+
+                isVisibleChequeHeading = false;
+                isChequeVisible = true;
+              }
+            } else {
+              isPaymentModeVisible = false;
+              _selectedpaymentmode = paymentmode_data.first;
+              cheque.clear();
+              updateChequeAmount();
+
+              isVisibleChequeHeading = false;
+              isChequeVisible = false;
+            }
+          }
+        });
+
+        if (voucherTypeToFetch != null && voucherTypeToFetch!.isNotEmpty) {
+          fetchvchnos(voucherTypeToFetch!);
+        }
+      } else {
+        Map<String, dynamic> data = json.decode(response.body);
+        String error = '';
+
+        if (data.containsKey('error')) {
+          error = data['error'];
+        } else {
+          error = 'Something went wrong!!!';
+        }
+
+        Fluttertoast.showToast(msg: error);
+      }
+    } catch (e) {
       /*print(e);*/
     }
 

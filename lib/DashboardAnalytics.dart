@@ -379,7 +379,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   )
                       : Column(
                     children: [
-                      Row(
+                      /*Row(
                         children: [
                           Expanded(
                             child: _SummaryTile(
@@ -403,8 +403,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             ),
                           ),
                         ],
-                      ),
-                      const SizedBox(height: 18),
+                      ),*/
+                      const SizedBox(height: 9),
                       LayoutBuilder(
                         builder: (context, constraints) {
                           final shouldScroll = barEntries.length > 3;

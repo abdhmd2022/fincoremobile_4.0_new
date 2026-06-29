@@ -904,8 +904,6 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
           if (_isLoading)
             Center(
             child: AppLogoLoader())
-
-
         ],
       ),
     );

@@ -1502,7 +1502,6 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                         child: pw.Container(
                                             padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
                                             alignment: pw.Alignment.centerRight,
-
                                             child: pw.Row(
                                               mainAxisAlignment: pw.MainAxisAlignment.center,
                                               crossAxisAlignment: pw.CrossAxisAlignment.center,
@@ -1515,10 +1514,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                                     fontSize: 10,
                                                   ),
                                                 ),
-
                                               ],)
-
-
                                         ),
                                       ),
                                       if (!isUniGasMeterReadingSerial)
@@ -1527,13 +1523,11 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                         child: pw.Container(
                                           padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
                                           alignment: pw.Alignment.center,
-
                                           child: pw.Text(
                                             formatAmountInvoice(item.value.itemPrice.toString()),
                                             textAlign: pw.TextAlign.center,
                                             style: pw.TextStyle(
                                               fontSize: 10,
-
                                             ),
                                           ),
                                         ),
@@ -1585,7 +1579,6 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     ]),
                                 ]
                             ),
-
 
                             if (!isUniGasMeterReadingSerial)
                               pw.Table(

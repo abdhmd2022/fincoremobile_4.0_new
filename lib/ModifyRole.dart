@@ -1686,7 +1686,7 @@ class _ModifyRolePageState extends State<ModifyRole> with TickerProviderStateMix
                           if (_isLoading)
                           Center(
                             child: Padding(padding: EdgeInsets.only(top:5, bottom:10),
-        child: CircularProgressIndicator.adaptive(),)
+                                child: AppLogoLoader())
                           ),
                           _buildTextFieldCard(),
                           const SizedBox(height: 10),

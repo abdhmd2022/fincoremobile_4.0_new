@@ -1026,7 +1026,8 @@ class _ItemsTotalClickedLedgerVchTypePageState extends State<ItemsTotalClickedLe
             ],
           ),
           if (_isLoading)
-            const Center(child: CircularProgressIndicator.adaptive()),
+            const Center(
+                child: AppLogoLoader()),
         ],
       ),
     );

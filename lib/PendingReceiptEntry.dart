@@ -1055,8 +1055,7 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
                 Visibility(
                   visible: _isLoading,
                   child: Center(
-                    child: CircularProgressIndicator.adaptive(),
-                  ),
+                      child: AppLogoLoader())
                 ),
 
                 Positioned(

@@ -1714,7 +1714,8 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
                   if (_isLoading)
                     Center(
                         child: Padding(padding: EdgeInsets.only(top:5, bottom:10),
-                          child: CircularProgressIndicator.adaptive(),)
+
+                              child: AppLogoLoader())
                     ),
                   // Copy Role Section
                   _buildCopyRoleCard(icon: Icons.import_contacts_outlined),

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -131,4 +132,142 @@ String formatdate(String saledate) {
   }
 
   return formated_saledate;
+}
+
+class AppLogoLoader extends StatefulWidget {
+  const AppLogoLoader({
+    super.key,
+    this.size = 92,
+    this.logoAsset = 'assets/fincorelogo_appicon.png',
+  });
+
+  final double size;
+  final String logoAsset;
+
+  @override
+  State<AppLogoLoader> createState() => _AppLogoLoaderState();
+}
+
+class _AppLogoLoaderState extends State<AppLogoLoader>
+    with TickerProviderStateMixin {
+  late final AnimationController _spinController;
+  late final AnimationController _pulseController;
+  late final Animation<double> _scale;
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _spinController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1100),
+    )..repeat(reverse: true);
+
+    _scale = Tween<double>(begin: 1, end: 1).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
+    _opacity = Tween<double>(begin: 1, end: 1).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _spinController.dispose();
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ringSize = widget.size;
+    final logoSize = widget.size * 0.72;
+
+    return SizedBox.square(
+      dimension: ringSize,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          RotationTransition(
+            turns: CurvedAnimation(
+              parent: _spinController,
+              curve: Curves.linear,
+            ),
+            child: CustomPaint(
+              size: Size.square(ringSize),
+              painter: _LogoLoaderRingPainter(),
+            ),
+          ),
+          FadeTransition(
+            opacity: _opacity,
+            child: ScaleTransition(
+              scale: _scale,
+              child: ClipOval(
+                child: DecoratedBox(
+                  decoration: const BoxDecoration(color: Colors.white),
+                  child: Padding(
+                    padding: EdgeInsets.all(widget.size * 0.02),
+                    child: Image.asset(
+                      widget.logoAsset,
+                      width: logoSize,
+                      height: logoSize,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LogoLoaderRingPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final radius = (size.shortestSide - 8) / 2;
+    final rect = Rect.fromCircle(center: center, radius: radius);
+
+    final trackPaint = Paint()
+      ..color = const Color(0x2427B58B)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+
+    final progressPaint = Paint()
+      ..shader = const SweepGradient(
+        colors: [
+          Color(0xFF27B58B),
+          Color(0xFFF9A21A),
+          Color(0xFF27B58B),
+        ],
+      ).createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.5
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawCircle(center, radius, trackPaint);
+    canvas.drawArc(
+      rect,
+      -math.pi / 2,
+      math.pi * 0.7,
+      false,
+      progressPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
+  }
 }

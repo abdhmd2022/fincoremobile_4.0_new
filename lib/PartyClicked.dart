@@ -1552,7 +1552,13 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
                       }
                     }
                 }
+                else if (vchtype == 'DelNote')
+                {
+                  // Intentionally ignored. Delivery Note is not shown in this summary UI.
+                  continue;
+                }
                   }
+
 
 
             }
@@ -3420,14 +3426,8 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
             Visibility
             (
               visible: _isLoading,
-              child: Positioned.fill
-                (
-                child: Align
-                  (
-                  alignment: Alignment.center,
-                  child: CircularProgressIndicator.adaptive(),
-                ),
-              ),
+              child: Center(
+                  child: AppLogoLoader())
             ),
           ],
       )

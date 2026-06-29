@@ -989,8 +989,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                     Visibility(
                       visible: _isLoading,
                       child: Center(
-                        child: CircularProgressIndicator.adaptive(),
-                      ),
+                          child: AppLogoLoader())
                     ),
 
 

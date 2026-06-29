@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:FincoreGo/utils/number_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ class AnalyticsScreen extends StatefulWidget {
   final bool isBarChartVisible;
   final List<double> salesDataList;
   final List<double> recDataList;
-   final NumberScale selectedScale;
+  final NumberScale selectedScale;
   final String startDateString;
   final String endDateString;
 
@@ -34,7 +35,7 @@ class AnalyticsScreen extends StatefulWidget {
     required this.yearColors,
     required this.pieSalesList,
     required this.piePurchaseList,
-    required this.isVisibleLineChart ,
+    required this.isVisibleLineChart,
     required this.isVisiblePieChart,
     required this.isSalesPieChartVisible,
     required this.isPurchasePieChartVisible,
@@ -51,1302 +52,1651 @@ class AnalyticsScreen extends StatefulWidget {
   State<AnalyticsScreen> createState() => _AnalyticsScreenState();
 }
 
-
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
-
   late NumberScale selectedScale;
   bool showPercentage = false;
 
-  String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",SecuritybtnAcessHolder= "";
-  late SharedPreferences prefs;
-  final NumberFormat commaFormat = NumberFormat("#,##0.00");
+  String? company = "";
+  String? companyLowercase = "";
+  String? serialNo = "";
+  String? username = "";
+  String? securityButtonAccessHolder = "";
+  SharedPreferences? prefs;
+
+  static final List<Color> _chartPalette = [
+    app_color,
+    const Color(0xFFFF8A3D),
+    const Color(0xFF00A6A6),
+    const Color(0xFF6C63FF),
+    const Color(0xFFEF476F),
+    const Color(0xFF2D9CDB),
+    const Color(0xFF8BC34A),
+    const Color(0xFFFFC857),
+    const Color(0xFF7B61FF),
+    const Color(0xFF455A64),
+  ];
 
   @override
   void initState() {
     super.initState();
+    selectedScale = widget.selectedScale;
     _initSharedPreferences();
   }
 
-  double calculateContainerWidthBarGraph() {
-    int totalMonths = getMonthsList().length; // ✅ now dynamic
-    double averageLabelWidth = 60.0; // Adjust as needed
+  Future<void> _initSharedPreferences() async {
+    debugPrint("pieSalesList => ${widget.pieSalesList}");
+    debugPrint("lineChartData => ${widget.lineChartData}");
+    debugPrint("salesDataList => ${widget.salesDataList}");
+    final loadedPrefs = await SharedPreferences.getInstance();
+    final scale = loadedPrefs.getString("number_scale");
 
-    double screensize = MediaQuery.of(context).size.width - 20.0;
-
-    // Calculate the total width needed for all month labels
-    double totalLabelWidth = totalMonths * averageLabelWidth;
-
-    // Add extra width for margins, padding, and other elements
-    double extraWidth = 100.0;
-
-    // Calculate the final container width
-    double containerWidth = totalLabelWidth + extraWidth;
-    if(containerWidth < screensize)
-    {
-      containerWidth = screensize;
-    }
-
-    return containerWidth;
+    if (!mounted) return;
+    setState(() {
+      prefs = loadedPrefs;
+      company = loadedPrefs.getString('company_name') ?? "";
+      companyLowercase = company!.replaceAll(' ', '').toLowerCase();
+      serialNo = loadedPrefs.getString('serial_no') ?? "";
+      username = loadedPrefs.getString('username') ?? "";
+      securityButtonAccessHolder = loadedPrefs.getString('secbtnaccess') ?? "";
+      selectedScale = _numberScaleFromString(scale) ?? widget.selectedScale;
+    });
   }
 
-  List<String> getMonthsList() {
-    List<String> months = [];
+  Widget _buildPieSalesRawData() {
+    final data = _cleanPieData(widget.pieSalesList);
 
+    if (data.isEmpty) {
+      return const _EmptyState(
+        icon: Icons.info_outline_rounded,
+        title: "No pie sales data",
+        message: "pieSalesList is empty for this period.",
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Pie Sales Data",
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF172033),
+          ),
+        ),
+        const SizedBox(height: 10),
+        ...data.map((item) {
+          final name = item['name']?.toString() ?? "";
+          final amount = _asDouble(item['amount']).abs();
+
+          return Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF7F9FC),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    name,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Text(
+                  CurrencyFormatter.formatCurrency_double(amount),
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF172033),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  NumberScale? _numberScaleFromString(String? value) {
+    switch (value) {
+      case "thousand":
+        return NumberScale.thousand;
+      case "million":
+        return NumberScale.million;
+      case "billion":
+        return NumberScale.billion;
+      case "full":
+        return NumberScale.full;
+      default:
+        return null;
+    }
+  }
+
+  List<_MonthBarEntry> get _barEntries {
+    final count = max(widget.salesDataList.length, widget.recDataList.length);
+    final labels = _preferredMonthLabels(count);
+    final entries = <_MonthBarEntry>[];
+
+    for (var i = 0; i < count; i++) {
+      final sales = i < widget.salesDataList.length
+          ? widget.salesDataList[i]
+          : 0.0;
+      final receipt = i < widget.recDataList.length
+          ? widget.recDataList[i]
+          : 0.0;
+      final label = i < labels.length ? labels[i] : "M${i + 1}";
+
+      if (_hasValue(sales) || _hasValue(receipt)) {
+        entries.add(
+          _MonthBarEntry(label: label, sales: sales, receipt: receipt),
+        );
+      }
+    }
+
+    return entries;
+  }
+
+  List<String> get _lineMonths {
+    final monthsFromData = <String>[];
+    for (final yearData in widget.lineChartData) {
+      final values = yearData['value'];
+      if (values is! Iterable) continue;
+
+      for (final item in values) {
+        if (item is! Map) continue;
+        final month = item['month']?.toString();
+        final sales = _asDouble(item['sales']);
+
+        if (month != null &&
+            month.isNotEmpty &&
+            _hasValue(sales) &&
+            !monthsFromData.contains(month)) {
+          monthsFromData.add(month);
+        }
+      }
+    }
+
+    return monthsFromData;
+  }
+
+  List<String> _preferredMonthLabels(int expectedCount) {
+    final dateRangeMonths = <DateTime>[];
     try {
-      DateTime startDate = DateTime.parse(widget.startDateString);
-      DateTime endDate = DateTime.parse(widget.endDateString);
+      var startDate = DateTime.parse(widget.startDateString);
+      final endDate = DateTime.parse(widget.endDateString);
 
-      // Ensure valid date range
-      while (startDate.isBefore(endDate) || startDate.isAtSameMomentAs(endDate)) {
-        String monthLabel = DateFormat('MMM-yy').format(startDate);
-        months.add(monthLabel);
-
-        // Move to next month safely
+      while (startDate.isBefore(endDate) ||
+          startDate.isAtSameMomentAs(endDate)) {
+        dateRangeMonths.add(startDate);
         startDate = DateTime(startDate.year, startDate.month + 1, 1);
       }
     } catch (e) {
-      debugPrint("Error generating months list: $e");
+      debugPrint("Error generating fallback months list: $e");
     }
 
-    return months;
-  }
+    if (dateRangeMonths.isNotEmpty) {
+      final labels = dateRangeMonths
+          .map((date) => DateFormat('MMM-yy').format(date))
+          .toList(growable: false);
 
-  Future<void> _loadNumberScale() async {
-    String? scale = prefs.getString("number_scale");
-    if (scale != null) {
-      switch (scale) {
-        case "thousand":
-          selectedScale = NumberScale.thousand;
-          break;
-        case "million":
-          selectedScale = NumberScale.million;
-          break;
-        case "billion":
-          selectedScale = NumberScale.billion;
-          break;
-        case "full":
-          selectedScale = NumberScale.full;
-          break;
-        default:
-          selectedScale = NumberScale.thousand;
+      if (labels.length == expectedCount || widget.months.isEmpty) {
+        return labels;
       }
     }
-    setState(() {});
+
+    return widget.months
+        .where((month) => month.trim().isNotEmpty)
+        .map(_normalizeMonthLabel)
+        .toList(growable: false);
   }
 
-  Future<void> _initSharedPreferences() async {
-    prefs = await SharedPreferences.getInstance();
+  String _normalizeMonthLabel(String label) {
+    final trimmed = label.trim();
+    if (trimmed.isEmpty) return trimmed;
+    if (RegExp(r"\d").hasMatch(trimmed)) return trimmed;
 
-    setState(() {
+    try {
+      final startDate = DateTime.parse(widget.startDateString);
+      return "$trimmed-${DateFormat('yy').format(startDate)}";
+    } catch (_) {
+      return trimmed;
+    }
+  }
 
-      company  = prefs.getString('company_name');
-      company_lowercase = company!.replaceAll(' ', '').toLowerCase();
-      serial_no = prefs.getString('serial_no');
-      username = prefs.getString('username');
+  bool _hasValue(double value) {
+    return value.isFinite && value.abs() > 0.000001;
+  }
 
-      SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
-      selectedScale = widget.selectedScale; // ✅ copy incoming scale once
+  double _asDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? "") ?? 0.0;
+  }
 
-      _loadNumberScale();
-  });
+  double get _barTotalSales {
+    return _barEntries.fold<double>(0, (sum, item) => sum + item.sales.abs());
+  }
+
+  double get _barTotalReceipts {
+    return _barEntries.fold<double>(0, (sum, item) => sum + item.receipt.abs());
+  }
+
+  double get _totalSales {
+    final pieSalesTotal = _amountListTotal(widget.pieSalesList);
+    if (!_hasValue(_barTotalSales) && _hasValue(pieSalesTotal)) {
+      return pieSalesTotal;
+    }
+    return _barTotalSales;
+  }
+
+  double get _totalReceipts {
+    return _barTotalReceipts;
+  }
+
+  double _amountListTotal(List<Map<String, dynamic>> data) {
+    return data.fold<double>(
+      0,
+          (sum, item) => sum + _asDouble(item['amount']).abs(),
+    );
+  }
+
+  String _formatCompact(double value) {
+    return formatNumberAbbreviation(
+      value,
+      scale: selectedScale,
+      decimalPlaces: widget.decimalPlaces,
+      showSuffix: false,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final barEntries = _barEntries;
+    final lineMonths = _lineMonths;
+    final hasAnyChart =
+        widget.isBarChartVisible ||
+            widget.isVisibleLineChart ||
+            widget.isVisiblePieChart;
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(50),
-        child: AppBar(
-          backgroundColor:  app_color,
-          elevation: 6,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
+      backgroundColor: const Color(0xFFF5F7FB),
+      appBar: AppBar(
+        backgroundColor: app_color,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          "Analytics",
+          style: GoogleFonts.poppins(
+            fontSize: 19,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
           ),
-          automaticallyImplyLeading: false,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          centerTitle: true,
-          title: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  "Analytics",
-                  style: GoogleFonts.poppins(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+        ),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(child: _buildHeader(theme)),
+            if (!hasAnyChart)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: _EmptyState(
+                  icon: Icons.analytics_outlined,
+                  title: "No analytics enabled",
+                  message:
+                  "Select at least one chart to view your business insights.",
+                ),
+              ),
+            if (widget.isBarChartVisible)
+              SliverToBoxAdapter(
+                child: _AnalyticsCard(
+                  margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  title: "Sales vs Receipts",
+                  subtitle: "Only months with activity are shown",
+                  icon: Icons.bar_chart_rounded,
+                  accentColor: app_color,
+                  trailing: _MetricPill(
+                    label: "${barEntries.length}",
+                    caption: barEntries.length == 1 ? "month" : "months",
+                  ),
+                  child: barEntries.isEmpty
+                      ? const _EmptyState(
+                    icon: Icons.calendar_month_outlined,
+                    title: "No monthly activity",
+                    message:
+                    "There is no sales or receipt value for this period.",
+                  )
+                      : Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _SummaryTile(
+                              label: "Sales",
+                              value:
+                              CurrencyFormatter.formatCurrency_double(
+                                _barTotalSales,
+                              ),
+                              color: app_color,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _SummaryTile(
+                              label: "Receipts",
+                              value:
+                              CurrencyFormatter.formatCurrency_double(
+                                _barTotalReceipts,
+                              ),
+                              color: const Color(0xFFFF8A3D),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final shouldScroll = barEntries.length > 3;
+                          final chart = SizedBox(
+                            width: shouldScroll
+                                ? _chartWidth(context, barEntries.length)
+                                : constraints.maxWidth,
+                            height: 250,
+                            child: BarChartWidget(
+                              entries: barEntries,
+                              selectedScale: selectedScale,
+                              decimalPlaces: widget.decimalPlaces,
+                            ),
+                          );
+
+                          if (!shouldScroll) return chart;
+
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: chart,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 14),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _LegendDot(color: app_color, label: "Sales"),
+                          const SizedBox(width: 18),
+                          const _LegendDot(
+                            color: Color(0xFFFF8A3D),
+                            label: "Receipts",
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
-
-            ],
-          ),
-        ),
-      ),
-
-
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-
-            Visibility(
-              visible: widget.isBarChartVisible,
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(22),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12.withOpacity(0.08),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 🔹 Header with Icon
-                    Row(
-                      children: [
-                        Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.teal.shade400, Colors.teal.shade700],
+            if (widget.isVisibleLineChart)
+              SliverToBoxAdapter(
+                child: _AnalyticsCard(
+                  margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  title: "Monthly Sales Trend",
+                  subtitle: "Comparison by year",
+                  icon: Icons.show_chart_rounded,
+                  accentColor: const Color(0xFF00A6A6),
+                  child: lineMonths.isEmpty
+                      ? const _EmptyState(
+                    icon: Icons.timeline_outlined,
+                    title: "No trend data",
+                    message:
+                    "There are no sales values to plot for this period.",
+                  )
+                      : Column(
+                    children: [
+                      SizedBox(
+                        height: 280,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: SizedBox(
+                            width: _chartWidth(
+                              context,
+                              lineMonths.length,
                             ),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.teal.withOpacity(0.2),
-                                blurRadius: 6,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(Icons.bar_chart_rounded,
-                              color: Colors.white, size: 20),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          "Sales vs Receipts",
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black87,
+                            child: _buildLineChart(lineMonths),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildYearLegend(),
+                    ],
+                  ),
+                ),
+              ),
+            if (widget.isVisiblePieChart)
+              SliverToBoxAdapter(
+                child: _AnalyticsCard(
+                  margin: const EdgeInsets.fromLTRB(16, 12, 16, 22),
+                  title: "Category Breakdown",
+                  subtitle: showPercentage
+                      ? "Viewing percentage share"
+                      : "Viewing amount share",
+                  icon: Icons.donut_large_rounded,
+                  accentColor: const Color(0xFF6C63FF),
+                  trailing: _SegmentedToggle(
+                    showPercentage: showPercentage,
+                    onChanged: (value) =>
+                        setState(() => showPercentage = value),
+                  ),
+                  child: Column(
+                    children: [
 
-                    const SizedBox(height: 18),
+                     //  _buildPieSalesRawData(),
+                      // const SizedBox(height: 18),
 
-                    // 🔹 Chart
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: SizedBox(
-                        width: calculateContainerWidthBarGraph(),
-                        height: MediaQuery.of(context).size.height / 3.5,
-                        child: BarChartWidget(
-                          salesData: widget.salesDataList,
-                          receiptData: widget.recDataList,
-                          selectedScale: widget.selectedScale,
+                      if (widget.isSalesPieChartVisible)
+                        _PieBreakdownSection(
+                          title: "Sales",
+                          data: _cleanPieData(widget.pieSalesList),
+                          colors: _colorsFor(widget.pieSalesList.length),
+                          showPercentage: showPercentage,
+                          selectedScale: selectedScale,
                           decimalPlaces: widget.decimalPlaces,
-                          months: getMonthsList(), // ✅ pass months
-
                         ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // 🔹 Legend
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildLegend(app_color, 'Sales'),
-                        const SizedBox(width: 20),
-                        _buildLegend(Colors.deepOrange, 'Receipt'),
-                      ],
-                    ),
-                  ],
+                      if (widget.isSalesPieChartVisible &&
+                          widget.isPurchasePieChartVisible)
+                        const SizedBox(height: 18),
+                      if (widget.isPurchasePieChartVisible)
+                        _PieBreakdownSection(
+                          title: "Purchase",
+                          data: _cleanPieData(widget.piePurchaseList),
+                          colors: _colorsFor(
+                            widget.piePurchaseList.length,
+                            offset: 3,
+                          ),
+                          showPercentage: showPercentage,
+                          selectedScale: selectedScale,
+                          decimalPlaces: widget.decimalPlaces,
+                        ),
+                      if (!widget.isSalesPieChartVisible &&
+                          !widget.isPurchasePieChartVisible)
+                        const _EmptyState(
+                          icon: Icons.pie_chart_outline_rounded,
+                          title: "No breakdown selected",
+                          message:
+                          "Enable sales or purchase breakdown to view category share.",
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            /// 📈 Line Chart Section
-            Visibility(
-              visible: widget.isVisibleLineChart,
-              child: Container(
-                margin: EdgeInsets.only(left: 16,right:16, bottom: 0,top:10),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 12,
-                      offset: Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Monthly Sales Trends",
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width -40,
-                        height: MediaQuery.of(context).size.height / 3.5,
-                        padding: const EdgeInsets.only(top: 5),
-                        child: LineChart(
-                          LineChartData(
-                            extraLinesData: ExtraLinesData(horizontalLines: []),
-                            gridData: FlGridData(show: true),
-                            titlesData: FlTitlesData(
-                              leftTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  reservedSize: MediaQuery.of(context).size.width/8,
-                                  getTitlesWidget: (value, meta) {
-                                    return Text(
-                                      formatNumberAbbreviation(
-                                        value,
-                                        scale: selectedScale,
-                                        decimalPlaces: widget.decimalPlaces,
-                                        showSuffix: false,
-                                      ),
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.black54,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                              bottomTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  getTitlesWidget: (value, meta) {
-                                    final index = value.toInt();
-                                    if (index >= 0 && index < widget.months.length) {
-                                      return Padding(
-                                        padding: const EdgeInsets.only(top: 8),
-                                        child: Text(
-                                          widget.months[index],
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                    return const SizedBox.shrink();
-                                  },
-                                ),
-                              ),
-                              rightTitles: AxisTitles(sideTitles: SideTitles(
-                                showTitles: false,)),
-                                topTitles: AxisTitles(sideTitles: SideTitles(
-                                  showTitles: false,))
-                            ),
-
-                            borderData: FlBorderData(show: false),
-                            minX: 0,
-                            maxX: widget.months.length.toDouble() - 1,
-                            lineBarsData: widget.lineChartData.map((yearData) {
-                              final yearIndex = widget.lineChartData.indexOf(yearData);
-                              final spots = yearData['value'].map<FlSpot>((monthEntry) {
-                                final monthIndex = widget.months
-                                    .indexOf(monthEntry['month']);
-                                final monthSales = monthEntry['sales'] as int;
-                                return FlSpot(monthIndex.toDouble(), -monthSales.toDouble());
-                              }).toList();
-
-                              final color = widget.yearColors.putIfAbsent(
-                                yearIndex,
-                                    () => getRandomColor(),
-                              );
-                              return LineChartBarData(
-                                spots: spots,
-                                isCurved: true,
-                                color: color, // ✅ single color instead of 'colors: [color]'
-                                dotData: FlDotData(show: true),
-                                belowBarData: BarAreaData(
-                                  show: true,
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      color.withOpacity(0.35),
-                                      Colors.transparent,
-                                    ],
-                                  ),
-                                ),
-                              );
-
-                            }).toList(),
-                            lineTouchData: LineTouchData(
-                              enabled: true,
-                              touchTooltipData: LineTouchTooltipData(
-
-                                getTooltipItems: (touchedSpots) {
-                                  return touchedSpots.map((LineBarSpot spot) {
-                                    return LineTooltipItem(
-                                      formatNumberAbbreviation(
-                                        spot.y,
-                                        scale: selectedScale,
-                                        decimalPlaces: widget.decimalPlaces,
-                                        showSuffix: false,
-                                      ),
-                                      GoogleFonts.poppins(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    );
-                                  }).toList();
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Center(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: widget.lineChartData.map((yearData) {
-                            final yearIndex = widget.lineChartData.indexOf(yearData);
-                            final color = widget.yearColors[yearIndex] ?? Colors.black;
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 13,
-                                    height: 13,
-                                    decoration: BoxDecoration(
-                                      color: color,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    yearData['year'].toString(),
-                                    style: GoogleFonts.poppins(fontSize: 14),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            /// 🥧 Pie Chart Section
-            Visibility(
-              visible: widget.isVisiblePieChart,
-              child: Container(
-                margin: EdgeInsets.only(left: 16,right:16, bottom: 0,top:10),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 12,
-                      offset: Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /// Sales Pie Chart
-                    Visibility(
-                      visible: widget.isSalesPieChartVisible,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.white.withOpacity(0.9),
-                                  Colors.white.withOpacity(0.7),
-                                ],
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                              border: Border.all(color: Colors.grey.withOpacity(0.08)),
-                            ),
-                            child: Column(
-                              children: [
-
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    /// LEFT SIDE — Title + subtitle feel
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Sales",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.black87,
-                                            letterSpacing: 0.2,
-                                          ),
-                                        ),
-
-                                      ],
-                                    ),
-
-                                    /// RIGHT SIDE — Modern segmented toggle
-                                    Container(
-                                      padding: const EdgeInsets.all(3),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey.shade100,
-                                        borderRadius: BorderRadius.circular(30),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.05),
-                                            blurRadius: 6,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          _buildModernToggle("123", !showPercentage),
-                                          _buildModernToggle("%", showPercentage),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                Container(
-                                  width: MediaQuery.of(context).size.width - 40,
-                                  height: 190,
-                                  child: Row(
-                                    children: [
-                                      Flexible(
-                                        flex: 1,
-                                        child: _buildPieChart_Sales(widget.pieSalesList),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Flexible(
-                                        flex: 1,
-                                        child: SingleChildScrollView(
-                                          child: _buildLegend_Sales(widget.pieSalesList),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                          ),
-
-
-
-
-
-                          const SizedBox(height: 20),
-                        ],
-                      ),
-                    ),
-
-                    /// Purchase Pie Chart
-                    Visibility(
-                      visible: widget.isPurchasePieChartVisible,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.white.withOpacity(0.9),
-                                  Colors.white.withOpacity(0.7),
-                                ],
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                              border: Border.all(color: Colors.grey.withOpacity(0.08)),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-
-                              children: [
-                                Text(
-                                  "Purchase",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.black87,
-                                    letterSpacing: 0.2,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                Container(
-                                  width: MediaQuery.of(context).size.width - 40,
-                                  height: 190,
-                                  child: Row(
-                                    children: [
-                                      Flexible(
-                                        flex: 1,
-                                        child: _buildPieChart_Purchase(widget.piePurchaseList),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Flexible(
-                                        flex: 1,
-                                        child: SingleChildScrollView(
-                                          child: _buildLegend_Purchase(widget.piePurchaseList),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-
-
-                          ),
-
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ],
         ),
       ),
     );
   }
 
-  Color getRandomColor() {
-    return Color.fromARGB(
-      255,
-      Random().nextInt(200),
-      Random().nextInt(200),
-      Random().nextInt(200),
-    );
-  }
+  Widget _buildHeader(ThemeData theme) {
+    final rangeLabel = _dateRangeLabel();
 
-  Widget _buildModernToggle(String text, bool active) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          showPercentage = text == "%";
-        });
-      },
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
-        switchInCurve: Curves.easeOut,
-        switchOutCurve: Curves.easeIn,
-        child: AnimatedContainer(
-          key: ValueKey(active),
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(26),
-            gradient: active
-                ? LinearGradient(
-              colors: [
-                app_color,
-                app_color.withOpacity(0.8),
-              ],
-            )
-                : null,
-            color: active ? null : Colors.transparent,
-            boxShadow: active
-                ? [
-              BoxShadow(
-                color: app_color.withOpacity(0.35),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ]
-                : [],
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 10),
+      decoration: BoxDecoration(
+        color: app_color,
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(26)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Business overview",
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+            ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
+          const SizedBox(height: 4),
+          Text(
+            rangeLabel,
+            style: GoogleFonts.poppins(
+              color: Colors.white.withOpacity(0.82),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
             children: [
-             /* AnimatedScale(
-                scale: active ? 1.0 : 0.92,
-                duration: const Duration(milliseconds: 220),
-                child: Icon(
-                  text == "%" ? Icons.percent_rounded : Icons.payments,
-                  size: 14,
-                  color: active ? Colors.white : Colors.black54,
+              Expanded(
+                child: _HeaderMetric(
+                  label: "Sales",
+                  value: CurrencyFormatter.formatCurrency_double(_totalSales),
+                  icon: Icons.trending_up_rounded,
                 ),
-              ),*/
-
-              /// ONLY SHOW TEXT IF NOT %
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 220),
-                style: GoogleFonts.poppins(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: active ? Colors.white : Colors.black54,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _HeaderMetric(
+                  label: "Receipts",
+                  value: CurrencyFormatter.formatCurrency_double(
+                    _totalReceipts,
+                  ),
+                  icon: Icons.account_balance_wallet_rounded,
                 ),
-                child: Text(text),
               ),
             ],
           ),
-
-        ),
+        ],
       ),
     );
   }
 
-/// existing pie chart -> start
-  Widget _buildPieChart_Sales(List<dynamic> salesData) {
-    pieChartColors_sales.clear();
-    pieChartColors_sales = generateRandomColors(salesData.length);
-
-    return Center(
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-
-        ),
-        child: AspectRatio(
-          aspectRatio: 1,
-          child: PieChart(
-            PieChartData(
-              centerSpaceRadius: 0, // ✅ full solid center (filled look)
-              startDegreeOffset: -90,
-              sectionsSpace: 1.5,
-              borderData: FlBorderData(show: false),
-              sections: _generateChartData_Sales(salesData),
-            ),
-          ),
-        ),
-      ),
-    );
+  String _dateRangeLabel() {
+    try {
+      final start = DateTime.parse(widget.startDateString);
+      final end = DateTime.parse(widget.endDateString);
+      return "${DateFormat('dd MMM yyyy').format(start)} - ${DateFormat('dd MMM yyyy').format(end)}";
+    } catch (_) {
+      return "Selected period";
+    }
   }
 
-  List<PieChartSectionData> _generateChartData_Sales(List<dynamic> salesData) {
-    final total = salesData.fold<double>(
-      0,
-          (sum, item) => sum + (item['amount'] ?? 0).toDouble().abs(),
-    );
-
-    return List.generate(salesData.length, (i) {
-      final data = salesData[i];
-      final color = pieChartColors_sales[i];
-      final value = (data['amount'] ?? 0).toDouble().abs();
-
-      final ratio = total == 0 ? 0 : (value / total);
-      final isSmallSlice = ratio < 0.15;
-
-      return PieChartSectionData(
-        value: value,
-
-        /// ✅ USE SAME FORMATTER AS LINE/BAR CHART
-        title: isSmallSlice
-            ? ""
-            : showPercentage
-            ? "${((value / total) * 100).toStringAsFixed(1)}%"
-            : formatNumberAbbreviation(
-          value,
-          scale: selectedScale,
-          decimalPlaces: widget.decimalPlaces,
-          showSuffix: false,
-        ),
-
-        titleStyle: const TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
-        ),
-
-        radius: 85,
-
-
-
-        color: color,
-        borderSide: BorderSide.none,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color.withOpacity(0.95),
-            color.withOpacity(0.65),
-          ],
-        ),
-      );
-    });
+  double _chartWidth(BuildContext context, int itemCount) {
+    final screenWidth = MediaQuery.of(context).size.width - 64;
+    final calculatedWidth = max(itemCount * 92.0, screenWidth);
+    return calculatedWidth;
   }
 
-  Widget _buildLegend_Sales(List<dynamic> data) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxHeight: 180,
-      ),
-      child: SingleChildScrollView(
-        child: Wrap(
-          spacing: 10,
-          runSpacing: 8,
-          children: List.generate(data.length, (i) {
-            final item = data[i];
-            String title = item['name'] ?? '';
-            double value = (item['amount'] ?? 0).toDouble().abs();
-            Color color = pieChartColors_sales[i];
-            final total = data.fold<double>(
-              0,
-                  (sum, e) => sum + (e['amount'] ?? 0).toDouble().abs(),
-            );
+  Widget _buildLineChart(List<String> months) {
+    final maxY = _niceChartMax(_lineMaxY(months));
+    final interval = maxY / 5;
 
-            return Container(
-              constraints: const BoxConstraints(
-                maxWidth: 220,
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white.withOpacity(0.9),
-                    Colors.white.withOpacity(0.6),
-                  ],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-                border: Border.all(color: Colors.grey.withOpacity(0.08)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 14,
-                    height: 14,
-                    margin: const EdgeInsets.only(top: 2),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [
-                          color.withOpacity(0.95),
-                          color.withOpacity(0.6),
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: color.withOpacity(0.3),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: GoogleFonts.poppins(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black.withOpacity(0.75),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          showPercentage
-                              ? "${total == 0 ? 0 : ((value.abs() / total) * 100).toStringAsFixed(1)}%"
-                              : CurrencyFormatter.formatCurrency_double(value),
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black54,
-                          ),
-                        ),
-
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPieChart_Purchase(List<dynamic> purchaseData) {
-    pieChartColors_purchase.clear();
-    pieChartColors_purchase = generateRandomColors(purchaseData.length);
-
-    return Center(
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-
-        ),
-        child: AspectRatio(
-          aspectRatio: 1,
-          child: PieChart(
-            PieChartData(
-              centerSpaceRadius: 0, // ✅ full solid center
-              startDegreeOffset: -90,
-              sectionsSpace: 1.5,
-              borderData: FlBorderData(show: false),
-              sections: _generateChartData_Purchase(purchaseData),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  List<PieChartSectionData> _generateChartData_Purchase(List<dynamic> purchaseData) {
-    final total = purchaseData.fold<double>(
-      0,
-          (sum, item) => sum + (item['amount'] ?? 0).toDouble().abs(),
-    );
-
-    return List.generate(purchaseData.length, (i) {
-      final data = purchaseData[i];
-      final color = pieChartColors_purchase[i];
-      final value = (data['amount'] ?? 0).toDouble().abs();
-
-      final ratio = total == 0 ? 0 : (value / total);
-
-      return PieChartSectionData(
-        value: value,
-
-        /// 🔥 Same abbreviation logic as Sales
-        title: ratio > 0.12
-            ? showPercentage
-            ? "${(ratio * 100).toStringAsFixed(1)}%"
-            : formatNumberAbbreviation(
-          value,
-          scale: selectedScale,
-          decimalPlaces: widget.decimalPlaces,
-          showSuffix: false,
-        )
-            : "",
-
-
-        titleStyle: const TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
-        ),
-
-        color: color,
-        radius: 85,
-        borderSide: BorderSide.none,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color.withOpacity(0.95),
-            color.withOpacity(0.65),
-          ],
-        ),
-      );
-    });
-  }
-
-  Widget _buildLegend_Purchase(List<dynamic> data) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxHeight: 180,
-      ),
-      child: SingleChildScrollView(
-        child: Wrap(
-          spacing: 10,
-          runSpacing: 8,
-          children: List.generate(data.length, (i) {
-            final item = data[i];
-            String title = item['name'] ?? '';
-            double value = (item['amount'] ?? 0).toDouble().abs();
-            Color color = pieChartColors_purchase[i];
-            final total = data.fold<double>(
-              0,
-                  (sum, e) => sum + (e['amount'] ?? 0).toDouble().abs(),
-            );
-
-            return Container(
-              constraints: const BoxConstraints(
-                maxWidth: 220,
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white.withOpacity(0.9),
-                    Colors.white.withOpacity(0.6),
-                  ],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-                border: Border.all(color: Colors.grey.withOpacity(0.08)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 14,
-                    height: 14,
-                    margin: const EdgeInsets.only(top: 2),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [
-                          color.withOpacity(0.95),
-                          color.withOpacity(0.6),
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: color.withOpacity(0.3),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          softWrap: true,
-                          style: GoogleFonts.poppins(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black.withOpacity(0.75),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-
-                        /// 🔥 Currency + comma separation
-                        Text(
-                          showPercentage
-                              ? "${total == 0 ? 0 : ((value.abs() / total) * 100).toStringAsFixed(1)}%"
-                              : CurrencyFormatter.formatCurrency_double(value),
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black54,
-                          ),
-                        ),
-
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ),
-      ),
-    );
-  }
-
-}
-
-Widget _buildLegend(Color color, String title) {
-  return Row(
-    children: [
-      Container(
-        width: 14,
-        height: 14,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(4),
-        ),
-      ),
-      SizedBox(width: 6),
-      Text(title, style: GoogleFonts.poppins(fontSize: 12)),
-    ],
-  );
-}
-
-List<Color> pieChartColors_sales = [];
-List<Color> pieChartColors_purchase =[];
-
-List<Color> generateRandomColors(int count) {
-  List<Color> colors = [];
-  for (int i = 0; i < count; i++) {
-    Color randomColor;
-    do {
-      randomColor = getRandomColor();
-    } while (colors.contains(randomColor)); // Ensure distinct colors
-    colors.add(randomColor);
-  }
-  return colors;
-}
-Color getRandomColor() {
-  final random = Random();
-  return Color.fromARGB(
-    255,
-    random.nextInt(255),
-    random.nextInt(255),
-    random.nextInt(255),
-  );
-}
-class BarChartWidget extends StatelessWidget {
-  final List<double> salesData;
-  final List<double> receiptData;
-  final NumberScale selectedScale;
-  final int decimalPlaces;
-  final List<String> months;
-
-  const BarChartWidget({
-    super.key,
-    required this.salesData,
-    required this.receiptData,
-    required this.selectedScale,
-    required this.decimalPlaces,
-    required this.months,
-  });
-
-  @override
-  Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.only(left: 0, right: 0, top: 12, bottom: 0), // 👈 added bottom space
-        child: BarChart(
-          BarChartData(
-            alignment: BarChartAlignment.spaceAround,
-            maxY: getMaxValue() + (getMaxValue() * 0.1),
-            groupsSpace: 18,
-            barGroups: generateBars(),
-
-            // 🔹 Tooltip
-            barTouchData: BarTouchData(
-              enabled: true,
-              touchTooltipData: BarTouchTooltipData(
-                tooltipPadding: const EdgeInsets.all(8),
-                tooltipMargin: 8,
-                getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                  final label = rodIndex == 0 ? "Sales" : "Receipt";
-                  return BarTooltipItem(
-                    '$label\n${formatNumberAbbreviation(
-                      rod.toY,
-                      scale: selectedScale,
-                      decimalPlaces: decimalPlaces,
-                      showSuffix: false,
-                    )}',
-                    GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
+      padding: const EdgeInsets.only(top: 18, right: 14),
+      child: LineChart(
+        LineChartData(
+          minX: months.length > 1 ? -0.15 : -0.5,
+          maxX: months.length > 1 ? months.length - 0.85 : 0.5,
+          minY: 0,
+          maxY: maxY,
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            horizontalInterval: interval,
+            getDrawingHorizontalLine: (value) =>
+                FlLine(color: const Color(0xFFE4E8F0), strokeWidth: 1),
+          ),
+          borderData: FlBorderData(show: false),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 62,
+                interval: interval,
+                getTitlesWidget: (value, meta) => Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Text(
+                    _formatCompact(value),
+                    style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      color: const Color(0xFF697386),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 44,
+                interval: 1,
+                getTitlesWidget: (value, meta) {
+                  final index = value.round();
+                  if ((value - index).abs() > 0.01) {
+                    return const SizedBox.shrink();
+                  }
+                  if (index < 0 || index >= months.length)
+                    return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      months[index],
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF374151),
+                      ),
                     ),
                   );
                 },
               ),
             ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          ),
+          lineTouchData: LineTouchData(
+            enabled: true,
+            touchTooltipData: LineTouchTooltipData(
+              getTooltipItems: (spots) {
+                return spots.map((spot) {
+                  return LineTooltipItem(
+                    _formatCompact(spot.y),
+                    GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  );
+                }).toList();
+              },
+            ),
+          ),
+          lineBarsData: _lineBars(months),
+        ),
+      ),
+    );
+  }
 
-            // 🔹 Axis Titles
-            titlesData: FlTitlesData(
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 40, // 👈 ensures full visibility
-                  getTitlesWidget: (value, meta) {
-                    int index = value.toInt();
-                    if (index >= 0 && index < months.length) {
-                      return Transform.rotate( // 👈 tilt for readability
-                        angle: -0.0, // about -30 degrees
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 14),
-                          child: Text(
-                            months[index],
-                            style: GoogleFonts.poppins(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
+  double _lineMaxY(List<String> months) {
+    var maxValue = 0.0;
+
+    for (final yearData in widget.lineChartData) {
+      final values = yearData['value'];
+      if (values is! Iterable) continue;
+
+      for (final item in values) {
+        if (item is! Map) continue;
+        final month = item['month']?.toString();
+        if (!months.contains(month)) continue;
+
+        maxValue = max(maxValue, _asDouble(item['sales']).abs());
+      }
+    }
+
+    return maxValue;
+  }
+
+  double _niceChartMax(double rawMax) {
+    if (rawMax <= 0 || !rawMax.isFinite) return 1;
+
+    final paddedMax = rawMax * 1.15;
+    final exponent = (log(paddedMax) / ln10).floor();
+    final magnitude = pow(10, exponent).toDouble();
+    final normalized = paddedMax / magnitude;
+
+    final niceNormalized = normalized <= 1
+        ? 1
+        : normalized <= 2
+        ? 2
+        : normalized <= 2.5
+        ? 2.5
+        : normalized <= 5
+        ? 5
+        : 10;
+
+    return niceNormalized * magnitude;
+  }
+
+  List<LineChartBarData> _lineBars(List<String> months) {
+    final bars = <LineChartBarData>[];
+
+    for (
+    var yearIndex = 0;
+    yearIndex < widget.lineChartData.length;
+    yearIndex++
+    ) {
+      final yearData = widget.lineChartData[yearIndex];
+      final values = yearData['value'];
+      if (values is! Iterable) continue;
+
+      final spots = <FlSpot>[];
+      for (final item in values) {
+        if (item is! Map) continue;
+        final month = item['month']?.toString();
+        final monthIndex = months.indexOf(month ?? "");
+        final sales = _asDouble(item['sales']).abs();
+
+        if (monthIndex >= 0 && _hasValue(sales)) {
+          spots.add(FlSpot(monthIndex.toDouble(), sales));
+        }
+      }
+
+      if (spots.isEmpty) continue;
+
+      final color =
+          widget.yearColors[yearIndex] ??
+              _chartPalette[yearIndex % _chartPalette.length];
+      bars.add(
+        LineChartBarData(
+          spots: spots,
+          isCurved: true,
+          curveSmoothness: 0.24,
+          color: color,
+          barWidth: 3,
+          isStrokeCapRound: true,
+          dotData: FlDotData(
+            show: true,
+            getDotPainter: (spot, percent, barData, index) =>
+                FlDotCirclePainter(
+                  radius: 4,
+                  color: Colors.white,
+                  strokeWidth: 2,
+                  strokeColor: color,
+                ),
+          ),
+          belowBarData: BarAreaData(
+            show: true,
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [color.withOpacity(0.22), color.withOpacity(0.02)],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return bars;
+  }
+
+  Widget _buildYearLegend() {
+    final items = <Widget>[];
+
+    for (var i = 0; i < widget.lineChartData.length; i++) {
+      final year = widget.lineChartData[i]['year']?.toString() ?? "";
+      if (year.isEmpty) continue;
+      final color =
+          widget.yearColors[i] ?? _chartPalette[i % _chartPalette.length];
+      items.add(_LegendDot(color: color, label: year));
+    }
+
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Wrap(
+      spacing: 14,
+      runSpacing: 8,
+      alignment: WrapAlignment.center,
+      children: items,
+    );
+  }
+
+  List<Map<String, dynamic>> _cleanPieData(List<Map<String, dynamic>> rawData) {
+    return rawData
+        .where((item) {
+      final amount = _asDouble(item['amount']).abs();
+      return item['name'] != null && _hasValue(amount);
+    })
+        .toList(growable: false);
+  }
+
+  List<Color> _colorsFor(int count, {int offset = 0}) {
+    return List.generate(
+      count,
+          (index) => _chartPalette[(index + offset) % _chartPalette.length],
+    );
+  }
+}
+
+class _MonthBarEntry {
+  final String label;
+  final double sales;
+  final double receipt;
+
+  const _MonthBarEntry({
+    required this.label,
+    required this.sales,
+    required this.receipt,
+  });
+}
+
+class _AnalyticsCard extends StatelessWidget {
+  final EdgeInsetsGeometry margin;
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color accentColor;
+  final Widget child;
+  final Widget? trailing;
+
+  const _AnalyticsCard({
+    required this.margin,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.accentColor,
+    required this.child,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: margin,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE9EDF5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: accentColor.withOpacity(0.11),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: accentColor, size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.poppins(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF172033),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF697386),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (trailing != null) trailing!,
+            ],
+          ),
+          const SizedBox(height: 18),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _HeaderMetric extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+
+  const _HeaderMetric({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.13),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.18)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.white, size: 20),
+          const SizedBox(height: 10),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              color: Colors.white.withOpacity(0.74),
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryTile extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _SummaryTile({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF172033),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MetricPill extends StatelessWidget {
+  final String label;
+  final String caption;
+
+  const _MetricPill({required this.label, required this.caption});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F4F9),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF172033),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            caption,
+            style: GoogleFonts.poppins(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF697386),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SegmentedToggle extends StatelessWidget {
+  final bool showPercentage;
+  final ValueChanged<bool> onChanged;
+
+  const _SegmentedToggle({
+    required this.showPercentage,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F4F9),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _ToggleButton(
+            label: "123",
+            active: !showPercentage,
+            onTap: () => onChanged(false),
+          ),
+          _ToggleButton(
+            label: "%",
+            active: showPercentage,
+            onTap: () => onChanged(true),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ToggleButton extends StatelessWidget {
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _ToggleButton({
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: active ? app_color : Colors.transparent,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+            color: active ? Colors.white : const Color(0xFF697386),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PieBreakdownSection extends StatelessWidget {
+  final String title;
+  final List<Map<String, dynamic>> data;
+  final List<Color> colors;
+  final bool showPercentage;
+  final NumberScale selectedScale;
+  final int decimalPlaces;
+
+  const _PieBreakdownSection({
+    required this.title,
+    required this.data,
+    required this.colors,
+    required this.showPercentage,
+    required this.selectedScale,
+    required this.decimalPlaces,
+  });
+
+  double get total {
+    return data.fold<double>(0, (sum, item) {
+      final amount = (item['amount'] is num)
+          ? (item['amount'] as num).toDouble()
+          : double.tryParse(item['amount']?.toString() ?? "") ?? 0.0;
+      return sum + amount.abs();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (data.isEmpty || total <= 0) {
+      return _EmptyState(
+        icon: Icons.pie_chart_outline_rounded,
+        title: "No $title data",
+        message: "There is no amount to display in this breakdown.",
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.poppins(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF172033),
+          ),
+        ),
+        const SizedBox(height: 12),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isPhoneWidth = constraints.maxWidth < 520;
+            final chartSize = isPhoneWidth
+                ? min(230.0, constraints.maxWidth - 24)
+                : min(190.0, constraints.maxWidth * 0.42);
+            final chart = Center(
+              child: Container(
+                width: chartSize,
+                height: chartSize * 0.78,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.16),
+                      blurRadius: 24,
+                      offset: const Offset(0, 14),
+                    ),
+                  ],
+                ),
+                child: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.identity()
+                    ..setEntry(3, 2, 0.0012)
+                    ..rotateX(0.88),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
+                    children: [
+                      Transform.translate(
+                        offset: Offset(0, chartSize * 0.11),
+                        child: PieChart(
+                          PieChartData(
+                            centerSpaceRadius: chartSize * 0.24,
+                            sectionsSpace: 2.8,
+                            startDegreeOffset: -90,
+                            borderData: FlBorderData(show: false),
+                            sections: _sections(chartSize, depthLayer: true),
+                          ),
+                        ),
+                      ),
+                      PieChart(
+                        PieChartData(
+                          centerSpaceRadius: chartSize * 0.24,
+                          sectionsSpace: 2.8,
+                          startDegreeOffset: -90,
+                          borderData: FlBorderData(show: false),
+                          sections: _sections(chartSize),
+                        ),
+                      ),
+                      IgnorePointer(
+                        child: Container(
+                          width: chartSize * 0.86,
+                          height: chartSize * 0.86,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              center: const Alignment(-0.45, -0.55),
+                              radius: 0.95,
+                              colors: [
+                                Colors.white.withOpacity(0.30),
+                                Colors.white.withOpacity(0.07),
+                                Colors.transparent,
+                              ],
+                              stops: const [0.0, 0.34, 0.72],
                             ),
                           ),
                         ),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ),
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 62, // 👈 more room for long values
-                  maxIncluded: false,
-                  minIncluded: true,
-                  getTitlesWidget: (value, meta) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: Text(
-                        formatNumberAbbreviation(
-                          value,
-                          scale: selectedScale,
-                          decimalPlaces: decimalPlaces,
-                          showSuffix: false,
-                        ),
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black54,
+                      ),
+                      Container(
+                        width: chartSize * 0.42,
+                        height: chartSize * 0.42,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.12),
+                              blurRadius: 18,
+                              offset: const Offset(0, 10),
+                            ),
+                            BoxShadow(
+                              color: Colors.white.withOpacity(0.8),
+                              blurRadius: 10,
+                              offset: const Offset(-4, -5),
+                            ),
+                          ],
                         ),
                       ),
-                    );
-                  },
+                    ],
+                  ),
                 ),
               ),
+            );
 
-              topTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: false,
-                ),
+            final legend = _PieLegend(
+              data: data,
+              colors: colors,
+              total: total,
+              showPercentage: showPercentage,
+            );
 
+            if (isPhoneWidth) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [chart, const SizedBox(height: 14), legend],
+              );
+            }
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(child: chart),
+                const SizedBox(width: 14),
+                Expanded(child: legend),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  List<PieChartSectionData> _sections(
+      double chartSize, {
+        bool depthLayer = false,
+      }) {
+    return List.generate(data.length, (index) {
+      final item = data[index];
+      final amount = (item['amount'] is num)
+          ? (item['amount'] as num).toDouble().abs()
+          : (double.tryParse(item['amount']?.toString() ?? "") ?? 0.0).abs();
+      final ratio = total == 0 ? 0.0 : amount / total;
+      final color = colors[index % colors.length];
+      final sectionColor = depthLayer ? _darken(color, 0.34) : color;
+
+      return PieChartSectionData(
+        value: amount,
+        radius: chartSize * 0.31,
+        title: depthLayer
+            ? ""
+            : ratio >= 0.14
+            ? showPercentage
+            ? "${(ratio * 100).toStringAsFixed(1)}%"
+            : formatNumberAbbreviation(
+          amount,
+          scale: selectedScale,
+          decimalPlaces: decimalPlaces,
+          showSuffix: false,
+        )
+            : "",
+        titleStyle: GoogleFonts.poppins(
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
+          color: Colors.white,
+        ),
+        color: sectionColor,
+        gradient: depthLayer
+            ? null
+            : LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [_lighten(color, 0.20), color, _darken(color, 0.18)],
+          stops: const [0.0, 0.56, 1.0],
+        ),
+      );
+    });
+  }
+
+  Color _darken(Color color, double amount) {
+    final hsl = HSLColor.fromColor(color);
+    return hsl
+        .withLightness((hsl.lightness - amount).clamp(0.0, 1.0))
+        .toColor();
+  }
+
+  Color _lighten(Color color, double amount) {
+    final hsl = HSLColor.fromColor(color);
+    return hsl
+        .withLightness((hsl.lightness + amount).clamp(0.0, 1.0))
+        .toColor();
+  }
+}
+
+class _PieLegend extends StatelessWidget {
+  final List<Map<String, dynamic>> data;
+  final List<Color> colors;
+  final double total;
+  final bool showPercentage;
+
+  const _PieLegend({
+    required this.data,
+    required this.colors,
+    required this.total,
+    required this.showPercentage,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: List.generate(data.length, (index) {
+        final item = data[index];
+        final name = item['name']?.toString() ?? "";
+        final amount = (item['amount'] is num)
+            ? (item['amount'] as num).toDouble().abs()
+            : (double.tryParse(item['amount']?.toString() ?? "") ?? 0.0).abs();
+        final color = colors[index % colors.length];
+        final value = showPercentage
+            ? "${(total == 0 ? 0 : amount / total * 100).toStringAsFixed(1)}%"
+            : CurrencyFormatter.formatCurrency_double(amount);
+
+        return Container(
+          margin: EdgeInsets.only(bottom: index == data.length - 1 ? 0 : 8),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF7F9FC),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
               ),
-              rightTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF374151),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                value,
+                style: GoogleFonts.poppins(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF172033),
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _LegendDot({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF4B5563),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String message;
+
+  const _EmptyState({
+    required this.icon,
+    required this.title,
+    required this.message,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 30),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F4F9),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(icon, color: const Color(0xFF697386)),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF172033),
               ),
             ),
-
-            // 🔹 Grid & Border
-            borderData: FlBorderData(show: false),
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: false,
-              getDrawingHorizontalLine: (value) => FlLine(
-                color: Colors.grey.shade200,
-                strokeWidth: 1,
+            const SizedBox(height: 4),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF697386),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class BarChartWidget extends StatelessWidget {
+  final List<_MonthBarEntry> entries;
+  final NumberScale selectedScale;
+  final int decimalPlaces;
+
+  const BarChartWidget({
+    super.key,
+    required this.entries,
+    required this.selectedScale,
+    required this.decimalPlaces,
+  });
+
+
+  @override
+  Widget build(BuildContext context) {
+    final maxValue = _maxValue();
+
+    return BarChart(
+      BarChartData(
+        alignment: entries.length <= 2
+            ? BarChartAlignment.center
+            : BarChartAlignment.spaceAround,
+        maxY: maxValue == 0 ? 1 : maxValue * 1.18,
+        groupsSpace: entries.length <= 2 ? 28 : 18,
+        barGroups: _barGroups(maxValue),
+        barTouchData: BarTouchData(
+          enabled: true,
+          touchTooltipData: BarTouchTooltipData(
+            tooltipPadding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 8,
+            ),
+            tooltipMargin: 8,
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              final label = rodIndex == 0 ? "Sales" : "Receipt";
+              return BarTooltipItem(
+                "$label\n${formatNumberAbbreviation(rod.toY, scale: selectedScale, decimalPlaces: decimalPlaces, showSuffix: false)}",
+                GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                ),
+              );
+            },
+          ),
+        ),
+        titlesData: FlTitlesData(
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 42,
+              interval: 1,
+              getTitlesWidget: (value, meta) {
+                final index = value.toInt();
+                if (index < 0 || index >= entries.length)
+                  return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    entries[index].label,
+                    style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF374151),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
-        ));
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 58,
+              maxIncluded: false,
+              getTitlesWidget: (value, meta) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Text(
+                    formatNumberAbbreviation(
+                      value,
+                      scale: selectedScale,
+                      decimalPlaces: decimalPlaces,
+                      showSuffix: false,
+                    ),
+                    style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      color: const Color(0xFF697386),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          getDrawingHorizontalLine: (value) =>
+              FlLine(color: const Color(0xFFE4E8F0), strokeWidth: 1),
+        ),
+      ),
+    );
   }
 
-  double getMaxValue() {
-    List<double> combinedData = salesData + receiptData;
-    combinedData.removeWhere((value) => value.isNaN || value.isInfinite);
-    if (combinedData.isEmpty) return 0;
-    return combinedData.reduce(max);
+  double _maxValue() {
+    final values = <double>[];
+    for (final entry in entries) {
+      if (entry.sales.isFinite) values.add(entry.sales.abs());
+      if (entry.receipt.isFinite) values.add(entry.receipt.abs());
+    }
+    if (values.isEmpty) return 0;
+    return values.reduce(max);
   }
 
-  List<BarChartGroupData> generateBars() {
-    return List.generate(salesData.length, (i) {
+  List<BarChartGroupData> _barGroups(double maxValue) {
+    return List.generate(entries.length, (index) {
+      final entry = entries[index];
       return BarChartGroupData(
-        x: i,
-        barsSpace: 8,
+        x: index,
+        barsSpace: 7,
         barRods: [
           BarChartRodData(
             fromY: 0,
-            toY: salesData[i],
-            width: 14,
-            borderRadius: BorderRadius.circular(8),
-            gradient: LinearGradient(
-              colors: [
-                app_color.withOpacity(0.9),
-                app_color.withOpacity(0.6),
-              ],
-            ),
+            toY: entry.sales.abs(),
+            width: 13,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+            color: app_color,
             backDrawRodData: BackgroundBarChartRodData(
               show: true,
-              toY: getMaxValue() + 10,
-              color: Colors.grey.shade100,
+              toY: maxValue == 0 ? 1 : maxValue * 1.12,
+              color: const Color(0xFFF1F4F9),
             ),
           ),
           BarChartRodData(
             fromY: 0,
-            toY: receiptData[i],
-            width: 14,
-            borderRadius: BorderRadius.circular(8),
-            gradient: LinearGradient(
-              colors: [
-                Colors.deepOrange,
-                Colors.deepOrangeAccent,
-              ],
-            ),
-
+            toY: entry.receipt.abs(),
+            width: 13,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+            color: const Color(0xFFFF8A3D),
             backDrawRodData: BackgroundBarChartRodData(
               show: true,
-              toY: getMaxValue() + 10,
-              color: Colors.grey.shade100,
+              toY: maxValue == 0 ? 1 : maxValue * 1.12,
+              color: const Color(0xFFF1F4F9),
             ),
           ),
         ],

@@ -1038,7 +1038,8 @@ class _ItemsTotalClickedLedgerCostCenterPageState extends State<ItemsTotalClicke
 
           // Loading Spinner
           if (_isLoading)
-            const Center(child: CircularProgressIndicator.adaptive()),
+            const Center(
+                child: AppLogoLoader()),
 
           // No Data Message
           if (isVisibleNoDataFound)

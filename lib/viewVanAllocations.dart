@@ -287,12 +287,7 @@ class _ViewVanAllocationScreenState
 
       body: isLoading
           ? Center(
-        child: CircularProgressIndicator.adaptive(
-          valueColor: AlwaysStoppedAnimation<Color>(
-            primaryColor,
-          ),
-        ),
-      )
+          child: AppLogoLoader())
           : RefreshIndicator(
         color: primaryColor,
         onRefresh: fetchAllocations,

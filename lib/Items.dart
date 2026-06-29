@@ -1569,7 +1569,8 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
           // 🔹 Loader Overlay
           if (_isLoading)
             Container(
-              child: Center(child: CircularProgressIndicator.adaptive()),
+              child: Center(
+                  child: AppLogoLoader()),
             ),
         ],
       ),

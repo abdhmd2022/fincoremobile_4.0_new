@@ -686,10 +686,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
         ),
       ),
       body: isLoading ? Center(
-        child: CircularProgressIndicator.adaptive(
-
-        ),
-      ) : LayoutBuilder(
+          child: AppLogoLoader()) : LayoutBuilder(
         builder: (context, constraints) {
           final bool isMobile = constraints.maxWidth < 700;
 

@@ -1110,7 +1110,8 @@ class _ItemsClickedPageState extends State<ItemsClicked> with TickerProviderStat
             ],
           ),
           if (_isLoading)
-            Center(child: CircularProgressIndicator.adaptive()),
+            Center(
+                child: AppLogoLoader())
         ],
       ),
     );

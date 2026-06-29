@@ -1110,7 +1110,8 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
                     // Loading spinner
                     Visibility(
                       visible: _isLoading,
-                      child: const Center(child: CircularProgressIndicator.adaptive()),
+                      child: const Center(
+                          child: AppLogoLoader()),
                     ),
 
                     // Floating Action Button

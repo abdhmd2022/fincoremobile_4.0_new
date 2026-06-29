@@ -1457,12 +1457,8 @@ class _PartyTotalClickedPageState extends State<PartyTotalClicked> with TickerPr
           Visibility(
 
             visible: _isLoading,
-            child: Positioned.fill(
-              child: Align(
-                alignment: Alignment.center,
-                child: CircularProgressIndicator.adaptive(),
-              ),
-            ),)
+            child: Center(
+                child: AppLogoLoader()))
         ],
       ),
     );

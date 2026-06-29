@@ -1178,7 +1178,8 @@ class _ItemsTotalClickedCostCenterPageState extends State<ItemsTotalClickedCostC
 
           // Loading Spinner
           if (_isLoading)
-            const Center(child: CircularProgressIndicator.adaptive()),
+            const Center(
+                child: AppLogoLoader()),
 
 
 

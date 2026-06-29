@@ -3310,12 +3310,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
             Visibility(
 
               visible: _isLoading,
-              child: Positioned.fill(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: CircularProgressIndicator.adaptive(),
-                ),
-              ),)
+              child: Center(
+                  child: AppLogoLoader()))
           ],
         ),
       ),

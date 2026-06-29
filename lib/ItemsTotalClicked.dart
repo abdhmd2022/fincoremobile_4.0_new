@@ -2010,7 +2010,8 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
 
           // Loading Spinner
           if (_isLoading)
-            const Center(child: CircularProgressIndicator.adaptive()),
+            const Center(
+                child: AppLogoLoader()),
 
           // Sort FAB
           if (isSortVisible)

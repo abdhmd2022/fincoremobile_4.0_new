@@ -7144,5 +7144,4 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry> with 
               Visibility(
                   visible: _isLoading,
                   child: Center(
-                    child: CircularProgressIndicator.adaptive(),
-                  ))])));}}
+                      child: AppLogoLoader()))])));}}

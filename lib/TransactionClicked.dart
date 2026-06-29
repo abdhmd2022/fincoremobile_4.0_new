@@ -902,11 +902,9 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
 
 // Loader stays outside of scrollable content
           if (_isLoading)
-            const Positioned.fill(
-              child: Center(
-                child: CircularProgressIndicator.adaptive(),
-              ),
-            ),
+            Center(
+            child: AppLogoLoader())
+
 
         ],
       ),

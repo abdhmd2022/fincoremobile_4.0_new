@@ -1416,7 +1416,8 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                       // Loading spinner
                       Visibility(
                         visible: _isLoading,
-                        child: const Center(child: CircularProgressIndicator.adaptive()),
+                        child: const Center(
+                            child: AppLogoLoader()),
                       ),
 
                       // Floating Action Button

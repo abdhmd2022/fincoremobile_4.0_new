@@ -678,8 +678,7 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
 
               if (_isLoading)
                 const Center(
-                  child: CircularProgressIndicator.adaptive(),
-                ),
+                    child: AppLogoLoader()),
 
               Positioned(
                 bottom: 30,

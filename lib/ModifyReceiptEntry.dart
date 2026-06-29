@@ -5927,8 +5927,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
             Visibility(
               visible: _isLoading,
               child: Center(
-                child: CircularProgressIndicator.adaptive(),
-              ),
+                  child: AppLogoLoader())
             )
           ],)
       ),

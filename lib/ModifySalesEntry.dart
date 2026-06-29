@@ -7931,8 +7931,7 @@ _itemController.text = _selecteditem;
             Visibility(
               visible: _isLoading,
               child: Center(
-                child: CircularProgressIndicator.adaptive(),
-              ))])));}
+                  child: AppLogoLoader()))])));}
 
 
 

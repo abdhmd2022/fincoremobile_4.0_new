@@ -6735,8 +6735,7 @@ class _SalesOrderRegistrationPageState extends State<SalesOrderRegistration> wit
               Visibility(
                 visible: _isLoading,
                 child: Center(
-                  child: CircularProgressIndicator.adaptive(),
-                ),
+                    child: AppLogoLoader())
               ),
             ],)
       ),

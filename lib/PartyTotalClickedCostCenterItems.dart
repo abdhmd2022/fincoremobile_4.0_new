@@ -1184,12 +1184,8 @@ class _PartyTotalClickedCostCenterItemsPageState extends State<PartyTotalClicked
           Visibility(
 
             visible: _isLoading,
-            child: Positioned.fill(
-              child: Align(
-                alignment: Alignment.center,
-                child: CircularProgressIndicator.adaptive(),
-              ),
-            ),)
+            child: Center(
+                child: AppLogoLoader()))
         ],
       ),
     );

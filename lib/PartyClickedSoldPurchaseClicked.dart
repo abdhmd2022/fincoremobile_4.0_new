@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:FincoreGo/Constants.dart';
+import 'constants.dart';
 import 'package:FincoreGo/Items.dart';
 import 'package:FincoreGo/currencyFormat.dart';
 import 'package:flutter/material.dart';
@@ -1406,12 +1406,8 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
 
           Visibility(
             visible: _isLoading,
-            child: Positioned.fill(
-              child: Align(
-                alignment: Alignment.center,
-                child: CircularProgressIndicator.adaptive(),
-              ),
-            ))
+            child: Center(
+                child: AppLogoLoader()))
         ]  ));
   }
 }

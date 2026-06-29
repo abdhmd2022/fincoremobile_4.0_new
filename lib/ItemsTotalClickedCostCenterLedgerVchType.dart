@@ -831,7 +831,8 @@ class _ItemsTotalClickedCostCenterLedgerVchTypePageState extends State<ItemsTota
             ],
           ),
           if (_isLoading)
-            const Center(child: CircularProgressIndicator.adaptive()),
+            const Center(
+                child: AppLogoLoader()),
         ],
       ),
     );

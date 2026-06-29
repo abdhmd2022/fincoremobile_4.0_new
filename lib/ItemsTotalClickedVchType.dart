@@ -1256,7 +1256,8 @@ class _ItemsTotalClickedVchTypePageState extends State<ItemsTotalClickedVchType>
 
           // Loading Spinner
           if (_isLoading)
-             Center(child: CircularProgressIndicator.adaptive()),
+            Center(
+                child: AppLogoLoader()),
 
 
           // No Data Message

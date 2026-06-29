@@ -627,8 +627,7 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
 
               if (_isLoading)
                 const Center(
-                  child: CircularProgressIndicator.adaptive(),
-                ),
+                    child: AppLogoLoader()),
               Positioned(
                 bottom: 30,
                 right: 24,

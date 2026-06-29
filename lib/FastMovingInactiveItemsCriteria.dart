@@ -6,18 +6,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'constants.dart';
 
 class FastMovingInactiveItemsCriteria extends StatefulWidget {
+  final bool fastmoving_visible, slowmoving_visible, inactive_visible;
 
-  final bool fastmoving_visible,slowmoving_visible ,inactive_visible ;
-
-  const FastMovingInactiveItemsCriteria(
-      {
-        required this.fastmoving_visible,
-        required this.slowmoving_visible,
-        required this.inactive_visible
-      });
+  const FastMovingInactiveItemsCriteria({
+    required this.fastmoving_visible,
+    required this.slowmoving_visible,
+    required this.inactive_visible,
+  });
 
   @override
-  _FastMovingInactiveItemsState createState() => _FastMovingInactiveItemsState(fastmoving_visible: fastmoving_visible,slowmoving_visible: slowmoving_visible,inactive_visible: inactive_visible);
+  _FastMovingInactiveItemsState createState() => _FastMovingInactiveItemsState(
+    fastmoving_visible: fastmoving_visible,
+    slowmoving_visible: slowmoving_visible,
+    inactive_visible: inactive_visible,
+  );
 }
 
 class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteria> {
@@ -29,7 +31,7 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
   late TextEditingController slowmovingitemsvaluecontroller;
   late TextEditingController slowmovingitemsdayscontroller;
 
-  bool fastmoving_visible,slowmoving_visible,inactive_visible;
+  bool fastmoving_visible, slowmoving_visible, inactive_visible;
 
   String fastmovingitems = '';
   String slowmovingitems = '';
@@ -40,16 +42,34 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
   String slowmovingvalueitems = '';
   String slowmovingqtyitems = '';
 
-  _FastMovingInactiveItemsState (
-      {required this.fastmoving_visible,
-        required this.slowmoving_visible,
-        required this.inactive_visible,});
+  final Color _pageColor = Colors.white;
+  final Color _textColor = const Color(0xFF17202A);
+  final Color _mutedTextColor = const Color(0xFF6B7280);
+  final Color _borderColor = const Color(0xFFE7EAF0);
+
+  _FastMovingInactiveItemsState({
+    required this.fastmoving_visible,
+    required this.slowmoving_visible,
+    required this.inactive_visible,
+  });
 
   @override
   void initState() {
     super.initState();
     initializeControllers();
     loadPreferences();
+  }
+
+  @override
+  void dispose() {
+    fastmovingitemsdayscontroller.dispose();
+    inactiveitemsdayscontroller.dispose();
+    fastmovingitemsqtycontroller.dispose();
+    fastmovingitemsvaluecontroller.dispose();
+    slowmovingitemsqtycontroller.dispose();
+    slowmovingitemsvaluecontroller.dispose();
+    slowmovingitemsdayscontroller.dispose();
+    super.dispose();
   }
 
   void initializeControllers() {
@@ -74,7 +94,6 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
       slowmovingvalueitems = criteria.getString('slowmovingvalue') ?? '10000';
 
       inactiveitems = criteria.getString('inactivedays') ?? '182';
-
     });
     setControllerValues();
   }
@@ -92,60 +111,95 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
   }
 
   void showToast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    final bool isSuccess = message.toLowerCase().contains('saved');
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        elevation: 0,
+        backgroundColor: isSuccess ? const Color(0xFF138A63) : const Color(0xFFB42318),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        content: Row(
+          children: [
+            Icon(
+              isSuccess ? Icons.check_circle_outline_rounded : Icons.error_outline_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void savePreferences() async {
     SharedPreferences criteria = await SharedPreferences.getInstance();
-     if(!fastmovingitemsdayscontroller.text.isEmpty && !fastmovingitemsqtycontroller.text.isEmpty && !fastmovingitemsvaluecontroller.text.isEmpty
-     && !slowmovingitemsdayscontroller.text.isEmpty && !slowmovingitemsqtycontroller.text.isEmpty && !slowmovingitemsvaluecontroller.text.isEmpty &&
-     !inactiveitemsdayscontroller.text.isEmpty)
-       {
-         int fastmovingdays = int.parse(fastmovingitemsdayscontroller.text);
-         int slowmovingdays = int.parse(slowmovingitemsdayscontroller.text);
-         int inactivedays = int.parse(inactiveitemsdayscontroller.text);
+    if (fastmovingitemsdayscontroller.text.isNotEmpty &&
+        fastmovingitemsqtycontroller.text.isNotEmpty &&
+        fastmovingitemsvaluecontroller.text.isNotEmpty &&
+        slowmovingitemsdayscontroller.text.isNotEmpty &&
+        slowmovingitemsqtycontroller.text.isNotEmpty &&
+        slowmovingitemsvaluecontroller.text.isNotEmpty &&
+        inactiveitemsdayscontroller.text.isNotEmpty) {
+      int fastmovingdays = int.parse(fastmovingitemsdayscontroller.text);
+      int slowmovingdays = int.parse(slowmovingitemsdayscontroller.text);
+      int inactivedays = int.parse(inactiveitemsdayscontroller.text);
 
-         if(inactivedays <= slowmovingdays || inactivedays <= fastmovingdays)
-           {
-             showToast('Inactive days must be greater than fast/slow moving days');
-           }
-         else
-           {
-             String fastmovingitemsdays = fastmovingitemsdayscontroller.text;
-             String fastmovingitemsqty = fastmovingitemsqtycontroller.text;
-             String fastmovingitemsvalue = fastmovingitemsvaluecontroller.text;
-             String slowmovingitemsvalue = slowmovingitemsvaluecontroller.text;
-             String slowmovingitemsdays = slowmovingitemsdayscontroller.text;
-             String slowmovingitemsqty = slowmovingitemsqtycontroller.text;
-             String inactiveitemsdays = inactiveitemsdayscontroller.text;
+      if (inactivedays <= slowmovingdays || inactivedays <= fastmovingdays) {
+        showToast('Inactive days must be greater than fast/slow moving days');
+      } else {
+        String fastmovingitemsdays = fastmovingitemsdayscontroller.text;
+        String fastmovingitemsqty = fastmovingitemsqtycontroller.text;
+        String fastmovingitemsvalue = fastmovingitemsvaluecontroller.text;
+        String slowmovingitemsvalue = slowmovingitemsvaluecontroller.text;
+        String slowmovingitemsdays = slowmovingitemsdayscontroller.text;
+        String slowmovingitemsqty = slowmovingitemsqtycontroller.text;
+        String inactiveitemsdays = inactiveitemsdayscontroller.text;
 
-             criteria
-               ..setString('fastmovingdays', fastmovingitemsdays)
-               ..setString('fastmovingqty', fastmovingitemsqty)
-               ..setString('fastmovingvalue', fastmovingitemsvalue)
-               ..setString('slowmovingdays', slowmovingitemsdays)
-               ..setString('slowmovingqty', slowmovingitemsqty)
-               ..setString('slowmovingvalue', slowmovingitemsvalue)
-               ..setString('inactivedays', inactiveitemsdays)
-               ..commit();
+        criteria
+          ..setString('fastmovingdays', fastmovingitemsdays)
+          ..setString('fastmovingqty', fastmovingitemsqty)
+          ..setString('fastmovingvalue', fastmovingitemsvalue)
+          ..setString('slowmovingdays', slowmovingitemsdays)
+          ..setString('slowmovingqty', slowmovingitemsqty)
+          ..setString('slowmovingvalue', slowmovingitemsvalue)
+          ..setString('inactivedays', inactiveitemsdays)
+          ..commit();
 
-             print('$fastmovingitemsdays  $fastmovingitemsqty  $fastmovingitemsvalue  $slowmovingitemsdays  $slowmovingitemsqty  $slowmovingitemsvalue  $inactiveitemsdays');
+        print(
+          '$fastmovingitemsdays  $fastmovingitemsqty  $fastmovingitemsvalue  $slowmovingitemsdays  $slowmovingitemsqty  $slowmovingitemsvalue  $inactiveitemsdays',
+        );
 
-             showToast('Criteria Saved');
+        showToast('Criteria Saved');
+      }
+    } else {
+      showToast('Fields cannot be empty');
+    }
+  }
 
-
-           }
-       }
-     else
-       {
-         showToast('Fields cannot be empty');
-       }
+  int get _visibleSectionCount {
+    return [
+      fastmoving_visible,
+      slowmoving_visible,
+      inactive_visible,
+    ].where((visible) => visible).length;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _pageColor,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
         child: AppBar(
@@ -185,158 +239,287 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
           centerTitle: true,
         ),
       ),
-
       body: LayoutBuilder(
         builder: (context, constraints) {
-          bool isWide = constraints.maxWidth > 600;
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (fastmoving_visible)
-                  _buildCriteriaCard(
-                    title: 'Fast Moving Criteria',
-                    icon: Icons.flash_on_rounded,
-                    color: Colors.teal,
-                    isWide: isWide,
-                    fields: [
-                      _buildValidatedField(
+          bool isWide = constraints.maxWidth > 640;
+
+          return SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // _buildHeaderCard(),
+                  //const SizedBox(height: 18),
+                  const SizedBox(height: 9),
+                  _buildSectionLabel('Criteria Rules'),
+                  if (fastmoving_visible)
+                    _buildCriteriaCard(
+                      title: 'Fast Moving Criteria',
+                      subtitle: 'Items that move quickly within the selected range.',
+                      icon: Icons.flash_on_rounded,
+                      color: const Color(0xFF0F766E),
+                      isWide: isWide,
+                      fields: [
+                        _buildValidatedField(
                           label: 'No. of Days',
                           controller: fastmovingitemsdayscontroller,
                           errorText: fastmovingitemsdayscontroller.text.isEmpty ? 'Required' : null,
                           onChanged: (val) {
                             fastmovingitems = val;
-                          }),
-                      _buildValidatedField(
+                          },
+                        ),
+                        _buildValidatedField(
                           label: 'Min Qty',
                           controller: fastmovingitemsqtycontroller,
                           errorText: fastmovingitemsqtycontroller.text.isEmpty ? 'Required' : null,
                           onChanged: (val) {
                             fastmovingqtyitems = val;
-                          }),
-                      _buildValidatedField(
+                          },
+                        ),
+                        _buildValidatedField(
                           label: 'Min Value',
                           controller: fastmovingitemsvaluecontroller,
                           errorText: fastmovingitemsvaluecontroller.text.isEmpty ? 'Required' : null,
                           onChanged: (val) {
                             fastmovingvalueitems = val;
-                          }),
-                    ],
-                  ),
-
-                if (slowmoving_visible)
-                  _buildCriteriaCard(
-                    title: 'Slow Moving Criteria',
-                    icon: Icons.slow_motion_video_rounded,
-                    color: Colors.orange,
-                    isWide: isWide,
-                    fields: [
-                      _buildValidatedField(
+                          },
+                        ),
+                      ],
+                    ),
+                  if (slowmoving_visible)
+                    _buildCriteriaCard(
+                      title: 'Slow Moving Criteria',
+                      subtitle: 'Items with lower quantity or value movement.',
+                      icon: Icons.slow_motion_video_rounded,
+                      color: const Color(0xFFB45309),
+                      isWide: isWide,
+                      fields: [
+                        _buildValidatedField(
                           label: 'No. of Days',
                           controller: slowmovingitemsdayscontroller,
                           errorText: slowmovingitemsdayscontroller.text.isEmpty ? 'Required' : null,
                           onChanged: (val) {
                             slowmovingitems = val;
-                          }),
-                      _buildValidatedField(
+                          },
+                        ),
+                        _buildValidatedField(
                           label: 'Max Qty',
                           controller: slowmovingitemsqtycontroller,
                           errorText: slowmovingitemsqtycontroller.text.isEmpty ? 'Required' : null,
                           onChanged: (val) {
                             slowmovingqtyitems = val;
-                          }),
-                      _buildValidatedField(
+                          },
+                        ),
+                        _buildValidatedField(
                           label: 'Max Value',
                           controller: slowmovingitemsvaluecontroller,
                           errorText: slowmovingitemsvaluecontroller.text.isEmpty ? 'Required' : null,
                           onChanged: (val) {
                             slowmovingvalueitems = val;
-                          }),
-                    ],
-                  ),
-
-                if (inactive_visible)
-                  _buildCriteriaCard(
-                    title: 'Inactive Criteria',
-                    icon: Icons.block_rounded,
-                    color: Colors.redAccent,
-                    isWide: isWide,
-                    fields: [
-                      _buildValidatedField(
+                          },
+                        ),
+                      ],
+                    ),
+                  if (inactive_visible)
+                    _buildCriteriaCard(
+                      title: 'Inactive Criteria',
+                      subtitle: 'Items older than active movement limits.',
+                      icon: Icons.block_rounded,
+                      color: const Color(0xFFB42318),
+                      isWide: isWide,
+                      fields: [
+                        _buildValidatedField(
                           label: 'No. of Days',
                           controller: inactiveitemsdayscontroller,
                           errorText: inactiveitemsdayscontroller.text.isEmpty ? 'Required' : null,
                           onChanged: (val) {
                             inactiveitems = val;
-                          }),
-                    ],
-                  ),
-
-                const SizedBox(height: 30),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() {}); // triggers validation
-                      savePreferences();
-                    },
-                    icon: const Icon(Icons.save_alt_rounded,color:Colors.white),
-                    label:  Text(
-                      'Save',
-                      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600,color:Colors.white),
+                          },
+                        ),
+                      ],
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: app_color,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() {});
+                        savePreferences();
+                      },
+                      icon: const Icon(Icons.save_alt_rounded),
+                      label: Text(
+                        'Save Criteria',
+                        style: GoogleFonts.poppins(fontSize: 15.5, fontWeight: FontWeight.w700),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: app_color,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-              ],
+                ],
+              ),
             ),
           );
         },
       ),
+    );
+  }
 
+  Widget _buildHeaderCard() {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: app_color,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: app_color.withOpacity(0.22),
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.16),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(Icons.inventory_2_rounded, color: Colors.white, size: 25),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Movement Criteria',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Configure $_visibleSectionCount visible item rule${_visibleSectionCount == 1 ? '' : 's'} for reports.',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white.withOpacity(0.82),
+                    fontSize: 12.5,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        label.toUpperCase(),
+        style: GoogleFonts.poppins(
+          color: _mutedTextColor,
+          fontSize: 11.5,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.6,
+        ),
+      ),
     );
   }
 
   Widget _buildCriteriaCard({
     required String title,
+    required String subtitle,
     required IconData icon,
     required Color color,
     required List<Widget> fields,
     required bool isWide,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 14),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3))],
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: _borderColor),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.035),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, color: color),
-                const SizedBox(width: 10),
-                Text(title,
-                    style:  GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.10),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: color, size: 22),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.poppins(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w700,
+                          color: _textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          height: 1.3,
+                          fontWeight: FontWeight.w500,
+                          color: _mutedTextColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Wrap(
-              spacing: 16,
-              runSpacing: 0,
-
-              children: fields.map((e) => isWide ? SizedBox(width: 250, child: e) : e).toList(),
-            )
+              spacing: 12,
+              runSpacing: 12,
+              children: fields
+                  .map(
+                    (field) => SizedBox(
+                  width: isWide ? 220 : double.infinity,
+                  child: field,
+                ),
+              )
+                  .toList(),
+            ),
           ],
         ),
       ),
@@ -358,7 +541,11 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
           children: [
             Text(
               label,
-              style:  GoogleFonts.poppins(color: Colors.black54, fontWeight: FontWeight.w500),
+              style: GoogleFonts.poppins(
+                color: _mutedTextColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             if (tooltipText != null) ...[
               const SizedBox(width: 6),
@@ -369,43 +556,53 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
                   borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.all(8),
-                textStyle:  GoogleFonts.poppins(color: Colors.white),
+                textStyle: GoogleFonts.poppins(color: Colors.white),
                 child: const Icon(Icons.info_outline, size: 16, color: Colors.grey),
               ),
             ],
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 7),
         TextField(
           controller: controller,
           maxLength: maxLength,
           keyboardType: TextInputType.number,
-
-
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onChanged: onChanged,
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.white,
-            contentPadding:  EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-
-                borderSide: BorderSide(color: Colors.black12)),
-
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide:  BorderSide(color: app_color, width: 1.4),
+            fillColor: const Color(0xFFF7F9FC),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: _borderColor),
             ),
-
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: app_color, width: 1.4),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFB42318), width: 1.1),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFB42318), width: 1.4),
+            ),
             errorText: errorText,
-            counterStyle:  GoogleFonts.poppins(height: 0),
+            errorStyle: GoogleFonts.poppins(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
+            counterText: '',
           ),
-          style:  GoogleFonts.poppins(fontSize: 15),
+          style: GoogleFonts.poppins(
+            color: _textColor,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ],
     );
   }
-
-
 }

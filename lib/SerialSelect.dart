@@ -986,9 +986,7 @@ class _MyHomePageState extends State<SerialSelect> with TickerProviderStateMixin
                child: Column(
                  mainAxisSize: MainAxisSize.min,
                  children: [
-                   CircularProgressIndicator.adaptive(
-                     valueColor: AlwaysStoppedAnimation<Color>(app_color),
-                   ),
+                    AppLogoLoader(),
                    const SizedBox(height: 16),
                    Text(
                      "Please wait...",

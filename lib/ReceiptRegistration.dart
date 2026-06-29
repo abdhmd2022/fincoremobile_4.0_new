@@ -6804,8 +6804,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
               Visibility(
                 visible: _isLoading,
                 child: Center(
-                  child: CircularProgressIndicator.adaptive(),
-                ),
+                    child: AppLogoLoader())
               )
             ],)
         ),

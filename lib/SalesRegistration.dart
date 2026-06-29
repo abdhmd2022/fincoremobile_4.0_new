@@ -7999,8 +7999,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration> with TickerPr
               Visibility(
                 visible: _isLoading,
                 child: Center(
-                  child: CircularProgressIndicator.adaptive(),
-                ),
+                    child: AppLogoLoader())
               ),
             ],)
         ),

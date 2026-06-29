@@ -816,7 +816,8 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
         body: Stack(
           children: [
             if (_isLoading)
-              const Center(child: CircularProgressIndicator.adaptive()),
+              const Center(
+                  child: AppLogoLoader()),
 
             LayoutBuilder(
               builder: (context, constraints) {

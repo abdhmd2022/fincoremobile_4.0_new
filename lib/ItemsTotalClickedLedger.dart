@@ -1175,7 +1175,8 @@ class _ItemsTotalClickedLedgerPageState extends State<ItemsTotalClickedLedger> w
             ],
           ),
           if (_isLoading)
-            const Center(child: CircularProgressIndicator.adaptive()),
+            const Center(
+                child: AppLogoLoader()),
 
 
           // No Data Message

@@ -8507,8 +8507,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
               Visibility(
                 visible: _isLoading,
                 child: Center(
-                  child: CircularProgressIndicator.adaptive(),
-                ),
+                    child: AppLogoLoader())
               ),
             ],)
       ),

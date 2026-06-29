@@ -150,67 +150,72 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
   }
 
   void emitSaveId(final jsonPayload, final response) {
-    if (isOTPVerified) {
-      final navigator = Navigator.of(context);
+    if (!mounted || !isOTPVerified) return;
 
-      socket.emit('saveMyId', jsonPayload);
+    final navigator = Navigator.of(context);
 
-      socket.once('isIdSaved', (data) async {
-        if (data) {
-          final responseData = json.decode(response.body);
+    socket.emit('saveMyId', jsonPayload);
 
-          if (responseData is List && responseData.isNotEmpty) {
-            final userName = responseData[0]['name']?.toString() ?? '';
-            await prefs_login.setString('name', userName);
-          }
+    socket.once('isIdSaved', (data) async {
+      if (!mounted) return;
 
-          final myList = <Map<String, dynamic>>[];
+      if (data == true) {
+        final responseData = json.decode(response.body);
 
-          for (final data in responseData) {
-            final newObj = <String, dynamic>{
-              'serial_no': data['serial_no'],
-              'role_id': data['role_id'],
-              'license_expiry': data['license_expiry'],
-              'website_url': data['website_url'],
-              'token': data['token'],
-            };
-
-            // ✅ Save spectra allocations only if not null
-            if (data['spectra_allocations'] != null) {
-              newObj['spectra_allocations'] = data['spectra_allocations'];
-            }
-            myList.add(newObj);
-          }
-          String jsonString = jsonEncode(myList);
-
-          if (remember_me) {
-            prefs_login.setString('username_remember', usernamee);
-            prefs_login.setString('password_remember', passwordd);
-            prefs_login.setString('username', usernamee);
-
-            prefs_login.setString('password', passwordd);
-            prefs_login.remove('sync_pref');
-            prefs_login.remove('serial_no');
-          } else {
-            prefs_login.remove('username_remember');
-            prefs_login.remove('password_remember');
-            prefs_login.setString('username', usernamee);
-            prefs_login.setString('password', passwordd);
-          }
-          prefs_login.setString('login_list', jsonString);
-
-          if (mounted) {
-            navigator.pushReplacement(
-              MaterialPageRoute(builder: (context) => SerialSelect()),
-            );
-          }
-        } else {
-          _scaffoldMessengerKey.currentState?.showSnackBar(
-            SnackBar(content: Text('An error occured.')),
-          );
+        if (responseData is List && responseData.isNotEmpty) {
+          final userName = responseData[0]['name']?.toString() ?? '';
+          await prefs_login.setString('name', userName);
         }
-      });
-    }
+
+        final myList = <Map<String, dynamic>>[];
+
+        for (final data in responseData) {
+          final newObj = <String, dynamic>{
+            'serial_no': data['serial_no'],
+            'role_id': data['role_id'],
+            'license_expiry': data['license_expiry'],
+            'website_url': data['website_url'],
+            'token': data['token'],
+          };
+
+          if (data['spectra_allocations'] != null) {
+            newObj['spectra_allocations'] = data['spectra_allocations'];
+          }
+
+          myList.add(newObj);
+        }
+
+        final jsonString = jsonEncode(myList);
+
+        if (remember_me) {
+          prefs_login.setString('username_remember', usernamee);
+          prefs_login.setString('password_remember', passwordd);
+          prefs_login.setString('username', usernamee);
+          prefs_login.setString('password', passwordd);
+          prefs_login.remove('sync_pref');
+          prefs_login.remove('serial_no');
+        } else {
+          prefs_login.remove('username_remember');
+          prefs_login.remove('password_remember');
+          prefs_login.setString('username', usernamee);
+          prefs_login.setString('password', passwordd);
+        }
+
+        prefs_login.setString('login_list', jsonString);
+
+        if (!mounted) return;
+
+        navigator.pushReplacement(
+          MaterialPageRoute(builder: (_) => SerialSelect()),
+        );
+      } else {
+        if (!mounted) return;
+
+        _scaffoldMessengerKey.currentState?.showSnackBar(
+          const SnackBar(content: Text('An error occured.')),
+        );
+      }
+    });
   }
 
   Future<void> _showConfirmationDialogAndExit(BuildContext context) async {
@@ -1056,6 +1061,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
 
     socket.on('isValidId', (data) {
       /*print('isValidiD : $data');*/
+      if (!mounted) return;
 
       if ((data &&
           isDirectLogin &&
@@ -1222,7 +1228,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
                 </div>
                 </div>''';
     try {
-      // await send(message, smtpServer);
+      await send(message, smtpServer);
 
       /*_scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(
@@ -1302,16 +1308,25 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
   @override
   void dispose() {
     _timer?.cancel();
+
+    socket.off('isValidId');
+    socket.off('idConflict');
+    socket.off('isIdSaved');
+    socket.disconnect();
+    socket.dispose();
+
     passwordController.removeListener(_onPasswordChanged);
     resetemailController.removeListener(_onResetEmailChanged);
+
     passwordController.dispose();
     usernameController.dispose();
     resetemailController.dispose();
     otpController.dispose();
+
     _usernameFocusNode.dispose();
     _passwordFocusNode.dispose();
     _resetemailFocusNode.dispose();
-    socket.dispose();
+
     super.dispose();
   }
 
@@ -1756,7 +1771,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
                       isVisibleResetPassForm = true;
                     });
                   },
-                  child: const Text('Forgot?'),
+                  child: const Text('Forgot Password?'),
                 ),
               ],
             ),

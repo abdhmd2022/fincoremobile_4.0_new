@@ -231,7 +231,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
             itemRateController.text = apiRate.toStringAsFixed(decimal ?? 2);
             itemAmountController.text = amount.toStringAsFixed(decimal ?? 2);
             isRateFieldEnabled = false;
-            showRateField = false;
+            showRateField = true;
           });
         } else {
           setStateDialog(() {
@@ -4979,7 +4979,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                       ),
                                     ),
 
-                                    /*const SizedBox(height: 14),
+                                    const SizedBox(height: 14),
 
                                     TextFormField(
                                       controller: itemAmountController,
@@ -4993,7 +4993,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                         label: "Amount",
                                         enabled: false,
                                       ),
-                                    ),*/
+                                    ),
                                   ],
                                 ],
                               ),
@@ -7796,10 +7796,10 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                                         ],
                                                       ),
 
-                                                     //  const SizedBox(height: 12),
+                                                      const SizedBox(height: 12),
 
                                                       // Rate Section
-                                                      /*Row(
+                                                      Row(
                                                         crossAxisAlignment: CrossAxisAlignment.center,
                                                         children: [
                                                           Text(
@@ -7828,7 +7828,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                                             ),
                                                           ),
                                                         ],
-                                                      ),*/
+                                                      ),
                                                     ],
                                                   ),
                                                 ),
@@ -8124,7 +8124,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                           ),
                                         ),
 
-                                        if(!isUniGasMeterReadingSerial)
+
                                         Expanded(
                                           child: Padding(
                                             padding: const EdgeInsets.only(top: 20, left: 0, right: 20),
@@ -8289,7 +8289,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
 
                                     ,],),),
 
-                              /*Padding(
+                              Padding(
                                 padding: const EdgeInsets.only(top: 15, left: 20, right: 20, bottom: 0),
                                 child: TextFormField(
                                   enabled: false,
@@ -8376,7 +8376,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     });
                                   },
                                 ),
-                              ),*/
+                              ),
 
                               Container(
                                 padding: const EdgeInsets.only(top: 20),

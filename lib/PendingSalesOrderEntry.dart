@@ -396,7 +396,30 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
     setState(() {
       _isLoading = true;
     });
-    final url = Uri.parse(HttpURL_loadData!);
+    final prefs = await SharedPreferences.getInstance();
+
+    String? voucherTypeName;
+
+    final String? spectraAllocationsString = prefs.getString('spectra_allocations');
+
+    if (spectraAllocationsString != null && spectraAllocationsString.isNotEmpty) {
+      final List<dynamic> spectraAllocations = jsonDecode(spectraAllocationsString);
+
+      if (spectraAllocations.isNotEmpty) {
+        voucherTypeName = spectraAllocations.first['salesorder_voucher_type'];
+      }
+    }
+    dynamic url;
+    if (voucherTypeName != null && voucherTypeName.trim().isNotEmpty) {
+      url = Uri.parse('$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales order&vchName=$voucherTypeName');
+    }
+    else
+    {
+      url = Uri.parse('$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales order');
+    }
+    print('sales order voucher type -> $voucherTypeName');
+    print('getting sales order from url -> $url');
+
 
     Map<String,String> headers = {
       'Authorization' : 'Bearer $token',

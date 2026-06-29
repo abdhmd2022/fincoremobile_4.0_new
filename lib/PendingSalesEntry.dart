@@ -386,6 +386,109 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
     setState(() {
       _isLoading = true;
     });
+
+    final prefs = await SharedPreferences.getInstance();
+
+    String? voucherTypeName;
+
+    final String? spectraAllocationsString = prefs.getString('spectra_allocations');
+
+    if (spectraAllocationsString != null && spectraAllocationsString.isNotEmpty) {
+      final List<dynamic> spectraAllocations = jsonDecode(spectraAllocationsString);
+
+      if (spectraAllocations.isNotEmpty) {
+        voucherTypeName = spectraAllocations.first['sales_voucher_type'];
+      }
+    }
+    dynamic url;
+    if (voucherTypeName != null && voucherTypeName.trim().isNotEmpty) {
+      url = Uri.parse('$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales&vchName=$voucherTypeName');
+    }
+    else
+      {
+        url = Uri.parse('$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales');
+      }
+
+    print('sales voucher type -> $voucherTypeName');
+    print('getting sales from url -> $url');
+
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+
+
+
+    final response = await http.post(
+      url,
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      salesentries.clear();
+      filteredSalesEntries.clear();
+
+      try {
+        final List<dynamic> jsonList = json.decode(response.body);
+
+        isVisibleNoSalesEntryFound = false;
+
+        salesentries.addAll(
+          jsonList.map((json) => SalesModel.fromJson(json)).toList(),
+        );
+
+        salesentries.sort((a, b) {
+          DateTime dateA = DateTime.parse(a.data['DATE']);
+          DateTime dateB = DateTime.parse(b.data['DATE']);
+          return dateB.compareTo(dateA);
+        });
+
+        filteredSalesEntries = List.from(salesentries);
+
+        setState(() {
+          FocusManager.instance.primaryFocus?.unfocus();
+          _searchController.clear();
+
+          if (filteredSalesEntries.isEmpty) {
+            isVisibleNoSalesEntryFound = true;
+          }
+
+          _isLoading = false;
+        });
+      } catch (e) {
+        print(e);
+
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } else {
+      String error = 'Server Error!!!';
+
+      try {
+        Map<String, dynamic> data = json.decode(response.body);
+
+        if (data.containsKey('error')) {
+          error = data['error'];
+        }
+      } catch (_) {}
+
+      Fluttertoast.showToast(msg: error);
+
+      setState(() {
+        if (filteredSalesEntries.isEmpty) {
+          isVisibleNoSalesEntryFound = true;
+        }
+
+        _isLoading = false;
+      });
+    }
+  }
+
+  /*Future<void> fetchSalesEntries() async {
+    setState(() {
+      _isLoading = true;
+    });
     final url = Uri.parse(HttpURL_loadData!);
 
     Map<String,String> headers = {
@@ -458,7 +561,7 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry> with TickerPr
         isVisibleNoSalesEntryFound = true;
       }
       _isLoading = false;
-    });}
+    });}*/
 
   @override
   void initState() {

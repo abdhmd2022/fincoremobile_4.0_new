@@ -394,7 +394,30 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
 
     });
 
-    final url = Uri.parse(HttpURL_loadData!);
+    final prefs = await SharedPreferences.getInstance();
+
+    String? voucherTypeName;
+
+    final String? spectraAllocationsString = prefs.getString('spectra_allocations');
+
+    if (spectraAllocationsString != null && spectraAllocationsString.isNotEmpty) {
+      final List<dynamic> spectraAllocations = jsonDecode(spectraAllocationsString);
+
+      if (spectraAllocations.isNotEmpty) {
+        voucherTypeName = spectraAllocations.first['receipt_voucher_type'];
+      }
+    }
+    dynamic url;
+    if (voucherTypeName != null && voucherTypeName.trim().isNotEmpty) {
+      url = Uri.parse('$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=receipt&vchName=$voucherTypeName');
+    }
+    else
+    {
+      url = Uri.parse('$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=receipt');
+    }
+    print('receipt voucher type -> $voucherTypeName');
+    print('getting receipts from url -> $url');
+
 
     Map<String,String> headers = {
       'Authorization' : 'Bearer $token',

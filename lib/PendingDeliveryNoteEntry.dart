@@ -379,7 +379,30 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
     setState(() {
       _isLoading = true;
     });
-    final url = Uri.parse(HttpURL_loadData!);
+    final prefs = await SharedPreferences.getInstance();
+
+    String? voucherTypeName;
+
+    final String? spectraAllocationsString = prefs.getString('spectra_allocations');
+
+    if (spectraAllocationsString != null && spectraAllocationsString.isNotEmpty) {
+      final List<dynamic> spectraAllocations = jsonDecode(spectraAllocationsString);
+
+      if (spectraAllocations.isNotEmpty) {
+        voucherTypeName = spectraAllocations.first['voucher_type'];
+      }
+    }
+    dynamic url;
+    if (voucherTypeName != null && voucherTypeName.trim().isNotEmpty) {
+      url = Uri.parse('$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=delivery note&vchName=$voucherTypeName');
+    }
+    else
+    {
+      url = Uri.parse('$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=delivery note');
+    }
+    print('delivery note voucher type -> $voucherTypeName');
+    print('getting delivery note from url -> $url');
+
 
     Map<String,String> headers = {
       'Authorization' : 'Bearer $token',

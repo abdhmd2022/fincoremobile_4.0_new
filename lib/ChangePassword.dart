@@ -336,6 +336,7 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                           if (value == null || value.isEmpty) {
                             return "Old password required";
                           }
+                          return null;
 
                         },
                                       () {

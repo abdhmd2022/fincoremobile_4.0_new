@@ -367,7 +367,7 @@ class _PartyTotalClickedRecPayClickedPageState extends State<PartyTotalClickedRe
       final tableSubsetRows = itemsSubset.map((item) {
         return [
           convertDateFormat(item.billdate),
-          item.billno,
+          handleBillNo(item.billno),
           convertDueDateFormat(item.duedate, item.billdate),
           item.overdue,
           formatAmount(item.outstanding.toString()),
@@ -459,7 +459,7 @@ class _PartyTotalClickedRecPayClickedPageState extends State<PartyTotalClickedRe
     for (final item in item_list) {
       final rowData = [
         convertDateFormat(item.billdate),
-        item.billno,
+        handleBillNo(item.billno),
         convertDueDateFormat(item.duedate, item.billdate),
         item.overdue,
         formatAmount(item.outstanding.toString()),
@@ -532,6 +532,17 @@ class _PartyTotalClickedRecPayClickedPageState extends State<PartyTotalClickedRe
     return formattedDate;
   }
 
+  String handleBillNo(String billno) {
+
+    debugPrint('bill no -> $billno');
+
+    if(billno == 'null')
+      {
+        billno = "N/A";
+      }
+    return billno;
+  }
+
   String convertDueDateFormat(String duedate, String billdate) {
     String formattedDate = "";
 
@@ -587,6 +598,10 @@ class _PartyTotalClickedRecPayClickedPageState extends State<PartyTotalClickedRe
             String creditlimitt = item['creditlimit'].toString();
             String creditperiodd = item['creditPeriod'].toString();
 
+            if(creditlimitt == 'null')
+            {
+              creditlimitt = "0";
+            }
             if (creditperiodd == "null")
             {
               creditperiod = "0";
@@ -1356,7 +1371,7 @@ class _PartyTotalClickedRecPayClickedPageState extends State<PartyTotalClickedRe
                                             const SizedBox(width: 10),
                                             Expanded(
                                               child: Text(
-                                                card.billno ?? 'N/A',
+                                                handleBillNo(card.billno) ?? 'N/A',
                                                 softWrap: true,
                                                 style: GoogleFonts.poppins(
                                                   fontSize: 16,

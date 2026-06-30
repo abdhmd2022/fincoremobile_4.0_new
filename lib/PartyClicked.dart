@@ -535,7 +535,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
 
     try
     {
-      final url = Uri.parse(HttpURL_sold!);
+      final url = Uri.parse(HttpURL_sold);
 
       Map<String,String> headers =
       {
@@ -558,10 +558,12 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
 
       if (response.statusCode == 200)
       {
+        debugPrint('fetch sold response -> ${response.body}');
+
         final List<dynamic> values_list = jsonDecode(response.body);
 
         if (values_list != null) {
-          isVisibleNoDataFound = false;
+
 
           sold_list.addAll(values_list.map((json) => Sold_Purchased.fromJson(json)).toList());
           filteredItems_sold = sold_list;
@@ -584,12 +586,14 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
       setState(() {
         isVisibleSoldList = false;
         _isLoading = false;
+
       });
       print(e);
     }
 
     setState(()
     {
+      isVisibleNoDataFound = false;
       if(sold_list.isEmpty)
       {
         item_count = "0";
@@ -678,75 +682,64 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
   }
 
   void formatRecPayTotal(String outstanding) {
-    
-    if(outstanding != 'null')
-      {
-        if(outstanding.contains("-"))
-        {
-          if(receivableparty == 'True')
-            {
-              outstanding = outstanding.replaceAll("-", "");
-              double outstanding_double = double.parse(outstanding);
-              outstanding = CurrencyFormatter.formatCurrency_double(outstanding_double);
-              outstanding = outstanding + " DR";
+    final double value = double.tryParse(outstanding) ?? 0.0;
 
-              receivabletotal = outstanding;
-              setState(() {
-                ReceivableVisibility = true;
-              });
-            }
-        }
-        else
-        {
-          if(payableparty == 'True')
-            {
-              double outstanding_double = double.parse(outstanding);
-              outstanding = CurrencyFormatter.formatCurrency_double(outstanding_double);
-              outstanding = outstanding + " CR";
+    if (value == 0) {
+      setState(() {
+        ReceivableVisibility = false;
+        PayableVisibility = false;
+        receivabletotal = "0";
+        payabletotal = "0";
+      });
+      return;
+    }
 
-              payabletotal = outstanding;
-              setState(() {
-                PayableVisibility = true;
-              });
-            }
-        } 
+    if (value > 0) {
+      if (receivableparty == 'True') {
+        setState(() {
+          ReceivableVisibility = true;
+          PayableVisibility = false;
+          receivabletotal = outstanding;
+          payabletotal = "0";
+        });
       }
-  }
-
-  void formatOnAccount(String outstanding) {
-
-    if(outstanding != 'null')
-    {
-      if(outstanding.contains("-"))
-      {
-        if(receivableparty == 'True')
-          {
-            outstanding = outstanding.replaceAll("-", "");
-            double outstanding_double = double.parse(outstanding);
-            outstanding = CurrencyFormatter.formatCurrency_double(outstanding_double);
-            outstanding = outstanding + " DR";
-
-            onAccountReceivable = outstanding;
-            setState(() {
-              ReceivableVisibility = true;
-            });
-          }
-      }
-      else
-      {
-        if(payableparty == 'True')
-          {
-            double outstanding_double = double.parse(outstanding);
-            outstanding = CurrencyFormatter.formatCurrency_double(outstanding_double);
-            outstanding = outstanding + " CR";
-
-            onAccountPayable = outstanding;
-            setState(() {
-              PayableVisibility = true;
-            });
-          }
+    } else {
+      if (payableparty == 'True') {
+        setState(() {
+          PayableVisibility = true;
+          ReceivableVisibility = false;
+          payabletotal = outstanding;
+          receivabletotal = "0";
+        });
       }
     }
+  }
+  void formatOnAccount(String outstanding) {
+    final double value = double.tryParse(outstanding) ?? 0.0;
+
+    if (value == 0) return;
+
+    setState(() {
+      isVisibleNoDataFound = false;
+    });
+
+    if (value < 0) {
+      if (receivableparty == 'True') {
+        setState(() {
+          onAccountReceivable = outstanding; // raw: -57561
+          ReceivableVisibility = true;
+        });
+      }
+    } else {
+      if (payableparty == 'True') {
+        setState(() {
+          onAccountPayable = outstanding; // raw: 57561
+          PayableVisibility = true;
+        });
+      }
+    }
+
+
   }
 
   String formatRemainingOverdue(String outstanding) {
@@ -811,7 +804,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
               total_string = CurrencyFormatter.formatCurrency_double(sum_total_0_receivable);
               total_string = total_string + " DR";
 
-              row6_receivable = total_string;
+              row6_receivable = total_string.toString();
             }
 
             if (overdue_int > int.parse(heading1) && overdue_int <= int.parse(heading2))
@@ -823,7 +816,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
               total_string = CurrencyFormatter.formatCurrency_double(sum_total_30_receivable);
               total_string = total_string + " DR";
 
-              row5_receivable = total_string;
+              row5_receivable = total_string.toString();
             }
 
             if (overdue_int > int.parse(heading2) && overdue_int <= int.parse(heading3))
@@ -834,7 +827,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
               sum_total_60_receivable = sum_total_60_receivable + total_60_receivable;
               total_string = CurrencyFormatter.formatCurrency_double(sum_total_60_receivable);
               total_string = total_string + " DR";
-              row4_receivable = total_string;
+              row4_receivable = total_string.toString();
             }
 
             if (overdue_int > int.parse(heading3) && overdue_int <= int.parse(heading4))
@@ -845,7 +838,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
               sum_total_90_receivable = sum_total_90_receivable + total_90_receivable;
               total_string = CurrencyFormatter.formatCurrency_double(sum_total_90_receivable);
               total_string = total_string + " DR";
-              row3_receivable = total_string;
+              row3_receivable = total_string.toString();
             }
 
             if (overdue_int > int.parse(heading4) && overdue_int <= int.parse(heading5))
@@ -856,7 +849,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
               sum_total_120_receivable = sum_total_120_receivable + total_120_receivable;
               total_string = CurrencyFormatter.formatCurrency_double(sum_total_120_receivable);
               total_string = total_string + " DR";
-              row2_receivable = total_string;
+              row2_receivable = total_string.toString();
             }
 
             if (overdue_int > int.parse(heading5))
@@ -867,7 +860,8 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
               sum_total_180_receivable = sum_total_180_receivable + total_180_receivable;
               total_string = CurrencyFormatter.formatCurrency_double(sum_total_180_receivable);
               total_string = total_string + " DR";
-              row1_receivable = total_string;
+              row1_receivable = total_string.toString();
+
             }
           }
       }
@@ -887,7 +881,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
               total_string = CurrencyFormatter.formatCurrency_double(sum_total_0_payable);
               total_string = total_string + " CR";
 
-              row6_payable = total_string;
+              row6_payable = total_string.toString();
             }
 
             if (overdue_int > int.parse(heading1) && overdue_int <= int.parse(heading2))
@@ -899,7 +893,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
               total_string = CurrencyFormatter.formatCurrency_double(sum_total_30_payable);
               total_string = total_string + " CR";
 
-              row5_payable = total_string;
+              row5_payable = total_string.toString();
             }
 
             if (overdue_int > int.parse(heading2) && overdue_int <= int.parse(heading3))
@@ -910,7 +904,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
               sum_total_60_payable = sum_total_60_payable + total_60_payable;
               total_string = CurrencyFormatter.formatCurrency_double(sum_total_60_payable);
               total_string = total_string + " CR";
-              row4_payable = total_string;
+              row4_payable = total_string.toString();
             }
 
             if (overdue_int > int.parse(heading3) && overdue_int <= int.parse(heading4))
@@ -921,7 +915,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
               sum_total_90_payable = sum_total_90_payable + total_90_payable;
               total_string = CurrencyFormatter.formatCurrency_double(sum_total_90_payable);
               total_string = total_string + " CR";
-              row3_payable = total_string;
+              row3_payable = total_string.toString();
             }
 
             if (overdue_int > int.parse(heading4) && overdue_int <= int.parse(heading5))
@@ -932,7 +926,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
               sum_total_120_payable = sum_total_120_payable + total_120_payable;
               total_string = CurrencyFormatter.formatCurrency_double(sum_total_120_payable);
               total_string = total_string + " CR";
-              row2_payable = total_string;
+              row2_payable = total_string.toString();
             }
 
             if (overdue_int > int.parse(heading5))
@@ -943,7 +937,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
               sum_total_180_payable = sum_total_180_payable + total_180_payable;
               total_string = CurrencyFormatter.formatCurrency_double(sum_total_180_payable);
               total_string = total_string + " CR";
-              row1_payable = total_string;
+              row1_payable = total_string.toString();
             }
           }
       }
@@ -1027,7 +1021,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
               setState(() {
                 SalesOrderVisibility = true;
               });
-              pendingsalesorder = total_string;
+              pendingsalesorder = total;
 
             }
 
@@ -1090,7 +1084,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
       isVisibleNoDataFound = false;
 
 
-      SalesVisibility = false;
+        SalesVisibility = false;
         PurchaseVisibility = false;
         ReceiptVisibility = false;
         PaymentVisibility = false;
@@ -1162,7 +1156,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
           {
 
             final List<dynamic> data_list = jsonDecode(responsee);
-            print(data_list);
+            // print(data_list);
 
             if (data_list != null) {
               for (var entry in data_list
@@ -1557,6 +1551,11 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
                   // Intentionally ignored. Delivery Note is not shown in this summary UI.
                   continue;
                 }
+                else if (vchtype == 'SalesOrder')
+                {
+                  // Intentionally ignored. Delivery Note is not shown in this summary UI.
+                  continue;
+                }
                   }
 
 
@@ -1577,6 +1576,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
             var body_recpaytotal = jsonEncode( {
               'ledger': ledger,
               'billdate': enddate_string,
+              "opening": 'true'
             });
 
             final response_recpaytotal = await http.post(
@@ -1585,29 +1585,26 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
                 headers:headers_recpaytotal
             );
 
-            if(response_recpaytotal.statusCode == 200)
-            {
-              final List<dynamic> recpaytotal_list = jsonDecode(response_recpaytotal.body);
+            debugPrint('response receivable/payable total-> ${response_recpaytotal.body}');
 
 
-              if(recpaytotal_list !=null)
-              {
-                String outstanding = "";
-                for (var entry in recpaytotal_list
-                    .asMap()
-                    .entries)
-                {
-                  int index = entry.key;
-                  dynamic item = entry.value;
+            if (response_recpaytotal.statusCode == 200) {
+              final dynamic decoded = jsonDecode(response_recpaytotal.body);
 
-                  outstanding = item['outstanding'].toString();
-
-                  formatRecPayTotal(outstanding);
-
-                }
-
+              void handleItem(Map<String, dynamic> item) {
+                final String outstanding = (item['outstanding'] ?? '0').toString();
+                formatRecPayTotal(outstanding);
               }
 
+              if (decoded is List) {
+                for (final item in decoded) {
+                  if (item is Map<String, dynamic>) {
+                    handleItem(item);
+                  }
+                }
+              } else if (decoded is Map<String, dynamic>) {
+                handleItem(decoded);
+              }
             }
 
 
@@ -1632,11 +1629,12 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
                 headers:headers_recpay
             );
 
+            debugPrint('response receivable/payable-> ${response_recpay.body}');
 
             if(response_recpay.statusCode == 200)
             {
               final List<dynamic> recpay_list = jsonDecode(response_recpay.body);
-              print(response_recpay.body);
+              // print(response_recpay.body);
 
 
               if(recpay_list !=null)
@@ -1645,7 +1643,7 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
                     .asMap()
                     .entries)
                 {
-                  int index = entry.key;
+                  // int index = entry.key;
                   dynamic item = entry.value;
 
                   String outstanding = item['outstanding'].toString();
@@ -1665,7 +1663,9 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
                   if(billno == 'null')
                   {
                     formatOnAccount(outstanding);
-
+                    if (overdue_int > 0) {
+                      formatOnAccountWithBillNo(overdue_int, outstanding);
+                    }
                   }
                   else
                   {
@@ -1703,6 +1703,8 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
                 body: body_salepurc,
                 headers:headers_salepurc
             );
+
+            debugPrint('response sales/purchase order -> ${response_salepurc.body}');
 
             if(response_salepurc.statusCode == 200)
             {
@@ -3006,8 +3008,9 @@ class _PartyClickedPageState extends State<PartyClicked> with TickerProviderStat
                 total: receivabletotal,
                 onAccount: onAccountReceivable,
                 onTotalTap: () {
-                  navigateToReceivable('Receivable', formatAmount(receivabletotal.toString()), '', 'All');
+                  navigateToReceivable('Receivable', receivabletotal, '', 'All');
                 },
+
                 rows: [
                   {
                     'label': row1_receivable_heading,
@@ -4220,7 +4223,7 @@ class PendingOrderTile extends StatelessWidget {
                     child: Text(
                       formatCurrency(amount,
                           decimals: decimal ?? 2,
-                          currencySymbol: currencysymbol ?? ''),
+                          currencySymbol: currencysymbol ?? '',showCrDr: true),
                       style: GoogleFonts.poppins(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -4255,6 +4258,8 @@ class ReceivableBreakdownCard extends StatelessWidget {
   final String onAccount;
   final List<Map<String, dynamic>> rows;
   final VoidCallback onTotalTap;
+  final VoidCallback? onAccountTap;
+
   final int? decimal;
   final String? currencysymbol;
 
@@ -4264,6 +4269,8 @@ class ReceivableBreakdownCard extends StatelessWidget {
     required this.onAccount,
     required this.rows,
     required this.onTotalTap,
+     this.onAccountTap,
+
     this.decimal,
     this.currencysymbol,
   });
@@ -4341,12 +4348,7 @@ class _BreakdownCardBase extends StatelessWidget {
     this.currencysymbol,
   });
 
-  String _formatAmount(String amount) {
-    double value = double.tryParse(amount.replaceAll(',', '')) ?? 0.0;
-    String pattern = decimal != null ? "#,##0.${'0' * decimal!}" : "#,##0.00";
-    final formatted = NumberFormat(pattern).format(value.abs());
-    return "${currencysymbol ?? ''} $formatted";
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -4401,7 +4403,7 @@ class _BreakdownCardBase extends StatelessWidget {
               ],
             ),
             Text(
-              _formatAmount(total),
+              formatAmount(total),
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -4416,16 +4418,17 @@ class _BreakdownCardBase extends StatelessWidget {
           // Different icon + color per row
           _DetailRowTile(
             label: 'Total',
-            value: _formatAmount(total),
+            value: formatAmount(total),
             icon: Icons.summarize,
             iconColor: Colors.teal,
             onTap: onTotalTap,
           ),
           _DetailRowTile(
             label: 'On Account',
-            value: _formatAmount(onAccount),
+            value: formatAmount(onAccount),
             icon: Icons.account_balance_wallet,
             iconColor: Colors.indigo,
+            // onTap: onTotalTap,
           ),
 
           Divider(thickness: 1, color: Colors.grey.withOpacity(0.5)),

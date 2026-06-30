@@ -22,20 +22,15 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:device_info_plus/device_info_plus.dart';
 // import 'package:firebase_messaging/firebase_messaging.dart';
 
-class Login extends StatefulWidget
-{
-  final String username,password ;
-  const Login(
-      {
-        required this.username,
-        required this.password,
-      }
-      );
+class Login extends StatefulWidget {
+  final String username, password;
+  const Login({required this.username, required this.password});
   @override
-  _LoginPageState createState() => _LoginPageState(usernamee: username,passwordd: password);
+  _LoginPageState createState() =>
+      _LoginPageState(usernamee: username, passwordd: password);
 }
 
-class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
+class _LoginPageState extends State<Login> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _resetformKey = GlobalKey<FormState>();
   final _otpformKey = GlobalKey<FormState>();
@@ -56,37 +51,45 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
   late IO.Socket socket;
 
-  bool isOTPVerified = false,isAnotherDevice = false;
+  bool isOTPVerified = false, isAnotherDevice = false;
 
   dynamic socket_data;
 
-  GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
+      GlobalKey<ScaffoldMessengerState>();
 
-  bool _isLoading = false,_isLoadingResetPass = false;
+  bool _isLoading = false, _isLoadingResetPass = false;
 
   final String SHARED_PREFERENCES_NAME = "login_prefs";
 
   bool isDirectLogin = false, isOTPLogin = false;
 
-  String? username_prefs,password_prefs ;
+  String? username_prefs, password_prefs;
 
   String? deviceIdentifier = '';
 
   String generatedotp = '';
 
-  dynamic jsonPayload, response_getusers,response_resetpass;
+  dynamic jsonPayload, response_getusers, response_resetpass;
 
-  bool isVisibleLoginForm= true,isVisibleResetPassForm = false,isVisibleOTPForm = false;
+  bool isVisibleLoginForm = true,
+      isVisibleResetPassForm = false,
+      isVisibleOTPForm = false;
 
-  late String usernamee = '',resetemail = '';
+  late String usernamee = '', resetemail = '';
   late final Color backgroundColor; // declare backgroundColor as non-nullable
   bool _obscureText = true;
-  late String serial_no,role_id,license_expiry,hostname,hostpass,hostuser,dbname;
+  late String serial_no,
+      role_id,
+      license_expiry,
+      hostname,
+      hostpass,
+      hostuser,
+      dbname;
 
   DateTime? lastBackPressedTime;
 
   bool _isVerifyingOtp = false;
-
 
   late String passwordd = '';
   bool remember_me = true;
@@ -95,13 +98,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
   final _resetemailFocusNode = FocusNode();
   late TickerProvider tickerProvider;
 
-  _LoginPageState(
-      {
-        required this.usernamee,
-        required this.passwordd,
-      }
-      );
-
+  _LoginPageState({required this.usernamee, required this.passwordd});
 
   Future<void> _verifyOtpAndProceed(String enteredOTP) async {
     if (_isVerifyingOtp || _isOtpVerifyingProgress) return;
@@ -147,19 +144,15 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
   }
 
   bool isEmail(String value) {
-    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-        .hasMatch(value.trim());
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value.trim());
   }
 
-  void emitSaveId(final jsonPayload,final response) {
-    if(isOTPVerified)
-    {
+  void emitSaveId(final jsonPayload, final response) {
+    if (isOTPVerified) {
       socket.emit('saveMyId', jsonPayload);
 
-      socket.once('isIdSaved', (data)
-      async {
-        if(data)
-        {
+      socket.once('isIdSaved', (data) async {
+        if (data) {
           final responseData = json.decode(response.body);
 
           if (responseData is List && responseData.isNotEmpty) {
@@ -169,10 +162,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
           final myList = <Map<String, dynamic>>[];
 
-
-
-          for (final data in responseData)
-          {
+          for (final data in responseData) {
             final newObj = <String, dynamic>{
               'serial_no': data['serial_no'],
               'role_id': data['role_id'],
@@ -197,9 +187,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
             prefs_login.setString('password', passwordd);
             prefs_login.remove('sync_pref');
             prefs_login.remove('serial_no');
-          }
-          else
-          {
+          } else {
             prefs_login.remove('username_remember');
             prefs_login.remove('password_remember');
             prefs_login.setString('username', usernamee);
@@ -207,79 +195,86 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
           }
           prefs_login.setString('login_list', jsonString);
 
-          if(mounted) {
+          if (mounted) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => SerialSelect()),
-            );}}
-        else
-        {
+            );
+          }
+        } else {
           _scaffoldMessengerKey.currentState?.showSnackBar(
-              SnackBar(
-                content: Text('An error occured.'),
-              ));}});}
+            SnackBar(content: Text('An error occured.')),
+          );
+        }
+      });
+    }
   }
 
   Future<void> _showConfirmationDialogAndExit(BuildContext context) async {
     await showDialog<void>(
-        context: context,
-        barrierDismissible: false, // user must tap button to close dialog
-        builder: (BuildContext context) {
-          return ScaleTransition
-            (
-              scale: CurvedAnimation(
-                parent: AnimationController(
-                  duration: const Duration(milliseconds: 500),
-                  vsync: tickerProvider,
-                )..forward(),
-                curve: Curves.fastOutSlowIn,
+      context: context,
+      barrierDismissible: false, // user must tap button to close dialog
+      builder: (BuildContext context) {
+        return ScaleTransition(
+          scale: CurvedAnimation(
+            parent: AnimationController(
+              duration: const Duration(milliseconds: 500),
+              vsync: tickerProvider,
+            )..forward(),
+            curve: Curves.fastOutSlowIn,
+          ),
+          child: AlertDialog(
+            title: Text('Exit Confirmation'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[Text('Do you really want to Exit?')],
               ),
-              child: AlertDialog(
-                  title: Text('Exit Confirmation'),
-                  content: SingleChildScrollView(
-                    child: ListBody(
-                      children: <Widget>[
-                        Text('Do you really want to Exit?'),
-                      ],
-                    ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text(
+                  'No',
+                  style: TextStyle(
+                    color: app_color, // Change the text color here
                   ),
-                  actions: <Widget>[
-                    TextButton(
-                      child: Text(
-                        'No',
-                        style: TextStyle(
-                          color: app_color, // Change the text color here
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop ();
-                      },
-                    ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
 
-                    TextButton(
-                        child: Text(
-                          'Yes',
-                          style: TextStyle(
-                            color: app_color, // Change the text color here
-                          ),
-                        ),
-                        onPressed: () async {
-                          Navigator.of(context).pop();
-                          exit(0);
-                        })]));});
+              TextButton(
+                child: Text(
+                  'Yes',
+                  style: TextStyle(
+                    color: app_color, // Change the text color here
+                  ),
+                ),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  exit(0);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void navigateToPDFView(BuildContext context) async {
-
-    String pdfPath = 'assets/installation.pdf'; // Path to your PDF file in the assets folder
+    String pdfPath =
+        'assets/installation.pdf'; // Path to your PDF file in the assets folder
     ByteData data = await rootBundle.load(pdfPath);
-    List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    List<int> bytes = data.buffer.asUint8List(
+      data.offsetInBytes,
+      data.lengthInBytes,
+    );
 
     // Save the PDF file to a temporary location
     final tempDir = await getTemporaryDirectory();
     final tempFilePath = '${tempDir.path}/installation_guide.pdf';
     await File(tempFilePath).writeAsBytes(bytes);
-
 
     final result = await OpenFile.open(tempFilePath);
 
@@ -310,7 +305,6 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
   String _formattedTime = "01:00"; // Timer display
 
   void _startTimer() {
-
     _start = 60; // Reset countdown to 60 seconds
     _formattedTime = _formatDuration(_start); // Reset the formatted time
     _isButtonEnabled = false; // Disable button initially
@@ -399,7 +393,6 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
   }*/
 
   Future<void> _initSharedPreferences() async {
-
     fetchvanSalesSerialNumbers();
 
     prefs_login = await SharedPreferences.getInstance();
@@ -418,8 +411,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
     tickerProvider = this;
 
-    if(usernamee!="null" && usernamee.isNotEmpty && usernamee !=null)
-    {
+    if (usernamee != "null" && usernamee.isNotEmpty && usernamee != null) {
       _login();
     }
   }
@@ -430,36 +422,30 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
     });
 
     String enteredemail = resetemailController.text;
-    try
-    {
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $authTokenBase',
-        "Content-Type": "application/json"
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $authTokenBase',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode({
-        'email': enteredemail,
-      });
+      var body = jsonEncode({'email': enteredemail});
 
       response_resetpass = await http.post(
-          Uri.parse('$BASE_URL_config/api/login/forgotPassword'),
-          body: body,
-          headers:headers
+        Uri.parse('$BASE_URL_config/api/login/forgotPassword'),
+        body: body,
+        headers: headers,
       );
 
-      if (response_resetpass.statusCode == 200)
-      {
+      if (response_resetpass.statusCode == 200) {
         final token = jsonDecode(response_resetpass.body)['token'];
         final name = jsonDecode(response_resetpass.body)['name'];
 
         // Send password reset email
-        await _sendPasswordResetEmail(enteredemail,token,name);
+        await _sendPasswordResetEmail(enteredemail, token, name);
 
         // Show success message
         _scaffoldMessengerKey.currentState?.showSnackBar(
-          SnackBar(
-            content: Text('Password reset email sent successfully'),
-          ),
+          SnackBar(content: Text('Password reset email sent successfully')),
         );
         setState(() {
           usernameController.text = resetemailController.text;
@@ -467,28 +453,18 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
           isVisibleResetPassForm = false;
           isVisibleLoginForm = true;
         });
-      }
-      else
-      {
+      } else {
         final error = jsonDecode(response_resetpass.body)['error'];
         /*print(error);*/
         _scaffoldMessengerKey.currentState?.showSnackBar(
-          SnackBar(
-            content: Text('$error'),
-          ),
+          SnackBar(content: Text('$error')),
         );
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       _scaffoldMessengerKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-        ),
+        SnackBar(content: Text(e.toString())),
       );
-    }
-    finally
-    {
+    } finally {
       setState(() {
         _isLoading = false;
       });
@@ -502,20 +478,24 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               CircularProgressIndicator.adaptive(
-                valueColor: AlwaysStoppedAnimation<Color>(app_color), // Change the color here
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  app_color,
+                ), // Change the color here
               ),
               SizedBox(height: 16),
-              Text('Sending Reset Email',
+              Text(
+                'Sending Reset Email',
                 style: GoogleFonts.poppins(
-                  color: Colors.black54,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                   fontSize: 14.5,
-                ), ),
+                ),
+              ),
             ],
           ),
         );
@@ -523,21 +503,29 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
     );
   }
 
-  Future<void> _sendPasswordResetEmail(String emailAddress, String token,String name) async {
-
+  Future<void> _sendPasswordResetEmail(
+    String emailAddress,
+    String token,
+    String name,
+  ) async {
     final smtpServer = SmtpServer(
-        'smtp.hostinger.com',
-        username: 'noreply@fincoreerp.com',
-        password: '^QLNlsU8m',
-        port: 465,
-        ssl: true
+      'smtp.hostinger.com',
+      username: 'noreply@fincoreerp.com',
+      password: '^QLNlsU8m',
+      port: 465,
+      ssl: true,
     );
 
     final message = Message()
-      ..from = Address('noreply@fincoreerp.com','Fincore Support') // Replace with your Outlook email
+      ..from =
+          Address(
+            'noreply@fincoreerp.com',
+            'Fincore Support',
+          ) // Replace with your Outlook email
       ..recipients.add(emailAddress) // Use the email entered by the user
       ..subject = 'Password Reset Request'
-      ..html = '''
+      ..html =
+          '''
          <div style="border: 1px solid #ccc; padding-left: 30px; padding-right: 30px; padding-top: 30px; padding-bottom: 30px; margin-left: 20px; margin-right: 20px; margin-top: 0px; text-align: center;">
 
           <a href="https://tallyuae.ae/">
@@ -573,13 +561,9 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       );*/
 
       /*print('Reset Email sent: ${sendReport.toString()}');*/
-    }
-    catch (e)
-    {
+    } catch (e) {
       _scaffoldMessengerKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-        ),
+        SnackBar(content: Text(e.toString())),
       );
       /*print('$e');*/
     }
@@ -616,17 +600,14 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
     String entered_username = usernameController.text;
     String entered_password = passwordController.text;
 
-    if(username_prefs == null && password_prefs == null)
-    {
-      if(entered_username == 'demouser@ca-eim.com' && entered_password == 'user1234')
-      {
+    if (username_prefs == null && password_prefs == null) {
+      if (entered_username == 'demouser@ca-eim.com' &&
+          entered_password == 'user1234') {
         isOTPVerified = true;
         isAnotherDevice = true;
 
         _directlogin();
-      }
-      else
-      {
+      } else {
         if (isEmail(entered_username)) {
           _otplogin(entered_username);
         } else {
@@ -635,11 +616,9 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
           _directlogin();
         }
       }
-    }
-    else
-    {
-      if(entered_username == 'demouser@ca-eim.com' && entered_password == 'user1234')
-      {
+    } else {
+      if (entered_username == 'demouser@ca-eim.com' &&
+          entered_password == 'user1234') {
         isOTPVerified = true;
         isAnotherDevice = true;
 
@@ -652,11 +631,8 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
         socket.emit('deleteMyId', jsonPayload);
 
         _directlogin();
-      }
-      else
-      {
-        if(username_prefs!=entered_username)
-        {
+      } else {
+        if (username_prefs != entered_username) {
           if (isEmail(entered_username)) {
             _otplogin(entered_username);
           } else {
@@ -664,12 +640,12 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
             isAnotherDevice = true;
             _directlogin();
           }
-        }
-        else
-        {
+        } else {
           _directlogin();
         }
-      }}}
+      }
+    }
+  }
 
   Future<void> _directlogin() async {
     setState(() {
@@ -679,46 +655,35 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       response_getusers = null;
     });
 
-    try
-    {
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $authTokenBase',
-        "Content-Type": "application/json"
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $authTokenBase',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode({
-        'username': usernamee,
-        'password': passwordd
-      });
+      var body = jsonEncode({'username': usernamee, 'password': passwordd});
 
       response_getusers = await http.post(
-          Uri.parse('$BASE_URL_config/api/login/getusers'),
-          body: body,
-          headers:headers
+        Uri.parse('$BASE_URL_config/api/login/getusers'),
+        body: body,
+        headers: headers,
       );
       print('response login -> ${response_getusers.body}');
 
-      if (response_getusers.statusCode == 200)
-      {
+      if (response_getusers.statusCode == 200) {
         String expectedBody = "Invalid Username or Password Please Try Again";
 
         String responsee = response_getusers.body;
         responsee = responsee.trim();
 
-        if(responsee == expectedBody)
-        {
+        if (responsee == expectedBody) {
           _scaffoldMessengerKey.currentState?.showSnackBar(
-            SnackBar(
-              content: Text(responsee),
-            ),
+            SnackBar(content: Text(responsee)),
           );
           _usernameFocusNode.unfocus();
           _passwordFocusNode.unfocus();
-        }
-        else
-        {
-          try
-          {
+        } else {
+          try {
             jsonPayload = {
               'username': usernamee,
               'password': passwordd,
@@ -726,35 +691,25 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
             };
             /*print('emitting');*/
             socket.emit('myId', jsonPayload);
-          }
-          catch(e)
-          {
+          } catch (e) {
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              SnackBar(
-                content: Text(e.toString()),
-              ),
+              SnackBar(content: Text(e.toString())),
             );
-          }}}
-      else
-      {
+          }
+        }
+      } else {
         final error = jsonDecode(response_getusers.body)['error'];
         /*print(error);*/
         _scaffoldMessengerKey.currentState?.showSnackBar(
-          SnackBar(
-            content: Text('$error'),
-          ),
+          SnackBar(content: Text('$error')),
         );
       }
       setState(() {
         _isLoading = false;
       });
-    }
-    catch (e)
-    {
+    } catch (e) {
       _scaffoldMessengerKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-        ),
+        SnackBar(content: Text(e.toString())),
       );
       print(e.toString());
       setState(() {
@@ -771,22 +726,18 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       response_getusers = null;
     });
 
-    try
-    {
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $authTokenBase',
-        "Content-Type": "application/json"
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $authTokenBase',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode({
-        'username': usernamee,
-        'password': passwordd
-      });
+      var body = jsonEncode({'username': usernamee, 'password': passwordd});
 
       response_getusers = await http.post(
-          Uri.parse('$BASE_URL_config/api/login/getusers'),
-          body: body,
-          headers:headers
+        Uri.parse('$BASE_URL_config/api/login/getusers'),
+        body: body,
+        headers: headers,
       );
 
       print('response login -> ${response_getusers.body}');
@@ -807,27 +758,20 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       print('body : $body');
 */
 
-      if (response_getusers.statusCode == 200)
-      {
+      if (response_getusers.statusCode == 200) {
         String expectedBody = "Invalid Username or Password Please Try Again";
 
         String responsee = response_getusers.body;
         responsee = responsee.trim();
-        if(responsee == expectedBody)
-        {
+        if (responsee == expectedBody) {
           _scaffoldMessengerKey.currentState?.showSnackBar(
-            SnackBar(
-              content: Text(responsee),
-            ),
+            SnackBar(content: Text(responsee)),
           );
 
           _usernameFocusNode.unfocus();
           _passwordFocusNode.unfocus();
-        }
-        else
-        {
-          try
-          {
+        } else {
+          try {
             // Create a JSON object containing username and password
             jsonPayload = {
               'username': usernamee,
@@ -837,41 +781,27 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
             /*print('emitting');*/
 
             socket.emit('myId', jsonPayload);
-          }
-          catch(e)
-          {
+          } catch (e) {
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              SnackBar(
-                content: Text(e.toString()),
-              ),
+              SnackBar(content: Text(e.toString())),
             );
           }
         }
-      }
-      else
-      {
-
+      } else {
         final error = jsonDecode(response_getusers.body)['error'];
         /*print(error);*/
         _scaffoldMessengerKey.currentState?.showSnackBar(
-          SnackBar(
-            content: Text(error),
-          ),
+          SnackBar(content: Text(error)),
         );
       }
       setState(() {
         _isLoading = false;
       });
-    }
-    catch (e)
-    {
+    } catch (e) {
       _scaffoldMessengerKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-        ),
+        SnackBar(content: Text(e.toString())),
       );
-      setState(()
-      {
+      setState(() {
         _isLoading = false;
       });
     }
@@ -883,7 +813,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
   final resetemailController = TextEditingController();
 
-  bool isButtonDisabled = true,isResetPassButtonDisabled = true;
+  bool isButtonDisabled = true, isResetPassButtonDisabled = true;
 
   final requiredLength = 4; // the required length of the password
 
@@ -896,11 +826,11 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
     passwordController.text = passwordd;
 
     /*FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      *//*print('Got a message whilst in the foreground!');
-      print('Message data: ${message.data}');*//*
+      */ /*print('Got a message whilst in the foreground!');
+      print('Message data: ${message.data}');*/ /*
 
       if (message.notification != null) {
-        *//*print('Message also contained a notification: ${message.notification}');*//*
+        */ /*print('Message also contained a notification: ${message.notification}');*/ /*
       }
     });*/
 
@@ -909,8 +839,8 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       'transports': ['websocket'],
       'path': '/main/socket.io',
       'secure': true,
-      'autoConnect': false,
-      'auth': {'token': authTokenBase}
+      'autoConnect': true,
+      'auth': {'token': authTokenBase},
     });
 
     socket.onConnect((_) {
@@ -927,7 +857,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
     /*socket = IO.io('http://192.168.2.110:5999', <String, dynamic>{
       'transports': ['websocket'],
-      'autoConnect': false,
+      'autoConnect': true,
       'auth' : {
         'token' : '$authTokenBase'
       }
@@ -935,7 +865,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
     /*socket = IO.io('http://192.168.2.80:5999', <String, dynamic>{
       'transports': ['websocket'],
-      'autoConnect': false,
+      'autoConnect': true,
       'auth' : {
         'token' : '$authTokenBase'
       }
@@ -1070,7 +1000,6 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                                   _directlogin();
                                 }
 
-
                                 /* sendOTP(username);
                                 socket_data = data;
                                 setState(() {
@@ -1099,7 +1028,6 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                           ),
                         ),
                       ],
-
                     ),
                   ],
                 ),
@@ -1111,39 +1039,35 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
     });
 
     socket.on('isValidId', (data) {
-
       /*print('isValidiD : $data');*/
 
-      if((data && isDirectLogin && isOTPVerified == true && isAnotherDevice == true) || (data && isDirectLogin && isOTPVerified == false && isAnotherDevice == false))
-      {
+      if ((data &&
+              isDirectLogin &&
+              isOTPVerified == true &&
+              isAnotherDevice == true) ||
+          (data &&
+              isDirectLogin &&
+              isOTPVerified == false &&
+              isAnotherDevice == false)) {
         isValidId = data;
 
-        if(data)
-        {
-          isOTPVerified=true;
-          emitSaveId(jsonPayload,response_getusers);
-        }
-        else
-        {
-          isOTPVerified=false;
+        if (data) {
+          isOTPVerified = true;
+          emitSaveId(jsonPayload, response_getusers);
+        } else {
+          isOTPVerified = false;
 
           prefs_login.remove('username_remember');
           prefs_login.remove('password_remember');
 
           _scaffoldMessengerKey.currentState?.showSnackBar(
-            SnackBar(
-              content: Text('User is active on another device.'),
-            ),
+            SnackBar(content: Text('User is active on another device.')),
           );
         }
-      }
-
-      else if (data && isOTPLogin  && isOTPVerified == false)
-      {
+      } else if (data && isOTPLogin && isOTPVerified == false) {
         isValidId = data;
 
-        if(data)
-        {
+        if (data) {
           /*setState(() {
               isOTPVerified = true;
               emitSaveId(jsonPayload, response_getusers);
@@ -1177,7 +1101,6 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
             // return;
           }
 
-
           /* if (isEmail(usernamee)) {
               sendOTP(usernamee);
             } else {
@@ -1202,62 +1125,60 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
               isVisibleOTPForm = true;
               maskedEmail = usernamee;
             });*/
-        }
-        else
-        {
-          isOTPVerified=false;
+        } else {
+          isOTPVerified = false;
           prefs_login.remove('username_remember');
           prefs_login.remove('password_remember');
 
           _scaffoldMessengerKey.currentState?.showSnackBar(
-            SnackBar(
-              content: Text('User is active on another device.'),
-            ),);}}
-      else
-      {
+            SnackBar(content: Text('User is active on another device.')),
+          );
+        }
+      } else {
         prefs_login.remove('username_remember');
         prefs_login.remove('password_remember');
 
         _scaffoldMessengerKey.currentState?.showSnackBar(
-            SnackBar(
-              content: Text('User is active on another device.'),
-            ));}}
-    );
+          SnackBar(content: Text('User is active on another device.')),
+        );
+      }
+    });
 
-    try
-    {
+    try {
       socket.connect();
-    }
-    catch (e)
-    {
+    } catch (e) {
       _scaffoldMessengerKey.currentState?.showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-          ));
+        SnackBar(content: Text(e.toString())),
+      );
     }
     _initSharedPreferences();
   }
 
   void sendOTP(String email) async {
     final random = Random();
-    generatedotp = '${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}'; // Generates a 4-digit random OTP
+    generatedotp =
+        '${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}'; // Generates a 4-digit random OTP
 
     print(generatedotp);
 
     final smtpServer = SmtpServer(
-        'smtp.hostinger.com',
-        username: 'noreply@fincoreerp.com',
-        password: '^QLNlsU8m',
-        port: 465,
-        ssl: true
+      'smtp.hostinger.com',
+      username: 'noreply@fincoreerp.com',
+      password: '^QLNlsU8m',
+      port: 465,
+      ssl: true,
     );
 
     final message = Message()
-      ..from = Address('noreply@fincoreerp.com','Fincore Support') // Replace with your Outlook email
+      ..from =
+          Address(
+            'noreply@fincoreerp.com',
+            'Fincore Support',
+          ) // Replace with your Outlook email
       ..recipients.add(email) // Use the email entered by the user
       ..subject = 'Your One-Time Passcode from Fincore Go'
       ..html =
-      '''
+          '''
                   <div style="border: 1px solid #ccc; padding-left: 30px; padding-right: 30px; padding-top: 30px; padding-bottom: 30px; margin-left: 20px; margin-right: 20px; margin-top: 0px; text-align: center;">
                  
                 <a href="https://tallyuae.ae/">
@@ -1285,7 +1206,6 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 </div>
                 </div>''';
     try {
-
       // await send(message, smtpServer);
 
       /*_scaffoldMessengerKey.currentState?.showSnackBar(
@@ -1295,27 +1215,21 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       );*/
 
       /*print('Message sent: ${sendReport.toString()}');*/
-    }
-    catch (e)
-    {
+    } catch (e) {
       _scaffoldMessengerKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-        ),
+        SnackBar(content: Text(e.toString())),
       );
       /*print('$e');*/
     }
   }
 
   @override
-  void didChangeDependencies()
-  {
+  void didChangeDependencies() {
     super.didChangeDependencies();
     _getDeviceIdentifier();
   }
 
-  Future<void> _getDeviceIdentifier() async
-  {
+  Future<void> _getDeviceIdentifier() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     String? identifier = '';
 
@@ -1343,9 +1257,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
         _buttonColor = Colors.grey;
         isButtonDisabled = true;
       });
-    }
-    else
-    {
+    } else {
       setState(() {
         _buttonColor = app_color;
         isButtonDisabled = false;
@@ -1361,22 +1273,22 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
         _resetbuttonColor = Colors.grey;
         isResetPassButtonDisabled = true;
       });
-    }
-    else
-    {
-      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(resetemailController.text))
-      {
+    } else {
+      if (!RegExp(
+        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+      ).hasMatch(resetemailController.text)) {
         setState(() {
           _resetbuttonColor = Colors.grey;
           isResetPassButtonDisabled = true;
         });
-      }
-      else
-      {
+      } else {
         setState(() {
           _resetbuttonColor = app_color;
           isResetPassButtonDisabled = false;
-        });}}}
+        });
+      }
+    }
+  }
 
   final TextEditingController otpController = TextEditingController();
   dynamic maskedEmail = '';
@@ -1390,85 +1302,101 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(child: MaterialApp(
+    return WillPopScope(
+      child: MaterialApp(
         home: Builder(
-            builder: (BuildContext context) {
-              return WillPopScope(
-                  onWillPop: () async {
-                    final now = DateTime.now();
-                    if (lastBackPressedTime == null || now.difference(lastBackPressedTime!) > Duration(seconds: 2)) {
-                      lastBackPressedTime = now;
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Press back again to exit')));
-                      return false;
-                    }
-                    return true;
-                  },
-                  child: ScaffoldMessenger(
-                      key: _scaffoldMessengerKey,
-                      child: Scaffold(
-                        key: _scaffoldKey,
-                        appBar:PreferredSize(
-                          preferredSize: Size.fromHeight(50),
-                          child: AppBar(
-                              backgroundColor:  app_color,
-                              elevation: 6,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(
-                                  bottom: Radius.circular(20),
-                                ),
-                              ),
-                              automaticallyImplyLeading: false,
-
-                              centerTitle: true,
-                              title: Text('Fincore Go',
-                                style: TextStyle(
-                                    color: Colors.white
-                                ),),
-                              actions: [
-                                IconButton(
-                                    icon: Icon(Icons.help_outline,
-                                      color: Colors.white,),
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => Help()),
-                                      );})]
-                          ),
+          builder: (BuildContext context) {
+            return WillPopScope(
+              onWillPop: () async {
+                final now = DateTime.now();
+                if (lastBackPressedTime == null ||
+                    now.difference(lastBackPressedTime!) >
+                        Duration(seconds: 2)) {
+                  lastBackPressedTime = now;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Press back again to exit')),
+                  );
+                  return false;
+                }
+                return true;
+              },
+              child: ScaffoldMessenger(
+                key: _scaffoldMessengerKey,
+                child: Scaffold(
+                  key: _scaffoldKey,
+                  appBar: PreferredSize(
+                    preferredSize: Size.fromHeight(50),
+                    child: AppBar(
+                      backgroundColor: app_color,
+                      elevation: 6,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          bottom: Radius.circular(20),
                         ),
-                        // 💫 Modern Login Body with Fade Transitions Between Forms
-                        body: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [app_color.withOpacity(0.1), Colors.white],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                          ),
-                          child: SafeArea(
-                            child: Center(
-                              child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 400),
-                                transitionBuilder: (Widget child, Animation<double> animation) =>
-                                    FadeTransition(opacity: animation, child: child),
+                      ),
+                      automaticallyImplyLeading: false,
 
-                                // 🔹 Dynamically switch between forms
-                                child: isVisibleLoginForm
-                                    ? _buildLoginForm(context)
-                                    : isVisibleResetPassForm
-                                    ? _buildResetForm(context)
-                                    : _buildOtpForm(context),
-                              ),
-                            ),
-                          ),
+                      centerTitle: true,
+                      title: Text(
+                        'Fincore Go',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      actions: [
+                        IconButton(
+                          icon: Icon(Icons.help_outline, color: Colors.white),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Help()),
+                            );
+                          },
                         ),
+                      ],
+                    ),
+                  ),
+                  // 💫 Modern Login Body with Fade Transitions Between Forms
+                  body: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [app_color.withOpacity(0.1), Colors.white],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                    child: SafeArea(
+                      child: Center(
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 400),
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) =>
+                                  FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  ),
 
-                      )));})
-    ), onWillPop: () async
-    {
-      _showConfirmationDialogAndExit(context);
-      return true;
-    });
+                          // 🔹 Dynamically switch between forms
+                          child: isVisibleLoginForm
+                              ? _buildLoginForm(context)
+                              : isVisibleResetPassForm
+                              ? _buildResetForm(context)
+                              : _buildOtpForm(context),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+      onWillPop: () async {
+        _showConfirmationDialogAndExit(context);
+        return true;
+      },
+    );
   }
+
   Widget _buildLoginForm(BuildContext context) {
     return SingleChildScrollView(
       key: const ValueKey('loginForm'),
@@ -1477,11 +1405,15 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // 🖼 Logo
-          Image.asset('assets/fincorego_logo_transparent.png', width: 350, height: 230),
+          Image.asset(
+            'assets/fincorego_logo_transparent.png',
+            width: 350,
+            height: 230,
+          ),
           Text(
             "Smart Finance. Simplified.",
             style: GoogleFonts.poppins(
-              color: Colors.black54,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 14,
             ),
           ),
@@ -1491,7 +1423,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
+              color: Theme.of(context).cardColor.withOpacity(0.9),
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
@@ -1513,12 +1445,14 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                       prefixIcon: Icon(Icons.email_outlined, color: app_color),
                       labelText: 'Username or Email',
                       labelStyle: GoogleFonts.poppins(
-                        color: Colors.black54,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                         fontSize: 14.5,
                       ),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor:
+                          Theme.of(context).inputDecorationTheme.fillColor ??
+                          Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
@@ -1547,26 +1481,28 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                           _obscureText
                               ? Icons.visibility_off_rounded
                               : Icons.visibility_rounded,
-                          color: Colors.grey,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         onPressed: () =>
                             setState(() => _obscureText = !_obscureText),
                       ),
                       labelText: 'Password',
                       labelStyle: GoogleFonts.poppins(
-                        color: Colors.black54,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                         fontSize: 14.5,
                       ),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor:
+                          Theme.of(context).inputDecorationTheme.fillColor ??
+                          Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
                       ),
                     ),
                     validator: (v) =>
-                    v == null || v.isEmpty ? 'Please enter password' : null,
+                        v == null || v.isEmpty ? 'Please enter password' : null,
                     onSaved: (v) => passwordd = v!,
                   ),
                   const SizedBox(height: 12),
@@ -1586,9 +1522,15 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                               onChanged: (v) =>
                                   setState(() => remember_me = v!),
                             ),
-                            Text("Remember Me",
-                                style: GoogleFonts.poppins(
-                                    fontSize: 14, color: Colors.black54)),
+                            Text(
+                              "Remember Me",
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
                           ],
                         ),
                         Center(
@@ -1622,28 +1564,33 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                   _isLoading
                       ? const CupertinoActivityIndicator(radius: 18)
                       : ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: app_color,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 14, horizontal: 80),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    onPressed: isButtonDisabled
-                        ? null
-                        : () {
-                      if (_formKey.currentState != null &&
-                          _formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        _login();
-                      }
-                    },
-                    child: Text('Login',
-                        style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600)),
-                  ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: app_color,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                              horizontal: 80,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          onPressed: isButtonDisabled
+                              ? null
+                              : () {
+                                  if (_formKey.currentState != null &&
+                                      _formKey.currentState!.validate()) {
+                                    _formKey.currentState!.save();
+                                    _login();
+                                  }
+                                },
+                          child: Text(
+                            'Login',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
 
                   /*const SizedBox(height: 12),
                   GestureDetector(
@@ -1652,7 +1599,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                       TextSpan(
                         text: 'Not Registered? ',
                         style: GoogleFonts.poppins(
-                            color: Colors.black54, fontSize: 13),
+                            color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
                         children: [
                           TextSpan(
                             text: 'Click here for instructions',
@@ -1675,6 +1622,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       ),
     );
   }
+
   Widget _buildResetForm(BuildContext context) {
     return SingleChildScrollView(
       key: const ValueKey('resetForm'),
@@ -1682,7 +1630,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
+          color: Theme.of(context).cardColor.withOpacity(0.9),
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
@@ -1698,9 +1646,13 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
             children: [
               Icon(Icons.lock_reset, size: 80, color: app_color),
               const SizedBox(height: 20),
-              Text('Reset Password',
-                  style: GoogleFonts.poppins(
-                      fontSize: 20, fontWeight: FontWeight.w600)),
+              Text(
+                'Reset Password',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 20),
 
               TextFormField(
@@ -1710,20 +1662,23 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                   prefixIcon: Icon(Icons.email_outlined, color: app_color),
                   labelText: 'Registered Email Address',
                   labelStyle: GoogleFonts.poppins(
-                    color: Colors.black54,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                     fontSize: 14.5,
                   ),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor:
+                      Theme.of(context).inputDecorationTheme.fillColor ??
+                      Colors.white,
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none),
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
                 validator: (v) {
                   if (v == null || v.isEmpty) return 'Please enter email';
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                      .hasMatch(v)) return 'Invalid email';
+                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v))
+                    return 'Invalid email';
                   return null;
                 },
               ),
@@ -1731,42 +1686,53 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
               _isLoadingResetPass
                   ? const CupertinoActivityIndicator(radius: 18)
                   : ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: app_color,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 14, horizontal: 60),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: isResetPassButtonDisabled
-                    ? null
-                    : () {
-                  if (_resetformKey.currentState!.validate()) {
-                    if (resetemailController.text.trim() ==
-                        'demouser@ca-eim.com') {
-                      _scaffoldMessengerKey.currentState?.showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              'Reset password is not allowed for Demo User'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: app_color,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                          horizontal: 60,
                         ),
-                      );
-                    } else {
-                      _resetpass();
-                    }
-                  }
-                },
-                child: Text('Reset Password',
-                    style: GoogleFonts.poppins(
-                        color: Colors.white, fontWeight: FontWeight.w600)),
-              ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: isResetPassButtonDisabled
+                          ? null
+                          : () {
+                              if (_resetformKey.currentState!.validate()) {
+                                if (resetemailController.text.trim() ==
+                                    'demouser@ca-eim.com') {
+                                  _scaffoldMessengerKey.currentState?.showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Reset password is not allowed for Demo User',
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  _resetpass();
+                                }
+                              }
+                            },
+                      child: Text(
+                        'Reset Password',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
               const SizedBox(height: 12),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey.shade300,
-                  padding:
-                  const EdgeInsets.symmetric(vertical: 14, horizontal: 60),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 60,
+                  ),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 onPressed: () {
                   setState(() {
@@ -1776,9 +1742,13 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                     isVisibleLoginForm = true;
                   });
                 },
-                child: Text('Cancel',
-                    style: GoogleFonts.poppins(
-                        color: Colors.black87, fontWeight: FontWeight.w600)),
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.poppins(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ),
@@ -1786,6 +1756,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       ),
     );
   }
+
   Widget _buildOtpForm(BuildContext context) {
     return SingleChildScrollView(
       key: const ValueKey('otpForm'),
@@ -1793,7 +1764,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
+          color: Theme.of(context).cardColor.withOpacity(0.9),
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
@@ -1816,7 +1787,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -1824,15 +1795,22 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: GoogleFonts.poppins(color: Colors.black54, fontSize: 14),
+                  style: GoogleFonts.poppins(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
                   children: [
                     const TextSpan(text: "We've sent an OTP to "),
                     TextSpan(
                       text: maskedEmail,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, color: Colors.black87),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
-                    const TextSpan(text: ". Please enter it below to continue."),
+                    const TextSpan(
+                      text: ". Please enter it below to continue.",
+                    ),
                   ],
                 ),
               ),
@@ -1881,7 +1859,9 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                       "Resend OTP in: $_formattedTime",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
-                          fontSize: 14, color: Colors.black54),
+                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 18),
                   ],
@@ -1893,10 +1873,13 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: app_color,
-                    padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 20,
+                    ),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   icon: const Icon(Icons.refresh_rounded, color: Colors.white),
                   onPressed: () {
@@ -1920,38 +1903,42 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
               const SizedBox(height: 10),
 
               // ✅ Verify Button
-
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isOtpVerifyingProgress
                       ? Colors.grey
                       : app_color,
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 60),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 60,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 icon: _isOtpVerifyingProgress
                     ? Theme.of(context).platform == TargetPlatform.iOS
-                    ? const CupertinoActivityIndicator(
-                  radius: 9,
-                  color: Colors.white,
-                )
-                    : const SizedBox(
-                  height: 18,
-                  width: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.3,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    backgroundColor: Colors.transparent,
-                  ),
-                )
+                          ? const CupertinoActivityIndicator(
+                              radius: 9,
+                              color: Colors.white,
+                            )
+                          : const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.3,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                                backgroundColor: Colors.transparent,
+                              ),
+                            )
                     : const Icon(Icons.verified_rounded, color: Colors.white),
                 onPressed: _isOtpVerifyingProgress
                     ? null
                     : () {
-                  _verifyOtpAndProceed(currentText);
-                },
+                        _verifyOtpAndProceed(currentText);
+                      },
                 label: Text(
                   _isOtpVerifyingProgress ? 'Verifying...' : 'Verify',
                   style: GoogleFonts.poppins(
@@ -1960,6 +1947,7 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                   ),
                 ),
               ),
+
               /*ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: app_color,
@@ -1969,7 +1957,8 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                       borderRadius: BorderRadius.circular(12)),
                 ),
                 icon: const Icon(Icons.verified_rounded, color: Colors.white),
-                *//*onPressed: () {
+                */
+              /*onPressed: () {
                   if (currentText.length == 4) {
                     final enteredOTP = currentText;
                     if (enteredOTP == generatedotp) {
@@ -1986,7 +1975,8 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                   } else {
                     Fluttertoast.showToast(msg: 'Please enter a 4-digit OTP');
                   }
-                },*//*
+                },*/
+              /*
 
                 onPressed: () {
                   _verifyOtpAndProceed(currentText);
@@ -1997,7 +1987,6 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                       color: Colors.white, fontWeight: FontWeight.w600),
                 ),
               ),*/
-
               const SizedBox(height: 16),
 
               // 🔙 Cancel Button
@@ -2010,11 +1999,16 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
                     isVisibleTimer = false;
                   });
                 },
-                icon: const Icon(Icons.arrow_back_rounded, color: Colors.black54),
+                icon: Icon(
+                  Icons.arrow_back_rounded,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 label: Text(
                   "Back to Login",
                   style: GoogleFonts.poppins(
-                      color: Colors.black54, fontWeight: FontWeight.w500),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
@@ -2023,6 +2017,4 @@ class _LoginPageState extends State<Login>  with TickerProviderStateMixin {
       ),
     );
   }
-
 }
-

@@ -66,8 +66,6 @@ class _AppBottomNavState extends State<AppBottomNav> {
 
   IO.Socket? socket;
 
-
-
   @override
   void initState() {
     super.initState();
@@ -107,8 +105,9 @@ class _AppBottomNavState extends State<AppBottomNav> {
         final List<dynamic> allocations = jsonDecode(allocationString);
 
         if (allocations.isNotEmpty) {
-          final Map<String, dynamic> allocation =
-          Map<String, dynamic>.from(allocations.first);
+          final Map<String, dynamic> allocation = Map<String, dynamic>.from(
+            allocations.first,
+          );
 
           godown = allocation['godown']?.toString().trim() ?? '';
         }
@@ -138,21 +137,23 @@ class _AppBottomNavState extends State<AppBottomNav> {
       isVanAllocationVisible = vanAllocation == 'True';
 
       showItems =
-          allitems == 'True' || activeitems == 'True' || inactiveitems == 'True';
+          allitems == 'True' ||
+          activeitems == 'True' ||
+          inactiveitems == 'True';
 
       showParty = partySuppliers == 'True' || partyCustomers == 'True';
 
       showRegister =
           ledgerentries == 'True' ||
-              inventoryentries == 'True' ||
-              billsentries == 'True' ||
-              costcentreentries == 'True';
+          inventoryentries == 'True' ||
+          billsentries == 'True' ||
+          costcentreentries == 'True';
 
       showEntries =
           isSalesEntryVisible ||
-              isReceiptEntryVisible ||
-              isSalesOrderEntryVisible ||
-              isDeliveryNoteEntryVisible;
+          isReceiptEntryVisible ||
+          isSalesOrderEntryVisible ||
+          isDeliveryNoteEntryVisible;
 
       if (secBtnAccess == 'True') {
         isRolesVisible = true;
@@ -190,7 +191,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
       'transports': ['websocket'],
       'path': '/main/socket.io',
       'secure': true,
-      'autoConnect': false,
+      'autoConnect': true,
       'auth': {'token': authTokenBase},
     });
 
@@ -220,7 +221,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
         margin: const EdgeInsets.fromLTRB(14, 0, 14, 12),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -263,11 +264,11 @@ class _AppBottomNavState extends State<AppBottomNav> {
   }
 
   Widget _navTile(
-      String label,
-      IconData icon,
-      bool visible,
-      VoidCallback onTap,
-      ) {
+    String label,
+    IconData icon,
+    bool visible,
+    VoidCallback onTap,
+  ) {
     if (!visible) return const SizedBox.shrink();
 
     return Expanded(
@@ -288,7 +289,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
                 style: GoogleFonts.poppins(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -361,9 +362,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
                           Navigator.pop(context);
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => SerialSelect(),
-                            ),
+                            MaterialPageRoute(builder: (_) => SerialSelect()),
                           );
                         },
                       ),
@@ -407,8 +406,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) =>
-                                const ViewVanAllocationScreen(),
+                                builder: (_) => const ViewVanAllocationScreen(),
                               ),
                             );
                           },
@@ -433,9 +431,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
                           Navigator.pop(context);
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => ChangePassword(),
-                            ),
+                            MaterialPageRoute(builder: (_) => ChangePassword()),
                           );
                         },
                       ),
@@ -470,7 +466,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
                     '© CSH LLC 2023-2026 • Version 4.0',
                     style: GoogleFonts.poppins(
                       fontSize: 11.5,
-                      color: Colors.grey.shade600,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -489,11 +485,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
         CircleAvatar(
           backgroundColor: app_color.withOpacity(0.10),
           radius: 32,
-          child: Icon(
-            Icons.person_rounded,
-            color: app_color,
-            size: 34,
-          ),
+          child: Icon(Icons.person_rounded, color: app_color, size: 34),
         ),
 
         const SizedBox(height: 10),
@@ -506,7 +498,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w700,
             fontSize: 16,
-            color: Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
 
@@ -519,7 +511,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
           textAlign: TextAlign.center,
           style: GoogleFonts.poppins(
             fontSize: 12.5,
-            color: Colors.grey.shade600,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
 
@@ -530,30 +522,17 @@ class _AppBottomNavState extends State<AppBottomNav> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            _profileChip(
-              Icons.confirmation_number_outlined,
-              serialNo,
-            ),
-            _profileChip(
-              Icons.business_outlined,
-              companyName,
-            ),
+            _profileChip(Icons.confirmation_number_outlined, serialNo),
+            _profileChip(Icons.business_outlined, companyName),
             if (vanSalesSerialNo.contains(serialNo.trim()) &&
                 assignedGodown.isNotEmpty)
-              _profileChip(
-                Icons.local_shipping_outlined,
-                assignedGodown,
-              ),
+              _profileChip(Icons.local_shipping_outlined, assignedGodown),
           ],
         ),
 
         const SizedBox(height: 14),
 
-        Divider(
-          height: 1,
-          thickness: 1,
-          color: Colors.grey.shade200,
-        ),
+        Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
       ],
     );
   }
@@ -566,18 +545,12 @@ class _AppBottomNavState extends State<AppBottomNav> {
       decoration: BoxDecoration(
         color: app_color.withOpacity(0.07),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: app_color.withOpacity(0.12),
-        ),
+        border: Border.all(color: app_color.withOpacity(0.12)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 14,
-            color: app_color,
-          ),
+          Icon(icon, size: 14, color: app_color),
           const SizedBox(width: 5),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 190),
@@ -588,7 +561,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
               style: GoogleFonts.poppins(
                 fontSize: 11.5,
                 fontWeight: FontWeight.w500,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -596,6 +569,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
       ),
     );
   }
+
   Widget _profileInfoRow(IconData icon, String text) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -607,10 +581,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
           fit: FlexFit.loose,
           child: Text(
             text,
-            style: GoogleFonts.poppins(
-              fontSize: 12,
-              color: Colors.white,
-            ),
+            style: GoogleFonts.poppins(fontSize: 12, color: Colors.white),
             softWrap: true,
           ),
         ),
@@ -661,7 +632,9 @@ class _AppBottomNavState extends State<AppBottomNav> {
                 style: GoogleFonts.poppins(
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
-                  color: isDanger ? Colors.redAccent : Colors.black87,
+                  color: isDanger
+                      ? Colors.redAccent
+                      : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -678,7 +651,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       builder: (context) {
         return Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
@@ -727,14 +700,11 @@ class _AppBottomNavState extends State<AppBottomNav> {
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Divider(
-                    thickness: 1,
-                    color: Colors.grey.shade300,
-                  ),
+                  Divider(thickness: 1, color: Colors.grey.shade300),
                 ],
               ),
 
@@ -772,7 +742,10 @@ class _AppBottomNavState extends State<AppBottomNav> {
                 _buildEntryOption(
                   icon: Icons.assignment,
                   label: "Sales Order",
-                  gradient: [Colors.orange.shade400, Colors.deepOrange.shade600],
+                  gradient: [
+                    Colors.orange.shade400,
+                    Colors.deepOrange.shade600,
+                  ],
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -820,7 +793,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
         margin: const EdgeInsets.only(bottom: 14),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: gradient.last.withOpacity(0.5), width: 1.2),
           boxShadow: [
@@ -855,14 +828,14 @@ class _AppBottomNavState extends State<AppBottomNav> {
               style: GoogleFonts.poppins(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const Spacer(),
             Icon(
               Icons.arrow_forward_ios_rounded,
               size: 18,
-              color: Colors.grey.shade600,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ],
         ),
@@ -879,9 +852,11 @@ class _AppBottomNavState extends State<AppBottomNav> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
-          backgroundColor: Colors.white,
-          insetPadding:
-          const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 32,
+            vertical: 24,
+          ),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -906,7 +881,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -917,7 +892,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
                   'Are you sure you want to log out of your account?',
                   style: GoogleFonts.poppins(
                     fontSize: 14.5,
-                    color: Colors.black54,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -965,10 +940,8 @@ class _AppBottomNavState extends State<AppBottomNav> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => Login(
-                                  username: '',
-                                  password: '',
-                                ),
+                                builder: (_) =>
+                                    Login(username: '', password: ''),
                               ),
                             );
                           });

@@ -8,6 +8,7 @@ import 'AgeingConfig.dart';
 import 'constants.dart';
 import 'Dashboard.dart';
 import 'SerialSelect.dart';
+import 'theme_controller.dart';
 
 class Settings extends StatefulWidget {
   Settings({Key? key}) : super(key: key);
@@ -34,10 +35,20 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
   late GlobalKey<ScaffoldState> _scaffoldMessengerKey;
   late SharedPreferences prefs;
 
-  final Color _pageColor = Colors.white;
-  final Color _textColor = const Color(0xFF17202A);
-  final Color _mutedTextColor = const Color(0xFF6B7280);
-  final Color _cardBorderColor = const Color(0xFFE7EAF0);
+  bool get _isDarkMode => Theme.of(context).brightness == Brightness.dark;
+  Color get _pageColor => _isDarkMode ? const Color(0xFF0F172A) : Colors.white;
+  Color get _surfaceColor =>
+      _isDarkMode ? const Color(0xFF111827) : Colors.white;
+  Color get _textColor =>
+      _isDarkMode ? const Color(0xFFF9FAFB) : const Color(0xFF17202A);
+  Color get _mutedTextColor =>
+      _isDarkMode ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
+  Color get _cardBorderColor =>
+      _isDarkMode ? const Color(0xFF263244) : const Color(0xFFE7EAF0);
+  Color get _chipColor =>
+      _isDarkMode ? const Color(0xFF1F2937) : const Color(0xFFF1F4F8);
+  Color get _inputFillColor =>
+      _isDarkMode ? const Color(0xFF1F2937) : const Color(0xFFF7F9FC);
 
   Future<void> _initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
@@ -91,14 +102,22 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _scaffoldMessengerKey = GlobalKey<ScaffoldState>();
+    themeController.addListener(_handleThemeChanged);
     _initSharedPreferences();
   }
 
   @override
   void dispose() {
+    themeController.removeListener(_handleThemeChanged);
     vatController.dispose();
     inactivedaysController.dispose();
     super.dispose();
+  }
+
+  void _handleThemeChanged() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   String getCurrencySymbol(String currencyCode) {
@@ -106,10 +125,18 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
     Locale locale = Localizations.localeOf(context);
 
     try {
-      if (currencyCode == 'INR' || currencyCode == 'EUR' || currencyCode == 'PKR') {
-        format = NumberFormat.simpleCurrency(locale: locale.toString(), name: currencyCode);
+      if (currencyCode == 'INR' ||
+          currencyCode == 'EUR' ||
+          currencyCode == 'PKR') {
+        format = NumberFormat.simpleCurrency(
+          locale: locale.toString(),
+          name: currencyCode,
+        );
       } else {
-        format = NumberFormat.currency(locale: locale.toString(), name: currencyCode);
+        format = NumberFormat.currency(
+          locale: locale.toString(),
+          name: currencyCode,
+        );
       }
       return format.currencySymbol;
     } catch (e) {
@@ -123,11 +150,24 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
   }
 
   String _dateRangeLabel() {
-    if (dateRangeOption == 'Custom Date' && customStartDate != null && customEndDate != null) {
+    if (dateRangeOption == 'Custom Date' &&
+        customStartDate != null &&
+        customEndDate != null) {
       final formatter = DateFormat('dd MMM yyyy');
       return '${formatter.format(customStartDate!)} - ${formatter.format(customEndDate!)}';
     }
     return dateRangeOption;
+  }
+
+  String _themeModeLabel() {
+    switch (themeController.themeMode) {
+      case ThemeMode.light:
+        return 'Light';
+      case ThemeMode.dark:
+        return 'Dark';
+      case ThemeMode.system:
+        return 'System';
+    }
   }
 
   @override
@@ -138,24 +178,23 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
         child: AppBar(
-          backgroundColor:  app_color,
+          backgroundColor: app_color,
           elevation: 6,
           automaticallyImplyLeading: false,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Dashboard()));
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => Dashboard()),
+              );
             },
           ),
           title: GestureDetector(
-            onTap: () {
-
-            },
+            onTap: () {},
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -163,11 +202,12 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
                   child: Text(
                     "Settings" ?? '',
 
-                    style: GoogleFonts.poppins(color: Colors.white, fontSize: 20,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
                     overflow: TextOverflow.ellipsis,
-
                   ),
                 ),
               ],
@@ -181,6 +221,21 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           children: [
             _buildHeaderCard(),
+            const SizedBox(height: 18),
+            _buildSectionLabel('Appearance'),
+            _buildSettingsGroup(
+              children: [
+                _buildTile(
+                  icon: themeController.themeMode == ThemeMode.dark
+                      ? Icons.dark_mode_rounded
+                      : Icons.light_mode_rounded,
+                  title: 'Theme',
+                  subtitle: 'Choose system, light, or dark mode',
+                  value: _themeModeLabel(),
+                  onTap: () => _showThemeDialog(context),
+                ),
+              ],
+            ),
             const SizedBox(height: 18),
             _buildSectionLabel('General'),
             _buildSettingsGroup(
@@ -243,7 +298,10 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
                   icon: Icons.access_time_rounded,
                   title: 'Ageing Configuration',
                   subtitle: 'Customize ageing range',
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AgeingConfig())),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => AgeingConfig()),
+                  ),
                 ),
                 _buildTile(
                   icon: Icons.stacked_bar_chart_rounded,
@@ -290,10 +348,14 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.16),
+              color: Theme.of(context).cardColor.withOpacity(0.16),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.tune_rounded, color: Colors.white, size: 26),
+            child: const Icon(
+              Icons.tune_rounded,
+              color: Colors.white,
+              size: 26,
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -343,12 +405,12 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
   Widget _buildSettingsGroup({required List<Widget> children}) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _surfaceColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: _cardBorderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.035),
+            color: Colors.black.withOpacity(_isDarkMode ? 0.18 : 0.035),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
@@ -362,7 +424,11 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
               if (index != children.length - 1)
                 Padding(
                   padding: const EdgeInsets.only(left: 72),
-                  child: Divider(height: 1, thickness: 1, color: _cardBorderColor),
+                  child: Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: _cardBorderColor,
+                  ),
                 ),
             ],
           );
@@ -424,9 +490,12 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 118),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F4F8),
+                    color: _chipColor,
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(color: _cardBorderColor),
                   ),
@@ -462,7 +531,7 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
       prefixIcon: Icon(icon, color: app_color),
       labelStyle: GoogleFonts.poppins(color: _mutedTextColor),
       filled: true,
-      fillColor: const Color(0xFFF7F9FC),
+      fillColor: _inputFillColor,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -528,9 +597,11 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
         ),
         IconButton(
           style: IconButton.styleFrom(
-            backgroundColor: const Color(0xFFF1F4F8),
+            backgroundColor: _chipColor,
             foregroundColor: _mutedTextColor,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           icon: const Icon(Icons.close_rounded),
           onPressed: () => Navigator.pop(context),
@@ -566,14 +637,78 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
     );
   }
 
+  void _showThemeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 24,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          backgroundColor: _surfaceColor,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _dialogHeader(
+                  icon: Icons.contrast_rounded,
+                  title: 'Theme',
+                  subtitle: 'Current theme: ${_themeModeLabel()}',
+                ),
+                const SizedBox(height: 12),
+                _optionTile<ThemeMode>(
+                  value: ThemeMode.system,
+                  groupValue: themeController.themeMode,
+                  title: 'System default',
+                  onChanged: (value) => _selectThemeMode(context, value),
+                ),
+                _optionTile<ThemeMode>(
+                  value: ThemeMode.light,
+                  groupValue: themeController.themeMode,
+                  title: 'Light mode',
+                  onChanged: (value) => _selectThemeMode(context, value),
+                ),
+                _optionTile<ThemeMode>(
+                  value: ThemeMode.dark,
+                  groupValue: themeController.themeMode,
+                  title: 'Dark mode',
+                  onChanged: (value) => _selectThemeMode(context, value),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _selectThemeMode(BuildContext context, ThemeMode? mode) {
+    if (mode == null) {
+      return;
+    }
+
+    themeController.setThemeMode(mode);
+    Navigator.pop(context);
+  }
+
   void _showVatInputDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          backgroundColor: Colors.white,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 24,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          backgroundColor: _surfaceColor,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
             child: Column(
@@ -612,7 +747,9 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
                       backgroundColor: app_color,
                       foregroundColor: Colors.white,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     icon: const Icon(Icons.save_alt_outlined),
@@ -647,9 +784,14 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          backgroundColor: Colors.white,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 24,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          backgroundColor: _surfaceColor,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
             child: Column(
@@ -658,7 +800,8 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
                 _dialogHeader(
                   icon: Icons.calendar_today_rounded,
                   title: 'Inactive Parties Days',
-                  subtitle: 'Current value: ${inactivedaysController.text} days',
+                  subtitle:
+                      'Current value: ${inactivedaysController.text} days',
                 ),
                 const SizedBox(height: 18),
                 Form(
@@ -688,7 +831,9 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
                       backgroundColor: app_color,
                       foregroundColor: Colors.white,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     icon: const Icon(Icons.save_alt_outlined),
@@ -697,10 +842,12 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
                       style: GoogleFonts.poppins(fontWeight: FontWeight.w700),
                     ),
                     onPressed: () {
-                      if (_inactivepartydaysFormkey.currentState?.validate() ?? false) {
+                      if (_inactivepartydaysFormkey.currentState?.validate() ??
+                          false) {
                         _inactivepartydaysFormkey.currentState!.save();
 
-                        int days = int.tryParse(inactivedaysController.text) ?? 30;
+                        int days =
+                            int.tryParse(inactivedaysController.text) ?? 30;
                         prefs.setInt('inactiveparties_days', days);
                         setState(() {
                           inactiveparties_days = days;
@@ -735,10 +882,12 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
       context: context,
       builder: (_) => Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-        backgroundColor: Colors.white,
+        backgroundColor: _surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Container(
-          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.75,
+          ),
           padding: const EdgeInsets.fromLTRB(18, 18, 18, 8),
           child: Column(
             children: [
@@ -791,16 +940,22 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
           : null,
       builder: (BuildContext context, Widget? child) {
         return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: ColorScheme.light().copyWith(
-              primary: app_color,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black87,
-            ),
+          data: (_isDarkMode ? ThemeData.dark() : ThemeData.light()).copyWith(
+            colorScheme:
+                (_isDarkMode
+                        ? const ColorScheme.dark()
+                        : const ColorScheme.light())
+                    .copyWith(
+                      primary: app_color,
+                      onPrimary: Colors.white,
+                      surface: _surfaceColor,
+                      onSurface: _textColor,
+                    ),
             datePickerTheme: DatePickerThemeData(
               rangeSelectionBackgroundColor: app_color.withOpacity(0.15),
-              rangeSelectionOverlayColor: MaterialStatePropertyAll(app_color.withOpacity(0.15)),
+              rangeSelectionOverlayColor: MaterialStatePropertyAll(
+                app_color.withOpacity(0.15),
+              ),
             ),
           ),
           child: child!,
@@ -825,10 +980,12 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
       context: context,
       builder: (_) => Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-        backgroundColor: Colors.white,
+        backgroundColor: _surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Container(
-          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.85),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
+          ),
           padding: const EdgeInsets.fromLTRB(18, 18, 18, 8),
           child: Column(
             children: [
@@ -840,22 +997,68 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
               const SizedBox(height: 12),
               Expanded(
                 child: ScrollConfiguration(
-                  behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                  behavior: ScrollConfiguration.of(
+                    context,
+                  ).copyWith(scrollbars: false),
                   child: ListView(
                     padding: const EdgeInsets.only(bottom: 8),
                     children: [
                       _buildCurrencyOption(context, 'USD', 'USD (\$)'),
-                      _buildCurrencyOption(context, 'AED', 'UAE Dirhams (${getCurrencySymbol('AED')})'),
-                      _buildCurrencyOption(context, 'INR', 'Indian Rupees (${getCurrencySymbol('INR')})'),
-                      _buildCurrencyOption(context, 'PKR', 'Pakistani Rupees (${getCurrencySymbol('PKR')})'),
-                      _buildCurrencyOption(context, 'EUR', 'Euro (${getCurrencySymbol('EUR')})'),
-                      _buildCurrencyOption(context, 'LKR', 'SriLankan Rupees (${getCurrencySymbol('LKR')})'),
-                      _buildCurrencyOption(context, 'SAR', 'Saudi Riyal (${getCurrencySymbol('SAR')})'),
-                      _buildCurrencyOption(context, 'OMR', 'Omani Riyal (${getCurrencySymbol('OMR')})'),
-                      _buildCurrencyOption(context, 'BHD', 'Bahraini Dinar (${getCurrencySymbol('BHD')})'),
-                      _buildCurrencyOption(context, 'QAR', 'Qatari Riyal (${getCurrencySymbol('QAR')})'),
-                      _buildCurrencyOption(context, 'KWD', 'Kuwaiti Dinar (${getCurrencySymbol('KWD')})'),
-                      _buildCurrencyOption(context, 'SLE', 'Sierra Leonean Leone (${getCurrencySymbol('SLE')})'),
+                      _buildCurrencyOption(
+                        context,
+                        'AED',
+                        'UAE Dirhams (${getCurrencySymbol('AED')})',
+                      ),
+                      _buildCurrencyOption(
+                        context,
+                        'INR',
+                        'Indian Rupees (${getCurrencySymbol('INR')})',
+                      ),
+                      _buildCurrencyOption(
+                        context,
+                        'PKR',
+                        'Pakistani Rupees (${getCurrencySymbol('PKR')})',
+                      ),
+                      _buildCurrencyOption(
+                        context,
+                        'EUR',
+                        'Euro (${getCurrencySymbol('EUR')})',
+                      ),
+                      _buildCurrencyOption(
+                        context,
+                        'LKR',
+                        'SriLankan Rupees (${getCurrencySymbol('LKR')})',
+                      ),
+                      _buildCurrencyOption(
+                        context,
+                        'SAR',
+                        'Saudi Riyal (${getCurrencySymbol('SAR')})',
+                      ),
+                      _buildCurrencyOption(
+                        context,
+                        'OMR',
+                        'Omani Riyal (${getCurrencySymbol('OMR')})',
+                      ),
+                      _buildCurrencyOption(
+                        context,
+                        'BHD',
+                        'Bahraini Dinar (${getCurrencySymbol('BHD')})',
+                      ),
+                      _buildCurrencyOption(
+                        context,
+                        'QAR',
+                        'Qatari Riyal (${getCurrencySymbol('QAR')})',
+                      ),
+                      _buildCurrencyOption(
+                        context,
+                        'KWD',
+                        'Kuwaiti Dinar (${getCurrencySymbol('KWD')})',
+                      ),
+                      _buildCurrencyOption(
+                        context,
+                        'SLE',
+                        'Sierra Leonean Leone (${getCurrencySymbol('SLE')})',
+                      ),
                     ],
                   ),
                 ),
@@ -867,7 +1070,11 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCurrencyOption(BuildContext context, String value, String label) {
+  Widget _buildCurrencyOption(
+    BuildContext context,
+    String value,
+    String label,
+  ) {
     return _optionTile<String>(
       value: value,
       groupValue: groupvalue,
@@ -887,10 +1094,12 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
       context: context,
       builder: (_) => Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-        backgroundColor: Colors.white,
+        backgroundColor: _surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Container(
-          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.6),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.6,
+          ),
           padding: const EdgeInsets.fromLTRB(18, 18, 18, 8),
           child: Column(
             children: [
@@ -942,10 +1151,12 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
       context: context,
       builder: (_) => Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-        backgroundColor: Colors.white,
+        backgroundColor: _surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Container(
-          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.75,
+          ),
           padding: const EdgeInsets.fromLTRB(18, 18, 18, 8),
           child: Column(
             children: [

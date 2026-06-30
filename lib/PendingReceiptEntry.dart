@@ -22,13 +22,12 @@ class ReceiptModel {
   final int isSynced;
   final String? message;
 
-
   ReceiptModel({
     required this.id,
     required this.data,
     required this.type,
     required this.isSynced,
-    this.message
+    this.message,
   });
 
   factory ReceiptModel.fromJson(Map<String, dynamic> json) {
@@ -38,19 +37,19 @@ class ReceiptModel {
       type: json['type'],
       isSynced: json['isSynced'],
       message: json['message'],
-
     );
   }
 }
 
 class PendingReceiptEntry extends StatefulWidget {
-
   const PendingReceiptEntry({Key? key}) : super(key: key);
   @override
-  _PendingReceiptEntryPageState createState() => _PendingReceiptEntryPageState();
+  _PendingReceiptEntryPageState createState() =>
+      _PendingReceiptEntryPageState();
 }
 
-class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with TickerProviderStateMixin {
+class _PendingReceiptEntryPageState extends State<PendingReceiptEntry>
+    with TickerProviderStateMixin {
   bool isDashEnable = true,
       isRolesVisible = true,
       isUserEnable = true,
@@ -62,13 +61,13 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
 
   final Set<int> expandedCards = {};
 
-  String? HttpURL_loadData,HttpURL_deleteEntry,token = '';
+  String? HttpURL_loadData, HttpURL_deleteEntry, token = '';
 
   String rolename_fetched = "";
 
   final List<ReceiptModel> receiptentries = [];
 
-  String name = "",email = "";
+  String name = "", email = "";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -76,7 +75,13 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
 
   late SharedPreferences prefs;
 
-  String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";
+  String? hostname = "",
+      company = "",
+      company_lowercase = "",
+      serial_no = "",
+      username = "",
+      HttpURL = "",
+      SecuritybtnAcessHolder = "";
 
   TextEditingController _searchController = TextEditingController();
 
@@ -104,7 +109,6 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(colors: colors),
         boxShadow: [
@@ -135,23 +139,18 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
 
   String formatAmount(String amount) {
     String amount_string = "";
-    if(amount.contains("-"))
-    {
+    if (amount.contains("-")) {
       amount = amount.replaceAll("-", "");
       double amount_double = double.parse(amount);
       amount_string = CurrencyFormatter.formatCurrency_double(amount_double);
       amount_string = amount_string;
-    }
-    else
-    {
-      if(amount == "null")
-      {
+    } else {
+      if (amount == "null") {
         amount = "0";
       }
       double amount_double = double.parse(amount);
       amount_string = CurrencyFormatter.formatCurrency_double(amount_double);
       amount_string = amount_string;
-
     }
     // Apply any transformations or formatting to the 'amount' variable here
     return amount_string;
@@ -160,11 +159,9 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
   Future<void> _initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
 
-
     setState(() {
-
       hostname = prefs.getString('hostname');
-      company  = prefs.getString('company_name');
+      company = prefs.getString('company_name');
       company_lowercase = company!.replaceAll(' ', '').toLowerCase();
       serial_no = prefs.getString('serial_no');
       username = prefs.getString('username');
@@ -175,27 +172,24 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
       print("isVanSalesSerial: $isVanSalesSerial");
       print("vanSalesSerialNo: $vanSalesSerialNo");
 
-
       SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
 
       String? email_nav = prefs.getString('email_nav');
       String? name_nav = prefs.getString('name_nav');
 
-      HttpURL_loadData = '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=receipt';
-      HttpURL_deleteEntry = '$hostname/api/entry/deleteEntry/$company_lowercase/$serial_no';
-      if (email_nav!=null && name_nav!= null)
-      {
+      HttpURL_loadData =
+          '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=receipt';
+      HttpURL_deleteEntry =
+          '$hostname/api/entry/deleteEntry/$company_lowercase/$serial_no';
+      if (email_nav != null && name_nav != null) {
         name = name_nav;
         email = email_nav;
       }
 
-      if(SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         isRolesVisible = true;
         isUserVisible = true;
-      }
-      else
-      {
+      } else {
         isRolesVisible = false;
         isUserVisible = false;
       }
@@ -203,7 +197,10 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
     fetchReceiptEntries();
   }
 
-  Future<void> _showConfirmationDialogAndNavigate(BuildContext context, int id) async {
+  Future<void> _showConfirmationDialogAndNavigate(
+    BuildContext context,
+    int id,
+  ) async {
     await showGeneralDialog(
       context: context,
       barrierDismissible: false,
@@ -221,7 +218,7 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(22),
             ),
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             elevation: 8,
             titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
             contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
@@ -245,7 +242,11 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.delete_outline, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -253,7 +254,7 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -263,7 +264,7 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
               "Do you really want to delete this entry?",
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
 
@@ -271,7 +272,10 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
               // ❌ Cancel Button
               TextButton(
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                 ),
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
@@ -279,7 +283,7 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -287,7 +291,10 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
               // ✅ Confirm Button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -320,55 +327,40 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
     });
     final url = Uri.parse(HttpURL_deleteEntry!);
 
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $token',
-      "Content-Type": "application/json"
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      "Content-Type": "application/json",
     };
 
-    var body = jsonEncode( {
-      'id': id.toString(),
-    });
+    var body = jsonEncode({'id': id.toString()});
 
-    final response = await http.post(
-        url,
-        body: body,
-        headers:headers
-    );
+    final response = await http.post(url, body: body, headers: headers);
 
-    if (response.statusCode == 200)
-    {
+    if (response.statusCode == 200) {
       final responsee = response.body;
-      if (responsee != null){
-
+      if (responsee != null) {
         /*ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(responsee),
           ),
         );*/
-        if (responsee == "Entry deleted successfully")
-        {
+        if (responsee == "Entry deleted successfully") {
           setState(() {
             _isLoading = true;
             fetchReceiptEntries();
           });
-        }
-        else
-        {
+        } else {
           setState(() {
             _isLoading = false;
           });
         }
-      }
-      else
-      {
+      } else {
         setState(() {
           _isLoading = false;
         });
         throw Exception('Failed to fetch data');
       }
-    }
-    else
-    {
+    } else {
       Map<String, dynamic> data = json.decode(response.body);
       String error = '';
 
@@ -376,9 +368,7 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
         setState(() {
           error = data['error'];
         });
-      }
-      else
-      {
+      } else {
         error = 'Something went wrong!!!';
       }
       Fluttertoast.showToast(msg: error);
@@ -391,17 +381,21 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
   Future<void> fetchReceiptEntries() async {
     setState(() {
       _isLoading = true;
-
     });
 
     final prefs = await SharedPreferences.getInstance();
 
     String? voucherTypeName;
 
-    final String? spectraAllocationsString = prefs.getString('spectra_allocations');
+    final String? spectraAllocationsString = prefs.getString(
+      'spectra_allocations',
+    );
 
-    if (spectraAllocationsString != null && spectraAllocationsString.isNotEmpty) {
-      final List<dynamic> spectraAllocations = jsonDecode(spectraAllocationsString);
+    if (spectraAllocationsString != null &&
+        spectraAllocationsString.isNotEmpty) {
+      final List<dynamic> spectraAllocations = jsonDecode(
+        spectraAllocationsString,
+      );
 
       if (spectraAllocations.isNotEmpty) {
         voucherTypeName = spectraAllocations.first['receipt_voucher_type'];
@@ -409,45 +403,39 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
     }
     dynamic url;
     if (voucherTypeName != null && voucherTypeName.trim().isNotEmpty) {
-      url = Uri.parse('$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=receipt&vchName=$voucherTypeName');
-    }
-    else
-    {
-      url = Uri.parse('$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=receipt');
+      url = Uri.parse(
+        '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=receipt&vchName=$voucherTypeName',
+      );
+    } else {
+      url = Uri.parse(
+        '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=receipt',
+      );
     }
     print('receipt voucher type -> $voucherTypeName');
     print('getting receipts from url -> $url');
 
-
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $token',
-      "Content-Type": "application/json"
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      "Content-Type": "application/json",
     };
 
-    final response = await http.post(
-        url,
-        headers:headers
-    );
+    final response = await http.post(url, headers: headers);
 
-    if (response.statusCode == 200)
-    {
+    if (response.statusCode == 200) {
       receiptentries.clear();
       filteredReceiptEntries.clear();
 
-
-
       /*print(response.body);*/
 
-      try
-      {
-        final List<dynamic> jsonList = json.decode(response.body) ;
+      try {
+        final List<dynamic> jsonList = json.decode(response.body);
 
         if (jsonList != null) {
-
-
           isVisibleNoReceiptEntryFound = false;
 
-          receiptentries.addAll(jsonList.map((json) => ReceiptModel.fromJson(json)).toList());
+          receiptentries.addAll(
+            jsonList.map((json) => ReceiptModel.fromJson(json)).toList(),
+          );
           receiptentries.sort((a, b) {
             DateTime dateA = DateTime.parse(a.data['DATE']);
             DateTime dateB = DateTime.parse(b.data['DATE']);
@@ -459,26 +447,19 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
             FocusManager.instance.primaryFocus?.unfocus();
             _searchController.clear();
           });
-
         } else {
-
           throw Exception('Failed to fetch data');
         }
         setState(() {
-          if(filteredReceiptEntries.isEmpty)
-          {
+          if (filteredReceiptEntries.isEmpty) {
             isVisibleNoReceiptEntryFound = true;
           }
           _isLoading = false;
         });
-      }
-      catch (e)
-      {
+      } catch (e) {
         print(e);
       }
-    }
-    else
-    {
+    } else {
       Map<String, dynamic> data = json.decode(response.body);
       String error = '';
 
@@ -486,20 +467,18 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
         setState(() {
           error = data['error'];
         });
-      }
-      else
-      {
+      } else {
         error = 'Something went wrong!!!';
       }
       Fluttertoast.showToast(msg: error);
     }
     setState(() {
-      if(filteredReceiptEntries.isEmpty)
-      {
+      if (filteredReceiptEntries.isEmpty) {
         isVisibleNoReceiptEntryFound = true;
       }
       _isLoading = false;
-    });}
+    });
+  }
 
   void searchReceipt(String query) {
     if (query.trim().isEmpty) {
@@ -515,14 +494,10 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
       filteredReceiptEntries = receiptentries.where((entry) {
         final d = entry.data;
 
-        return (d['PARTYLEDGERNAME'] ?? '')
-            .toString()
-            .toLowerCase()
-            .contains(q) ||
-            (d['VOUCHERNUMBER'] ?? '')
-                .toString()
-                .toLowerCase()
-                .contains(q);
+        return (d['PARTYLEDGERNAME'] ?? '').toString().toLowerCase().contains(
+              q,
+            ) ||
+            (d['VOUCHERNUMBER'] ?? '').toString().toLowerCase().contains(q);
       }).toList();
     });
   }
@@ -541,15 +516,11 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
       return false;
     }
 
-    return vanSalesSerialNo.any(
-          (s) => s.trim().toLowerCase() == currentSerial,
-    );
+    return vanSalesSerialNo.any((s) => s.trim().toLowerCase() == currentSerial);
   }
 
-  Future<void> _refresh() async
-  {
-    setState(()
-    {
+  Future<void> _refresh() async {
+    setState(() {
       fetchReceiptEntries();
     });
   }
@@ -566,16 +537,14 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
       },
       child: Scaffold(
         key: _scaffoldKey,
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(50),
           child: AppBar(
-            backgroundColor:  app_color,
+            backgroundColor: app_color,
             elevation: 6,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(20),
-              ),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
             ),
             automaticallyImplyLeading: false,
             leading: IconButton(
@@ -586,9 +555,7 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
             ),
             centerTitle: true,
             title: GestureDetector(
-              onTap: () {
-
-              },
+              onTap: () {},
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -619,512 +586,613 @@ class _PendingReceiptEntryPageState extends State<PendingReceiptEntry> with Tick
         ),
         body: RefreshIndicator(
           onRefresh: _refresh,
-          child:
-
-          Column(children: [
-
-            if(receiptentries.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.white.withOpacity(0.95),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: app_color.withOpacity(0.08),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
+          child: Column(
+            children: [
+              if (receiptentries.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 4,
                     ),
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                  border: Border.all(
-                    color: Colors.grey.shade200,
-                  ),
-                ),
-                child: Row(
-                  children: [
-
-                    // 🔍 Gradient Search Icon
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            app_color.withOpacity(0.8),
-                            app_color,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(18),
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).cardColor,
+                          Theme.of(context).cardColor.withOpacity(0.95),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      child: const Icon(
-                        Icons.search,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    // ✏️ Input Field
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: searchReceipt,
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
+                      boxShadow: [
+                        BoxShadow(
+                          color: app_color.withOpacity(0.08),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
                         ),
-                        decoration: InputDecoration(
-                          hintText: "Search receipts...",
-                          hintStyle: GoogleFonts.poppins(
-                            fontSize: 13,
-                            color: Colors.grey.shade500,
-                          ),
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          focusedErrorBorder: InputBorder.none,
-
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
                         ),
-                      ),
+                      ],
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
-
-                    // ❌ Clear Button
-                    if (_searchController.text.isNotEmpty)
-                      GestureDetector(
-                        onTap: () {
-                          _searchController.clear();
-                          searchReceipt('');
-                          setState(() {});
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
+                    child: Row(
+                      children: [
+                        // 🔍 Gradient Search Icon
+                        Container(
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [app_color.withOpacity(0.8), app_color],
+                            ),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Icon(
-                            Icons.close,
-                            size: 16,
-                            color: Colors.black54,
+                            Icons.search,
+                            color: Colors.white,
+                            size: 18,
                           ),
                         ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
 
-            Expanded(child: Stack(
-              children: [
-                Visibility(
-                  visible: isVisibleNoReceiptEntryFound,
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.receipt_long, size: 64, color: Colors.grey[300]),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No Receipt Entry Found',
-                            textAlign: TextAlign.center,
+                        const SizedBox(width: 12),
+
+                        // ✏️ Input Field
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: searchReceipt,
                             style: GoogleFonts.poppins(
-                              fontSize: 18,
+                              fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Colors.grey[600],
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: "Search receipts...",
+                              hintStyle: GoogleFonts.poppins(
+                                fontSize: 13,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              focusedErrorBorder: InputBorder.none,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+
+                        // ❌ Clear Button
+                        if (_searchController.text.isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              _searchController.clear();
+                              searchReceipt('');
+                              setState(() {});
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainerHighest
+                                    : Colors.grey.shade200,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.close,
+                                size: 16,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 ),
 
-
-
-                ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                  itemCount: filteredReceiptEntries.length,
-                  itemBuilder: (context, index) {
-
-
-                    final card = filteredReceiptEntries[index];
-                    final partyLedger = card.data['PARTYLEDGERNAME'];
-                    final dateStr = card.data['DATE'];
-                    var firstEntry = card.data['ALLLEDGERENTRIES.LIST'][0];
-                    final vchno = card.data['VOUCHERNUMBER'];
-                    final vchtype = card.data['VOUCHERTYPENAME'] ?? 'N/A';
-                    final totalAmount = firstEntry['AMOUNT'];
-
-                    DateTime date = DateTime.parse(dateStr);
-                    String formattedDate = DateFormat("dd-MMM-yyyy").format(date);
-
-                    final bool isExpanded = expandedCards.contains(card.id);
-
-                    return Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(20),
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        onTap: () {
-                          setState(() {
-                            isExpanded
-                                ? expandedCards.remove(card.id)
-                                : expandedCards.add(card.id);
-                          });
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 9),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            gradient: const LinearGradient(
-                              colors: [Colors.white, Colors.white],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 15,
-                                offset: const Offset(0, 8),
+              Expanded(
+                child: Stack(
+                  children: [
+                    Visibility(
+                      visible: isVisibleNoReceiptEntryFound,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.receipt_long,
+                                size: 64,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No Receipt Entry Found',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
                               ),
                             ],
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // 🔹 Top Row: Receipt No + Actions
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child:  Row(
-                                          children: [
-                                            // Gradient Icon
-                                            Container(
-                                              width: 32,
-                                              height: 32,
-                                              decoration: BoxDecoration(
-                                                gradient: const LinearGradient(
-                                                  colors: [Color(0xFF66BB6A), Color(0xFF2E7D32)], // Green shades for Receipts
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                borderRadius: BorderRadius.circular(10),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.green.withOpacity(0.25),
-                                                    blurRadius: 6,
-                                                    offset: const Offset(0, 3),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: const Icon(Icons.payment, size: 18, color: Colors.white),
-                                            ),
-                                            const SizedBox(width: 10),
+                        ),
+                      ),
+                    ),
 
-                                            // Receipt Text
-                                            Expanded(child: Text(
-                                              "$vchno",
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w700,
-                                                color: Colors.black87,
-                                              ),
-                                              softWrap: true,
-                                            ),)
-                                          ],
-                                        ),
-                                      ),
+                    ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                      itemCount: filteredReceiptEntries.length,
+                      itemBuilder: (context, index) {
+                        final card = filteredReceiptEntries[index];
+                        final partyLedger = card.data['PARTYLEDGERNAME'];
+                        final dateStr = card.data['DATE'];
+                        var firstEntry = card.data['ALLLEDGERENTRIES.LIST'][0];
+                        final vchno = card.data['VOUCHERNUMBER'];
+                        final vchtype = card.data['VOUCHERTYPENAME'] ?? 'N/A';
+                        final totalAmount = firstEntry['AMOUNT'];
 
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 0),
-                                        child: Row(
-                                          children: [
-                                            _buildSyncChip(card.isSynced),
-                                          ],
-                                        ),
-                                      ),
+                        DateTime date = DateTime.parse(dateStr);
+                        String formattedDate = DateFormat(
+                          "dd-MMM-yyyy",
+                        ).format(date);
 
-                                    ],
-                                  ),
+                        final bool isExpanded = expandedCards.contains(card.id);
+
+                        return Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(20),
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            hoverColor: Colors.transparent,
+                            focusColor: Colors.transparent,
+                            onTap: () {
+                              setState(() {
+                                isExpanded
+                                    ? expandedCards.remove(card.id)
+                                    : expandedCards.add(card.id);
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 9),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                gradient: const LinearGradient(
+                                  colors: [Colors.white, Colors.white],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-
-                                if (card.isSynced == 2 && card.message != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 16,right:16, top:16 ),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color: Colors.red.shade50,
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: Colors.red.shade200),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // 🔹 Top Row: Receipt No + Actions
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
                                       ),
                                       child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Icon(Icons.error_outline, color: Colors.red.shade700, size: 18),
-                                          const SizedBox(width: 8),
                                           Expanded(
-                                            child: Text(
-                                              card.message!,
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 12,
-                                                color: Colors.red.shade700,
-                                                fontWeight: FontWeight.w500,
-                                              ),
+                                            child: Row(
+                                              children: [
+                                                // Gradient Icon
+                                                Container(
+                                                  width: 32,
+                                                  height: 32,
+                                                  decoration: BoxDecoration(
+                                                    gradient: const LinearGradient(
+                                                      colors: [
+                                                        Color(0xFF66BB6A),
+                                                        Color(0xFF2E7D32),
+                                                      ], // Green shades for Receipts
+                                                      begin: Alignment.topLeft,
+                                                      end:
+                                                          Alignment.bottomRight,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          10,
+                                                        ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.green
+                                                            .withOpacity(0.25),
+                                                        blurRadius: 6,
+                                                        offset: const Offset(
+                                                          0,
+                                                          3,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.payment,
+                                                    size: 18,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 10),
+
+                                                // Receipt Text
+                                                Expanded(
+                                                  child: Text(
+                                                    "$vchno",
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 15,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).colorScheme.onSurface,
+                                                    ),
+                                                    softWrap: true,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 0,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                _buildSyncChip(card.isSynced),
+                                              ],
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                  ),
-                                const SizedBox(height: 12),
 
-                                // 🔹 Detail Rows
-                                DetailRowTile(
-                                  label: "Party Ledger",
-                                  value: partyLedger ?? '',
-                                ),
-                                DetailRowTile(
-                                  label: "Date",
-                                  value: formattedDate,
-                                ),
-
-                                AnimatedSize(
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOutCubic,
-                                  alignment: Alignment.topCenter,
-                                  child: isExpanded
-                                      ? Column(
-                                    children: [
-                                      DetailRowTile(
-                                        label: "Voucher Type",
-                                        value: vchtype,
-                                      ),
-                                      DetailRowTile(
-                                        label: "Total Amount",
-                                        value: formatAmount(totalAmount.toString()),
-                                      ),
-                                    ],
-                                  )
-                                      : const SizedBox.shrink(),
-                                ),
-
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 14, top: 6),
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(30),
-                                      onTap: () {
-                                        setState(() {
-                                          isExpanded
-                                              ? expandedCards.remove(card.id)
-                                              : expandedCards.add(card.id);
-                                        });
-                                      },
-                                      child: AnimatedContainer(
-                                        duration: const Duration(milliseconds: 250),
-                                        curve: Curves.easeInOut,
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                        decoration: BoxDecoration(
-                                          color: isExpanded
-                                              ? Colors.grey.shade100
-                                              : app_color.withOpacity(0.08),
-                                          borderRadius: BorderRadius.circular(30),
-                                          border: Border.all(
-                                            color: isExpanded
-                                                ? Colors.grey.shade300
-                                                : app_color.withOpacity(0.18),
+                                    if (card.isSynced == 2 &&
+                                        card.message != null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 16,
+                                          right: 16,
+                                          top: 16,
+                                        ),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red.shade50,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.red.shade200,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.error_outline,
+                                                color: Colors.red.shade700,
+                                                size: 18,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  card.message!,
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 12,
+                                                    color: Colors.red.shade700,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
+                                      ),
+                                    const SizedBox(height: 12),
+
+                                    // 🔹 Detail Rows
+                                    DetailRowTile(
+                                      label: "Party Ledger",
+                                      value: partyLedger ?? '',
+                                    ),
+                                    DetailRowTile(
+                                      label: "Date",
+                                      value: formattedDate,
+                                    ),
+
+                                    AnimatedSize(
+                                      duration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      curve: Curves.easeInOutCubic,
+                                      alignment: Alignment.topCenter,
+                                      child: isExpanded
+                                          ? Column(
+                                              children: [
+                                                DetailRowTile(
+                                                  label: "Voucher Type",
+                                                  value: vchtype,
+                                                ),
+                                                DetailRowTile(
+                                                  label: "Total Amount",
+                                                  value: formatAmount(
+                                                    totalAmount.toString(),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          : const SizedBox.shrink(),
+                                    ),
+
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 14,
+                                          top: 6,
+                                        ),
+                                        child: InkWell(
+                                          borderRadius: BorderRadius.circular(
+                                            30,
+                                          ),
+                                          onTap: () {
+                                            setState(() {
+                                              isExpanded
+                                                  ? expandedCards.remove(
+                                                      card.id,
+                                                    )
+                                                  : expandedCards.add(card.id);
+                                            });
+                                          },
+                                          child: AnimatedContainer(
+                                            duration: const Duration(
+                                              milliseconds: 250,
+                                            ),
+                                            curve: Curves.easeInOut,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: isExpanded
+                                                  ? (Theme.of(
+                                                              context,
+                                                            ).brightness ==
+                                                            Brightness.dark
+                                                        ? Theme.of(context)
+                                                              .colorScheme
+                                                              .surfaceContainerHighest
+                                                        : Colors.grey.shade100)
+                                                  : app_color.withOpacity(0.08),
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                              border: Border.all(
+                                                color: isExpanded
+                                                    ? Colors.grey.shade300
+                                                    : app_color.withOpacity(
+                                                        0.18,
+                                                      ),
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.touch_app_rounded,
+                                                  size: 15,
+                                                  color: isExpanded
+                                                      ? Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurfaceVariant
+                                                      : app_color,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  isExpanded
+                                                      ? "Show less"
+                                                      : "Tap to show more",
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: isExpanded
+                                                        ? Theme.of(context)
+                                                              .colorScheme
+                                                              .onSurfaceVariant
+                                                        : app_color,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 3),
+                                                AnimatedRotation(
+                                                  turns: isExpanded ? 0.5 : 0,
+                                                  duration: const Duration(
+                                                    milliseconds: 250,
+                                                  ),
+                                                  child: Icon(
+                                                    Icons
+                                                        .keyboard_arrow_down_rounded,
+                                                    size: 16,
+                                                    color: isExpanded
+                                                        ? Theme.of(context)
+                                                              .colorScheme
+                                                              .onSurfaceVariant
+                                                        : app_color,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    if (card.isSynced != 1 &&
+                                        (serial_no != uniGasSerialNumber)) ...[
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 16),
                                         child: Row(
-                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
-                                            Icon(
-                                              Icons.touch_app_rounded,
-                                              size: 15,
-                                              color: isExpanded ? Colors.grey.shade700 : app_color,
+                                            _buildGradientAction(
+                                              icon: Icons.edit,
+                                              text: "Modify",
+
+                                              colors: [
+                                                Color(0xFF42A5F5),
+                                                Color(0xFF1E88E5),
+                                              ],
+                                              onTap: () {
+                                                Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ModifyReceiptEntry(
+                                                          type: card.type,
+                                                          id: card.id,
+                                                          isSynced:
+                                                              card.isSynced,
+                                                          data: card.data,
+                                                        ),
+                                                  ),
+                                                );
+                                              },
                                             ),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              isExpanded ? "Show less" : "Tap to show more",
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w600,
-                                                color: isExpanded ? Colors.grey.shade700 : app_color,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 3),
-                                            AnimatedRotation(
-                                              turns: isExpanded ? 0.5 : 0,
-                                              duration: const Duration(milliseconds: 250),
-                                              child: Icon(
-                                                Icons.keyboard_arrow_down_rounded,
-                                                size: 16,
-                                                color: isExpanded ? Colors.grey.shade700 : app_color,
-                                              ),
+                                            const SizedBox(width: 10),
+
+                                            _buildGradientAction(
+                                              icon: Icons.delete_outline,
+                                              text: "Delete",
+
+                                              colors: [
+                                                Color(0xFFEF5350),
+                                                Color(0xFFD32F2F),
+                                              ],
+                                              onTap: () {
+                                                _showConfirmationDialogAndNavigate(
+                                                  context,
+                                                  card.id,
+                                                );
+                                              },
                                             ),
                                           ],
                                         ),
                                       ),
-                                    ),
-                                  ),
+                                    ],
+                                  ],
                                 ),
-
-                                if(card.isSynced != 1 && (serial_no != uniGasSerialNumber)) ...[
-
-                                  Padding(padding: EdgeInsets.only(top: 16),
-                                    child:  Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        _buildGradientAction(
-                                          icon: Icons.edit,
-                                          text: "Modify",
-
-                                          colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
-                                          onTap: () {
-                                            Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => ModifyReceiptEntry(
-                                                  type: card.type,
-                                                  id: card.id,
-                                                  isSynced: card.isSynced,
-                                                  data: card.data,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                        const SizedBox(width: 10),
-
-                                        _buildGradientAction(
-                                          icon: Icons.delete_outline,
-                                          text: "Delete",
-
-                                          colors: [Color(0xFFEF5350), Color(0xFFD32F2F)],
-                                          onTap: () {
-                                            _showConfirmationDialogAndNavigate(context, card.id);
-                                          },
-                                        ),
-
-                                      ],
-                                    ),)
-                                ]
-
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    );
+                        );
+                      },
+                    ),
 
+                    Visibility(
+                      visible: _isLoading,
+                      child: Center(child: AppLogoLoader()),
+                    ),
 
-
-
-                  },
-                ),
-
-
-                Visibility(
-                  visible: _isLoading,
-                  child: Center(
-                      child: AppLogoLoader())
-                ),
-
-                Positioned(
-                  bottom: 40,
-                  right: 30,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => ReceiptRegistration()),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        gradient: LinearGradient(
-                          colors: [app_color.withOpacity(0.9), app_color],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: app_color.withOpacity(0.4),
-                            blurRadius: 12,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.add_rounded, color: Colors.white, size: 26),
-                          const SizedBox(width: 10),
-                          Text(
-                            "Create Entry",
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
+                    Positioned(
+                      bottom: 40,
+                      right: 30,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ReceiptRegistration(),
                             ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 22,
+                            vertical: 14,
                           ),
-                        ],
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            gradient: LinearGradient(
+                              colors: [app_color.withOpacity(0.9), app_color],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: app_color.withOpacity(0.4),
+                                blurRadius: 12,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.add_rounded,
+                                color: Colors.white,
+                                size: 26,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                "Create Entry",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-
-
-
-              ],
-            ),
-
-
-            )
-
-          ],),
-
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-
 Widget _buildGradientAction({
   required IconData icon,
-  required String text,   // ✅ ADD TEXT
+  required String text, // ✅ ADD TEXT
   required List<Color> colors,
   required VoidCallback onTap,
 }) {
@@ -1162,9 +1230,6 @@ Widget _buildGradientAction({
   );
 }
 
-
-
-
 class DetailRowTile extends StatelessWidget {
   final String label;
   final String value;
@@ -1181,13 +1246,21 @@ class DetailRowTile extends StatelessWidget {
   LinearGradient _getGradient(String label) {
     final lower = label.toLowerCase();
     if (lower.contains('date')) {
-      return LinearGradient(colors: [Colors.indigo.shade400, Colors.indigo.shade700]);
+      return LinearGradient(
+        colors: [Colors.indigo.shade400, Colors.indigo.shade700],
+      );
     } else if (lower.contains('voucher')) {
-      return LinearGradient(colors: [Colors.orange.shade400, Colors.deepOrange.shade600]);
+      return LinearGradient(
+        colors: [Colors.orange.shade400, Colors.deepOrange.shade600],
+      );
     } else if (lower.contains('amount')) {
-      return LinearGradient(colors: [Colors.green.shade400, Colors.green.shade700]);
+      return LinearGradient(
+        colors: [Colors.green.shade400, Colors.green.shade700],
+      );
     } else if (lower.contains('party')) {
-      return LinearGradient(colors: [Colors.blue.shade400, Colors.blue.shade700]);
+      return LinearGradient(
+        colors: [Colors.blue.shade400, Colors.blue.shade700],
+      );
     }
     return LinearGradient(colors: [Colors.grey.shade400, Colors.grey.shade600]);
   }
@@ -1208,7 +1281,7 @@ class DetailRowTile extends StatelessWidget {
   }
 
   // Amount color logic
-  Color _getValueColor() {
+  Color _getValueColor(BuildContext context) {
     if (label.toLowerCase().contains('amount')) {
       if (value.toLowerCase().contains("dr") || value.startsWith("-")) {
         return Colors.red.shade700; // Debit
@@ -1216,10 +1289,8 @@ class DetailRowTile extends StatelessWidget {
         return Colors.green.shade700; // Credit
       }
     }
-    return Colors.black87; // Normal
+    return Theme.of(context).colorScheme.onSurface; // Normal
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -1227,63 +1298,67 @@ class DetailRowTile extends StatelessWidget {
     final icon = _getIcon(label);
 
     final row = Container(
-        margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // 🔹 Gradient Icon
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                gradient: gradient,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: gradient.colors.last.withOpacity(0.25),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Icon(icon, size: 16, color: Colors.white),
-            ),
-            const SizedBox(width: 12),
-
-            // 🔹 Label (Left Half)
-            Expanded(
-              flex: 1,
-              child: Text(
-                label,
-                style: GoogleFonts.poppins(fontSize: 13.5, color: Colors.black87),
-                softWrap: true,
-                overflow: TextOverflow.visible,
-              ),
-            ),
-
-            // 🔹 Value (Right Half)
-            Expanded(
-              flex: 1,
-              child: Text(
-                value,
-                style: GoogleFonts.poppins(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w600,
-                  color: _getValueColor(),
+      margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surfaceContainerHighest
+            : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // 🔹 Gradient Icon
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              gradient: gradient,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: gradient.colors.last.withOpacity(0.25),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
                 ),
-                textAlign: TextAlign.right,
-                softWrap: true,
-                overflow: TextOverflow.visible,
-              ),
+              ],
             ),
-          ],
-        )
+            child: Icon(icon, size: 16, color: Colors.white),
+          ),
+          const SizedBox(width: 12),
 
+          // 🔹 Label (Left Half)
+          Expanded(
+            flex: 1,
+            child: Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 13.5,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+          ),
+
+          // 🔹 Value (Right Half)
+          Expanded(
+            flex: 1,
+            child: Text(
+              value,
+              style: GoogleFonts.poppins(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+                color: _getValueColor(context),
+              ),
+              textAlign: TextAlign.right,
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+          ),
+        ],
+      ),
     );
 
     return onTap != null ? GestureDetector(onTap: onTap, child: row) : row;

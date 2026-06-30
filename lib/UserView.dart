@@ -15,19 +15,13 @@ class UserModel {
   final String name;
   final String email;
 
-  UserModel({
-    required this.role_name,
-    required this.name,
-    required this.email
-  });
+  UserModel({required this.role_name, required this.name, required this.email});
 
-  factory UserModel.fromJson(Map<String, dynamic> json)
-  {
-    return UserModel
-    (
-        role_name: json['role_name'],
-        name: json['customer_name'],
-        email: json['user_name']
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      role_name: json['role_name'],
+      name: json['customer_name'],
+      email: json['user_name'],
     );
   }
 }
@@ -40,12 +34,12 @@ class UserView extends StatefulWidget {
 
 class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
   bool isDashEnable = true,
-       isRolesVisible = true,
-       isUserEnable = false,
-       isUserVisible = true,
-       isRolesEnable = true,
-       _isLoading = false,
-       isVisibleNoUserFound = false;
+      isRolesVisible = true,
+      isUserEnable = false,
+      isUserVisible = true,
+      isRolesEnable = true,
+      _isLoading = false,
+      isVisibleNoUserFound = false;
 
   final TextEditingController searchController = TextEditingController();
 
@@ -55,13 +49,19 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
 
   final List<UserModel> users = [];
 
-  String name = "",email = "";
+  String name = "", email = "";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late SharedPreferences prefs;
 
-  String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";
+  String? hostname = "",
+      company = "",
+      company_lowercase = "",
+      serial_no = "",
+      username = "",
+      HttpURL = "",
+      SecuritybtnAcessHolder = "";
 
   void filterUsers(String query) {
     setState(() {
@@ -80,10 +80,9 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
   Future<void> _initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
 
-    setState(()
-    {
+    setState(() {
       hostname = prefs.getString('hostname');
-      company  = prefs.getString('company_name');
+      company = prefs.getString('company_name');
       company_lowercase = company!.replaceAll(' ', '').toLowerCase();
       serial_no = prefs.getString('serial_no');
       username = prefs.getString('username');
@@ -93,18 +92,14 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
       String? email_nav = prefs.getString('email_nav');
       String? name_nav = prefs.getString('name_nav');
 
-      if (email_nav!=null && name_nav!= null)
-      {
+      if (email_nav != null && name_nav != null) {
         name = name_nav;
         email = email_nav;
       }
-      if(SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         isRolesVisible = true;
         isUserVisible = true;
-      }
-      else
-      {
+      } else {
         isRolesVisible = false;
         isUserVisible = false;
       }
@@ -126,11 +121,19 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
       pageBuilder: (context, anim1, anim2) => const SizedBox.shrink(),
       transitionBuilder: (context, anim1, anim2, child) {
         return ScaleTransition(
-          scale: CurvedAnimation(parent: controller..forward(), curve: Curves.easeOutBack),
+          scale: CurvedAnimation(
+            parent: controller..forward(),
+            curve: Curves.easeOutBack,
+          ),
           child: Dialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            backgroundColor: Colors.white,
-            insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 32,
+              vertical: 24,
+            ),
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
@@ -158,7 +161,7 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -168,10 +171,10 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                   // 💬 Description
                   Text(
                     'Are you sure you want to permanently delete this user?\n'
-                        'This action cannot be undone.',
+                    'This action cannot be undone.',
                     style: GoogleFonts.poppins(
                       fontSize: 14.5,
-                      color: Colors.black54,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -240,46 +243,31 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
     );
   }
 
-  Future<void> userdelete(String selectedserial,String email) async {
+  Future<void> userdelete(String selectedserial, String email) async {
     setState(() {
       _isLoading = true;
     });
     final url = Uri.parse('$BASE_URL_config/api/login/deleteUser');
 
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $authTokenBase',
-      "Content-Type": "application/json"
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $authTokenBase',
+      "Content-Type": "application/json",
     };
 
-    var body = jsonEncode({
-      'serialno': selectedserial,
-      'username' : email
-    });
+    var body = jsonEncode({'serialno': selectedserial, 'username': email});
 
-    final response = await http.post(
-        url,
-        body: body,
-        headers:headers
-    );
+    final response = await http.post(url, body: body, headers: headers);
 
-    if (response.statusCode == 200)
-    {
+    if (response.statusCode == 200) {
       final responsee = response.body;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(responsee),
-        ),
-      );
-      setState(()
-      {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(responsee)));
+      setState(() {
         _isLoading = true;
         fetchUsers(serial_no!);
-      }
-      );
-
-    }
-    else
-    {
+      });
+    } else {
       Map<String, dynamic> data = json.decode(response.body);
       String error = '';
 
@@ -287,8 +275,7 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
         setState(() {
           error = data['error'];
         });
-      }
-      else {
+      } else {
         error = "Something went wrong!!!";
       }
       Fluttertoast.showToast(msg: error);
@@ -304,26 +291,18 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
     });
     final url = Uri.parse('$BASE_URL_config/api/login/getRole');
 
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $authTokenBase',
-      "Content-Type": "application/json"
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $authTokenBase',
+      "Content-Type": "application/json",
     };
 
-    var body = jsonEncode({
-      'serialno': selectedserial,
-    });
+    var body = jsonEncode({'serialno': selectedserial});
 
-    final response = await http.post(
-        url,
-        body: body,
-        headers:headers
-    );
+    final response = await http.post(url, body: body, headers: headers);
 
-    if (response.statusCode == 200)
-    {
+    if (response.statusCode == 200) {
       users.clear();
-      try
-      {
+      try {
         final List<dynamic> jsonList = json.decode(response.body);
 
         isVisibleNoUserFound = false;
@@ -334,25 +313,19 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
         users.sort(compareDataObjects);
         filteredUsers.sort(compareDataObjects);
 
-        setState(()
-        {
-          if(users.isEmpty)
-          {
+        setState(() {
+          if (users.isEmpty) {
             isVisibleNoUserFound = true;
           }
           _isLoading = false;
         });
-      }
-      catch (e)
-      {
+      } catch (e) {
         print(e);
       }
     }
 
-    setState(()
-    {
-      if(users.isEmpty)
-      {
+    setState(() {
+      if (users.isEmpty) {
         isVisibleNoUserFound = true;
       }
       _isLoading = false;
@@ -360,14 +333,12 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
   }
 
   @override
-  void initState()
-  {
+  void initState() {
     super.initState();
     _initSharedPreferences();
   }
 
-  Future<void> _refresh() async
-  {
+  Future<void> _refresh() async {
     setState(() {
       fetchUsers(serial_no!);
     });
@@ -387,19 +358,17 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
         );
         return true;
       },
-      child:Scaffold(
+      child: Scaffold(
         key: _scaffoldKey,
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(50),
           child: AppBar(
-            backgroundColor:  app_color,
+            backgroundColor: app_color,
             elevation: 6,
             automaticallyImplyLeading: false,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(20),
-              ),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
             ),
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -420,7 +389,9 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                   Flexible(
                     child: Text(
                       company ?? '',
-                      style: GoogleFonts.poppins(color: Colors.white, fontSize: 20,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 20,
                         fontWeight: FontWeight.w600,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -447,7 +418,7 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                       Icon(
                         Icons.person_off_outlined,
                         size: 64,
-                        color: Colors.grey[400],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -455,7 +426,7 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                         style: GoogleFonts.poppins(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -464,13 +435,11 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
 
               Column(
                 children: [
-
-
                   // SEARCH BAR
                   Container(
                     margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
@@ -485,12 +454,12 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                       onChanged: filterUsers,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
-                        color: Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Search users...',
                         hintStyle: GoogleFonts.poppins(
-                          color: Colors.grey[500],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                         prefixIcon: Icon(
@@ -500,12 +469,12 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                         ),
                         suffixIcon: searchController.text.isNotEmpty
                             ? IconButton(
-                          icon: const Icon(Icons.close_rounded),
-                          onPressed: () {
-                            searchController.clear();
-                            filterUsers('');
-                          },
-                        )
+                                icon: const Icon(Icons.close_rounded),
+                                onPressed: () {
+                                  searchController.clear();
+                                  filterUsers('');
+                                },
+                              )
                             : null,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(18),
@@ -523,7 +492,9 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                           ),
                         ),
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor:
+                            Theme.of(context).inputDecorationTheme.fillColor ??
+                            Colors.white,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 16,
@@ -532,153 +503,194 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                     ),
                   ),
 
-                  Expanded(child:
-                  ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                    itemCount: filteredUsers.length,
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                      itemCount: filteredUsers.length,
 
-                    itemBuilder: (context, index) {
-                      final card = filteredUsers[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 5),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.95),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12.withOpacity(0.08),
-                              blurRadius: 20,
-                              offset: Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              /// Left Column (Avatar + Info)
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    /// Name
-                                    Row(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 22,
-                                          backgroundColor: app_color.withOpacity(0.2),
-                                          child: Icon(Icons.person, color: app_color),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Text(
-                                            card.name,
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 17,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 14),
-
-                                    /// Email
-                                    Row(
-                                      children: [
-                                        Icon(Icons.email_outlined, size: 18, color: Colors.grey[600]),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            card.email,
-                                            style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[700]),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-
-                                    const SizedBox(height: 10),
-
-                                    /// Role
-                                    Row(
-                                      children: [
-                                        Icon(Icons.security_outlined, size: 18, color: Colors.grey[600]),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            card.role_name,
-                                            style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[700]),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                      itemBuilder: (context, index) {
+                        final card = filteredUsers[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 5),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).cardColor.withOpacity(0.95),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12.withOpacity(0.08),
+                                blurRadius: 20,
+                                offset: Offset(0, 10),
                               ),
-
-                              /// Right Column (Edit/Delete)
-                              Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => ModifyUser(
-                                              email_address: card.email,
-                                              user_name: card.name,
-                                              rolename: card.role_name,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      child: Tooltip(
-                                        message: 'Edit User',
-                                        child: CircleAvatar(
-                                          backgroundColor: Colors.blue.shade50,
-                                          radius: 16,
-                                          child: Icon(Icons.edit, size: 18, color: Colors.blue),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 15),
-                                    GestureDetector(
-                                      onTap: () {
-                                        user_email_fetched = card.email;
-                                        _showConfirmationDialogAndNavigate(context);
-                                      },
-                                      child: Tooltip(
-                                        message: 'Delete User',
-                                        child: CircleAvatar(
-                                          backgroundColor: Colors.red.shade50,
-                                          radius: 16,
-                                          child: Icon(Icons.delete_outline, size: 18, color: Colors.red),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
                             ],
                           ),
-                        ),
-                      );
-                    },
-                  ),)
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 18,
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                /// Left Column (Avatar + Info)
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      /// Name
+                                      Row(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 22,
+                                            backgroundColor: app_color
+                                                .withOpacity(0.2),
+                                            child: Icon(
+                                              Icons.person,
+                                              color: app_color,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              card.name,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 17,
+                                                fontWeight: FontWeight.w600,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 14),
 
+                                      /// Email
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.email_outlined,
+                                            size: 18,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              card.email,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
 
+                                      const SizedBox(height: 10),
 
+                                      /// Role
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.security_outlined,
+                                            size: 18,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              card.role_name,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                /// Right Column (Edit/Delete)
+                                Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => ModifyUser(
+                                                email_address: card.email,
+                                                user_name: card.name,
+                                                rolename: card.role_name,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Tooltip(
+                                          message: 'Edit User',
+                                          child: CircleAvatar(
+                                            backgroundColor:
+                                                Colors.blue.shade50,
+                                            radius: 16,
+                                            child: Icon(
+                                              Icons.edit,
+                                              size: 18,
+                                              color: Colors.blue,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 15),
+                                      GestureDetector(
+                                        onTap: () {
+                                          user_email_fetched = card.email;
+                                          _showConfirmationDialogAndNavigate(
+                                            context,
+                                          );
+                                        },
+                                        child: Tooltip(
+                                          message: 'Delete User',
+                                          child: CircleAvatar(
+                                            backgroundColor: Colors.red.shade50,
+                                            radius: 16,
+                                            child: Icon(
+                                              Icons.delete_outline,
+                                              size: 18,
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
 
-              if (_isLoading)
-                const Center(
-                    child: AppLogoLoader()),
+              if (_isLoading) const Center(child: AppLogoLoader()),
 
               Positioned(
                 bottom: 30,
@@ -695,19 +707,17 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                       MaterialPageRoute(builder: (_) => CreateUser()),
                     );
                   },
-                  child: Icon(Icons.person_add_alt_1_rounded, size: 26, color: Colors.white),
+                  child: Icon(
+                    Icons.person_add_alt_1_rounded,
+                    size: 26,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ],
           ),
         ),
-
-
-
-
-      ));}
-
-
-
-
+      ),
+    );
+  }
 }

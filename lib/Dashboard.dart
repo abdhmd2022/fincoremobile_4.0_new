@@ -220,7 +220,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       builder: (context) {
         return SafeArea(
           top: false,
@@ -234,7 +234,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 18),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD7DCE4),
+                    color: Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -264,7 +264,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                             style: GoogleFonts.poppins(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF17202A),
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -273,7 +273,9 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                             style: GoogleFonts.poppins(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w500,
-                              color: const Color(0xFF6B7280),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -281,8 +283,15 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                     ),
                     IconButton(
                       style: IconButton.styleFrom(
-                        backgroundColor: const Color(0xFFF1F4F8),
-                        foregroundColor: const Color(0xFF6B7280),
+                        backgroundColor:
+                            Theme.of(context).brightness == Brightness.dark
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest
+                            : const Color(0xFFF1F4F8),
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -379,9 +388,11 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         decoration: BoxDecoration(
-          color: const Color(0xFFF9FAFC),
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Theme.of(context).colorScheme.surfaceContainerHighest
+              : const Color(0xFFF9FAFC),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFE7EAF0), width: 1),
+          border: Border.all(color: Theme.of(context).dividerColor, width: 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.035),
@@ -408,7 +419,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                 style: GoogleFonts.poppins(
                   fontSize: 14.5,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF17202A),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -416,14 +427,16 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
             ),
             Container(
               padding: const EdgeInsets.all(6),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF1F4F8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                    : const Color(0xFFF1F4F8),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.chevron_right_rounded,
                 size: 18,
-                color: Color(0xFF6B7280),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -1156,7 +1169,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                 double.tryParse(dash_data['sales']?.toString() ?? "0") ?? 0.0;
             purchase_value =
                 double.tryParse(dash_data['purchase']?.toString() ?? "0") ??
-                    0.0;
+                0.0;
             receipt_value =
                 double.tryParse(dash_data['receipt']?.toString() ?? "0") ?? 0.0;
             payment_value =
@@ -1165,7 +1178,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                 double.tryParse(dash_data['cash']?.toString() ?? "0") ?? 0.0;
             outstandingreceivable_value =
                 double.tryParse(dash_data['receivable']?.toString() ?? "0") ??
-                    0.0;
+                0.0;
             outstandingpayable_value =
                 double.tryParse(dash_data['payable']?.toString() ?? "0") ?? 0.0;
 
@@ -1462,25 +1475,28 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
           lastDate: DateTime(2100),
           builder: (BuildContext context, Widget? child) {
             return Theme(
-              data: ThemeData.light().copyWith(
-                colorScheme: ColorScheme.light().copyWith(
+              data: Theme.of(context).copyWith(
+                colorScheme: Theme.of(context).colorScheme.copyWith(
                   primary: app_color, // main accent color
                   onPrimary: Colors.white,
 
-                  surface: Colors.white,
-                  onSurface: Colors.black87,
+                  surface: Theme.of(context).colorScheme.surface,
+                  onSurface: Theme.of(context).colorScheme.onSurface,
                 ), // 🔹 important
                 datePickerTheme: DatePickerThemeData(
-                  backgroundColor: Colors.white, // 🔹 THIS fixes the picker bg
-                  surfaceTintColor:
-                  Colors.white, // 🔹 prevents grey tint (Material 3)
+                  backgroundColor: Theme.of(
+                    context,
+                  ).scaffoldBackgroundColor, // 🔹 THIS fixes the picker bg
+                  surfaceTintColor: Colors.transparent,
                   rangeSelectionBackgroundColor: app_color.withOpacity(0.15),
                   rangeSelectionOverlayColor: MaterialStatePropertyAll(
                     app_color.withOpacity(0.15),
                   ),
                 ),
-                dialogTheme: DialogThemeData(backgroundColor: Colors.white),
-                dialogBackgroundColor: Colors.white, // 🔹 important
+                dialogTheme: DialogThemeData(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                ),
+                dialogBackgroundColor: Theme.of(context).colorScheme.surface,
               ),
               child: child!,
             );
@@ -1607,25 +1623,28 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
           lastDate: DateTime(2100),
           builder: (BuildContext context, Widget? child) {
             return Theme(
-              data: ThemeData.light().copyWith(
-                colorScheme: ColorScheme.light().copyWith(
+              data: Theme.of(context).copyWith(
+                colorScheme: Theme.of(context).colorScheme.copyWith(
                   primary: app_color, // main accent color
                   onPrimary: Colors.white,
-                  surface: Colors.white,
-                  onSurface: Colors.black87,
+                  surface: Theme.of(context).colorScheme.surface,
+                  onSurface: Theme.of(context).colorScheme.onSurface,
                 ),
 
                 datePickerTheme: DatePickerThemeData(
-                  backgroundColor: Colors.white, // 🔹 THIS fixes the picker bg
-                  surfaceTintColor:
-                  Colors.white, // 🔹 prevents grey tint (Material 3)
+                  backgroundColor: Theme.of(
+                    context,
+                  ).scaffoldBackgroundColor, // 🔹 THIS fixes the picker bg
+                  surfaceTintColor: Colors.transparent,
                   rangeSelectionBackgroundColor: app_color.withOpacity(0.15),
                   rangeSelectionOverlayColor: MaterialStatePropertyAll(
                     app_color.withOpacity(0.15),
                   ),
                 ),
-                dialogTheme: DialogThemeData(backgroundColor: Colors.white),
-                dialogBackgroundColor: Colors.white, // 🔹 important
+                dialogTheme: DialogThemeData(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                ),
+                dialogBackgroundColor: Theme.of(context).colorScheme.surface,
               ),
               child: child!,
             );
@@ -1750,24 +1769,27 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
           lastDate: DateTime(2100),
           builder: (BuildContext context, Widget? child) {
             return Theme(
-              data: ThemeData.light().copyWith(
-                colorScheme: ColorScheme.light().copyWith(
+              data: Theme.of(context).copyWith(
+                colorScheme: Theme.of(context).colorScheme.copyWith(
                   primary: app_color, // main accent color
                   onPrimary: Colors.white,
-                  surface: Colors.white,
-                  onSurface: Colors.black87,
+                  surface: Theme.of(context).colorScheme.surface,
+                  onSurface: Theme.of(context).colorScheme.onSurface,
                 ),
                 datePickerTheme: DatePickerThemeData(
-                  backgroundColor: Colors.white, // 🔹 THIS fixes the picker bg
-                  surfaceTintColor:
-                  Colors.white, // 🔹 prevents grey tint (Material 3)
+                  backgroundColor: Theme.of(
+                    context,
+                  ).scaffoldBackgroundColor, // 🔹 THIS fixes the picker bg
+                  surfaceTintColor: Colors.transparent,
                   rangeSelectionBackgroundColor: app_color.withOpacity(0.15),
                   rangeSelectionOverlayColor: MaterialStatePropertyAll(
                     app_color.withOpacity(0.15),
                   ),
                 ),
-                dialogTheme: DialogThemeData(backgroundColor: Colors.white),
-                dialogBackgroundColor: Colors.white, // 🔹 important
+                dialogTheme: DialogThemeData(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                ),
+                dialogBackgroundColor: Theme.of(context).colorScheme.surface,
               ),
               child: child!,
             );
@@ -1836,24 +1858,27 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
           lastDate: DateTime(2100),
           builder: (BuildContext context, Widget? child) {
             return Theme(
-              data: ThemeData.light().copyWith(
-                colorScheme: ColorScheme.light().copyWith(
+              data: Theme.of(context).copyWith(
+                colorScheme: Theme.of(context).colorScheme.copyWith(
                   primary: app_color, // main accent color
                   onPrimary: Colors.white,
-                  surface: Colors.white,
-                  onSurface: Colors.black87,
+                  surface: Theme.of(context).colorScheme.surface,
+                  onSurface: Theme.of(context).colorScheme.onSurface,
                 ),
                 datePickerTheme: DatePickerThemeData(
-                  backgroundColor: Colors.white, // 🔹 THIS fixes the picker bg
-                  surfaceTintColor:
-                  Colors.white, // 🔹 prevents grey tint (Material 3)
+                  backgroundColor: Theme.of(
+                    context,
+                  ).scaffoldBackgroundColor, // 🔹 THIS fixes the picker bg
+                  surfaceTintColor: Colors.transparent,
                   rangeSelectionBackgroundColor: app_color.withOpacity(0.15),
                   rangeSelectionOverlayColor: WidgetStatePropertyAll(
                     app_color.withOpacity(0.15),
                   ),
                 ),
-                dialogTheme: DialogThemeData(backgroundColor: Colors.white),
-                dialogBackgroundColor: Colors.white, // 🔹 important
+                dialogTheme: DialogThemeData(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                ),
+                dialogBackgroundColor: Theme.of(context).colorScheme.surface,
               ),
               child: child!,
             );
@@ -1908,10 +1933,10 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
   }
 
   Future<void> fetchUserData(
-      String username,
-      String serial_no,
-      String secbtn,
-      ) async {
+    String username,
+    String serial_no,
+    String secbtn,
+  ) async {
     final url = Uri.parse('$BASE_URL_config/api/login/get');
 
     Map<String, String> headers = {
@@ -2212,22 +2237,22 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
     HttpURL =
         hostname! +
-            "/api/dashboard/home/" +
-            company_lowercase! +
-            "/" +
-            serial_no!;
+        "/api/dashboard/home/" +
+        company_lowercase! +
+        "/" +
+        serial_no!;
     HttpURL_charts =
         hostname! +
-            "/api/dashboard/chart/" +
-            company_lowercase! +
-            "/" +
-            serial_no!;
+        "/api/dashboard/chart/" +
+        company_lowercase! +
+        "/" +
+        serial_no!;
     HttpURL_piecharts =
         hostname! +
-            "/api/dashboard/piechart/" +
-            company_lowercase! +
-            "/" +
-            serial_no!;
+        "/api/dashboard/piechart/" +
+        company_lowercase! +
+        "/" +
+        serial_no!;
 
     SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
 
@@ -2552,49 +2577,48 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
     });
   }
 
-  Future<void> _loadNumberScale() async {
-    String? scale = prefs.getString("number_scale");
-    if (scale != null) {
-      switch (scale) {
-        case "thousand":
-          _selectedScale = NumberScale.thousand;
-          break;
-        case "million":
-          _selectedScale = NumberScale.million;
-          break;
-        case "billion":
-          _selectedScale = NumberScale.billion;
-          break;
-        case "full":
-          _selectedScale = NumberScale.full;
-          break;
-
-        default:
-          _selectedScale = NumberScale.thousand;
-      }
+  NumberScale _numberScaleFromString(String? scale) {
+    switch (scale) {
+      case "full":
+        return NumberScale.full;
+      case "million":
+        return NumberScale.million;
+      case "billion":
+        return NumberScale.billion;
+      case "thousand":
+      default:
+        return NumberScale.thousand;
     }
-    setState(() {});
+  }
+
+  String _numberScaleToString(NumberScale scale) {
+    switch (scale) {
+      case NumberScale.full:
+        return "full";
+      case NumberScale.million:
+        return "million";
+      case NumberScale.billion:
+        return "billion";
+      case NumberScale.thousand:
+        return "thousand";
+    }
+  }
+
+  Future<void> _loadNumberScale() async {
+    final loadedScale = _numberScaleFromString(prefs.getString("number_scale"));
+    if (!mounted) return;
+
+    setState(() {
+      _selectedScale = loadedScale;
+    });
   }
 
   Future<void> _saveNumberScale(NumberScale scale) async {
-    _selectedScale = scale;
-    switch (scale) {
-      case NumberScale.thousand:
-        prefs.setString("number_scale", "thousand");
-        break;
-      case NumberScale.million:
-        prefs.setString("number_scale", "million");
-        break;
-      case NumberScale.billion:
-        prefs.setString("number_scale", "billion");
-        break;
-      case NumberScale.full:
-        prefs.setString("number_scale", "full");
-        break;
-      default:
-        prefs.setString("number_scale", "thousand");
-    }
-    setState(() {});
+    setState(() {
+      _selectedScale = scale;
+    });
+
+    await prefs.setString("number_scale", _numberScaleToString(scale));
   }
 
   @override
@@ -2607,17 +2631,15 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         return true;
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF6F8FB),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         key: _scaffoldKey,
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(50),
           child: AppBar(
-            backgroundColor:  app_color,
+            backgroundColor: app_color,
             elevation: 6,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(20),
-              ),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
             ),
             automaticallyImplyLeading: false,
             /*leading: IconButton(
@@ -2649,10 +2671,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  Icon(
-                      Icons.arrow_drop_down,
-                      color: Colors.white
-                  )
+                  Icon(Icons.arrow_drop_down, color: Colors.white),
                 ],
               ),
             ),
@@ -2672,25 +2691,24 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         bottomNavigationBar: const AppBottomNav(),
 
         body: Stack(
-
           children: [
             RefreshIndicator(
               onRefresh: _handleRefresh,
               child: SingleChildScrollView(
-
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Center(
                   child: Column(
-
                     children: [
                       _buildDashboardHeader(),
                       Container(
                         margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                         padding: EdgeInsets.all(0),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: const Color(0xFFE7EAF0)),
+                          border: Border.all(
+                            color: Theme.of(context).dividerColor,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.035),
@@ -2714,14 +2732,14 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
                         gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 240,
-                          childAspectRatio: 1.18,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                        ),
+                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: 220,
+                              childAspectRatio: 1.28,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                            ),
                         itemCount: [
                           if (sales_visiblity) 1 else 0,
                           if (purchase_visibility) 1 else 0,
@@ -2735,10 +2753,11 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                           final items = <Widget>[
                             if (sales_visiblity)
                               _buildDecentCard(
+                                context,
                                 "Sales - Credit Note",
                                 "$currencysymbol ${formatNumberAbbreviation(sales_value, decimalPlaces: decimal!, scale: _selectedScale, showSuffix: true)}",
                                 "sales", // 👈 type auto handle karega
-                                    () {
+                                () {
                                   vchtype = "Sales";
                                   Navigator.push(
                                     context,
@@ -2755,10 +2774,11 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
                             if (purchase_visibility)
                               _buildDecentCard(
+                                context,
                                 "Purchase - Debit Note",
                                 "$currencysymbol ${formatNumberAbbreviation(purchase_value, decimalPlaces: decimal!, scale: _selectedScale, showSuffix: true)}",
                                 "purchase",
-                                    () {
+                                () {
                                   vchtype = "Purchase";
                                   Navigator.push(
                                     context,
@@ -2775,10 +2795,11 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
                             if (receipt_visibility)
                               _buildDecentCard(
+                                context,
                                 "Receipt",
                                 "$currencysymbol ${formatNumberAbbreviation(receipt_value, decimalPlaces: decimal!, scale: _selectedScale, showSuffix: true)}",
                                 "receipt",
-                                    () {
+                                () {
                                   vchtype = "Receipt";
                                   Navigator.push(
                                     context,
@@ -2795,10 +2816,11 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
                             if (payment_visibility)
                               _buildDecentCard(
+                                context,
                                 "Payment",
                                 "$currencysymbol ${formatNumberAbbreviation(payment_value, decimalPlaces: decimal!, scale: _selectedScale, showSuffix: true)}",
                                 "payment",
-                                    () {
+                                () {
                                   vchtype = "Payment";
                                   Navigator.push(
                                     context,
@@ -2815,10 +2837,11 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
                             if (receivable_visibility)
                               _buildDecentCard(
+                                context,
                                 "Outstanding Receivable",
                                 "$currencysymbol ${formatNumberAbbreviation(outstandingreceivable_value, decimalPlaces: decimal!, scale: _selectedScale, showSuffix: true)}",
                                 "receivable",
-                                    () {
+                                () {
                                   vchtype = "Receivable";
                                   Navigator.push(
                                     context,
@@ -2835,10 +2858,11 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
                             if (payable_visibility)
                               _buildDecentCard(
+                                context,
                                 "Outstanding Payable",
                                 "$currencysymbol ${formatNumberAbbreviation(outstandingpayable_value, decimalPlaces: decimal!, scale: _selectedScale, showSuffix: true)}",
                                 "payable",
-                                    () {
+                                () {
                                   vchtype = "Payable";
                                   Navigator.push(
                                     context,
@@ -2855,10 +2879,11 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
                             if (cash_visibility)
                               _buildDecentCard(
+                                context,
                                 "Cash / Bank Balance",
                                 "$currencysymbol ${formatNumberAbbreviation(cash_value, decimalPlaces: decimal!, scale: _selectedScale, showSuffix: true)}",
                                 "Cash", // type (for icon + gradient auto handle)
-                                    () {
+                                () {
                                   vchtype = "Cash";
                                   Navigator.push(
                                     context,
@@ -2901,9 +2926,9 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                                         decimalPlaces: decimal!,
                                         isVisiblePieChart: isPieChartVisible,
                                         isSalesPieChartVisible:
-                                        isSalesPieChartVisible,
+                                            isSalesPieChartVisible,
                                         isPurchasePieChartVisible:
-                                        isPurchasePieChartVisible,
+                                            isPurchasePieChartVisible,
                                         isBarChartVisible: isBarChartVisible,
                                         salesDataList: salesDataList,
                                         recDataList: recDataList,
@@ -2924,10 +2949,10 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                                     vertical: 15,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: Theme.of(context).cardColor,
                                     borderRadius: BorderRadius.circular(18),
                                     border: Border.all(
-                                      color: const Color(0xFFE7EAF0),
+                                      color: Theme.of(context).dividerColor,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
@@ -2959,14 +2984,16 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               "Analytics",
                                               style: GoogleFonts.poppins(
                                                 fontSize: 15.5,
                                                 fontWeight: FontWeight.w700,
-                                                color: const Color(0xFF17202A),
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface,
                                               ),
                                             ),
                                             const SizedBox(height: 2),
@@ -2977,7 +3004,9 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                                               style: GoogleFonts.poppins(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w500,
-                                                color: const Color(0xFF6B7280),
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
                                               ),
                                             ),
                                           ],
@@ -2986,13 +3015,21 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 
                                       Container(
                                         padding: const EdgeInsets.all(6),
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFFF1F4F8),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? Theme.of(context)
+                                                    .colorScheme
+                                                    .surfaceContainerHighest
+                                              : const Color(0xFFF1F4F8),
                                           shape: BoxShape.circle,
                                         ),
-                                        child: const Icon(
+                                        child: Icon(
                                           Icons.chevron_right_rounded,
-                                          color: Color(0xFF6B7280),
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                           size: 20,
                                         ),
                                       ),
@@ -3015,10 +3052,10 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                                   vertical: 24,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: Theme.of(context).cardColor,
                                   borderRadius: BorderRadius.circular(18),
                                   border: Border.all(
-                                    color: const Color(0xFFE7EAF0),
+                                    color: Theme.of(context).dividerColor,
                                   ),
                                 ),
                                 child: Center(
@@ -3044,7 +3081,9 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                                         'No Access to Dashboard',
                                         style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.w700,
-                                          color: const Color(0xFF17202A),
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                           fontSize: 16.0,
                                         ),
                                       ),
@@ -3054,7 +3093,9 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                                         textAlign: TextAlign.center,
                                         style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.w500,
-                                          color: const Color(0xFF6B7280),
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                           fontSize: 12.5,
                                         ),
                                       ),
@@ -3081,25 +3122,25 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                       mainAxisAlignment: MainAxisAlignment.center, // center vertically
                       children: [
                         if (isVisibleItemBtn)
-                          _buildFloatingTile("Items", Icons.inventory_outlined, Colors.blue, () {
+                          _buildFloatingTile(context, "Items", Icons.inventory_outlined, Colors.blue, () {
                             Navigator.push(context, MaterialPageRoute(builder: (_) => Items()));
                           }),
                         const SizedBox(height: 16),
 
                         if (isVisiblePartyBtn)
-                          _buildFloatingTile("Parties",Icons.groups_outlined, Colors.green, () {
+                          _buildFloatingTile(context, "Parties",Icons.groups_outlined, Colors.green, () {
                             Navigator.push(context, MaterialPageRoute(builder: (_) => Party()));
                           }),
                         const SizedBox(height: 16),
 
                         if (isVisibleTransactionBtn)
-                          _buildFloatingTile("Register",Icons.payment_outlined, Colors.orange, () {
+                          _buildFloatingTile(context, "Register",Icons.payment_outlined, Colors.orange, () {
                             Navigator.push(context, MaterialPageRoute(builder: (_) => Transactions()));
                           }),
                         const SizedBox(height: 16),
 
                         if (isVisibleEntriesBtn)
-                          _buildFloatingTile("Entries",Icons.receipt_long, Colors.red, () {
+                          _buildFloatingTile(context, "Entries",Icons.receipt_long, Colors.red, () {
                             _showEntriesBottomSheet(context);
                           }),
                       ],
@@ -3126,12 +3167,14 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
             Visibility(
               visible: _isLoading,
               child: Container(
-                color: Colors.white.withOpacity(0.72),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.black.withOpacity(0.58)
+                    : Colors.white.withOpacity(0.72),
                 child: Center(
                   child: Container(
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
@@ -3160,7 +3203,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
           onPressed: () async {
             final RenderBox button = context.findRenderObject() as RenderBox;
             final RenderBox overlay =
-            Overlay.of(context).context.findRenderObject() as RenderBox;
+                Overlay.of(context).context.findRenderObject() as RenderBox;
 
             final RelativeRect position = RelativeRect.fromRect(
               Rect.fromPoints(
@@ -3176,84 +3219,82 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
               Offset.zero & overlay.size,
             );
 
+            final theme = Theme.of(context);
             final result = await showMenu<NumberScale>(
-              color: Colors.white,
+              color: theme.colorScheme.surface,
               context: context,
               position: position,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: theme.dividerColor),
               ),
               items: [
-                PopupMenuItem(
+                _buildNumberScaleMenuItem(
                   value: NumberScale.full,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.pin, color: Colors.blue),
-                      const SizedBox(width: 8),
-                      const Text("Full Value"),
-                      if (_selectedScale == NumberScale.full) const Spacer(),
-                      if (_selectedScale == NumberScale.full)
-                        const Icon(Icons.check, color: Colors.green),
-                    ],
-                  ),
+                  icon: Icons.pin,
+                  iconColor: Colors.blue,
+                  label: "Full Value",
                 ),
-                PopupMenuItem(
+                _buildNumberScaleMenuItem(
                   value: NumberScale.thousand,
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.format_list_numbered,
-                        color: Colors.blue,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text("Thousands (K)"),
-                      if (_selectedScale == NumberScale.thousand)
-                        const Spacer(),
-                      if (_selectedScale == NumberScale.thousand)
-                        const Icon(Icons.check, color: Colors.green),
-                    ],
-                  ),
+                  icon: Icons.format_list_numbered,
+                  iconColor: Colors.blue,
+                  label: "Thousands (K)",
                 ),
-                PopupMenuItem(
+                _buildNumberScaleMenuItem(
                   value: NumberScale.million,
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.format_list_numbered_rtl,
-                        color: Colors.orange,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text("Millions (M)"),
-                      if (_selectedScale == NumberScale.million) const Spacer(),
-                      if (_selectedScale == NumberScale.million)
-                        const Icon(Icons.check, color: Colors.green),
-                    ],
-                  ),
+                  icon: Icons.format_list_numbered_rtl,
+                  iconColor: Colors.orange,
+                  label: "Millions (M)",
                 ),
-                PopupMenuItem(
+                _buildNumberScaleMenuItem(
                   value: NumberScale.billion,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.numbers, color: Colors.purple),
-                      const SizedBox(width: 8),
-                      const Text("Billions (B)"),
-                      if (_selectedScale == NumberScale.billion) const Spacer(),
-                      if (_selectedScale == NumberScale.billion)
-                        const Icon(Icons.check, color: Colors.green),
-                    ],
-                  ),
+                  icon: Icons.numbers,
+                  iconColor: Colors.purple,
+                  label: "Billions (B)",
                 ),
               ],
             );
 
             if (result != null) {
-              _saveNumberScale(result);
+              await _saveNumberScale(result);
             }
           },
         ),
       ),
 
       // Empty container if the license is still valid
+    );
+  }
+
+  PopupMenuItem<NumberScale> _buildNumberScaleMenuItem({
+    required NumberScale value,
+    required IconData icon,
+    required Color iconColor,
+    required String label,
+  }) {
+    final theme = Theme.of(context);
+    final isSelected = _selectedScale == value;
+
+    return PopupMenuItem<NumberScale>(
+      value: value,
+      child: Row(
+        children: [
+          Icon(icon, color: iconColor),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: GoogleFonts.poppins(
+                color: theme.colorScheme.onSurface,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ),
+          if (isSelected)
+            Icon(Icons.check_circle_rounded, color: app_color, size: 20),
+        ],
+      ),
     );
   }
 
@@ -3278,7 +3319,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.16),
+              color: Theme.of(context).cardColor.withOpacity(0.16),
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(
@@ -3319,6 +3360,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       ),
     );
   }
+
   Widget buildDateFilterCard(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(14),
@@ -3349,7 +3391,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                       'Report Period',
                       style: GoogleFonts.poppins(
                         fontSize: 14.5,
-                        color: const Color(0xFF17202A),
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -3360,7 +3402,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.poppins(
                         fontSize: 12,
-                        color: const Color(0xFF6B7280),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -3372,24 +3414,26 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
           const SizedBox(height: 14),
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFF7F9FC),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Theme.of(context).colorScheme.surfaceContainerHighest
+                  : const Color(0xFFF7F9FC),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFE7EAF0)),
+              border: Border.all(color: Theme.of(context).dividerColor),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<dynamic>(
                 value: _selecteddate,
-                icon: const Icon(
+                icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: Color(0xFF6B7280),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-                dropdownColor: Colors.white,
+                dropdownColor: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(14),
                 isExpanded: true,
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: const Color(0xFF17202A),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
                 items: date_range.map((item) {
                   return DropdownMenuItem<dynamic>(
@@ -3398,7 +3442,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                       item,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
-                        color: const Color(0xFF17202A),
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -3415,9 +3459,11 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
               decoration: BoxDecoration(
-                color: const Color(0xFFF7F9FC),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                    : const Color(0xFFF7F9FC),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFFE7EAF0)),
+                border: Border.all(color: Theme.of(context).dividerColor),
               ),
               child: Row(
                 children: [
@@ -3432,16 +3478,16 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                       "$startdate_text - $enddate_text",
                       style: GoogleFonts.poppins(
                         fontSize: 13,
-                        color: const Color(0xFF17202A),
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.edit_calendar_rounded,
                     size: 18,
-                    color: Color(0xFF6B7280),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ],
               ),
@@ -3468,7 +3514,12 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFFF1FDFB), Color(0xFFE9F6F3)],
+              colors: Theme.of(context).brightness == Brightness.dark
+                  ? [
+                      Theme.of(context).cardColor,
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
+                    ]
+                  : const [Color(0xFFF1FDFB), Color(0xFFE9F6F3)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -3502,7 +3553,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     SizedBox(height: 4),
@@ -3510,7 +3561,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                       label,
                       style: GoogleFonts.poppins(
                         fontSize: 13.5,
-                        color: Colors.grey[700],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -3529,11 +3580,12 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
 }
 
 Widget _buildFloatingTile(
-    String label,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-    ) {
+  BuildContext context,
+  String label,
+  IconData icon,
+  Color color,
+  VoidCallback onTap,
+) {
   return Tooltip(
     message: label,
     child: GestureDetector(
@@ -3542,7 +3594,7 @@ Widget _buildFloatingTile(
         shape: const CircleBorder(),
         elevation: 8,
         shadowColor: Colors.black38,
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         child: Padding(
           padding: const EdgeInsets.all(14.0),
           child: Icon(icon, color: color, size: 28),
@@ -3553,11 +3605,12 @@ Widget _buildFloatingTile(
 }
 
 Widget _buildDecentCard(
-    String label,
-    String value,
-    String type,
-    VoidCallback onTap,
-    ) {
+  BuildContext context,
+  String label,
+  String value,
+  String type,
+  VoidCallback onTap,
+) {
   Color _getColor(String type) {
     switch (type.toLowerCase()) {
       case "sales":
@@ -3603,16 +3656,16 @@ Widget _buildDecentCard(
   final Color color = _getColor(type);
 
   return Material(
-    color: Colors.white,
+    color: Theme.of(context).cardColor,
     borderRadius: BorderRadius.circular(18),
     child: InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
       child: Ink(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFE7EAF0)),
+          border: Border.all(color: Theme.of(context).dividerColor),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.035),
@@ -3641,14 +3694,18 @@ Widget _buildDecentCard(
                     const Spacer(),
                     Container(
                       padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF1F4F8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest
+                            : const Color(0xFFF1F4F8),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.chevron_right_rounded,
                         size: 17,
-                        color: Color(0xFF6B7280),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -3662,7 +3719,7 @@ Widget _buildDecentCard(
                     fontSize: 12.2,
                     height: 1.18,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF6B7280),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -3675,7 +3732,7 @@ Widget _buildDecentCard(
                     style: GoogleFonts.poppins(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
-                      color: const Color(0xFF17202A),
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),

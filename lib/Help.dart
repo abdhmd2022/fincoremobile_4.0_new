@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'constants.dart';
 
 class Help extends StatefulWidget {
-
   const Help({Key? key}) : super(key: key);
   @override
   _HelpPageState createState() => _HelpPageState();
@@ -29,7 +28,7 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
 
   bool isLengthErrorVisible = true;
 
-  String name = "",email = "";
+  String name = "", email = "";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -37,24 +36,28 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
 
   late SharedPreferences prefs;
 
-  String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";
+  String? hostname = "",
+      company = "",
+      company_lowercase = "",
+      serial_no = "",
+      username = "",
+      HttpURL = "",
+      SecuritybtnAcessHolder = "";
 
   void launchMapSearch(String query) async {
-
-    final url = 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(query)}';
+    final url =
+        'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(query)}';
 
     await launch(url);
   }
 
-  Future<void> _initSharedPreferences() async
-  {
+  Future<void> _initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
 
     String? email_nav = prefs.getString('email_nav');
     String? name_nav = prefs.getString('name_nav');
 
-    if (email_nav!=null && name_nav!= null)
-    {
+    if (email_nav != null && name_nav != null) {
       name = name_nav;
       email = email_nav;
     }
@@ -64,18 +67,19 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
     String url = 'tel:$phoneNumber';
     if (await canLaunch(url)) {
       await launch(url);
-    }
-    else
-    {
-      Fluttertoast.showToast(msg: 'Could not launch $url. Kindly dial manually');
+    } else {
+      Fluttertoast.showToast(
+        msg: 'Could not launch $url. Kindly dial manually',
+      );
       throw 'Could not launch $url';
     }
   }
 
-  void sendEmail() async
-  {
-    final String subject = 'Fincore Go App Support'; // Replace with your desired subject
-    final String recipientEmail = 'saadan@ca-eim.com'; // Replace with your desired recipient email
+  void sendEmail() async {
+    final String subject =
+        'Fincore Go App Support'; // Replace with your desired subject
+    final String recipientEmail =
+        'saadan@ca-eim.com'; // Replace with your desired recipient email
     final List<String> ccEmails = ["praveen@ca-eim.com"];
     final String nameAndEmail = 'Name: $name\nEmail: $email\n\n';
     final String additionalText = _textEditingController.text;
@@ -93,62 +97,56 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
     final String emailUrl = emailUri.toString();
 
     await launch(emailUrl);
-    }
+  }
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
-   _initSharedPreferences();
+    _initSharedPreferences();
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       key: _scaffoldKey,
-        backgroundColor: Colors.white,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(50),
-          child: AppBar(
-            backgroundColor:  app_color,
-            elevation: 6,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(20),
-              ),
-            ),
-            automaticallyImplyLeading: false,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-            centerTitle: true,
-            title: GestureDetector(
-              onTap: () {
-
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      "Help",
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(50),
+        child: AppBar(
+          backgroundColor: app_color,
+          elevation: 6,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+          ),
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          centerTitle: true,
+          title: GestureDetector(
+            onTap: () {},
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    "Help",
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
-
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
+      ),
 
       body: Stack(
         children: [
@@ -159,10 +157,13 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
               children: [
                 // Modern header
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 20,
+                  ),
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -175,16 +176,27 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Icon(Icons.support_agent_rounded, size: 48, color: app_color),
+                      Icon(
+                        Icons.support_agent_rounded,
+                        size: 48,
+                        color: app_color,
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         "Help & Support",
-                        style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black87),
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         "Get in touch with our trusted support team.",
-                        style: GoogleFonts.poppins(fontSize: 13, color: Colors.black54),
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -194,9 +206,12 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
                 const SizedBox(height: 14),
                 // Contact Info Card
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 20,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -212,7 +227,9 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
                       // Location
                       GestureDetector(
                         onTap: () {
-                          launchMapSearch('Chaturvedi Software House LLC, Dubai');
+                          launchMapSearch(
+                            'Chaturvedi Software House LLC, Dubai',
+                          );
                         },
                         child: Row(
                           children: [
@@ -223,7 +240,9 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
                                 "513 Al Khaleej Centre, Bur Dubai, Dubai U.A.E",
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
-                                  color: Colors.black87,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                   decoration: TextDecoration.underline,
                                 ),
                               ),
@@ -247,7 +266,7 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
                               "+971-43258361",
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
-                                color: Colors.black87,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 decoration: TextDecoration.underline,
                               ),
                             ),
@@ -264,7 +283,10 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
                           const SizedBox(width: 10),
                           Text(
                             "saadan@ca-eim.com",
-                            style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                           ),
                         ],
                       ),
@@ -277,22 +299,30 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
                 // Message box with label
                 Text(
                   "Message",
-                  style: GoogleFonts.poppins(fontWeight: FontWeight.w500, fontSize: 14),
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
 
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade300),
+                    border: Border.all(color: Theme.of(context).dividerColor),
                   ),
                   child: TextField(
                     controller: _textEditingController,
                     decoration: InputDecoration(
                       hintText: "Type your message here...",
-                      hintStyle: GoogleFonts.poppins(color: Colors.grey),
+                      hintStyle: GoogleFonts.poppins(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                       border: InputBorder.none,
                     ),
                     keyboardType: TextInputType.multiline,
@@ -308,7 +338,10 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
                       const SizedBox(height: 8),
                       Text(
                         'Message must be greater than 10 characters',
-                        style: GoogleFonts.poppins(color: Colors.red, fontSize: 13),
+                        style: GoogleFonts.poppins(
+                          color: Colors.red,
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ),
@@ -324,7 +357,9 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
                       backgroundColor: app_color,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       elevation: 4,
                     ),
                     icon: const Icon(Icons.send_rounded),
@@ -353,4 +388,6 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
           ),
         ],
       ),
-    );}}
+    );
+  }
+}

@@ -79,13 +79,17 @@ class _AgeingConfigState extends State<AgeingConfig> {
       SnackBar(
         behavior: SnackBarBehavior.floating,
         elevation: 0,
-        backgroundColor: isSuccess ? const Color(0xFF138A63) : const Color(0xFFB42318),
+        backgroundColor: isSuccess
+            ? const Color(0xFF138A63)
+            : const Color(0xFFB42318),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         content: Row(
           children: [
             Icon(
-              isSuccess ? Icons.check_circle_outline_rounded : Icons.error_outline_rounded,
+              isSuccess
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.error_outline_rounded,
               color: Colors.white,
               size: 20,
             ),
@@ -149,13 +153,11 @@ class _AgeingConfigState extends State<AgeingConfig> {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
         child: AppBar(
-          backgroundColor:  app_color,
+          backgroundColor: app_color,
           elevation: 6,
           automaticallyImplyLeading: false,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -164,16 +166,16 @@ class _AgeingConfigState extends State<AgeingConfig> {
             },
           ),
           title: GestureDetector(
-            onTap: () {
-
-            },
+            onTap: () {},
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(
                   child: Text(
                     "Ageing Config",
-                    style: GoogleFonts.poppins(color: Colors.white, fontSize: 20,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -203,7 +205,9 @@ class _AgeingConfigState extends State<AgeingConfig> {
                     backgroundColor: app_color,
                     foregroundColor: Colors.white,
                     elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                     padding: const EdgeInsets.symmetric(vertical: 15),
                   ),
                   icon: const Icon(Icons.save_alt_outlined),
@@ -241,10 +245,14 @@ class _AgeingConfigState extends State<AgeingConfig> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.16),
+              color: Theme.of(context).cardColor.withOpacity(0.16),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.timeline_rounded, color: Colors.white, size: 26),
+            child: const Icon(
+              Icons.timeline_rounded,
+              color: Colors.white,
+              size: 26,
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -294,7 +302,7 @@ class _AgeingConfigState extends State<AgeingConfig> {
   Widget _buildBracketCard() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: _borderColor),
         boxShadow: [
@@ -442,9 +450,14 @@ class _AgeingConfigState extends State<AgeingConfig> {
                 const SizedBox(height: 5),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 11,
+                  ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F4F8),
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Theme.of(context).colorScheme.surfaceContainerHighest
+                        : const Color(0xFFF1F4F8),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: _borderColor),
                   ),
@@ -483,9 +496,14 @@ class _AgeingConfigState extends State<AgeingConfig> {
                   onChanged: onChanged,
                   decoration: InputDecoration(
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 11,
+                    ),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor:
+                        Theme.of(context).inputDecorationTheme.fillColor ??
+                        Colors.white,
                     suffixText: 'days',
                     suffixStyle: GoogleFonts.poppins(
                       color: _mutedTextColor,
@@ -498,7 +516,10 @@ class _AgeingConfigState extends State<AgeingConfig> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: app_color, width: 1.4),
+                      borderSide: const BorderSide(
+                        color: app_color,
+                        width: 1.4,
+                      ),
                     ),
                   ),
                   style: GoogleFonts.poppins(

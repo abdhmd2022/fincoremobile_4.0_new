@@ -11,13 +11,9 @@ import 'package:http/http.dart' as http;
 import 'constants.dart';
 
 class LedgerEntries {
-  final String ledger ,amount;
+  final String ledger, amount;
 
-  LedgerEntries({
-
-    required this.ledger,
-    required this.amount,
-  });
+  LedgerEntries({required this.ledger, required this.amount});
 
   factory LedgerEntries.fromJson(Map<String, dynamic> json) {
     return LedgerEntries(
@@ -28,17 +24,15 @@ class LedgerEntries {
 }
 
 class Bills {
-  final String billno ,amount,billtype,duedate,billdate,ledger;
+  final String billno, amount, billtype, duedate, billdate, ledger;
 
   Bills({
-
     required this.billno,
     required this.amount,
     required this.billtype,
     required this.duedate,
     required this.billdate,
-    required this.ledger
-
+    required this.ledger,
   });
 
   factory Bills.fromJson(Map<String, dynamic> json) {
@@ -49,24 +43,20 @@ class Bills {
       duedate: json['duedate'].toString(),
       billdate: json['billdate'].toString(),
       ledger: json['ledger'].toString(),
-
     );
   }
-
 }
 
 class InventoryEntries {
-  final String item ,qty,rate,discount,amount,godown;
+  final String item, qty, rate, discount, amount, godown;
 
   InventoryEntries({
-
     required this.item,
     required this.qty,
     required this.rate,
     required this.discount,
     required this.amount,
     required this.godown,
-
   });
 
   factory InventoryEntries.fromJson(Map<String, dynamic> json) {
@@ -76,8 +66,7 @@ class InventoryEntries {
       rate: json['rate'].toString(),
       discount: json['discount'].toString(),
       amount: json['amount'].toString(),
-      godown : json['godown'].toString()
-
+      godown: json['godown'].toString(),
     );
   }
 }
@@ -85,10 +74,7 @@ class InventoryEntries {
 class CostCenter {
   final String costcentre, amount;
 
-  CostCenter({
-    required this.costcentre,
-    required this.amount,
-  });
+  CostCenter({required this.costcentre, required this.amount});
 
   factory CostCenter.fromJson(Map<String, dynamic> json) {
     return CostCenter(
@@ -98,34 +84,57 @@ class CostCenter {
   }
 }
 
-class TransactionsClicked extends StatefulWidget
-{
-  final String vchtype ,startdate,enddate,vchno,vchdate,ispostdated,refno,refdate,masterid,isoptional;
-   TransactionsClicked(
-      {
-        required this.vchtype,
-        required this.startdate,
-        required this.enddate,
-        required this.vchno,
-        required this.vchdate,
-        required this.ispostdated,
-        required this.refno,
-        required this.refdate,
-        required this.masterid,
-        required this.isoptional,
-      }
-      );
+class TransactionsClicked extends StatefulWidget {
+  final String vchtype,
+      startdate,
+      enddate,
+      vchno,
+      vchdate,
+      ispostdated,
+      refno,
+      refdate,
+      masterid,
+      isoptional;
+  TransactionsClicked({
+    required this.vchtype,
+    required this.startdate,
+    required this.enddate,
+    required this.vchno,
+    required this.vchdate,
+    required this.ispostdated,
+    required this.refno,
+    required this.refdate,
+    required this.masterid,
+    required this.isoptional,
+  });
   @override
-  _TransactionsClickedPageState createState() => _TransactionsClickedPageState(vchtype: vchtype,startDateString:startdate,endDateString:enddate
-  ,vchno:vchno,vchdate:vchdate,ispostdated:ispostdated,refno:refno,refdate:refdate,masterid:masterid,isoptional:isoptional);
-
+  _TransactionsClickedPageState createState() => _TransactionsClickedPageState(
+    vchtype: vchtype,
+    startDateString: startdate,
+    endDateString: enddate,
+    vchno: vchno,
+    vchdate: vchdate,
+    ispostdated: ispostdated,
+    refno: refno,
+    refdate: refdate,
+    masterid: masterid,
+    isoptional: isoptional,
+  );
 }
 
-class _TransactionsClickedPageState extends State<TransactionsClicked> with TickerProviderStateMixin{
+class _TransactionsClickedPageState extends State<TransactionsClicked>
+    with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String vchtype= "",vchno= "",vchdate= "",ispostdated= "",refno= "",refdate= "",masterid= "",isoptional= "";
+  String vchtype = "",
+      vchno = "",
+      vchdate = "",
+      ispostdated = "",
+      refno = "",
+      refdate = "",
+      masterid = "",
+      isoptional = "";
 
-  String startDateString = "", endDateString = "",token = '';
+  String startDateString = "", endDateString = "", token = '';
 
   List<LedgerEntries> ledgerentries_list = [];
   List<Bills> bills_list = [];
@@ -143,44 +152,52 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
 
   int visibleInventoryCount = 3;
   int visibleCostCenterCount = 3;
-  _TransactionsClickedPageState(
-      {
-        required this.vchtype,
-        required this.startDateString,
-        required this.endDateString,
-        required this.vchno,
-        required this.vchdate,
-        required this.ispostdated,
-        required this.refno,
-        required this.refdate,
-        required this.masterid,
-        required this.isoptional,
-      }
-      );
+  _TransactionsClickedPageState({
+    required this.vchtype,
+    required this.startDateString,
+    required this.endDateString,
+    required this.vchno,
+    required this.vchdate,
+    required this.ispostdated,
+    required this.refno,
+    required this.refdate,
+    required this.masterid,
+    required this.isoptional,
+  });
 
   String? SecuritybtnAcessHolder;
-  bool isDashEnable = true,isRolesEnable = true,isUserEnable = true,isRolesVisible = true,
+  bool isDashEnable = true,
+      isRolesEnable = true,
+      isUserEnable = true,
+      isRolesVisible = true,
       isUserVisible = true;
 
   String email = "";
   String name = "";
 
-  String billno="",billtype = "",billduedate = "",billamount = "";
+  String billno = "", billtype = "", billduedate = "", billamount = "";
 
-  String? opening_value = "0",openingheading = "";
+  String? opening_value = "0", openingheading = "";
 
   TextEditingController searchController = TextEditingController();
 
   bool isVisibleNoDataFound = false;
-  bool isVisibleLedgerEntry = false, isVisibleBills = false,isVisibleInventoryEntry = false,isVisibleCostCenter = false;
+  bool isVisibleLedgerEntry = false,
+      isVisibleBills = false,
+      isVisibleInventoryEntry = false,
+      isVisibleCostCenter = false;
 
-  bool isTopPanelBillsVisible = true,isDueDateBillsVisible = true;
+  bool isTopPanelBillsVisible = true, isDueDateBillsVisible = true;
   late GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey;
   late SharedPreferences prefs;
 
   String HttpURL = "";
 
-  String? hostname = "",company = "",serial_no = "",company_lowercase = "",username = "";
+  String? hostname = "",
+      company = "",
+      serial_no = "",
+      company_lowercase = "",
+      username = "";
   List<dynamic> myData = [];
   bool _isLoading = false;
 
@@ -190,49 +207,36 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
   String costcentreentries = '';
 
   String handleGodown(String godown) {
-    if(godown == 'null' || godown.isEmpty)
-      {
-        godown = 'Not Available';
-      }
-      return godown;
+    if (godown == 'null' || godown.isEmpty) {
+      godown = 'Not Available';
+    }
+    return godown;
   }
 
   String formatCostCenter(String costcenter) {
-
     String costcenter_string = "";
-    if(costcenter == 'null')
-    {
+    if (costcenter == 'null') {
       costcenter_string = '*Not Applicable';
-    }
-    else
-    {
+    } else {
       costcenter_string = costcenter;
-
     }
     // Apply any transformations or formatting to the 'amount' variable here
     return costcenter_string;
   }
 
   String formatRate(String rate) {
-
-    if(rate == 'null')
-      {
-        rate = 'Not Available';
-      }
+    if (rate == 'null') {
+      rate = 'Not Available';
+    }
     // Apply any transformations or formatting to the 'amount' variable here
     return rate;
   }
 
   String convertDateFormat(String dateStr) {
-
     String formattedDate = "";
 
-    if(dateStr == '' || dateStr == 'null')
-    {
-
-    }
-    else
-    {
+    if (dateStr == '' || dateStr == 'null') {
+    } else {
       DateTime date = DateTime.parse(dateStr);
 
       // Format the date to the desired output format
@@ -240,12 +244,16 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
     }
     // Parse the input date string
 
-
     return formattedDate;
   }
 
-  Future<void> fetchData(final String ledgercollection,final String billscollection,final String inventorycollections,String costcentercollections,final String masterid) async
-  {
+  Future<void> fetchData(
+    final String ledgercollection,
+    final String billscollection,
+    final String inventorycollections,
+    String costcentercollections,
+    final String masterid,
+  ) async {
     setState(() {
       isVisibleLedgerEntry = false;
       isVisibleBills = false;
@@ -254,51 +262,48 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
       _isLoading = true;
     });
 
-    try
-    {
-      if(ledgerentries == 'True')
-      {
+    try {
+      if (ledgerentries == 'True') {
         final url_ledgerentry = Uri.parse(HttpURL!);
 
-        Map<String,String> headers_ledgerentry = {
-          'Authorization' : 'Bearer $token',
-          "Content-Type": "application/json"
+        Map<String, String> headers_ledgerentry = {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json",
         };
 
-        var body_ledgerentry = jsonEncode( {
-          'collection':ledgercollection,
-          'masterid':masterid
-
+        var body_ledgerentry = jsonEncode({
+          'collection': ledgercollection,
+          'masterid': masterid,
         });
 
         final response_ledgerentry = await http.post(
-            url_ledgerentry,
-            body: body_ledgerentry,
-            headers:headers_ledgerentry
+          url_ledgerentry,
+          body: body_ledgerentry,
+          headers: headers_ledgerentry,
         );
 
         if (response_ledgerentry.statusCode == 200) {
-          final List<dynamic> values_list_ledgerentry = jsonDecode(response_ledgerentry.body);
+          final List<dynamic> values_list_ledgerentry = jsonDecode(
+            response_ledgerentry.body,
+          );
 
           print('ledger entries -> ${values_list_ledgerentry}');
-          if (values_list_ledgerentry != null)
-          {
-            ledgerentries_list.addAll(values_list_ledgerentry.map((json) => LedgerEntries.fromJson(json)).toList());
+          if (values_list_ledgerentry != null) {
+            ledgerentries_list.addAll(
+              values_list_ledgerentry
+                  .map((json) => LedgerEntries.fromJson(json))
+                  .toList(),
+            );
 
-            if(!ledgerentries_list.isEmpty)
-            {
+            if (!ledgerentries_list.isEmpty) {
               setState(() {
                 isVisibleLedgerEntry = true;
               });
             }
-          }
-          else
-          {
+          } else {
             throw Exception('Failed to fetch data');
           }
-        }
-        else
-        {
+        } else {
           Map<String, dynamic> data = json.decode(response_ledgerentry.body);
           String error = '';
 
@@ -306,48 +311,42 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
             setState(() {
               error = data['error'];
             });
-          }
-          else
-          {
+          } else {
             error = 'Something went wrong!!!';
           }
 
           Fluttertoast.showToast(msg: error);
-
         }
       }
 
-      if(billsentries == 'True')
-      {
-          final url_bills = Uri.parse(HttpURL!);
+      if (billsentries == 'True') {
+        final url_bills = Uri.parse(HttpURL!);
 
-          Map<String,String> headers_bills = {
-            'Authorization' : 'Bearer $token',
-            "Content-Type": "application/json"
-          };
+        Map<String, String> headers_bills = {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json",
+        };
 
-          var body_bills = jsonEncode( {
-            'collection':billscollection,
-            'masterid':masterid
+        var body_bills = jsonEncode({
+          'collection': billscollection,
+          'masterid': masterid,
+        });
 
-          });
+        final response_bills = await http.post(
+          url_bills,
+          body: body_bills,
+          headers: headers_bills,
+        );
 
-          final response_bills = await http.post(
-              url_bills,
-              body: body_bills,
-              headers:headers_bills
-          );
+        if (response_bills.statusCode == 200) {
+          List<dynamic> values_list_bills = jsonDecode(response_bills.body);
+          print('bills -> ${values_list_bills}');
 
-          if (response_bills.statusCode == 200) {
-            List<dynamic> values_list_bills = jsonDecode(response_bills.body);
-            print('bills -> ${values_list_bills}');
-
-            if (values_list_bills != null)
-            {
-
-            if(!values_list_bills.isEmpty)
-            {
-              bills_list.addAll(values_list_bills.map((json) => Bills.fromJson(json)).toList());
+          if (values_list_bills != null) {
+            if (!values_list_bills.isEmpty) {
+              bills_list.addAll(
+                values_list_bills.map((json) => Bills.fromJson(json)).toList(),
+              );
               if (bills_list.isNotEmpty) {
                 for (var item in values_list_bills) {
                   String billnoo = item['billno'].toString();
@@ -363,8 +362,7 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                     });
                     billtype = billtypee;
                     billamount = formatAmount(billamountt);
-                  }
-                  else if (billtypee == "Advance") {
+                  } else if (billtypee == "Advance") {
                     setState(() {
                       isTopPanelBillsVisible = true;
                       isDueDateBillsVisible = false;
@@ -372,8 +370,8 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                     billno = billnoo;
                     billtype = billtypee;
                     billamount = formatAmount(billamountt);
-                  }
-                  else if (billtypee == "Agst Ref" || billtypee == "New Ref") {
+                  } else if (billtypee == "Agst Ref" ||
+                      billtypee == "New Ref") {
                     setState(() {
                       isTopPanelBillsVisible = true;
                       isDueDateBillsVisible = true;
@@ -381,8 +379,7 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
 
                     if (billduedatee == "null") {
                       billduedate = "N/A";
-                    }
-                    else {
+                    } else {
                       try {
                         int days = int.parse(billduedatee.split(' ')[0]);
 
@@ -390,13 +387,13 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
 
                         // Add the days to the billdate
                         DateTime dueDate = billdate_date.add(
-                            Duration(days: days));
+                          Duration(days: days),
+                        );
                         DateFormat dateFormat = DateFormat('dd-MMM-yy');
                         String duedateafter_string = dateFormat.format(dueDate);
 
                         billduedate = duedateafter_string;
-                      }
-                      catch (e) {
+                      } catch (e) {
                         billduedate = billduedatee;
                       }
                     }
@@ -406,164 +403,143 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                   }
                 }
 
-                setState(()
-                {
+                setState(() {
                   isVisibleBills = true;
                 });
               }
-
             }
-            }
-            else
-            {
-              throw Exception('Failed to fetch data');
-            }
+          } else {
+            throw Exception('Failed to fetch data');
           }
-          else
-          {
-            Map<String, dynamic> data = json.decode(response_bills.body);
-            String error = '';
+        } else {
+          Map<String, dynamic> data = json.decode(response_bills.body);
+          String error = '';
 
-            if (data.containsKey('error')) {
+          if (data.containsKey('error')) {
+            setState(() {
+              error = data['error'];
+            });
+          } else {
+            error = 'Something went wrong!!!';
+          }
+
+          Fluttertoast.showToast(msg: error);
+        }
+      }
+
+      if (inventoryentries == 'True') {
+        final url_inventoryentry = Uri.parse(HttpURL!);
+
+        Map<String, String> headers_inventoryentry = {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json",
+        };
+
+        var body_inventoryentry = jsonEncode({
+          'collection': inventorycollections,
+          'masterid': masterid,
+        });
+
+        final response_inventoryentry = await http.post(
+          url_inventoryentry,
+          body: body_inventoryentry,
+          headers: headers_inventoryentry,
+        );
+
+        if (response_inventoryentry.statusCode == 200) {
+          final List<dynamic> values_list_inventoryentry = jsonDecode(
+            response_inventoryentry.body,
+          );
+          if (values_list_inventoryentry != null) {
+            inventoryentries_list.addAll(
+              values_list_inventoryentry
+                  .map((json) => InventoryEntries.fromJson(json))
+                  .toList(),
+            );
+
+            if (!inventoryentries_list.isEmpty) {
               setState(() {
-                error = data['error'];
+                isVisibleInventoryEntry = true;
               });
             }
-            else
-            {
-              error = 'Something went wrong!!!';
-            }
-
-            Fluttertoast.showToast(msg: error);
-
+          } else {
+            throw Exception('Failed to fetch data');
           }
+        } else {
+          Map<String, dynamic> data = json.decode(response_inventoryentry.body);
+          String error = '';
+
+          if (data.containsKey('error')) {
+            setState(() {
+              error = data['error'];
+            });
+          } else {
+            error = 'Something went wrong!!!';
+          }
+
+          Fluttertoast.showToast(msg: error);
         }
+      }
 
-      if(inventoryentries == 'True')
-      {
-          final url_inventoryentry = Uri.parse(HttpURL!);
+      if (costcentreentries == 'True') {
+        final url_costcenter = Uri.parse(HttpURL!);
 
-          Map<String,String> headers_inventoryentry = {
-            'Authorization' : 'Bearer $token',
-            "Content-Type": "application/json"
-          };
+        Map<String, String> headers_costcenter = {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json",
+        };
 
-          var body_inventoryentry= jsonEncode( {
-            'collection':inventorycollections,
-            'masterid':masterid
+        var body_costcenter = jsonEncode({
+          'collection': costcentercollections,
+          'masterid': masterid,
+        });
 
-          });
+        final response_costcenter = await http.post(
+          url_costcenter,
+          body: body_costcenter,
+          headers: headers_costcenter,
+        );
 
-          final response_inventoryentry = await http.post(
-              url_inventoryentry,
-              body: body_inventoryentry,
-              headers:headers_inventoryentry
+        if (response_costcenter.statusCode == 200) {
+          final List<dynamic> values_list_costcenter = jsonDecode(
+            response_costcenter.body,
           );
 
-          if (response_inventoryentry.statusCode == 200) {
-            final List<dynamic> values_list_inventoryentry = jsonDecode(response_inventoryentry.body);
-            if (values_list_inventoryentry != null)
-            {
-              inventoryentries_list.addAll(values_list_inventoryentry.map((json) => InventoryEntries.fromJson(json)).toList());
+          if (values_list_costcenter != null) {
+            costcenter_list.addAll(
+              values_list_costcenter
+                  .map((json) => CostCenter.fromJson(json))
+                  .toList(),
+            );
 
-              if(!inventoryentries_list.isEmpty)
-              {
-                setState(() {
-                  isVisibleInventoryEntry = true;
-                });
-              }
-            }
-            else
-            {
-              throw Exception('Failed to fetch data');
-            }
-          }
-          else
-          {
-            Map<String, dynamic> data = json.decode(response_inventoryentry.body);
-            String error = '';
-
-            if (data.containsKey('error')) {
+            if (!costcenter_list.isEmpty) {
               setState(() {
-                error = data['error'];
+                isVisibleCostCenter = true;
               });
             }
-            else
-            {
-              error = 'Something went wrong!!!';
-            }
-
-            Fluttertoast.showToast(msg: error);
-
+          } else {
+            throw Exception('Failed to fetch data');
           }
+        } else {
+          Map<String, dynamic> data = json.decode(response_costcenter.body);
+          String error = '';
+
+          if (data.containsKey('error')) {
+            setState(() {
+              error = data['error'];
+            });
+          } else {
+            error = 'Something went wrong!!!';
+          }
+
+          Fluttertoast.showToast(msg: error);
         }
-
-      if(costcentreentries == 'True')
-      {
-          final url_costcenter = Uri.parse(HttpURL!);
-
-          Map<String,String> headers_costcenter = {
-            'Authorization' : 'Bearer $token',
-            "Content-Type": "application/json"
-          };
-
-          var body_costcenter= jsonEncode( {
-            'collection':costcentercollections,
-            'masterid':masterid
-
-          });
-
-          final response_costcenter = await http.post(
-              url_costcenter,
-              body: body_costcenter,
-              headers:headers_costcenter
-          );
-
-          if (response_costcenter.statusCode == 200) {
-            final List<dynamic> values_list_costcenter = jsonDecode(response_costcenter.body);
-
-            if (values_list_costcenter != null)
-            {
-              costcenter_list.addAll(values_list_costcenter.map((json) => CostCenter.fromJson(json)).toList());
-
-              if(!costcenter_list.isEmpty)
-              {
-                setState(() {
-                  isVisibleCostCenter = true;
-                });
-              }
-            }
-            else
-            {
-              throw Exception('Failed to fetch data');
-            }
-          }
-          else
-          {
-            Map<String, dynamic> data = json.decode(response_costcenter.body);
-            String error = '';
-
-            if (data.containsKey('error')) {
-              setState(() {
-                error = data['error'];
-              });
-            }
-            else
-            {
-              error = 'Something went wrong!!!';
-            }
-
-            Fluttertoast.showToast(msg: error);
-
-          }
-        }
+      }
 
       setState(() {
         _isLoading = false;
       });
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         isVisibleLedgerEntry = false;
         isVisibleBills = false;
@@ -575,12 +551,11 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
   }
 
   Future<void> _initSharedPreferences() async {
-
     prefs = await SharedPreferences.getInstance();
 
     setState(() {
       hostname = prefs.getString('hostname');
-      company  = prefs.getString('company_name');
+      company = prefs.getString('company_name');
       company_lowercase = company!.replaceAll(' ', '').toLowerCase();
       serial_no = prefs.getString('serial_no');
       username = prefs.getString('username');
@@ -594,46 +569,36 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
 
     SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
 
-    HttpURL = '$hostname/api/voucher/getcollection/$company_lowercase/$serial_no';
+    HttpURL =
+        '$hostname/api/voucher/getcollection/$company_lowercase/$serial_no';
 
     String? email_nav = prefs.getString('email_nav');
     String? name_nav = prefs.getString('name_nav');
 
-    if (email_nav!=null && name_nav!= null)
-    {
+    if (email_nav != null && name_nav != null) {
       name = name_nav;
       email = email_nav;
-    }
-    else
-    {
+    } else {
       String val = "";
-      if (SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         val = SecuritybtnAcessHolder!;
-      }
-      else if (SecuritybtnAcessHolder == "False")
-      {
+      } else if (SecuritybtnAcessHolder == "False") {
         val = "";
       }
     }
-    if(SecuritybtnAcessHolder == "True")
-    {
+    if (SecuritybtnAcessHolder == "True") {
       isRolesVisible = true;
       isUserVisible = true;
-    }
-    else
-    {
+    } else {
       isRolesVisible = false;
       isUserVisible = false;
     }
 
     _scaffoldMessengerKey.currentState?.showSnackBar(
-      SnackBar(
-        content: Text(masterid),
-      ),
+      SnackBar(content: Text(masterid)),
     );
 
-    fetchData("LedgerEntry","Bills","Inventory","CostCentre",masterid);
+    fetchData("LedgerEntry", "Bills", "Inventory", "CostCentre", masterid);
   }
 
   List<Widget> _buildLedgerWithBillsList() {
@@ -666,6 +631,7 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
       checkCurrencyMismatch(context);
     });
   }
+
   String formatDate(String d) {
     if (d == '' || d == 'null') return 'N/A';
     try {
@@ -683,20 +649,17 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.white,
-      appBar:      PreferredSize(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
         child: AppBar(
-          backgroundColor:   app_color,
+          backgroundColor: app_color,
           elevation: 6,
           automaticallyImplyLeading: false,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -718,16 +681,16 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                   child: Text(
                     company ?? '',
 
-                    style: GoogleFonts.poppins(color: Colors.white, fontSize: 20,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
                     overflow: TextOverflow.ellipsis,
-
                   ),
                 ),
                 SizedBox(width: 4),
                 Icon(Icons.arrow_drop_down, color: Colors.white),
-
               ],
             ),
           ),
@@ -736,28 +699,35 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
       ),
 
       drawer: Sidebar(
-          isDashEnable: isDashEnable,
-          isRolesVisible: isRolesVisible,
-          isRolesEnable: isRolesEnable,
-          isUserEnable: isUserEnable,
-          isUserVisible: isUserVisible,
-          Username: name,
-          Email: email,
-          tickerProvider: this), // add the Sidebar widget here
+        isDashEnable: isDashEnable,
+        isRolesVisible: isRolesVisible,
+        isRolesEnable: isRolesEnable,
+        isUserEnable: isUserEnable,
+        isUserVisible: isUserVisible,
+        Username: name,
+        Email: email,
+        tickerProvider: this,
+      ), // add the Sidebar widget here
 
       body: Stack(
         children: [
           SingleChildScrollView(
-            child:  Column(
+            child: Column(
               children: [
                 _buildVoucherCard(),
 
                 Container(
                   width: double.infinity,
-                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 0,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -769,14 +739,12 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                   ),
                   child: Column(
                     children: [
-                        if (isVisibleLedgerEntry)
-                          ModernExpandableCard(
-                            title: 'Accounting Details',
-                            icon: Icons.account_balance,
-                            children: [
-                              ..._buildLedgerWithBillsList(),
-                            ],
-                          ),
+                      if (isVisibleLedgerEntry)
+                        ModernExpandableCard(
+                          title: 'Accounting Details',
+                          icon: Icons.account_balance,
+                          children: [..._buildLedgerWithBillsList()],
+                        ),
 
                       /*if (isVisibleBills)
                         ModernExpandableCard(
@@ -791,7 +759,6 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                             buildBillRow('Amount', billamount, Icons.money),
                           ],
                         ),*/
-
                       if (isVisibleInventoryEntry)
                         ModernExpandableCard(
                           title: 'Item Details',
@@ -799,24 +766,48 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                           children: [
                             ...inventoryentries_list
                                 .take(visibleInventoryCount)
-                                .map((card) => Column(
-                              children: [
-                                buildInventoryRow('Item', card.item, 'Qty', formatNullto0(card.qty),
-                                    leftIcon: Icons.inventory_outlined, rightIcon: Icons.confirmation_num_outlined),
-                                buildInventoryRow('Rate', formatRate(card.rate), 'Disc',
-                                    "${formatNullto0(card.discount)}%",
-                                    leftIcon: Icons.price_change, rightIcon: Icons.percent),
-                                buildInventoryRow('Godown', handleGodown(card.godown), 'Amt',
-                                    formatAmount(card.amount),
-                                    leftIcon: Icons.store, rightIcon: Icons.money),
-                                const Divider(height: 24, thickness: 0.6),
-                              ],
-                            ))
+                                .map(
+                                  (card) => Column(
+                                    children: [
+                                      buildInventoryRow(
+                                        context,
+                                        'Item',
+                                        card.item,
+                                        'Qty',
+                                        formatNullto0(card.qty),
+                                        leftIcon: Icons.inventory_outlined,
+                                        rightIcon:
+                                            Icons.confirmation_num_outlined,
+                                      ),
+                                      buildInventoryRow(
+                                        context,
+                                        'Rate',
+                                        formatRate(card.rate),
+                                        'Disc',
+                                        "${formatNullto0(card.discount)}%",
+                                        leftIcon: Icons.price_change,
+                                        rightIcon: Icons.percent,
+                                      ),
+                                      buildInventoryRow(
+                                        context,
+                                        'Godown',
+                                        handleGodown(card.godown),
+                                        'Amt',
+                                        formatAmount(card.amount),
+                                        leftIcon: Icons.store,
+                                        rightIcon: Icons.money,
+                                      ),
+                                      const Divider(height: 24, thickness: 0.6),
+                                    ],
+                                  ),
+                                )
                                 .toList(),
 
                             if (inventoryentries_list.length > 3)
                               Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0,
+                                ),
                                 child: Center(
                                   child: TextButton(
                                     onPressed: () {
@@ -825,13 +816,16 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                                           visibleInventoryCount = 3;
                                           isInventoryExpanded = false;
                                         } else {
-                                          visibleInventoryCount = inventoryentries_list.length;
+                                          visibleInventoryCount =
+                                              inventoryentries_list.length;
                                           isInventoryExpanded = true;
                                         }
                                       });
                                     },
                                     child: Text(
-                                      isInventoryExpanded ? 'View Less' : 'View More',
+                                      isInventoryExpanded
+                                          ? 'View Less'
+                                          : 'View More',
                                       style: GoogleFonts.poppins(
                                         color: app_color,
                                         fontWeight: FontWeight.w600,
@@ -842,8 +836,6 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                               ),
                           ],
                         ),
-
-
 
                       if (isVisibleCostCenter)
                         ModernExpandableCard(
@@ -852,16 +844,20 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                           children: [
                             ...costcenter_list
                                 .take(visibleCostCenterCount)
-                                .map((card) => buildCostCenterRow(
-                              formatCostCenter(card.costcentre),
-                              formatAmount(card.amount),
-                            ))
+                                .map(
+                                  (card) => buildCostCenterRow(
+                                    context,
+                                    formatCostCenter(card.costcentre),
+                                    formatAmount(card.amount),
+                                  ),
+                                )
                                 .toList(),
-
 
                             if (costcenter_list.length > 3)
                               Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0,
+                                ),
                                 child: Center(
                                   child: TextButton(
                                     onPressed: () {
@@ -870,13 +866,16 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                                           visibleCostCenterCount = 3;
                                           isCostCenterExpanded = false;
                                         } else {
-                                          visibleCostCenterCount = costcenter_list.length;
+                                          visibleCostCenterCount =
+                                              costcenter_list.length;
                                           isCostCenterExpanded = true;
                                         }
                                       });
                                     },
                                     child: Text(
-                                      isCostCenterExpanded ? 'View Less' : 'View More',
+                                      isCostCenterExpanded
+                                          ? 'View Less'
+                                          : 'View More',
                                       style: GoogleFonts.poppins(
                                         color: app_color,
                                         fontWeight: FontWeight.w600,
@@ -887,8 +886,6 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                               ),
                           ],
                         ),
-
-
                     ],
                   ),
                 ),
@@ -897,13 +894,10 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                 const SizedBox(height: 20),
               ],
             ),
-
           ),
 
-// Loader stays outside of scrollable content
-          if (_isLoading)
-            Center(
-            child: AppLogoLoader())
+          // Loader stays outside of scrollable content
+          if (_isLoading) Center(child: AppLogoLoader()),
         ],
       ),
     );
@@ -912,11 +906,11 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
   Widget _buildVoucherCard() {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(left: 12,right:12, top: 8,bottom:0),
+      margin: EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 0),
 
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -930,11 +924,23 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildRow(Icons.receipt_long_rounded, "Voucher No", widget.vchno),
-          _buildRow(Icons.calendar_today, "Voucher Date", formatDate(widget.vchdate)),
+          _buildRow(
+            Icons.calendar_today,
+            "Voucher Date",
+            formatDate(widget.vchdate),
+          ),
           if (widget.refno != 'null')
-            _buildRow(Icons.confirmation_number_outlined, "Ref No", widget.refno),
+            _buildRow(
+              Icons.confirmation_number_outlined,
+              "Ref No",
+              widget.refno,
+            ),
           if (widget.refdate != 'null')
-            _buildRow(Icons.date_range_outlined, "Ref Date", formatDate(widget.refdate)),
+            _buildRow(
+              Icons.date_range_outlined,
+              "Ref Date",
+              formatDate(widget.refdate),
+            ),
           const SizedBox(height: 8),
           Wrap(
             spacing: 10,
@@ -1001,9 +1007,7 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
                 ),
               ],
             ),
-            child: Center(
-              child: Icon(icon, size: 18, color: Colors.white),
-            ),
+            child: Center(child: Icon(icon, size: 18, color: Colors.white)),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1012,7 +1016,7 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -1021,7 +1025,7 @@ class _TransactionsClickedPageState extends State<TransactionsClicked> with Tick
               value,
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.grey[800],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.end,
             ),
@@ -1131,7 +1135,7 @@ class _ModernExpandableCardState extends State<ModernExpandableCard>
         transform: Matrix4.translationValues(0, _isHovered ? -2 : 0, 0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           boxShadow: [
             BoxShadow(
               color: _isHovered
@@ -1156,7 +1160,10 @@ class _ModernExpandableCardState extends State<ModernExpandableCard>
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 14,
+                ),
                 child: Row(
                   children: [
                     // 🌈 Gradient background for icon
@@ -1168,15 +1175,13 @@ class _ModernExpandableCardState extends State<ModernExpandableCard>
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(
-                            color:
-                            borderGradient.colors.last.withOpacity(0.25),
+                            color: borderGradient.colors.last.withOpacity(0.25),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),
                         ],
                       ),
-                      child:
-                      Icon(widget.icon, color: Colors.white, size: 20),
+                      child: Icon(widget.icon, color: Colors.white, size: 20),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1185,14 +1190,17 @@ class _ModernExpandableCardState extends State<ModernExpandableCard>
                         style: GoogleFonts.poppins(
                           fontSize: 16.5,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
                     AnimatedRotation(
                       turns: _isExpanded ? 0.5 : 0,
                       duration: const Duration(milliseconds: 250),
-                      child: const Icon(Icons.expand_more, color: Colors.black54),
+                      child: Icon(
+                        Icons.expand_more,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
@@ -1220,7 +1228,6 @@ class _ModernExpandableCardState extends State<ModernExpandableCard>
     );
   }
 }
-
 
 Widget buildLedgerRow(String ledger, String amount) {
   return Padding(
@@ -1262,7 +1269,7 @@ Widget buildLedgerRow(String ledger, String amount) {
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -1283,7 +1290,9 @@ Widget buildLedgerRow(String ledger, String amount) {
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: Colors.teal.shade700, // softer than green
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.tealAccent.shade100
+                        : Colors.teal.shade700, // softer than green
                   ),
                 ),
               ),
@@ -1295,7 +1304,12 @@ Widget buildLedgerRow(String ledger, String amount) {
   );
 }
 
-Widget buildBillRow(String label, String value, IconData icon) {
+Widget buildBillRow(
+  BuildContext context,
+  String label,
+  String value,
+  IconData icon,
+) {
   LinearGradient gradient = const LinearGradient(
     colors: [Color(0xFFFF9966), Color(0xFFFF5E62)],
     begin: Alignment.topLeft,
@@ -1324,7 +1338,7 @@ Widget buildBillRow(String label, String value, IconData icon) {
           style: GoogleFonts.poppins(
             fontSize: 13.5,
             fontWeight: FontWeight.w600,
-            color: Colors.black54,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
 
@@ -1341,7 +1355,7 @@ Widget buildBillRow(String label, String value, IconData icon) {
               textAlign: TextAlign.right,
               style: GoogleFonts.poppins(
                 fontSize: 13.5,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -1353,20 +1367,18 @@ Widget buildBillRow(String label, String value, IconData icon) {
 }
 
 Widget buildInventoryRow(
-    String leftLabel,
-    String leftValue,
-    String rightLabel,
-    String rightValue, {
-      IconData? leftIcon,
-      IconData? rightIcon,
-    }) {
+  BuildContext context,
+  String leftLabel,
+  String leftValue,
+  String rightLabel,
+  String rightValue, {
+  IconData? leftIcon,
+  IconData? rightIcon,
+}) {
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-    decoration: BoxDecoration(
-      color: Colors.white,
-
-    ),
+    decoration: BoxDecoration(color: Theme.of(context).cardColor),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -1403,7 +1415,9 @@ Widget buildInventoryRow(
                           style: GoogleFonts.poppins(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black54,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -1412,7 +1426,7 @@ Widget buildInventoryRow(
                           softWrap: true,
                           style: GoogleFonts.poppins(
                             fontSize: 13.5,
-                            color: Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -1423,7 +1437,7 @@ Widget buildInventoryRow(
               ),
             ),
 
-            SizedBox(width: 9,),
+            SizedBox(width: 9),
 
             // 🔸 Right Section
             Expanded(
@@ -1454,7 +1468,9 @@ Widget buildInventoryRow(
                           style: GoogleFonts.poppins(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black54,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -1463,7 +1479,7 @@ Widget buildInventoryRow(
                           softWrap: true,
                           style: GoogleFonts.poppins(
                             fontSize: 13.5,
-                            color: Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -1480,13 +1496,17 @@ Widget buildInventoryRow(
   );
 }
 
-Widget buildCostCenterRow(String costCentre, String amount) {
+Widget buildCostCenterRow(
+  BuildContext context,
+  String costCentre,
+  String amount,
+) {
   return Container(
     width: double.infinity,
     margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(14),
       boxShadow: [
         BoxShadow(
@@ -1514,7 +1534,11 @@ Widget buildCostCenterRow(String costCentre, String amount) {
                 ),
                 borderRadius: BorderRadius.all(Radius.circular(8)),
               ),
-              child: const Icon(Icons.account_tree_outlined, size: 16, color: Colors.white),
+              child: const Icon(
+                Icons.account_tree_outlined,
+                size: 16,
+                color: Colors.white,
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -1524,7 +1548,7 @@ Widget buildCostCenterRow(String costCentre, String amount) {
                 style: GoogleFonts.poppins(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -1559,7 +1583,7 @@ Widget buildCostCenterRow(String costCentre, String amount) {
                 style: GoogleFonts.poppins(
                   fontSize: 13.5,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -1570,14 +1594,10 @@ Widget buildCostCenterRow(String costCentre, String amount) {
   );
 }
 
-
-
-
 class LedgerExpandableTile extends StatefulWidget {
   final String ledgerName;
   final String amount;
   final List<Bills> bills;
-
 
   const LedgerExpandableTile({
     Key? key,
@@ -1603,6 +1623,7 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
     print('bills -> $_filteredBills');
     _searchController.addListener(_filterBills);
   }
+
   String _formatSafeDate(String? dateStr) {
     if (dateStr == null || dateStr.isEmpty || dateStr == "null") {
       return "N/A";
@@ -1627,17 +1648,17 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
     final query = _searchController.text.toLowerCase();
     setState(() {
       _filteredBills = widget.bills
-          .where((bill) =>
-          bill.billno.toString().toLowerCase().contains(query))
+          .where((bill) => bill.billno.toString().toLowerCase().contains(query))
           .toList();
-
     });
   }
+
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
+
   @override
   void didUpdateWidget(covariant LedgerExpandableTile oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -1649,6 +1670,7 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
       });
     }
   }
+
   LinearGradient iconGradient(IconData icon) {
     if (icon == Icons.receipt_long) {
       return const LinearGradient(
@@ -1656,8 +1678,7 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
-    } else if (icon == Icons.calendar_today ||
-        icon == Icons.calendar_month) {
+    } else if (icon == Icons.calendar_today || icon == Icons.calendar_month) {
       return const LinearGradient(
         colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)], // blue
         begin: Alignment.topLeft,
@@ -1677,6 +1698,7 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final bool hasBills = widget.bills.isNotEmpty;
@@ -1687,8 +1709,7 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         );
-      } else if (icon == Icons.calendar_today ||
-          icon == Icons.calendar_month) {
+      } else if (icon == Icons.calendar_today || icon == Icons.calendar_month) {
         return const LinearGradient(
           colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)], // blue
           begin: Alignment.topLeft,
@@ -1708,12 +1729,13 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
         );
       }
     }
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -1733,7 +1755,9 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
         children: [
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: hasBills ? () => setState(() => _isExpanded = !_isExpanded) : null,
+            onTap: hasBills
+                ? () => setState(() => _isExpanded = !_isExpanded)
+                : null,
             child: Row(
               children: [
                 Container(
@@ -1747,8 +1771,11 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
                     ),
                     borderRadius: BorderRadius.all(Radius.circular(8)),
                   ),
-                  child: const Icon(Icons.account_balance_wallet_rounded,
-                      color: Colors.white, size: 16),
+                  child: const Icon(
+                    Icons.account_balance_wallet_rounded,
+                    color: Colors.white,
+                    size: 16,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -1757,7 +1784,7 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -1766,14 +1793,19 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: Colors.teal.shade700,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.tealAccent.shade100
+                        : Colors.teal.shade700,
                   ),
                 ),
                 if (hasBills)
                   AnimatedRotation(
                     turns: _isExpanded ? 0.5 : 0,
                     duration: const Duration(milliseconds: 250),
-                    child: const Icon(Icons.expand_more, color: Colors.black54),
+                    child: Icon(
+                      Icons.expand_more,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
               ],
             ),
@@ -1785,203 +1817,292 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
             curve: Curves.easeInOut,
             child: _isExpanded
                 ? AnimatedOpacity(
-              opacity: _isExpanded ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 300),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 6, top: 12, right: 6),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 🔍 Search Field
-                    TextField(
-                      controller: _searchController,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    prefixIcon: Icon(Icons.search, color: Colors.teal.shade600),
-                    hintText: "Search by Bill No...",
-                    hintStyle: GoogleFonts.poppins(
-                      color: Colors.grey.shade500,
-                      fontSize: 14.5,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white, // soft inner background
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade400,
-
-                        width: 1.4,
+                    opacity: _isExpanded ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 300),
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        left: 6,
+                        top: 12,
+                        right: 6,
                       ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide:BorderSide(
-                        color: Colors.grey.shade400,
-                        width: 1.4,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(
-                        color: Colors.teal.shade400,
-                        width: 1.4,
-                      ),
-                    ),
-                  ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 🔍 Search Field
+                          TextField(
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 10,
+                              ),
+                              prefixIcon: Icon(
+                                Icons.search,
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Colors.tealAccent.shade100
+                                    : Colors.teal.shade600,
+                              ),
+                              hintText: "Search by Bill No...",
+                              hintStyle: GoogleFonts.poppins(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                                fontSize: 14.5,
+                              ),
+                              filled: true,
+                              fillColor:
+                                  Theme.of(
+                                    context,
+                                  ).inputDecorationTheme.fillColor ??
+                                  Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest, // soft inner background
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).dividerColor,
 
-                      style: GoogleFonts.poppins(
-                        color: Colors.black87,
-                        fontSize: 14.5,
-                      ),
-
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    // 🧾 Bills List or Empty State
-                    _filteredBills.isNotEmpty
-                        ? Column(
-                      children: _filteredBills.asMap().entries.map((entry) {
-                        final index = entry.key + 1;
-                        final bill = entry.value;
-
-                        // 🎨 Bill type color scheme
-                        Color chipColor;
-                        Color chipTextColor;
-                        switch (bill.billtype) {
-                          case 'New Ref':
-                            chipColor = Colors.orange.shade100;
-                            chipTextColor = Colors.orange.shade700;
-                            break;
-                          case 'Advance':
-                            chipColor = Colors.blue.shade100;
-                            chipTextColor = Colors.blue.shade700;
-                            break;
-                          case 'On Account':
-                            chipColor = Colors.green.shade100;
-                            chipTextColor = Colors.green.shade700;
-                            break;
-                          default:
-                            chipColor = Colors.grey.shade200;
-                            chipTextColor = Colors.black54;
-                        }
-
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: Colors.teal.withOpacity(0.15),
-                              width: 1,
+                                  width: 1.4,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).dividerColor,
+                                  width: 1.4,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Colors.teal.shade400,
+                                  width: 1.4,
+                                ),
+                              ),
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.teal.withOpacity(0.05),
-                                blurRadius: 6,
-                                offset: const Offset(0, 3),
-                              )
-                            ],
+
+                            style: GoogleFonts.poppins(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 14.5,
+                            ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Bill Header
-                              Row(
-                                children: [
-                                  Text(
-                                    "Bill #$index",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 13.8,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.teal.shade700,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: chipColor,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      bill.billtype,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: chipTextColor,
+
+                          const SizedBox(height: 14),
+
+                          // 🧾 Bills List or Empty State
+                          _filteredBills.isNotEmpty
+                              ? Column(
+                                  children: _filteredBills.asMap().entries.map((
+                                    entry,
+                                  ) {
+                                    final index = entry.key + 1;
+                                    final bill = entry.value;
+
+                                    // 🎨 Bill type color scheme
+                                    final bool isDark =
+                                        Theme.of(context).brightness ==
+                                        Brightness.dark;
+                                    Color chipColor;
+                                    Color chipTextColor;
+                                    switch (bill.billtype) {
+                                      case 'New Ref':
+                                        chipColor = Colors.orange.withOpacity(
+                                          isDark ? 0.18 : 0.12,
+                                        );
+                                        chipTextColor = isDark
+                                            ? Colors.orange.shade200
+                                            : Colors.orange.shade700;
+                                        break;
+                                      case 'Advance':
+                                        chipColor = Colors.blue.withOpacity(
+                                          isDark ? 0.18 : 0.12,
+                                        );
+                                        chipTextColor = isDark
+                                            ? Colors.blue.shade200
+                                            : Colors.blue.shade700;
+                                        break;
+                                      case 'On Account':
+                                        chipColor = Colors.green.withOpacity(
+                                          isDark ? 0.18 : 0.12,
+                                        );
+                                        chipTextColor = isDark
+                                            ? Colors.green.shade200
+                                            : Colors.green.shade700;
+                                        break;
+                                      default:
+                                        chipColor = Theme.of(
+                                          context,
+                                        ).colorScheme.surfaceContainerHighest;
+                                        chipTextColor = Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant;
+                                    }
+
+                                    return Container(
+                                      margin: const EdgeInsets.only(bottom: 10),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 12,
                                       ),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surfaceContainerHighest
+                                            .withOpacity(
+                                              Theme.of(context).brightness ==
+                                                      Brightness.dark
+                                                  ? 0.72
+                                                  : 0.36,
+                                            ),
+                                        borderRadius: BorderRadius.circular(14),
+                                        border: Border.all(
+                                          color: Colors.teal.withOpacity(0.15),
+                                          width: 1,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.teal.withOpacity(
+                                              0.05,
+                                            ),
+                                            blurRadius: 6,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          // Bill Header
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Bill #$index",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13.8,
+                                                  fontWeight: FontWeight.w700,
+                                                  color:
+                                                      Theme.of(
+                                                            context,
+                                                          ).brightness ==
+                                                          Brightness.dark
+                                                      ? Colors
+                                                            .tealAccent
+                                                            .shade100
+                                                      : Colors.teal.shade700,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 4,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: chipColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                                child: Text(
+                                                  bill.billtype,
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: chipTextColor,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+
+                                          // Bill Details
+                                          _billRow(
+                                            Icons.receipt_long,
+                                            'Bill No',
+                                            _formatSafeText(bill.billno),
+                                          ),
+                                          _billRow(
+                                            Icons.calendar_today,
+                                            'Bill Date',
+                                            _formatSafeDate(bill.billdate),
+                                          ),
+
+                                          _billRow(
+                                            Icons.calendar_month,
+                                            'Due Date',
+                                            _getFormattedDueDate(
+                                              bill.billtype,
+                                              bill.billdate,
+                                              bill.duedate,
+                                            ),
+                                          ),
+                                          _billRow(
+                                            Icons.attach_money,
+                                            'Amount',
+                                            formatAmount(bill.amount),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                )
+                              : Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 50,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.receipt_long_outlined,
+                                          size: 60,
+                                          color: Colors.teal.shade300,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          "No bills found",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          "Try searching with a different Bill No.",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-
-                              // Bill Details
-                              _billRow(Icons.receipt_long, 'Bill No', _formatSafeText(bill.billno)),
-                              _billRow(
-                                Icons.calendar_today,
-                                'Bill Date',
-                                _formatSafeDate(bill.billdate),
-                              ),
-
-                              _billRow(Icons.calendar_month, 'Due Date',
-                                  _getFormattedDueDate(bill.billtype,
-                                      bill.billdate, bill.duedate)),
-                              _billRow(Icons.attach_money, 'Amount',
-                                  formatAmount(bill.amount)),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    )
-                        : Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 50),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.receipt_long_outlined,
-                              size: 60,
-                              color: Colors.teal.shade300,
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              "No bills found",
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "Try searching with a different Bill No.",
-                              style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
-                        ),
+                                ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            )
+                  )
                 : const SizedBox(),
-          )
-
-
+          ),
         ],
       ),
     );
   }
-  String _getFormattedDueDate(String billType, String billDate, String dueDate) {
+
+  String _getFormattedDueDate(
+    String billType,
+    String billDate,
+    String dueDate,
+  ) {
     // For "On Account" or "Advance" → No due date shown
     if (billType == "On Account" || billType == "Advance") {
       return "N/A";
@@ -1989,7 +2110,10 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
 
     // For "Agst Ref" or "New Ref" → calculate due date if numeric days provided
     if (billType == "Agst Ref" || billType == "New Ref") {
-      if (dueDate == "null" || dueDate.isEmpty || billDate == "null" || billDate.isEmpty) {
+      if (dueDate == "null" ||
+          dueDate.isEmpty ||
+          billDate == "null" ||
+          billDate.isEmpty) {
         return "N/A";
       }
 
@@ -2052,7 +2176,7 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Colors.black54,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -2069,7 +2193,7 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
                 style: GoogleFonts.poppins(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),

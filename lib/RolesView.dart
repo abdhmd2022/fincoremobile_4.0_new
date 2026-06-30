@@ -14,15 +14,9 @@ import 'package:http/http.dart' as http;
 class RoleModel {
   final String role_name;
 
-  RoleModel({
-    required this.role_name
-  });
-  factory RoleModel.fromJson(Map<String, dynamic> json)
-  {
-    return RoleModel
-    (
-      role_name: json['role_name']
-    );
+  RoleModel({required this.role_name});
+  factory RoleModel.fromJson(Map<String, dynamic> json) {
+    return RoleModel(role_name: json['role_name']);
   }
 }
 
@@ -32,7 +26,8 @@ class RolesView extends StatefulWidget {
   _RolesViewPageState createState() => _RolesViewPageState();
 }
 
-class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin {
+class _RolesViewPageState extends State<RolesView>
+    with TickerProviderStateMixin {
   bool isDashEnable = true,
       isRolesVisible = true,
       isUserEnable = true,
@@ -41,25 +36,29 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
       _isLoading = false,
       isVisibleNoRoleFound = false;
 
-
   final TextEditingController searchController = TextEditingController();
 
   List<RoleModel> filteredRoles = [];
 
   String rolename_fetched = "";
 
-      final List<RoleModel> roles = [];
+  final List<RoleModel> roles = [];
 
-      String name = "",email = "";
+  String name = "", email = "";
 
-      final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-      late GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey;
+  late GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey;
 
-      late SharedPreferences prefs;
+  late SharedPreferences prefs;
 
-      String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";
-
+  String? hostname = "",
+      company = "",
+      company_lowercase = "",
+      serial_no = "",
+      username = "",
+      HttpURL = "",
+      SecuritybtnAcessHolder = "";
 
   void filterRoles(String query) {
     setState(() {
@@ -67,46 +66,40 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
         filteredRoles = List.from(roles);
       } else {
         filteredRoles = roles.where((role) {
-          return role.role_name
-              .toLowerCase()
-              .contains(query.toLowerCase());
+          return role.role_name.toLowerCase().contains(query.toLowerCase());
         }).toList();
       }
     });
   }
 
-      Future<void> _initSharedPreferences() async {
-        prefs = await SharedPreferences.getInstance();
-        setState(() {
-          hostname = prefs.getString('hostname');
-          company  = prefs.getString('company_name');
-          company_lowercase = company!.replaceAll(' ', '').toLowerCase();
-          serial_no = prefs.getString('serial_no');
-          username = prefs.getString('username');
+  Future<void> _initSharedPreferences() async {
+    prefs = await SharedPreferences.getInstance();
+    setState(() {
+      hostname = prefs.getString('hostname');
+      company = prefs.getString('company_name');
+      company_lowercase = company!.replaceAll(' ', '').toLowerCase();
+      serial_no = prefs.getString('serial_no');
+      username = prefs.getString('username');
 
-          SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
+      SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
 
-          String? email_nav = prefs.getString('email_nav');
-          String? name_nav = prefs.getString('name_nav');
+      String? email_nav = prefs.getString('email_nav');
+      String? name_nav = prefs.getString('name_nav');
 
-          if (email_nav!=null && name_nav!= null)
-          {
-            name = name_nav;
-            email = email_nav;
-          }
-          if(SecuritybtnAcessHolder == "True")
-          {
-            isRolesVisible = true;
-            isUserVisible = true;
-          }
-          else
-          {
-            isRolesVisible = false;
-            isUserVisible = false;
-          }
-        });
-        fetchRoles(serial_no!);
+      if (email_nav != null && name_nav != null) {
+        name = name_nav;
+        email = email_nav;
       }
+      if (SecuritybtnAcessHolder == "True") {
+        isRolesVisible = true;
+        isUserVisible = true;
+      } else {
+        isRolesVisible = false;
+        isUserVisible = false;
+      }
+    });
+    fetchRoles(serial_no!);
+  }
 
   Future<void> _showConfirmationDialogAndNavigate(BuildContext context) async {
     final AnimationController controller = AnimationController(
@@ -122,11 +115,19 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
       pageBuilder: (context, anim1, anim2) => const SizedBox.shrink(),
       transitionBuilder: (context, anim1, anim2, child) {
         return ScaleTransition(
-          scale: CurvedAnimation(parent: controller..forward(), curve: Curves.easeOutBack),
+          scale: CurvedAnimation(
+            parent: controller..forward(),
+            curve: Curves.easeOutBack,
+          ),
           child: Dialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            backgroundColor: Colors.white,
-            insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 32,
+              vertical: 24,
+            ),
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
@@ -154,7 +155,7 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -164,10 +165,10 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
                   // 💬 Description
                   Text(
                     'Are you sure you want to permanently delete this role?\n'
-                        'This action cannot be undone.',
+                    'This action cannot be undone.',
                     style: GoogleFonts.poppins(
                       fontSize: 14.5,
-                      color: Colors.black54,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -236,60 +237,41 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
     );
   }
 
-
-  Future<void> roledelete(String selectedserial,String rolename) async {
+  Future<void> roledelete(String selectedserial, String rolename) async {
     setState(() {
       _isLoading = true;
     });
     final url = Uri.parse('$BASE_URL_config/api/roles/delete');
 
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $authTokenBase',
-      "Content-Type": "application/json"
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $authTokenBase',
+      "Content-Type": "application/json",
     };
 
-    var body = jsonEncode( {
-      'serialno': selectedserial,
-      'rolename' : rolename
-    });
+    var body = jsonEncode({'serialno': selectedserial, 'rolename': rolename});
 
-    final response = await http.post(
-        url,
-        body: body,
-        headers:headers
-    );
+    final response = await http.post(url, body: body, headers: headers);
 
-
-    if (response.statusCode == 200)
-    {
+    if (response.statusCode == 200) {
       final responsee = response.body;
-      if (responsee != null)
-      {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(responsee),
-          ),
-        );
-        if (responsee == "Unable to Delete! User Exists Against This Role.")
-        {
+      if (responsee != null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(responsee)));
+        if (responsee == "Unable to Delete! User Exists Against This Role.") {
           setState(() {
             _isLoading = false;
           });
-        }
-        else
-        {
+        } else {
           setState(() {
             _isLoading = true;
             fetchRoles(serial_no!);
           });
         }
-      } else
-      {
+      } else {
         throw Exception('Failed to fetch data');
       }
-    }
-    else
-    {
+    } else {
       Map<String, dynamic> data = json.decode(response.body);
       String error = '';
 
@@ -297,9 +279,7 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
         setState(() {
           error = data['error'];
         });
-      }
-      else
-      {
+      } else {
         error = 'Something went wrong!!!';
       }
       Fluttertoast.showToast(msg: error);
@@ -315,60 +295,46 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
     });
     final url = Uri.parse('$BASE_URL_config/api/roles/get');
 
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $authTokenBase',
-      "Content-Type": "application/json"
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $authTokenBase',
+      "Content-Type": "application/json",
     };
 
-    var body = jsonEncode( {
-      'serialno': selectedserial,
-    });
+    var body = jsonEncode({'serialno': selectedserial});
 
-    final response = await http.post(
-        url,
-        body: body,
-        headers:headers
-    );
+    final response = await http.post(url, body: body, headers: headers);
 
-    if (response.statusCode == 200)
-    {
+    if (response.statusCode == 200) {
       roles.clear();
 
-      try
-      {
+      try {
         final List<dynamic> jsonList = json.decode(response.body);
 
-        if (jsonList != null)
-        {
+        if (jsonList != null) {
           isVisibleNoRoleFound = false;
-          roles.addAll(jsonList.map((json) => RoleModel.fromJson(json)).toList());
+          roles.addAll(
+            jsonList.map((json) => RoleModel.fromJson(json)).toList(),
+          );
           filteredRoles = List.from(roles);
-        }
-        else
-        {
+        } else {
           throw Exception('Failed to fetch data');
         }
         setState(() {
-          if(roles.isEmpty)
-          {
+          if (roles.isEmpty) {
             isVisibleNoRoleFound = true;
           }
           _isLoading = false;
         });
-
-      }
-      catch (e)
-      {
+      } catch (e) {
         print(e);
       }
     }
-        setState(() {
-          if(roles.isEmpty)
-          {
-            isVisibleNoRoleFound = true;
-          }
-          _isLoading = false;
-        });
+    setState(() {
+      if (roles.isEmpty) {
+        isVisibleNoRoleFound = true;
+      }
+      _isLoading = false;
+    });
   }
 
   @override
@@ -378,10 +344,8 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
     _initSharedPreferences();
   }
 
-  Future<void> _refresh() async
-  {
-    setState(()
-    {
+  Future<void> _refresh() async {
+    setState(() {
       fetchRoles(serial_no!);
     });
   }
@@ -398,17 +362,15 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
       },
       child: Scaffold(
         key: _scaffoldKey,
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(50),
           child: AppBar(
-            backgroundColor:  app_color,
+            backgroundColor: app_color,
             elevation: 6,
             automaticallyImplyLeading: false,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(20),
-              ),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
             ),
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -430,17 +392,16 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
                     child: Text(
                       company ?? '',
 
-                      style: GoogleFonts.poppins(color: Colors.white, fontSize: 20,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 20,
                         fontWeight: FontWeight.w600,
                       ),
                       overflow: TextOverflow.ellipsis,
-
                     ),
                   ),
                   SizedBox(width: 4),
                   Icon(Icons.arrow_drop_down, color: Colors.white),
-
-
                 ],
               ),
             ),
@@ -464,7 +425,7 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
             children: [
               Visibility(
                 visible: isVisibleNoRoleFound,
-                child:  Center(
+                child: Center(
                   child: Padding(
                     padding: EdgeInsets.only(top: 40.0),
                     child: Text(
@@ -472,20 +433,20 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
                       style: GoogleFonts.poppins(
                         fontSize: 22,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black54,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
                 ),
               ),
-              
+
               Column(
                 children: [
                   // SEARCH BAR
                   Container(
                     margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
@@ -500,12 +461,12 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
                       onChanged: filterRoles,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
-                        color: Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Search roles...',
                         hintStyle: GoogleFonts.poppins(
-                          color: Colors.grey[500],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                         prefixIcon: Icon(
@@ -515,12 +476,12 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
                         ),
                         suffixIcon: searchController.text.isNotEmpty
                             ? IconButton(
-                          icon: const Icon(Icons.close_rounded),
-                          onPressed: () {
-                            searchController.clear();
-                            filterRoles('');
-                          },
-                        )
+                                icon: const Icon(Icons.close_rounded),
+                                onPressed: () {
+                                  searchController.clear();
+                                  filterRoles('');
+                                },
+                              )
                             : null,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(18),
@@ -538,7 +499,9 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
                           ),
                         ),
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor:
+                            Theme.of(context).inputDecorationTheme.fillColor ??
+                            Colors.white,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 16,
@@ -546,88 +509,104 @@ class _RolesViewPageState extends State<RolesView> with TickerProviderStateMixin
                       ),
                     ),
                   ),
-                  Expanded(child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                    itemCount: roles.length,
-                    itemBuilder: (context, index) {
-                      final card = roles[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 14),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                          leading: CircleAvatar(
-                            radius: 24,
-                            backgroundColor: app_color.withOpacity(0.1),
-                            child: Icon(Icons.group, color: app_color, size: 24),
-                          ),
-                          title: Text(
-                            card.role_name,
-                            style:  GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
-
-                          trailing: Wrap(
-                            spacing: 10,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  String rolename = card.role_name;
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => ModifyRole(role_name: rolename)),
-                                  );
-                                },
-                                child: Tooltip(
-                                  message: 'Edit Role',
-                                  child: CircleAvatar(
-                                    backgroundColor: Colors.blue.shade50,
-                                    child: Icon(Icons.edit, size: 18, color: Colors.blue),
-                                    radius: 16,
-                                  ),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  rolename_fetched = card.role_name;
-                                  _showConfirmationDialogAndNavigate(context);
-                                },
-                                child: Tooltip(
-                                  message: 'Delete Role',
-                                  child: CircleAvatar(
-                                    backgroundColor: Colors.red.shade50,
-                                    child: Icon(Icons.delete_outline, size: 18, color: Colors.red),
-                                    radius: 16,
-                                  ),
-                                ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                      itemCount: roles.length,
+                      itemBuilder: (context, index) {
+                        final card = roles[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 14),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: Theme.of(context).cardColor,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: Offset(0, 4),
                               ),
                             ],
                           ),
-                        ),
-                      );
-                    },
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            leading: CircleAvatar(
+                              radius: 24,
+                              backgroundColor: app_color.withOpacity(0.1),
+                              child: Icon(
+                                Icons.group,
+                                color: app_color,
+                                size: 24,
+                              ),
+                            ),
+                            title: Text(
+                              card.role_name,
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+
+                            trailing: Wrap(
+                              spacing: 10,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    String rolename = card.role_name;
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ModifyRole(role_name: rolename),
+                                      ),
+                                    );
+                                  },
+                                  child: Tooltip(
+                                    message: 'Edit Role',
+                                    child: CircleAvatar(
+                                      backgroundColor: Colors.blue.shade50,
+                                      child: Icon(
+                                        Icons.edit,
+                                        size: 18,
+                                        color: Colors.blue,
+                                      ),
+                                      radius: 16,
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    rolename_fetched = card.role_name;
+                                    _showConfirmationDialogAndNavigate(context);
+                                  },
+                                  child: Tooltip(
+                                    message: 'Delete Role',
+                                    child: CircleAvatar(
+                                      backgroundColor: Colors.red.shade50,
+                                      child: Icon(
+                                        Icons.delete_outline,
+                                        size: 18,
+                                        color: Colors.red,
+                                      ),
+                                      radius: 16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                  )
                 ],
               ),
-              
 
-              if (_isLoading)
-                const Center(
-                    child: AppLogoLoader()),
+              if (_isLoading) const Center(child: AppLogoLoader()),
               Positioned(
                 bottom: 30,
                 right: 24,

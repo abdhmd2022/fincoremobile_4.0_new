@@ -56,7 +56,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
   dynamic socket_data;
 
   final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
-  GlobalKey<ScaffoldMessengerState>();
+      GlobalKey<ScaffoldMessengerState>();
 
   bool _isLoading = false, _isLoadingResetPass = false;
 
@@ -491,7 +491,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -504,7 +504,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
               Text(
                 'Sending Reset Email',
                 style: GoogleFonts.poppins(
-                  color: Colors.black54,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                   fontSize: 14.5,
                 ),
@@ -517,10 +517,10 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
   }
 
   Future<void> _sendPasswordResetEmail(
-      String emailAddress,
-      String token,
-      String name,
-      ) async {
+    String emailAddress,
+    String token,
+    String name,
+  ) async {
     final smtpServer = SmtpServer(
       'smtp.hostinger.com',
       username: 'noreply@fincoreerp.com',
@@ -531,14 +531,14 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
 
     final message = Message()
       ..from =
-      Address(
-        'noreply@fincoreerp.com',
-        'Fincore Support',
-      ) // Replace with your Outlook email
+          Address(
+            'noreply@fincoreerp.com',
+            'Fincore Support',
+          ) // Replace with your Outlook email
       ..recipients.add(emailAddress) // Use the email entered by the user
       ..subject = 'Password Reset Request'
       ..html =
-      '''
+          '''
          <div style="border: 1px solid #ccc; padding-left: 30px; padding-right: 30px; padding-top: 30px; padding-bottom: 30px; margin-left: 20px; margin-right: 20px; margin-top: 0px; text-align: center;">
 
           <a href="https://tallyuae.ae/">
@@ -860,7 +860,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
       'transports': ['websocket'],
       'path': '/main/socket.io',
       'secure': true,
-      'autoConnect': false,
+      'autoConnect': true,
       'auth': {'token': authTokenBase},
     });
 
@@ -878,7 +878,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
 
     /*socket = IO.io('http://192.168.2.110:5999', <String, dynamic>{
       'transports': ['websocket'],
-      'autoConnect': false,
+      'autoConnect': true,
       'auth' : {
         'token' : '$authTokenBase'
       }
@@ -886,7 +886,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
 
     /*socket = IO.io('http://192.168.2.80:5999', <String, dynamic>{
       'transports': ['websocket'],
-      'autoConnect': false,
+      'autoConnect': true,
       'auth' : {
         'token' : '$authTokenBase'
       }
@@ -1064,9 +1064,9 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
       if (!mounted) return;
 
       if ((data &&
-          isDirectLogin &&
-          isOTPVerified == true &&
-          isAnotherDevice == true) ||
+              isDirectLogin &&
+              isOTPVerified == true &&
+              isAnotherDevice == true) ||
           (data &&
               isDirectLogin &&
               isOTPVerified == false &&
@@ -1179,7 +1179,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
   void sendOTP(String email) async {
     final random = Random();
     generatedotp =
-    '${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}'; // Generates a 4-digit random OTP
+        '${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}'; // Generates a 4-digit random OTP
 
     print(generatedotp);
 
@@ -1193,14 +1193,14 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
 
     final message = Message()
       ..from =
-      Address(
-        'noreply@fincoreerp.com',
-        'Fincore Support',
-      ) // Replace with your Outlook email
+          Address(
+            'noreply@fincoreerp.com',
+            'Fincore Support',
+          ) // Replace with your Outlook email
       ..recipients.add(email) // Use the email entered by the user
       ..subject = 'Your One-Time Passcode from Fincore Go'
       ..html =
-      '''
+          '''
                   <div style="border: 1px solid #ccc; padding-left: 30px; padding-right: 30px; padding-top: 30px; padding-bottom: 30px; margin-left: 20px; margin-right: 20px; margin-top: 0px; text-align: center;">
                  
                 <a href="https://tallyuae.ae/">
@@ -1228,7 +1228,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
                 </div>
                 </div>''';
     try {
-      await send(message, smtpServer);
+      // await send(message, smtpServer);
 
       /*_scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(
@@ -1332,137 +1332,136 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: app_color),
-          textTheme: GoogleFonts.poppinsTextTheme(),
-          scaffoldBackgroundColor: const Color(0xFFF5F7FA),
-        ),
-        home: Builder(
-          builder: (BuildContext context) {
-            return WillPopScope(
-              onWillPop: () async {
-                final now = DateTime.now();
-                if (lastBackPressedTime == null ||
-                    now.difference(lastBackPressedTime!) >
-                        Duration(seconds: 2)) {
-                  lastBackPressedTime = now;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Press back again to exit')),
-                  );
-                  return false;
-                }
-                return true;
-              },
-              child: ScaffoldMessenger(
-                key: _scaffoldMessengerKey,
-                child: Scaffold(
-                  backgroundColor: const Color(0xFFF5F7FA),
-                  key: _scaffoldKey,
-                  appBar: PreferredSize(
-                    preferredSize: const Size.fromHeight(50),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        ColoredBox(
-                          color: Color.alphaBlend(
-                            app_color.withOpacity(0.12),
-                            const Color(0xFFF5F7FA),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final pageBackground = theme.scaffoldBackgroundColor;
+    final gradientEnd = theme.brightness == Brightness.dark
+        ? colorScheme.surface
+        : Colors.white;
 
+    return WillPopScope(
+      child: Builder(
+        builder: (BuildContext context) {
+          return WillPopScope(
+            onWillPop: () async {
+              final now = DateTime.now();
+              if (lastBackPressedTime == null ||
+                  now.difference(lastBackPressedTime!) > Duration(seconds: 2)) {
+                lastBackPressedTime = now;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Press back again to exit')),
+                );
+                return false;
+              }
+              return true;
+            },
+            child: ScaffoldMessenger(
+              key: _scaffoldMessengerKey,
+              child: Scaffold(
+                backgroundColor: pageBackground,
+                key: _scaffoldKey,
+                appBar: PreferredSize(
+                  preferredSize: const Size.fromHeight(50),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      ColoredBox(
+                        color: Color.alphaBlend(
+                          app_color.withOpacity(0.12),
+                          pageBackground,
+                        ),
+                      ),
+                      AppBar(
+                        backgroundColor: app_color,
+                        elevation: 6,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            bottom: Radius.circular(20),
                           ),
                         ),
-                        AppBar(
-                          backgroundColor: app_color,
-                          elevation: 6,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              bottom: Radius.circular(20),
-                            ),
-                          ),
-                          automaticallyImplyLeading: false,
-                          centerTitle: true,
-                          title: const Text(
-                            'Fincore Go',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          actions: [
-                            IconButton(
-                              icon: const Icon(Icons.help_outline, color: Colors.white),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => Help()),
-                                );
-                              },
-                            ),
-                          ],
+                        automaticallyImplyLeading: false,
+                        centerTitle: true,
+                        title: const Text(
+                          'Fincore Go',
+                          style: TextStyle(color: Colors.white),
                         ),
+                        actions: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.help_outline,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => Help()),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                body: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: pageBackground,
+                    gradient: LinearGradient(
+                      colors: [
+                        app_color.withOpacity(0.12),
+                        pageBackground,
+                        gradientEnd,
                       ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
                   ),
-                  body: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F7FA),
-                      gradient: LinearGradient(
-                        colors: [
-                          app_color.withOpacity(0.12),
-                          const Color(0xFFF5F7FA),
-                          Colors.white,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: SafeArea(
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final isWide = constraints.maxWidth >= 820;
+                  child: SafeArea(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isWide = constraints.maxWidth >= 820;
 
-                          return Center(
-                            child: SingleChildScrollView(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: isWide ? 40 : 20,
-                                vertical: isWide ? 34 : 22,
-                              ),
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxWidth: isWide ? 920 : 460,
-                                ),
-                                child: isWide
-                                    ? Row(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.center,
-                                  children: [
-                                    Expanded(child: _buildBrandPanel()),
-                                    const SizedBox(width: 36),
-                                    SizedBox(
-                                      width: 430,
-                                      child: _buildAnimatedAuthForm(),
-                                    ),
-                                  ],
-                                )
-                                    : Column(
-                                  children: [
-                                    _buildBrandPanel(compact: true),
-                                    const SizedBox(height: 22),
-                                    _buildAnimatedAuthForm(),
-                                  ],
-                                ),
-                              ),
+                        return Center(
+                          child: SingleChildScrollView(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isWide ? 40 : 20,
+                              vertical: isWide ? 34 : 22,
                             ),
-                          );
-                        },
-                      ),
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: isWide ? 920 : 460,
+                              ),
+                              child: isWide
+                                  ? Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Expanded(child: _buildBrandPanel()),
+                                        const SizedBox(width: 36),
+                                        SizedBox(
+                                          width: 430,
+                                          child: _buildAnimatedAuthForm(),
+                                        ),
+                                      ],
+                                    )
+                                  : Column(
+                                      children: [
+                                        _buildBrandPanel(compact: true),
+                                        const SizedBox(height: 22),
+                                        _buildAnimatedAuthForm(),
+                                      ],
+                                    ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
       onWillPop: () async {
         _showConfirmationDialogAndExit(context);
@@ -1508,7 +1507,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
           height: compact ? 96 : 120,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.82),
+            color: Theme.of(context).cardColor.withOpacity(0.82),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: Colors.white),
             boxShadow: [
@@ -1559,7 +1558,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
       key: key,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: const Color(0xFFE9EEF2)),
         boxShadow: const [
@@ -1634,7 +1633,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xFFE3E9EE)),
+        borderSide: BorderSide(color: Theme.of(context).dividerColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -1727,7 +1726,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
                 ),
               ),
               validator: (v) =>
-              v == null || v.isEmpty ? 'Please enter password' : null,
+                  v == null || v.isEmpty ? 'Please enter password' : null,
               onSaved: (v) => passwordd = v!,
             ),
             const SizedBox(height: 12),
@@ -1778,25 +1777,25 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
             const SizedBox(height: 22),
             _isLoading
                 ? SizedBox(
-              height: 52,
-              child: Center(
-                child: CupertinoActivityIndicator(color: app_color),
-              ),
-            )
+                    height: 52,
+                    child: Center(
+                      child: CupertinoActivityIndicator(color: app_color),
+                    ),
+                  )
                 : ElevatedButton.icon(
-              style: _primaryButtonStyle(),
-              onPressed: isButtonDisabled
-                  ? null
-                  : () {
-                if (_formKey.currentState != null &&
-                    _formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  _login();
-                }
-              },
-              icon: const Icon(Icons.login_rounded),
-              label: const Text('Login'),
-            ),
+                    style: _primaryButtonStyle(),
+                    onPressed: isButtonDisabled
+                        ? null
+                        : () {
+                            if (_formKey.currentState != null &&
+                                _formKey.currentState!.validate()) {
+                              _formKey.currentState!.save();
+                              _login();
+                            }
+                          },
+                    icon: const Icon(Icons.login_rounded),
+                    label: const Text('Login'),
+                  ),
           ],
         ),
       ),
@@ -1815,7 +1814,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
               icon: Icons.lock_reset_rounded,
               title: 'Reset password',
               subtitle:
-              'Enter your registered email and we will send a reset link.',
+                  'Enter your registered email and we will send a reset link.',
             ),
             const SizedBox(height: 26),
             TextFormField(
@@ -1838,34 +1837,34 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
             const SizedBox(height: 24),
             _isLoadingResetPass
                 ? SizedBox(
-              height: 52,
-              child: Center(
-                child: CupertinoActivityIndicator(color: app_color),
-              ),
-            )
+                    height: 52,
+                    child: Center(
+                      child: CupertinoActivityIndicator(color: app_color),
+                    ),
+                  )
                 : ElevatedButton.icon(
-              style: _primaryButtonStyle(),
-              onPressed: isResetPassButtonDisabled
-                  ? null
-                  : () {
-                if (_resetformKey.currentState!.validate()) {
-                  if (resetemailController.text.trim() ==
-                      'demouser@ca-eim.com') {
-                    _scaffoldMessengerKey.currentState?.showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Reset password is not allowed for Demo User',
-                        ),
-                      ),
-                    );
-                  } else {
-                    _resetpass();
-                  }
-                }
-              },
-              icon: const Icon(Icons.outgoing_mail),
-              label: const Text('Send reset link'),
-            ),
+                    style: _primaryButtonStyle(),
+                    onPressed: isResetPassButtonDisabled
+                        ? null
+                        : () {
+                            if (_resetformKey.currentState!.validate()) {
+                              if (resetemailController.text.trim() ==
+                                  'demouser@ca-eim.com') {
+                                _scaffoldMessengerKey.currentState?.showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Reset password is not allowed for Demo User',
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                _resetpass();
+                              }
+                            }
+                          },
+                    icon: const Icon(Icons.outgoing_mail),
+                    label: const Text('Send reset link'),
+                  ),
             const SizedBox(height: 12),
             ElevatedButton.icon(
               style: _secondaryButtonStyle(),
@@ -1903,9 +1902,11 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
               decoration: BoxDecoration(
-                color: const Color(0xFFF7F9FB),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                    : const Color(0xFFF7F9FB),
                 borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: const Color(0xFFE3E9EE)),
+                border: Border.all(color: Theme.of(context).dividerColor),
               ),
               child: Text(
                 maskedEmail,
@@ -1954,26 +1955,26 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
               duration: const Duration(milliseconds: 180),
               child: isVisibleTimer
                   ? Container(
-                key: const ValueKey('timer'),
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: app_color.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Text(
-                  "Resend OTP in $_formattedTime",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
-                    fontSize: 13.5,
-                    color: const Color(0xFF4B5964),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              )
+                      key: const ValueKey('timer'),
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: app_color.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        "Resend OTP in $_formattedTime",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13.5,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    )
                   : const SizedBox.shrink(key: ValueKey('noTimer')),
             ),
             if (_isButtonEnabled) ...[
@@ -1996,34 +1997,34 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
             ElevatedButton.icon(
               style: _primaryButtonStyle().copyWith(
                 backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                      (states) => _isOtpVerifyingProgress
+                  (states) => _isOtpVerifyingProgress
                       ? const Color(0xFF98A2AD)
                       : app_color,
                 ),
               ),
               icon: _isOtpVerifyingProgress
                   ? Theme.of(context).platform == TargetPlatform.iOS
-                  ? const CupertinoActivityIndicator(
-                radius: 9,
-                color: Colors.white,
-              )
-                  : const SizedBox(
-                height: 18,
-                width: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.3,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Colors.white,
-                  ),
-                  backgroundColor: Colors.transparent,
-                ),
-              )
+                        ? const CupertinoActivityIndicator(
+                            radius: 9,
+                            color: Colors.white,
+                          )
+                        : const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.3,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                              backgroundColor: Colors.transparent,
+                            ),
+                          )
                   : const Icon(Icons.verified_rounded),
               onPressed: _isOtpVerifyingProgress
                   ? null
                   : () {
-                _verifyOtpAndProceed(currentText);
-              },
+                      _verifyOtpAndProceed(currentText);
+                    },
               label: Text(_isOtpVerifyingProgress ? 'Verifying...' : 'Verify'),
             ),
             const SizedBox(height: 12),

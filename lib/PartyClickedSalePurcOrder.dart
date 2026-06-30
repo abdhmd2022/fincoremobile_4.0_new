@@ -16,21 +16,16 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'constants.dart';
 
-class Data
-{
+class Data {
   final String item;
   final String totalQty;
   final double totalAmount;
 
-  Data({
-    required this.item,
-    required this.totalQty,
-    required this.totalAmount,
-  });
+  Data({required this.item, required this.totalQty, required this.totalAmount});
 
   factory Data.fromJson(Map<String, dynamic> json) {
     return Data(
-      item : json['item'].toString(),
+      item: json['item'].toString(),
       totalQty: json['totalQty'].toString(),
       totalAmount: double.tryParse(json['totalAmount'].toString()) ?? 0,
     );
@@ -38,70 +33,84 @@ class Data
 }
 
 class Data_Top {
-
   final String Partyledger;
 
-  Data_Top({
-    required this.Partyledger,
-
-  });
+  Data_Top({required this.Partyledger});
 
   factory Data_Top.fromJson(Map<String, dynamic> json) {
-    return Data_Top(
-      Partyledger : json['Partyledger'].toString(),
-    );
+    return Data_Top(Partyledger: json['Partyledger'].toString());
   }
 }
 
-class PartyClickedSalePurcOrder extends StatefulWidget
-{
-  final String startdate_string,enddate_string,type,ledger,vchtype;
+class PartyClickedSalePurcOrder extends StatefulWidget {
+  final String startdate_string, enddate_string, type, ledger, vchtype;
 
-  const PartyClickedSalePurcOrder(
-      {required this.startdate_string,
-        required this.enddate_string,
-        required this.type,
-        required this.ledger,
-        required this.vchtype,
-      }
-      );
+  const PartyClickedSalePurcOrder({
+    required this.startdate_string,
+    required this.enddate_string,
+    required this.type,
+    required this.ledger,
+    required this.vchtype,
+  });
   @override
-  _PartyClickedSalePurcOrderPageState createState() => _PartyClickedSalePurcOrderPageState(startDateString: startdate_string,
-      endDateString: enddate_string,type: type,ledger:  ledger,vchtype:vchtype);
+  _PartyClickedSalePurcOrderPageState createState() =>
+      _PartyClickedSalePurcOrderPageState(
+        startDateString: startdate_string,
+        endDateString: enddate_string,
+        type: type,
+        ledger: ledger,
+        vchtype: vchtype,
+      );
 }
 
-class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrder> with TickerProviderStateMixin{
+class _PartyClickedSalePurcOrderPageState
+    extends State<PartyClickedSalePurcOrder>
+    with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String startDateString = "",endDateString = "",type = "",ledger = "",total = "",vchtype = "";
+  String startDateString = "",
+      endDateString = "",
+      type = "",
+      ledger = "",
+      total = "",
+      vchtype = "";
 
   int counter = 0;
   bool isSortVisible = false;
-  double total_double  = 0;
+  double total_double = 0;
 
-  String selectedSortOption = '',token = '';
+  String selectedSortOption = '', token = '';
 
   String total_main = "0";
 
-  List<Data_Top> dropdownItems = [
+  List<Data_Top> dropdownItems = [];
 
+  final List<String> itemList = [
+    'Default',
+    'A->Z',
+    'Z->A',
+    'Amount High to Low',
+    'Amount Low to High',
   ];
 
-  final List<String> itemList = ['Default', 'A->Z', 'Z->A', 'Amount High to Low', 'Amount Low to High'];
+  List<Data> filteredItems =
+      []; // Initialize an empty list to hold the filtered items
 
-  List<Data> filteredItems = []; // Initialize an empty list to hold the filtered items
-
-  _PartyClickedSalePurcOrderPageState(
-      {required this.startDateString,
-        required this.endDateString,
-        required this.type,
-        required this.ledger,
-        required this.vchtype,
-      }
-      );
+  _PartyClickedSalePurcOrderPageState({
+    required this.startDateString,
+    required this.endDateString,
+    required this.type,
+    required this.ledger,
+    required this.vchtype,
+  });
 
   String? SecuritybtnAcessHolder;
-  bool isDashEnable = true,isRolesEnable = true,isUserEnable = true,isRolesVisible = true,
-      isUserVisible = true,_isSearchViewVisible = false,_isListVisible = false;
+  bool isDashEnable = true,
+      isRolesEnable = true,
+      isUserEnable = true,
+      isRolesVisible = true,
+      isUserVisible = true,
+      _isSearchViewVisible = false,
+      _isListVisible = false;
 
   String email = "";
   String name = "";
@@ -120,9 +129,13 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
 
   late String? startdate_pref, enddate_pref;
 
-  String HttpURL = "",HttpURL_Top = "";
+  String HttpURL = "", HttpURL_Top = "";
 
-  String? hostname = "",company = "",serial_no = "",company_lowercase = "",username = "";
+  String? hostname = "",
+      company = "",
+      serial_no = "",
+      company_lowercase = "",
+      username = "";
   List<dynamic> myData = [];
   bool _isLoading = false;
 
@@ -136,7 +149,8 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
     Data(item: 'Bluetooth Headphones', totalQty: '40', totalAmount: 12000.0),
     Data(item: 'Gaming Laptop', totalQty: '3', totalAmount: 180000.0),
     Data(item: 'Office Chair Ergonomic', totalQty: '10', totalAmount: 25000.0),
-    Data(item: 'Tablet 10 inch', totalQty: '7', totalAmount: 31500.0),];
+    Data(item: 'Tablet 10 inch', totalQty: '7', totalAmount: 31500.0),
+  ];
 
   void _showSelectionWindow(BuildContext context) {
     final List<IconData> icons = [
@@ -149,17 +163,21 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
 
     // Replace this list with your actual list data
 
-    double totalHeight = itemList.length * 50.0 + 30.0 + 50.0; // Assuming each item has a height of 50 and adding padding height
+    double totalHeight =
+        itemList.length * 50.0 +
+        30.0 +
+        50.0; // Assuming each item has a height of 50 and adding padding height
 
     showModalBottomSheet<void>(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       context: context,
       builder: (BuildContext context) {
         return Container(
           constraints: BoxConstraints(
-            maxHeight: totalHeight, // Set the maximum height of the selection window with additional padding
+            maxHeight:
+                totalHeight, // Set the maximum height of the selection window with additional padding
           ),
-          color: Colors.white, // Set the background color of the selection window
+          color: Theme.of(context).colorScheme.surface,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -173,7 +191,8 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
                   ),
                 ),
               ),
-              Expanded( // Wrap the ListView.builder with Expanded
+              Expanded(
+                // Wrap the ListView.builder with Expanded
                 child: ListView.builder(
                   itemCount: itemList.length,
                   itemExtent: 50, // Set the height of each item in the list
@@ -182,7 +201,8 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
                     return GestureDetector(
                       onTap: () {
                         setState(() {
-                          selectedSortOption = itemList[index]; // Update the selected index
+                          selectedSortOption =
+                              itemList[index]; // Update the selected index
                         });
                         switch (selectedSortOption) {
                           case 'Default':
@@ -202,19 +222,27 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
                             break;
                         }
                         print('Tile $index selected');
-                        Navigator.pop(context); // Close the selection window after a tile is selected
+                        Navigator.pop(
+                          context,
+                        ); // Close the selection window after a tile is selected
                       },
                       child: Container(
                         child: ListTile(
-                          leading: Icon(icons[index]), // Add the icon to each list tile
+                          leading: Icon(
+                            icons[index],
+                          ), // Add the icon to each list tile
                           title: Text(
                             itemList[index],
                             style: GoogleFonts.poppins(
-                              fontWeight: itemList[index] == selectedSortOption ? FontWeight.bold : FontWeight.normal, // Apply bold style to the text if the tile is selected
+                              fontWeight: itemList[index] == selectedSortOption
+                                  ? FontWeight.bold
+                                  : FontWeight
+                                        .normal, // Apply bold style to the text if the tile is selected
                             ),
                           ),
-                          trailing: itemList[index] == selectedSortOption ? Icon(Icons.check,
-                            color: app_color) : null, // Show arrow icon if the tile is selected
+                          trailing: itemList[index] == selectedSortOption
+                              ? Icon(Icons.check, color: app_color)
+                              : null, // Show arrow icon if the tile is selected
                         ),
                       ),
                     );
@@ -230,7 +258,7 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
 
   void sortByDefault() {
     setState(() {
-      if(filteredItems.isNotEmpty) {
+      if (filteredItems.isNotEmpty) {
         filteredItems = List.from(item_list);
         _scrollController.animateTo(
           0.0,
@@ -243,8 +271,7 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
 
   void sortByAlphabetAtoZ() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
+      if (filteredItems.isNotEmpty) {
         filteredItems.sort((a, b) => a.item.compareTo(b.item));
         _scrollController.animateTo(
           0.0,
@@ -257,8 +284,7 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
 
   void sortByAlphabetZtoA() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
+      if (filteredItems.isNotEmpty) {
         filteredItems.sort((a, b) => b.item.compareTo(a.item));
         _scrollController.animateTo(
           0.0,
@@ -271,58 +297,52 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
 
   void sortByAmountLowtoHigh() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
-        if(vchtype == 'sales')
-          {
-            filteredItems.sort((a, b) => a.totalAmount.compareTo(b.totalAmount));
-            _scrollController.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-        else if (vchtype == 'purchase')
-          {
-            filteredItems.sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
-            _scrollController.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
+      if (filteredItems.isNotEmpty) {
+        if (vchtype == 'sales') {
+          filteredItems.sort((a, b) => a.totalAmount.compareTo(b.totalAmount));
+          _scrollController.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else if (vchtype == 'purchase') {
+          filteredItems.sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
+          _scrollController.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
       }
     });
   }
 
   void sortByAmountHightoLow() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
-        if(vchtype == 'sales')
-          {
-            filteredItems.sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
-            _scrollController.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-        else if (vchtype == 'purchase')
-          {
-            filteredItems.sort((a, b) => a.totalAmount.compareTo(b.totalAmount));
-            _scrollController.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
+      if (filteredItems.isNotEmpty) {
+        if (vchtype == 'sales') {
+          filteredItems.sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
+          _scrollController.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else if (vchtype == 'purchase') {
+          filteredItems.sort((a, b) => a.totalAmount.compareTo(b.totalAmount));
+          _scrollController.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
       }
     });
   }
 
   Future<void> generateAndSharePDF_SalePurc() async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+    final font = pw.Font.ttf(
+      await rootBundle.load("assets/fonts/NotoSans.ttf"),
+    );
     final pdf = pw.Document();
 
     String typee = '';
@@ -343,8 +363,9 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
 
     for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       final startIndex = pageNumber * itemsPerPage;
-      final endIndex =
-      (pageNumber + 1) * itemsPerPage > item_list.length ? item_list.length : (pageNumber + 1) * itemsPerPage;
+      final endIndex = (pageNumber + 1) * itemsPerPage > item_list.length
+          ? item_list.length
+          : (pageNumber + 1) * itemsPerPage;
 
       final itemsSubset = item_list.sublist(startIndex, endIndex);
 
@@ -382,31 +403,61 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
             return pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.center,
               children: [
-                pw.Text(companyName,
-                    style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                pw.Text(
+                  companyName,
+                  style: pw.TextStyle(
+                    fontSize: 20,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
                 pw.SizedBox(height: 10),
-                pw.Text(reportname,
-                    style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                pw.Text(
+                  reportname,
+                  style: pw.TextStyle(
+                    fontSize: 18,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
                 pw.SizedBox(height: 10),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.center,
                   children: [
-                    pw.Text('As on:',
-                        style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.normal)),
+                    pw.Text(
+                      'As on:',
+                      style: pw.TextStyle(
+                        fontSize: 16,
+                        fontWeight: pw.FontWeight.normal,
+                      ),
+                    ),
                     pw.SizedBox(width: 5),
-                    pw.Text(convertDateFormat(endDateString),
-                        style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.normal)),
+                    pw.Text(
+                      convertDateFormat(endDateString),
+                      style: pw.TextStyle(
+                        fontSize: 16,
+                        fontWeight: pw.FontWeight.normal,
+                      ),
+                    ),
                   ],
                 ),
                 pw.SizedBox(height: 10),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.center,
                   children: [
-                    pw.Text('Party:',
-                        style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                    pw.Text(
+                      'Party:',
+                      style: pw.TextStyle(
+                        fontSize: 16,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                    ),
                     pw.SizedBox(width: 5),
-                    pw.Text(partyname,
-                        style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.normal)),
+                    pw.Text(
+                      partyname,
+                      style: pw.TextStyle(
+                        fontSize: 16,
+                        fontWeight: pw.FontWeight.normal,
+                      ),
+                    ),
                   ],
                 ),
                 pw.SizedBox(height: 20),
@@ -425,8 +476,9 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
     await file.writeAsBytes(pdfData);
 
     // ✅ Updated share method
-    await Share.shareXFiles([XFile(tempFilePath)],
-        text: 'Sharing $typee Report of $company');
+    await Share.shareXFiles([
+      XFile(tempFilePath),
+    ], text: 'Sharing $typee Report of $company');
   }
 
   Future<void> generateAndShareCSV_SalePurc() async {
@@ -458,31 +510,24 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
     await file.writeAsString(csvString);
 
     // ✅ Updated share method
-    await Share.shareXFiles([XFile(tempFilePath)],
-        text: 'Sharing $typee Report of $company');
+    await Share.shareXFiles([
+      XFile(tempFilePath),
+    ], text: 'Sharing $typee Report of $company');
   }
 
-
   String formatCostCenter(String costcenter) {
-
     String costcenter_string = "";
-    if(costcenter == 'null')
-    {
+    if (costcenter == 'null') {
       costcenter_string = '*Not Applicable';
-    }
-    else
-    {
+    } else {
       costcenter_string = costcenter;
-
     }
     // Apply any transformations or formatting to the 'amount' variable here
     return costcenter_string;
   }
 
   String formatVchNo(String vchno) {
-
-    if(vchno == "null")
-    {
+    if (vchno == "null") {
       vchno = "No Voucher No.";
     }
 
@@ -499,48 +544,44 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
     return formattedDate;
   }
 
-  Future<void> fetchData_Top(final String ordervchs, final String typee,final String groupby,final String orderby) async
-  {
-
+  Future<void> fetchData_Top(
+    final String ordervchs,
+    final String typee,
+    final String groupby,
+    final String orderby,
+  ) async {
     setState(() {
       _isLoading = true;
     });
 
     /*print (ordervchs + typee);*/
 
-    try
-    {
+    try {
       final url = Uri.parse(HttpURL_Top!);
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
+      var body = jsonEncode({
         'ordervchs': ordervchs,
         'vchtypes': typee,
         'groupby': groupby,
-        'orderby' : orderby,
+        'orderby': orderby,
       });
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-
-      if (response.statusCode == 200)
-      {
+      if (response.statusCode == 200) {
         print('response -> ${response.body}');
-
 
         final parsed = jsonDecode(response.body).cast<Map<String, dynamic>>();
 
-        final List<Data_Top> values_list = parsed.map<Data_Top>((json) => Data_Top.fromJson(json)).toList();
+        final List<Data_Top> values_list = parsed
+            .map<Data_Top>((json) => Data_Top.fromJson(json))
+            .toList();
         if (values_list != null) {
-
           String desiredValue = ledger; // Replace with your desired value
           Data_Top? selectedValue;
           setState(() {
@@ -548,31 +589,38 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
           });
           try {
             selectedValue = dropdownItems.firstWhere(
-                  (item) => item.Partyledger == desiredValue,
+              (item) => item.Partyledger == desiredValue,
             );
-          } catch (e)
-          {
+          } catch (e) {
             selectedValue = null;
           }
-            selectedTopValue = selectedValue;
-            fetchData(vchtype,selectedTopValue?.Partyledger ?? '',type,endDateString,"item","true");
-        }
-        else
-        {
+          selectedTopValue = selectedValue;
+          fetchData(
+            vchtype,
+            selectedTopValue?.Partyledger ?? '',
+            type,
+            endDateString,
+            "item",
+            "true",
+          );
+        } else {
           throw Exception('Failed to fetch data');
         }
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       print(e);
     }
   }
 
-  Future<void> fetchData(final String vchtype,final String partyname, final String type,final String enddate,final String groupby,final String select) async
-  {
-    setState(()
-    {
+  Future<void> fetchData(
+    final String vchtype,
+    final String partyname,
+    final String type,
+    final String enddate,
+    final String groupby,
+    final String select,
+  ) async {
+    setState(() {
       _isLoading = true;
       _isListVisible = true;
       isSortVisible = false;
@@ -582,53 +630,43 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
     item_list.clear();
     filteredItems.clear();
 
-    try
-    {
+    try {
       final url = Uri.parse(HttpURL_Top!);
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
+      var body = jsonEncode({
         'vchtypes': vchtype,
         'ledger': partyname,
         'ordervchs': type,
-        'enddate' : enddate,
-        'groupby' : groupby,
-        'select' : select,
-        'orderby' : 'item',
+        'enddate': enddate,
+        'groupby': groupby,
+        'select': select,
+        'orderby': 'item',
       });
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-      if (response.statusCode == 200)
-      {
+      if (response.statusCode == 200) {
         final List<dynamic> values_list = jsonDecode(response.body);
         if (values_list != null) {
           isVisibleNoDataFound = false;
 
-          item_list.addAll(values_list.map((json) => Data.fromJson(json)).toList());
+          item_list.addAll(
+            values_list.map((json) => Data.fromJson(json)).toList(),
+          );
           filteredItems = item_list;
-
-        }
-        else
-        {
+        } else {
           throw Exception('Failed to fetch data');
         }
         setState(() {
           _isLoading = false;
         });
-
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
@@ -636,14 +674,10 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
     }
 
     setState(() {
-      if(item_list.isEmpty)
-      {
+      if (item_list.isEmpty) {
         isVisibleNoDataFound = true;
         isSortVisible = false;
-
-      }
-      else
-      {
+      } else {
         isSortVisible = true;
         isVisibleNoDataFound = false;
 
@@ -670,12 +704,11 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
   }
 
   Future<void> _initSharedPreferences() async {
-
     prefs = await SharedPreferences.getInstance();
 
     setState(() {
       hostname = prefs.getString('hostname');
-      company  = prefs.getString('company_name');
+      company = prefs.getString('company_name');
       company_lowercase = company!.replaceAll(' ', '').toLowerCase();
       serial_no = prefs.getString('serial_no');
       username = prefs.getString('username');
@@ -686,65 +719,47 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
       _isListVisible = true;*/
     });
 
-    try
-    {
+    try {
       selectedSortOption = prefs.getString('sort')!;
-      if(selectedSortOption == null || selectedSortOption == 'null')
-      {
+      if (selectedSortOption == null || selectedSortOption == 'null') {
         selectedSortOption = 'Default';
       }
-      if(!itemList.contains(selectedSortOption))
-        {
-          selectedSortOption = 'Default';
-        }
-    }
-    catch (e)
-    {
+      if (!itemList.contains(selectedSortOption)) {
+        selectedSortOption = 'Default';
+      }
+    } catch (e) {
       selectedSortOption = 'Default';
     }
 
     HttpURL = '$hostname/api/ledger/getTotal/$company_lowercase/$serial_no';
-    HttpURL_Top = '$hostname/api/ledger/getOrderSummary/$company_lowercase/$serial_no';
+    HttpURL_Top =
+        '$hostname/api/ledger/getOrderSummary/$company_lowercase/$serial_no';
 
     SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
-
 
     String? email_nav = prefs.getString('email_nav');
     String? name_nav = prefs.getString('name_nav');
 
-    if (email_nav!=null && name_nav!= null)
-    {
+    if (email_nav != null && name_nav != null) {
       name = name_nav;
       email = email_nav;
-    }
-    else
-    {
+    } else {
       String val = "";
-      if (SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         val = SecuritybtnAcessHolder!;
-      }
-      else if (SecuritybtnAcessHolder == "False")
-      {
+      } else if (SecuritybtnAcessHolder == "False") {
         val = "";
       }
-
     }
-    if(SecuritybtnAcessHolder == "True")
-    {
+    if (SecuritybtnAcessHolder == "True") {
       isRolesVisible = true;
       isUserVisible = true;
-    }
-    else
-    {
+    } else {
       isRolesVisible = false;
       isUserVisible = false;
     }
 
-
-
-    fetchData_Top(type,vchtype,"Partyledger","Partyledger");
-
+    fetchData_Top(type, vchtype, "Partyledger", "Partyledger");
 
     /*fetchData(ledger,startDateString, endDateString, type);*/
   }
@@ -760,8 +775,7 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
   }
 
   @override
-  void initState()
-  {
+  void initState() {
     super.initState();
     _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     _initSharedPreferences();
@@ -769,247 +783,297 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       key: _scaffoldKey,
-        backgroundColor: Colors.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(65),
-          child: AppBar(
-            backgroundColor: app_color,
-            elevation: 6,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-            ),
-            automaticallyImplyLeading: false,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-            centerTitle: false,
-            title: Align(
-              alignment: Alignment.centerLeft,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min, // prevent forcing full height
-                children: [
-                  SizedBox(height: 32,
-                    child:  SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DropdownButton<Data_Top>(
-                        value: selectedTopValue,
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 17,
-                        ),
-                        dropdownColor: Colors.grey[800],
-                        icon: Icon(Icons.arrow_drop_down, color: Colors.white),
-                        underline: SizedBox(),
-                        onChanged: (newValue) {
-                          setState(() {
-                            selectedTopValue = newValue!;
-                            fetchData(vchtype, newValue?.Partyledger ?? '', type, endDateString, "item", "true");
-                          });
-                        },
-                        items: dropdownItems.map((Data_Top value) {
-                          return DropdownMenuItem<Data_Top>(
-                            value: value,
-                            child: Text(
-                              value.Partyledger,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ) ,),
-
-                  Text(
-                    formatTypeTitle(type),
-                    style: GoogleFonts.poppins(
-                      color: Colors.white70,
-                      fontSize: 13,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-
-
-
-            actions: [
-              IconButton(
-                onPressed: () {
-                  counter++;
-                  if (counter % 2 == 0) {
-                    setState(() {
-                      _isSearchViewVisible = false;
-                    });
-                  } else {
-                    setState(()
-                    {
-                      _isSearchViewVisible = true;
-                    });
-                  }
-                },
-                icon: Icon(
-                  Icons.search,
-                  color: Colors.white,
-                  size: 30,
-                ),
-              ),
-              IconButton(
-                  onPressed: () {
-                    final RenderBox button = context.findRenderObject() as RenderBox;
-                    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-                    final Offset buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
-
-                    showMenu(
-                        context: context,
-                        position: RelativeRect.fromLTRB(
-                          overlay.size.width - buttonPosition.dx ,
-                          buttonPosition.dy - button.size.height,
-                          overlay.size.width - buttonPosition.dx,
-                          buttonPosition.dy,
-                        ),
-                        items: <PopupMenuEntry<String>>[
-                          PopupMenuItem<String>(
-                              child: GestureDetector(
-                                onTap: ()
-                                {
-                                  Navigator.pop(context);
-                                  if(!item_list.isEmpty)
-                                  {
-                                    generateAndSharePDF_SalePurc();
-                                  }
-                                },
-                                child:  Row(children: [
-                                  Icon( Icons.picture_as_pdf,
-                                    size: 16,
-                                    color: app_color,),
-                                  SizedBox(width: 5,),
-
-                                  Text(
-                                    'Share as PDF',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.normal,
-                                      color: app_color,
-                                      fontSize: 16,
-                                    ),
-                                  )]),)
-                          ),
-
-                          PopupMenuItem<String>(
-                              child: GestureDetector(
-                                onTap: ()
-                                {
-                                  Navigator.pop(context);
-                                  if(!item_list.isEmpty)
-                                  {
-                                    generateAndShareCSV_SalePurc();
-                                  }
-                                },
-                                child: Row(children: [
-
-                                  Icon( Icons.add_chart_outlined,
-                                    size: 16,
-                                    color: app_color,),
-                                  SizedBox(width: 5,),
-
-                                  Text(
-                                    'Share as CSV',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.normal,
-                                      color: Color(0xFF26ADA3),
-                                      fontSize: 16,
-                                    ),
-                                  )]),)
-                          )]);},
-                  icon: Icon(
-                    Icons.share,
-                    color: Colors.white,
-                    size: 30,
-                  ))
-            ],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(65),
+        child: AppBar(
+          backgroundColor: app_color,
+          elevation: 6,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
-        ),
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          centerTitle: false,
+          title: Align(
+            alignment: Alignment.centerLeft,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min, // prevent forcing full height
+              children: [
+                SizedBox(
+                  height: 32,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DropdownButton<Data_Top>(
+                      value: selectedTopValue,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 17,
+                      ),
+                      dropdownColor: Colors.grey[800],
+                      icon: Icon(Icons.arrow_drop_down, color: Colors.white),
+                      underline: SizedBox(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedTopValue = newValue!;
+                          fetchData(
+                            vchtype,
+                            newValue?.Partyledger ?? '',
+                            type,
+                            endDateString,
+                            "item",
+                            "true",
+                          );
+                        });
+                      },
+                      items: dropdownItems.map((Data_Top value) {
+                        return DropdownMenuItem<Data_Top>(
+                          value: value,
+                          child: Text(
+                            value.Partyledger,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
 
+                Text(
+                  formatTypeTitle(type),
+                  style: GoogleFonts.poppins(
+                    color: Colors.white70,
+                    fontSize: 13,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+
+          actions: [
+            IconButton(
+              onPressed: () {
+                counter++;
+                if (counter % 2 == 0) {
+                  setState(() {
+                    _isSearchViewVisible = false;
+                  });
+                } else {
+                  setState(() {
+                    _isSearchViewVisible = true;
+                  });
+                }
+              },
+              icon: Icon(Icons.search, color: Colors.white, size: 30),
+            ),
+            IconButton(
+              onPressed: () {
+                final RenderBox button =
+                    context.findRenderObject() as RenderBox;
+                final RenderBox overlay =
+                    Overlay.of(context).context.findRenderObject() as RenderBox;
+                final Offset buttonPosition = button.localToGlobal(
+                  Offset.zero,
+                  ancestor: overlay,
+                );
+
+                showMenu(
+                  color: Theme.of(context).colorScheme.surface,
+                  context: context,
+                  position: RelativeRect.fromLTRB(
+                    overlay.size.width - buttonPosition.dx,
+                    buttonPosition.dy - button.size.height,
+                    overlay.size.width - buttonPosition.dx,
+                    buttonPosition.dy,
+                  ),
+                  items: <PopupMenuEntry<String>>[
+                    PopupMenuItem<String>(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                          if (!item_list.isEmpty) {
+                            generateAndSharePDF_SalePurc();
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.picture_as_pdf,
+                              size: 16,
+                              color: app_color,
+                            ),
+                            SizedBox(width: 5),
+
+                            Text(
+                              'Share as PDF',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.normal,
+                                color: app_color,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    PopupMenuItem<String>(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                          if (!item_list.isEmpty) {
+                            generateAndShareCSV_SalePurc();
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.add_chart_outlined,
+                              size: 16,
+                              color: app_color,
+                            ),
+                            SizedBox(width: 5),
+
+                            Text(
+                              'Share as CSV',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.normal,
+                                color: Color(0xFF26ADA3),
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+              icon: Icon(Icons.share, color: Colors.white, size: 30),
+            ),
+          ],
+        ),
+      ),
 
       drawer: Sidebar(
-          isDashEnable: isDashEnable,
-          isRolesVisible: isRolesVisible,
-          isRolesEnable: isRolesEnable,
-          isUserEnable: isUserEnable,
-          isUserVisible: isUserVisible,
-          Username: name,
-          Email: email,
-          tickerProvider: this), // add the Sidebar widget here
+        isDashEnable: isDashEnable,
+        isRolesVisible: isRolesVisible,
+        isRolesEnable: isRolesEnable,
+        isUserEnable: isUserEnable,
+        isUserVisible: isUserVisible,
+        Username: name,
+        Email: email,
+        tickerProvider: this,
+      ), // add the Sidebar widget here
 
       body: Stack(
         children: [
           Column(
             children: [
-
-              Expanded(child:Container(
+              Expanded(
+                child: Container(
                   width: double.infinity,
-                  color: Colors.white,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   child: Column(
                     children: [
                       Expanded(
                         child: Container(
-                          color: Colors.white,
+                          color: Theme.of(context).scaffoldBackgroundColor,
                           child: Column(
                             children: [
-
                               if (_isSearchViewVisible) ...[
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
+                                  padding: const EdgeInsets.only(
+                                    left: 12,
+                                    right: 12,
+                                    top: 12,
+                                  ),
                                   child: Material(
                                     elevation: 2,
                                     borderRadius: BorderRadius.circular(14),
                                     shadowColor: Colors.black12,
                                     child: TextField(
                                       controller: searchController,
-                                        onChanged: (value) {
-                                          if(value.isEmpty)
-                                          {
-                                            setState(() {
-                                              filteredItems = item_list;
-                                            });
-                                          }
-                                          else
-                                          {
-                                            setState(() {
-                                              filteredItems = item_list.where((item) {
-                                                // Filter items based on the search query and the ledgerName property
-                                                final query = value.toLowerCase();
-                                                return item.item.toLowerCase().contains(query);
-                                              }).toList();
-                                            });}},
-                                      style: GoogleFonts.poppins(fontSize: 15),
+                                      onChanged: (value) {
+                                        if (value.isEmpty) {
+                                          setState(() {
+                                            filteredItems = item_list;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            filteredItems = item_list.where((
+                                              item,
+                                            ) {
+                                              // Filter items based on the search query and the ledgerName property
+                                              final query = value.toLowerCase();
+                                              return item.item
+                                                  .toLowerCase()
+                                                  .contains(query);
+                                            }).toList();
+                                          });
+                                        }
+                                      },
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 15,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
                                       decoration: InputDecoration(
                                         hintText: 'Search...',
-                                        prefixIcon: const Icon(Icons.search, color: Colors.black54),
+                                        prefixIcon: Icon(
+                                          Icons.search,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
                                         filled: true,
-                                        fillColor: Colors.white,
-                                        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                                        fillColor:
+                                            Theme.of(
+                                              context,
+                                            ).inputDecorationTheme.fillColor ??
+                                            Theme.of(context)
+                                                .colorScheme
+                                                .surfaceContainerHighest,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              vertical: 14,
+                                              horizontal: 16,
+                                            ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(14),
-                                          borderSide: BorderSide(color: Colors.grey.shade200),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
+                                          ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(14),
-                                          borderSide: const BorderSide(color: app_color, width: 1.5),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                )
+                                ),
                               ],
-
 
                               if (isVisibleNoDataFound)
                                 Padding(
@@ -1021,7 +1085,9 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
                                         Icon(
                                           Icons.search_off_rounded,
                                           size: 48,
-                                          color: Colors.grey,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                         SizedBox(height: 12),
                                         Text(
@@ -1029,7 +1095,9 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
                                           style: GoogleFonts.poppins(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
-                                            color: Colors.black54,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                           ),
                                         ),
                                       ],
@@ -1037,13 +1105,15 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
                                   ),
                                 ),
 
-
                               Visibility(
                                 visible: _isListVisible,
                                 child: Expanded(
                                   child: ListView.builder(
                                     controller: _scrollController,
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
                                     itemCount: filteredItems.length,
                                     itemBuilder: (context, index) {
                                       final card = filteredItems[index];
@@ -1051,56 +1121,84 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
                                       return GestureDetector(
                                         onTap: () {
                                           String item = card.item;
-                                          String party = selectedTopValue!.Partyledger;
+                                          String party =
+                                              selectedTopValue!.Partyledger;
 
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) => PartyClickedSalePurcOrderClicked(
-                                                ledger: party,
-                                                startdate_string: startDateString,
-                                                enddate_string: endDateString,
-                                                type: type,
-                                                vchtype: vchtype,
-                                                item: item,
-                                                dropdownItems: item_list,
-                                              ),
+                                              builder: (context) =>
+                                                  PartyClickedSalePurcOrderClicked(
+                                                    ledger: party,
+                                                    startdate_string:
+                                                        startDateString,
+                                                    enddate_string:
+                                                        endDateString,
+                                                    type: type,
+                                                    vchtype: vchtype,
+                                                    item: item,
+                                                    dropdownItems: item_list,
+                                                  ),
                                             ),
                                           );
                                         },
                                         child: Container(
-                                          margin: const EdgeInsets.only(bottom: 7),
+                                          margin: const EdgeInsets.only(
+                                            bottom: 7,
+                                          ),
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(16),
-                                            color: Colors.white.withOpacity(0.95),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            color: Theme.of(
+                                              context,
+                                            ).cardColor.withOpacity(0.95),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.black.withOpacity(0.04),
+                                                color: Colors.black.withOpacity(
+                                                  0.04,
+                                                ),
                                                 blurRadius: 10,
                                                 spreadRadius: 1,
                                                 offset: const Offset(0, 4),
                                               ),
                                             ],
                                           ),
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 16,
+                                          ),
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               // Item Name
                                               Row(
                                                 children: [
-                                                  Icon(Icons.widgets_outlined, size: 18, color: Colors.teal),
+                                                  Icon(
+                                                    Icons.widgets_outlined,
+                                                    size: 18,
+                                                    color: Colors.teal,
+                                                  ),
                                                   const SizedBox(width: 8),
                                                   Expanded(
                                                     child: Text(
                                                       card.item,
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 15,
-                                                        fontWeight: FontWeight.w600,
-                                                        color: Colors.black87,
-                                                        letterSpacing: 0.3,
-                                                      ),
-                                                      overflow: TextOverflow.ellipsis,
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 15,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color:
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .colorScheme
+                                                                    .onSurface,
+                                                            letterSpacing: 0,
+                                                          ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                     ),
                                                   ),
                                                 ],
@@ -1111,7 +1209,9 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
                                               // Subtle Divider
                                               Container(
                                                 height: 1,
-                                                color: Colors.grey.withOpacity(0.12),
+                                                color: Colors.grey.withOpacity(
+                                                  0.12,
+                                                ),
                                               ),
 
                                               const SizedBox(height: 12),
@@ -1119,29 +1219,64 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
                                               // Pending Qty & Pending Amount - Modern pills
                                               // Pending Qty & Pending Amount - responsive wrap pills
                                               Wrap(
-                                                spacing: 12, // space between pills horizontally
-                                                runSpacing: 10, // space between rows if it wraps
+                                                spacing:
+                                                    12, // space between pills horizontally
+                                                runSpacing:
+                                                    10, // space between rows if it wraps
                                                 children: [
                                                   // Qty Pill
                                                   Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 12,
+                                                          vertical: 10,
+                                                        ),
                                                     decoration: BoxDecoration(
-                                                      color: Colors.orange.shade50,
-                                                      borderRadius: BorderRadius.circular(24),
-                                                      border: Border.all(color: Colors.orange.shade50),
+                                                      color: Colors.orange
+                                                          .withOpacity(
+                                                            Theme.of(
+                                                                      context,
+                                                                    ).brightness ==
+                                                                    Brightness
+                                                                        .dark
+                                                                ? 0.22
+                                                                : 0.1,
+                                                          ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            24,
+                                                          ),
+                                                      border: Border.all(
+                                                        color: Colors
+                                                            .orange
+                                                            .shade50,
+                                                      ),
                                                     ),
                                                     child: Row(
-                                                      mainAxisSize: MainAxisSize.min,
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
                                                       children: [
-                                                        Icon(Icons.inventory_2_rounded, size: 16, color: Colors.orange),
-                                                        const SizedBox(width: 6),
+                                                        Icon(
+                                                          Icons
+                                                              .inventory_2_rounded,
+                                                          size: 16,
+                                                          color: Colors.orange,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 6,
+                                                        ),
                                                         Text(
                                                           'Qty: ${card.totalQty}',
-                                                          style: GoogleFonts.poppins(
-                                                            fontSize: 13,
-                                                            fontWeight: FontWeight.w500,
-                                                            color: Colors.orange.shade800,
-                                                          ),
+                                                          style:
+                                                              GoogleFonts.poppins(
+                                                                fontSize: 13,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                color: Colors
+                                                                    .orange
+                                                                    .shade800,
+                                                              ),
                                                         ),
                                                       ],
                                                     ),
@@ -1149,24 +1284,47 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
 
                                                   // Amount Pill — no icon, as per your last request
                                                   Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 12,
+                                                          vertical: 10,
+                                                        ),
                                                     decoration: BoxDecoration(
-                                                      color: Colors.green.shade50,
-                                                      borderRadius: BorderRadius.circular(24),
-                                                      border: Border.all(color: Colors.green.shade50),
+                                                      color: Colors.green
+                                                          .withOpacity(
+                                                            Theme.of(
+                                                                      context,
+                                                                    ).brightness ==
+                                                                    Brightness
+                                                                        .dark
+                                                                ? 0.22
+                                                                : 0.1,
+                                                          ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            24,
+                                                          ),
+                                                      border: Border.all(
+                                                        color: Colors
+                                                            .green
+                                                            .shade50,
+                                                      ),
                                                     ),
                                                     child: Text(
                                                       '${formatAmount(card.totalAmount.toString())}',
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 13,
-                                                        fontWeight: FontWeight.w500,
-                                                        color: Colors.green.shade800,
-                                                      ),
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 13,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            color: Colors
+                                                                .green
+                                                                .shade800,
+                                                          ),
                                                     ),
                                                   ),
                                                 ],
                                               ),
-
                                             ],
                                           ),
                                         ),
@@ -1175,58 +1333,75 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
                                   ),
                                 ),
                               ),
-
-                            ])))])))]),
-
-
-          Visibility(
-              visible: isSortVisible,
-              child: Padding(
-                  padding: const EdgeInsets.only(bottom: 50),
-                  child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: GestureDetector(
-                          onTap: () => _showSelectionWindow(context),
-                          child: Container(
-                              width: 100,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color:  app_color, // soft teal background
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.teal.withOpacity(0.3),
-                                    blurRadius: 10,
-                                    offset: Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.sort, size: 18, color: Colors.white),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'Sort',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14.5,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    )]))))
-              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
 
-
+          Visibility(
+            visible: isSortVisible,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 50),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: GestureDetector(
+                  onTap: () => _showSelectionWindow(context),
+                  child: Container(
+                    width: 100,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: app_color, // soft teal background
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.teal.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.sort, size: 18, color: Colors.white),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Sort',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
 
           Visibility(
             visible: _isLoading,
-            child: Center(
-                child: AppLogoLoader()))
-        ]));}
+            child: Center(child: AppLogoLoader()),
+          ),
+        ],
+      ),
+    );
+  }
 
-
-  Widget _buildMetaChipWithIcon(IconData icon, String label, Color bgColor, Color textColor) {
+  Widget _buildMetaChipWithIcon(
+    IconData icon,
+    String label,
+    Color bgColor,
+    Color textColor,
+  ) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
@@ -1250,5 +1425,4 @@ class _PartyClickedSalePurcOrderPageState extends State<PartyClickedSalePurcOrde
       ),
     );
   }
-
 }

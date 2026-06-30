@@ -17,87 +17,105 @@ import 'dart:io';
 
 import 'constants.dart';
 
-
 class Data_List {
-
   final String orderno;
   final String pendingQty;
   final double pendingAmount;
   final String vchdate;
-
 
   Data_List({
     required this.orderno,
     required this.pendingQty,
     required this.pendingAmount,
     required this.vchdate,
-
   });
 
   factory Data_List.fromJson(Map<String, dynamic> json) {
     return Data_List(
-    orderno : json['orderno'].toString(),
-      pendingQty : json['pendingQty'].toString(),
-      pendingAmount : double.tryParse(json['pendingAmount'].toString()) ?? 0,
-      vchdate : json['vchdate'].toString(),
+      orderno: json['orderno'].toString(),
+      pendingQty: json['pendingQty'].toString(),
+      pendingAmount: double.tryParse(json['pendingAmount'].toString()) ?? 0,
+      vchdate: json['vchdate'].toString(),
     );
   }
 }
 
-class PartyClickedSalePurcOrderClicked extends StatefulWidget
-{
-  final String startdate_string,enddate_string,type,ledger,vchtype,item;
-  final List<Data> dropdownItems ;
+class PartyClickedSalePurcOrderClicked extends StatefulWidget {
+  final String startdate_string, enddate_string, type, ledger, vchtype, item;
+  final List<Data> dropdownItems;
 
-  const PartyClickedSalePurcOrderClicked(
-      {required this.startdate_string,
-        required this.enddate_string,
-        required this.type,
-        required this.ledger,
-        required this.vchtype,
-        required this.item,
-        required this.dropdownItems,
-
-      }
-      );
+  const PartyClickedSalePurcOrderClicked({
+    required this.startdate_string,
+    required this.enddate_string,
+    required this.type,
+    required this.ledger,
+    required this.vchtype,
+    required this.item,
+    required this.dropdownItems,
+  });
   @override
-  _PartyClickedSalePurcOrderClickedPageState createState() => _PartyClickedSalePurcOrderClickedPageState(startDateString: startdate_string,
-      endDateString: enddate_string,type: type,ledger:  ledger,vchtype:vchtype,item: item,dropdownItems:dropdownItems);
+  _PartyClickedSalePurcOrderClickedPageState createState() =>
+      _PartyClickedSalePurcOrderClickedPageState(
+        startDateString: startdate_string,
+        endDateString: enddate_string,
+        type: type,
+        ledger: ledger,
+        vchtype: vchtype,
+        item: item,
+        dropdownItems: dropdownItems,
+      );
 }
 
-class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSalePurcOrderClicked> with TickerProviderStateMixin{
+class _PartyClickedSalePurcOrderClickedPageState
+    extends State<PartyClickedSalePurcOrderClicked>
+    with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String startDateString = "",endDateString = "",type = "",ledger = "",total = "",vchtype = "",item="";
+  String startDateString = "",
+      endDateString = "",
+      type = "",
+      ledger = "",
+      total = "",
+      vchtype = "",
+      item = "";
 
   int counter = 0;
-  double total_double  = 0;
+  double total_double = 0;
 
-  String total_main = "0",token = '';
+  String total_main = "0", token = '';
 
-  List<Data> dropdownItems ;
+  List<Data> dropdownItems;
 
-  List<Data_List> filteredItems = []; // Initialize an empty list to hold the filtered items
+  List<Data_List> filteredItems =
+      []; // Initialize an empty list to hold the filtered items
 
-
-  _PartyClickedSalePurcOrderClickedPageState(
-      {required this.startDateString,
-        required this.endDateString,
-        required this.type,
-        required this.ledger,
-        required this.vchtype,
-        required this.item,
-        required this.dropdownItems,
-
-      }
-      );
+  _PartyClickedSalePurcOrderClickedPageState({
+    required this.startDateString,
+    required this.endDateString,
+    required this.type,
+    required this.ledger,
+    required this.vchtype,
+    required this.item,
+    required this.dropdownItems,
+  });
 
   List<Data_List> item_list = [];
 
-  final List<String> itemList = ['Default', 'Newest to Oldest', 'Oldest to Newest', 'Amount High to Low', 'Amount Low to High'];
+  final List<String> itemList = [
+    'Default',
+    'Newest to Oldest',
+    'Oldest to Newest',
+    'Amount High to Low',
+    'Amount Low to High',
+  ];
 
   String? SecuritybtnAcessHolder;
-  bool isDashEnable = true,isRolesEnable = true,isUserEnable = true,isRolesVisible = true,
-      isUserVisible = true,_isSearchViewVisible = false,_isListVisible = false;
+  bool isDashEnable = true,
+      isRolesEnable = true,
+      isUserEnable = true,
+      isRolesVisible = true,
+      isUserVisible = true,
+      _isSearchViewVisible = false,
+      _isListVisible = false;
 
   String email = "";
   String name = "";
@@ -105,7 +123,7 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
   Data? selectedTopValue;
 
   bool isSortVisible = false;
-  
+
   TextEditingController searchController = TextEditingController();
 
   bool isVisibleNoDataFound = false;
@@ -118,12 +136,15 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
 
   String HttpURL = "";
 
-  String? hostname = "",company = "",serial_no = "",company_lowercase = "",username = "";
+  String? hostname = "",
+      company = "",
+      serial_no = "",
+      company_lowercase = "",
+      username = "";
   List<dynamic> myData = [];
   bool _isLoading = false;
   String selectedSortOption = '';
-   ScrollController _scrollController = ScrollController();
-
+  ScrollController _scrollController = ScrollController();
 
   void _showSelectionWindow(BuildContext context) {
     final List<IconData> icons = [
@@ -136,17 +157,21 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
 
     // Replace this list with your actual list data
 
-    double totalHeight = itemList.length * 50.0 + 30.0 + 50.0; // Assuming each item has a height of 50 and adding padding height
+    double totalHeight =
+        itemList.length * 50.0 +
+        30.0 +
+        50.0; // Assuming each item has a height of 50 and adding padding height
 
     showModalBottomSheet<void>(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       context: context,
       builder: (BuildContext context) {
         return Container(
           constraints: BoxConstraints(
-            maxHeight: totalHeight, // Set the maximum height of the selection window with additional padding
+            maxHeight:
+                totalHeight, // Set the maximum height of the selection window with additional padding
           ),
-          color: Colors.white, // Set the background color of the selection window
+          color: Theme.of(context).colorScheme.surface,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -160,7 +185,8 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                   ),
                 ),
               ),
-              Expanded( // Wrap the ListView.builder with Expanded
+              Expanded(
+                // Wrap the ListView.builder with Expanded
                 child: ListView.builder(
                   itemCount: itemList.length,
                   itemExtent: 50, // Set the height of each item in the list
@@ -169,7 +195,8 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                     return GestureDetector(
                       onTap: () {
                         setState(() {
-                          selectedSortOption = itemList[index]; // Update the selected index
+                          selectedSortOption =
+                              itemList[index]; // Update the selected index
                         });
                         switch (selectedSortOption) {
                           case 'Default':
@@ -189,19 +216,27 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                             break;
                         }
                         print('Tile $index selected');
-                        Navigator.pop(context); // Close the selection window after a tile is selected
+                        Navigator.pop(
+                          context,
+                        ); // Close the selection window after a tile is selected
                       },
                       child: Container(
                         child: ListTile(
-                          leading: Icon(icons[index]), // Add the icon to each list tile
+                          leading: Icon(
+                            icons[index],
+                          ), // Add the icon to each list tile
                           title: Text(
                             itemList[index],
                             style: GoogleFonts.poppins(
-                              fontWeight: itemList[index] == selectedSortOption ? FontWeight.bold : FontWeight.normal, // Apply bold style to the text if the tile is selected
+                              fontWeight: itemList[index] == selectedSortOption
+                                  ? FontWeight.bold
+                                  : FontWeight
+                                        .normal, // Apply bold style to the text if the tile is selected
                             ),
                           ),
-                          trailing: itemList[index] == selectedSortOption ? Icon(Icons.check,
-                            color: app_color,) : null, // Show arrow icon if the tile is selected
+                          trailing: itemList[index] == selectedSortOption
+                              ? Icon(Icons.check, color: app_color)
+                              : null, // Show arrow icon if the tile is selected
                         ),
                       ),
                     );
@@ -217,7 +252,7 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
 
   void sortByDefault() {
     setState(() {
-      if(filteredItems.isNotEmpty) {
+      if (filteredItems.isNotEmpty) {
         filteredItems = List.from(item_list);
         _scrollController.animateTo(
           0.0,
@@ -230,8 +265,7 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
 
   void sortByDateLowtoHigh() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
+      if (filteredItems.isNotEmpty) {
         filteredItems.sort((a, b) => a.vchdate.compareTo(b.vchdate));
         _scrollController.animateTo(
           0.0,
@@ -239,14 +273,12 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
   void sortByDateHightoLow() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
+      if (filteredItems.isNotEmpty) {
         filteredItems.sort((a, b) => b.vchdate.compareTo(a.vchdate));
         _scrollController.animateTo(
           0.0,
@@ -254,65 +286,65 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
   void sortByAmountLowtoHigh() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
-        if(vchtype == 'sales')
-          {
-            filteredItems.sort((a, b) => a.pendingAmount.compareTo(b.pendingAmount));
-            _scrollController.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-        else if (vchtype == 'purchase')
-          {
-            filteredItems.sort((a, b) => b.pendingAmount.compareTo(a.pendingAmount));
-            _scrollController.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
+      if (filteredItems.isNotEmpty) {
+        if (vchtype == 'sales') {
+          filteredItems.sort(
+            (a, b) => a.pendingAmount.compareTo(b.pendingAmount),
+          );
+          _scrollController.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else if (vchtype == 'purchase') {
+          filteredItems.sort(
+            (a, b) => b.pendingAmount.compareTo(a.pendingAmount),
+          );
+          _scrollController.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
       }
-
     });
   }
 
   void sortByAmountHightoLow() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
-        if(vchtype == 'sales')
-          {
-            filteredItems.sort((a, b) => b.pendingAmount.compareTo(a.pendingAmount));
-            _scrollController.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-        else if (vchtype =='purchase')
-          {
-            filteredItems.sort((a, b) => a.pendingAmount.compareTo(b.pendingAmount));
-            _scrollController.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
+      if (filteredItems.isNotEmpty) {
+        if (vchtype == 'sales') {
+          filteredItems.sort(
+            (a, b) => b.pendingAmount.compareTo(a.pendingAmount),
+          );
+          _scrollController.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else if (vchtype == 'purchase') {
+          filteredItems.sort(
+            (a, b) => a.pendingAmount.compareTo(b.pendingAmount),
+          );
+          _scrollController.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
       }
     });
   }
 
   Future<void> generateAndSharePDF_SalePurc() async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+    final font = pw.Font.ttf(
+      await rootBundle.load("assets/fonts/NotoSans.ttf"),
+    );
     final pdf = pw.Document();
 
     String typee = '';
@@ -334,8 +366,9 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
 
     for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       final startIndex = pageNumber * itemsPerPage;
-      final endIndex =
-      (pageNumber + 1) * itemsPerPage > item_list.length ? item_list.length : (pageNumber + 1) * itemsPerPage;
+      final endIndex = (pageNumber + 1) * itemsPerPage > item_list.length
+          ? item_list.length
+          : (pageNumber + 1) * itemsPerPage;
       final itemsSubset = item_list.sublist(startIndex, endIndex);
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -375,42 +408,82 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.center,
                 children: [
-                  pw.Text(companyName,
-                      style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    companyName,
+                    style: pw.TextStyle(
+                      fontSize: 20,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                   pw.SizedBox(height: 10),
-                  pw.Text(reportname,
-                      style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    reportname,
+                    style: pw.TextStyle(
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                   pw.SizedBox(height: 10),
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.center,
                     children: [
-                      pw.Text('As on:',
-                          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.normal)),
+                      pw.Text(
+                        'As on:',
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.normal,
+                        ),
+                      ),
                       pw.SizedBox(width: 5),
-                      pw.Text(convertDateFormat(endDateString),
-                          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.normal)),
+                      pw.Text(
+                        convertDateFormat(endDateString),
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.normal,
+                        ),
+                      ),
                     ],
                   ),
                   pw.SizedBox(height: 10),
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.center,
                     children: [
-                      pw.Text('Party:',
-                          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                      pw.Text(
+                        'Party:',
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
                       pw.SizedBox(width: 5),
-                      pw.Text(partyname,
-                          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.normal)),
+                      pw.Text(
+                        partyname,
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.normal,
+                        ),
+                      ),
                     ],
                   ),
                   pw.SizedBox(height: 10),
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.center,
                     children: [
-                      pw.Text('Item:',
-                          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                      pw.Text(
+                        'Item:',
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
                       pw.SizedBox(width: 5),
-                      pw.Text(item_name,
-                          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.normal)),
+                      pw.Text(
+                        item_name,
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.normal,
+                        ),
+                      ),
                     ],
                   ),
                   pw.SizedBox(height: 20),
@@ -430,10 +503,9 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
     await file.writeAsBytes(pdfData);
 
     // ✅ Updated Share Plus usage
-    await Share.shareXFiles(
-      [XFile(tempFilePath)],
-      text: 'Sharing $typee Report of $company',
-    );
+    await Share.shareXFiles([
+      XFile(tempFilePath),
+    ], text: 'Sharing $typee Report of $company');
   }
 
   Future<void> generateAndShareCSV_SalePurc() async {
@@ -465,14 +537,10 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
     await file.writeAsString(csvString);
 
     // ✅ Updated Share Plus usage
-    await Share.shareXFiles(
-      [XFile(tempFilePath)],
-      text: 'Sharing $typee Report of $company',
-    );
+    await Share.shareXFiles([
+      XFile(tempFilePath),
+    ], text: 'Sharing $typee Report of $company');
   }
-
-
-
 
   String convertDateFormat(String dateStr) {
     // Parse the input date string
@@ -484,66 +552,58 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
     return formattedDate;
   }
 
-
-  Future<void> fetchData(final String vchtype,final String partyname, final String type,final String enddate,final String item) async
-  {
-    setState(()
-    {
+  Future<void> fetchData(
+    final String vchtype,
+    final String partyname,
+    final String type,
+    final String enddate,
+    final String item,
+  ) async {
+    setState(() {
       _isLoading = true;
       _isListVisible = true;
       isSortVisible = false;
       isVisibleNoDataFound = false;
-
     });
     item_list.clear();
     filteredItems.clear();
 
-    try
-    {
+    try {
       final url = Uri.parse(HttpURL!);
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
+      var body = jsonEncode({
         'vchtypes': vchtype,
         'ledger': partyname,
         'ordervchs': type,
-        'enddate' : enddate,
-        'item' : item,
+        'enddate': enddate,
+        'item': item,
       });
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-      if (response.statusCode == 200)
-      {
+      if (response.statusCode == 200) {
         print(response.body);
         final List<dynamic> values_list = jsonDecode(response.body);
         if (values_list != null) {
           isVisibleNoDataFound = false;
 
-          item_list.addAll(values_list.map((json) => Data_List.fromJson(json)).toList());
+          item_list.addAll(
+            values_list.map((json) => Data_List.fromJson(json)).toList(),
+          );
           filteredItems = item_list;
-
-        }
-        else {
-
+        } else {
           throw Exception('Failed to fetch data');
         }
         setState(() {
           _isLoading = false;
         });
-
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
@@ -551,13 +611,10 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
     }
 
     setState(() {
-      if(item_list.isEmpty)
-      {
+      if (item_list.isEmpty) {
         isVisibleNoDataFound = true;
         isSortVisible = false;
-      }
-      else
-      {
+      } else {
         isSortVisible = true;
         isVisibleNoDataFound = false;
         switch (selectedSortOption) {
@@ -581,68 +638,53 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
       _isLoading = false;
     });
   }
-  Future<void> _initSharedPreferences() async {
 
+  Future<void> _initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
 
     setState(() {
       hostname = prefs.getString('hostname');
-      company  = prefs.getString('company_name');
+      company = prefs.getString('company_name');
       company_lowercase = company!.replaceAll(' ', '').toLowerCase();
       serial_no = prefs.getString('serial_no');
       username = prefs.getString('username');
       token = prefs.getString('token')!;
     });
-    try
-    {
+    try {
       selectedSortOption = prefs.getString('sort')!;
-      if(selectedSortOption == null || selectedSortOption == 'null')
-      {
+      if (selectedSortOption == null || selectedSortOption == 'null') {
         selectedSortOption = 'Default';
       }
-      if(!itemList.contains(selectedSortOption))
-        {
-          selectedSortOption = 'Default';
-        }
-    }
-    catch (e)
-    {
+      if (!itemList.contains(selectedSortOption)) {
+        selectedSortOption = 'Default';
+      }
+    } catch (e) {
       selectedSortOption = 'Default';
     }
 
-    HttpURL = '$hostname/api/ledger/getOrderSummary/$company_lowercase/$serial_no';
+    HttpURL =
+        '$hostname/api/ledger/getOrderSummary/$company_lowercase/$serial_no';
 
     SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
-
 
     String? email_nav = prefs.getString('email_nav');
     String? name_nav = prefs.getString('name_nav');
 
-    if (email_nav!=null && name_nav!= null)
-    {
+    if (email_nav != null && name_nav != null) {
       name = name_nav;
       email = email_nav;
-    }
-    else
-    {
+    } else {
       String val = "";
-      if (SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         val = SecuritybtnAcessHolder!;
-      }
-      else if (SecuritybtnAcessHolder == "False")
-      {
+      } else if (SecuritybtnAcessHolder == "False") {
         val = "";
       }
-
     }
-    if(SecuritybtnAcessHolder == "True")
-    {
+    if (SecuritybtnAcessHolder == "True") {
       isRolesVisible = true;
       isUserVisible = true;
-    }
-    else
-    {
+    } else {
       isRolesVisible = false;
       isUserVisible = false;
     }
@@ -652,14 +694,13 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
 
     try {
       selectedValue = dropdownItems.firstWhere(
-            (item) => item.item == desiredValue,
+        (item) => item.item == desiredValue,
       );
-    } catch (e)
-    {
+    } catch (e) {
       selectedValue = null;
     }
     selectedTopValue = selectedValue;
-    fetchData(vchtype,ledger, type, endDateString,selectedTopValue!.item);
+    fetchData(vchtype, ledger, type, endDateString, selectedTopValue!.item);
   }
 
   @override
@@ -671,14 +712,13 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.white,
-      appBar:   PreferredSize(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: AppBar(
-          backgroundColor:  app_color,
+          backgroundColor: app_color,
           elevation: 6,
           automaticallyImplyLeading: false,
 
@@ -693,9 +733,9 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
           ),
           centerTitle: true,
           title: Flexible(
-            child:  Text(
+            child: Text(
               ledger,
-              style:  GoogleFonts.poppins(
+              style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
@@ -717,47 +757,45 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                   });
                 }
               },
-              icon: Icon(
-                Icons.search,
-                color: Colors.white,
-                size: 30,
-              ),
+              icon: Icon(Icons.search, color: Colors.white, size: 30),
             ),
             IconButton(
               onPressed: () {
-
-                final RenderBox button = context.findRenderObject() as RenderBox;
-                final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-                final Offset buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
+                final RenderBox button =
+                    context.findRenderObject() as RenderBox;
+                final RenderBox overlay =
+                    Overlay.of(context).context.findRenderObject() as RenderBox;
+                final Offset buttonPosition = button.localToGlobal(
+                  Offset.zero,
+                  ancestor: overlay,
+                );
 
                 showMenu(
+                  color: Theme.of(context).colorScheme.surface,
                   context: context,
                   position: RelativeRect.fromLTRB(
-                    overlay.size.width - buttonPosition.dx ,
+                    overlay.size.width - buttonPosition.dx,
                     buttonPosition.dy - button.size.height,
                     overlay.size.width - buttonPosition.dx,
                     buttonPosition.dy,
                   ),
                   items: <PopupMenuEntry<String>>[
-
-
                     PopupMenuItem<String>(
-
-                        child: GestureDetector(
-                          onTap: ()
-                          {
-                            Navigator.pop(context);
-                            if(!item_list.isEmpty)
-                            {
-                              generateAndSharePDF_SalePurc();
-                            }
-                          },
-                          child:  Row(children: [
-
-                            Icon( Icons.picture_as_pdf,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                          if (!item_list.isEmpty) {
+                            generateAndSharePDF_SalePurc();
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.picture_as_pdf,
                               size: 16,
-                              color: app_color),
-                            SizedBox(width: 5,),
+                              color: app_color,
+                            ),
+                            SizedBox(width: 5),
 
                             Text(
                               'Share as PDF',
@@ -766,27 +804,29 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                                 color: app_color,
                                 fontSize: 16,
                               ),
-                            )]),)
-
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
 
                     PopupMenuItem<String>(
-                        child: GestureDetector(
-                          onTap: ()
-                          {
-                            Navigator.pop(context);
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
 
-                            if(!item_list.isEmpty)
-                            {
-                              generateAndShareCSV_SalePurc();
-                            }
-                          },
-                          child:  Row(children: [
-
-                            Icon( Icons.add_chart_outlined,
+                          if (!item_list.isEmpty) {
+                            generateAndShareCSV_SalePurc();
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.add_chart_outlined,
                               size: 16,
-                              color: app_color),
-                            SizedBox(width: 5,),
+                              color: app_color,
+                            ),
+                            SizedBox(width: 5),
 
                             Text(
                               'Share as CSV',
@@ -795,29 +835,29 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                                 color: app_color,
                                 fontSize: 16,
                               ),
-                            )]),)
-                    )
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 );
               },
-              icon: Icon(
-                Icons.share,
-                color: Colors.white,
-                size: 30,
-              ),
+              icon: Icon(Icons.share, color: Colors.white, size: 30),
             ),
           ],
         ),
       ),
       drawer: Sidebar(
-          isDashEnable: isDashEnable,
-          isRolesVisible: isRolesVisible,
-          isRolesEnable: isRolesEnable,
-          isUserEnable: isUserEnable,
-          isUserVisible: isUserVisible,
-          Username: name,
-          Email: email,
-          tickerProvider: this), // add the Sidebar widget here
+        isDashEnable: isDashEnable,
+        isRolesVisible: isRolesVisible,
+        isRolesEnable: isRolesEnable,
+        isUserEnable: isUserEnable,
+        isUserVisible: isUserVisible,
+        Username: name,
+        Email: email,
+        tickerProvider: this,
+      ), // add the Sidebar widget here
 
       body: Stack(
         children: [
@@ -826,7 +866,7 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
@@ -853,14 +893,30 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                           child: DropdownButton<Data>(
                             value: selectedTopValue,
                             isExpanded: true,
-                            icon: Icon(Icons.expand_more, color: Colors.black54),
-                            style: GoogleFonts.poppins(color: Colors.black87, fontSize: 15),
-                            dropdownColor: Colors.white,
+                            icon: Icon(
+                              Icons.expand_more,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
+                            style: GoogleFonts.poppins(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 15,
+                            ),
+                            dropdownColor: Theme.of(
+                              context,
+                            ).colorScheme.surface,
                             underline: SizedBox(), // Remove default underline
                             onChanged: (newValue) {
                               setState(() {
                                 selectedTopValue = newValue!;
-                                fetchData(vchtype, ledger, type, endDateString, selectedTopValue!.item);
+                                fetchData(
+                                  vchtype,
+                                  ledger,
+                                  type,
+                                  endDateString,
+                                  selectedTopValue!.item,
+                                );
                               });
                             },
                             items: dropdownItems.map((Data value) {
@@ -871,27 +927,37 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                                   overflow: TextOverflow.ellipsis,
                                   style: GoogleFonts.poppins(
                                     fontSize: 16,
-                                    color: Colors.black87,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
                                   ),
                                 ),
                               );
                             }).toList(),
                           ),
-
                         ),
                       ),
-
                     ],
                   ),
                 ),
               ),
 
-              Expanded(child:Container(
+              Expanded(
+                child: Container(
                   width: double.infinity,
-                  margin: const EdgeInsets.only(left: 10, right: 10, bottom: 16),
-                  padding: const EdgeInsets.only(left: 0, right: 0, top: 4, bottom: 4),
+                  margin: const EdgeInsets.only(
+                    left: 10,
+                    right: 10,
+                    bottom: 16,
+                  ),
+                  padding: const EdgeInsets.only(
+                    left: 0,
+                    right: 0,
+                    top: 4,
+                    bottom: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -900,18 +966,21 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                         offset: const Offset(0, 4),
                       ),
                     ],
-
                   ),
                   child: Column(
                     children: [
                       Expanded(
                         child: Container(
-                          color: Colors.white,
+                          color: Theme.of(context).scaffoldBackgroundColor,
                           child: Column(
                             children: [
                               if (_isSearchViewVisible) ...[
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
+                                  padding: const EdgeInsets.only(
+                                    left: 12,
+                                    right: 12,
+                                    top: 12,
+                                  ),
                                   child: Material(
                                     elevation: 2,
                                     borderRadius: BorderRadius.circular(14),
@@ -919,45 +988,74 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                                     child: TextField(
                                       controller: searchController,
                                       onChanged: (value) {
-                                        if(value.isEmpty)
-                                        {
+                                        if (value.isEmpty) {
                                           setState(() {
-
                                             filteredItems = item_list;
-
                                           });
-                                        }
-                                        else
-                                        {
+                                        } else {
                                           setState(() {
-                                            filteredItems = item_list.where((item) {
+                                            filteredItems = item_list.where((
+                                              item,
+                                            ) {
                                               // Filter items based on the search query and the ledgerName property
                                               final query = value.toLowerCase();
-                                              return item.orderno.toLowerCase().contains(query);
+                                              return item.orderno
+                                                  .toLowerCase()
+                                                  .contains(query);
                                             }).toList();
                                           });
-
                                         }
                                       },
-                                      style: GoogleFonts.poppins(fontSize: 15),
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 15,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
                                       decoration: InputDecoration(
                                         hintText: 'Search...',
-                                        prefixIcon: const Icon(Icons.search, color: Colors.black54),
+                                        prefixIcon: Icon(
+                                          Icons.search,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
                                         filled: true,
-                                        fillColor: Colors.white,
-                                        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                                        fillColor:
+                                            Theme.of(
+                                              context,
+                                            ).inputDecorationTheme.fillColor ??
+                                            Theme.of(context)
+                                                .colorScheme
+                                                .surfaceContainerHighest,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              vertical: 14,
+                                              horizontal: 16,
+                                            ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(14),
-                                          borderSide: BorderSide(color: Colors.grey.shade200),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
+                                          ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(14),
-                                          borderSide: const BorderSide(color: app_color, width: 1.5),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                )
+                                ),
                               ],
 
                               if (isVisibleNoDataFound)
@@ -970,7 +1068,9 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                                         Icon(
                                           Icons.search_off_rounded,
                                           size: 48,
-                                          color: Colors.grey,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                         SizedBox(height: 12),
                                         Text(
@@ -978,7 +1078,9 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                                           style: GoogleFonts.poppins(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
-                                            color: Colors.black54,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                           ),
                                         ),
                                       ],
@@ -991,7 +1093,10 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                                 child: Expanded(
                                   child: ListView.builder(
                                     controller: _scrollController,
-                                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
                                     itemCount: filteredItems.length,
                                     itemBuilder: (context, index) {
                                       final card = filteredItems[index];
@@ -999,11 +1104,15 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                                       return Container(
                                         margin: EdgeInsets.only(bottom: 7),
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(16),
-                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          color: Theme.of(context).cardColor,
                                           boxShadow: [
                                             BoxShadow(
-                                              color: Colors.black.withOpacity(0.05),
+                                              color: Colors.black.withOpacity(
+                                                0.05,
+                                              ),
                                               blurRadius: 12,
                                               spreadRadius: 2,
                                               offset: Offset(0, 6),
@@ -1011,30 +1120,39 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                                           ],
                                         ),
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 14,
+                                          ),
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-
                                               // Order No
                                               Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                 children: [
                                                   Text(
                                                     card.orderno,
                                                     style: GoogleFonts.poppins(
                                                       fontSize: 16,
-                                                      fontWeight: FontWeight.w700,
-                                                      color: Colors.black87,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).colorScheme.onSurface,
                                                     ),
                                                   ),
 
                                                   _buildMetaChip(
-                                                    convertDateFormat(card.vchdate),
+                                                    convertDateFormat(
+                                                      card.vchdate,
+                                                    ),
                                                     app_color.withOpacity(0.1),
                                                     app_color,
                                                   ),
-
                                                 ],
                                               ),
 
@@ -1043,13 +1161,12 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                                               // Subtle Divider
                                               Container(
                                                 height: 1,
-                                                color: Colors.grey.withOpacity(0.12),
+                                                color: Colors.grey.withOpacity(
+                                                  0.12,
+                                                ),
                                               ),
 
                                               const SizedBox(height: 12),
-
-
-
 
                                               // Chips Row (Qty + Amount)
                                               Wrap(
@@ -1060,15 +1177,41 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                                                   _buildMetaChipWithIcon(
                                                     Icons.inventory_2_rounded,
                                                     'Pending Qty: ${card.pendingQty}',
-                                                    Colors.orange.shade50,
-                                                    Colors.orange.shade800,
+                                                    Colors.orange.withOpacity(
+                                                      Theme.of(
+                                                                context,
+                                                              ).brightness ==
+                                                              Brightness.dark
+                                                          ? 0.22
+                                                          : 0.1,
+                                                    ),
+                                                    Theme.of(
+                                                              context,
+                                                            ).brightness ==
+                                                            Brightness.dark
+                                                        ? Colors.orange.shade200
+                                                        : Colors
+                                                              .orange
+                                                              .shade800,
                                                   ),
 
                                                   // Pending Amount chip
                                                   _buildMetaChip(
                                                     '${formatAmount(card.pendingAmount.toString())}',
-                                                    Colors.green.shade50,
-                                                    Colors.green.shade800,
+                                                    Colors.green.withOpacity(
+                                                      Theme.of(
+                                                                context,
+                                                              ).brightness ==
+                                                              Brightness.dark
+                                                          ? 0.22
+                                                          : 0.1,
+                                                    ),
+                                                    Theme.of(
+                                                              context,
+                                                            ).brightness ==
+                                                            Brightness.dark
+                                                        ? Colors.green.shade200
+                                                        : Colors.green.shade800,
                                                   ),
                                                 ],
                                               ),
@@ -1080,15 +1223,13 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                                   ),
                                 ),
                               ),
-
-
                             ],
                           ),
                         ),
                       ),
                     ],
-                  )
-              ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -1104,7 +1245,10 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                     _showSelectionWindow(context);
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [app_color, app_color],
@@ -1114,7 +1258,7 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                       borderRadius: BorderRadius.circular(50),
                       boxShadow: [
                         BoxShadow(
-                          color:  app_color.withOpacity(0.3),
+                          color: app_color.withOpacity(0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 6),
                         ),
@@ -1123,7 +1267,11 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.tune_rounded, color: Colors.white, size: 20),
+                        const Icon(
+                          Icons.tune_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'Sort',
@@ -1131,7 +1279,7 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
                             color: Colors.white,
                             fontSize: 15.5,
                             fontWeight: FontWeight.w600,
-                            letterSpacing: 0.3,
+                            letterSpacing: 0,
                           ),
                         ),
                       ],
@@ -1141,16 +1289,15 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
               ),
             ),
 
-
           Visibility(
-
             visible: _isLoading,
-            child: Center(
-                child: AppLogoLoader()))
+            child: Center(child: AppLogoLoader()),
+          ),
         ],
       ),
     );
   }
+
   Widget _buildMetaChip(String text, Color bgColor, Color textColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1169,7 +1316,12 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
     );
   }
 
-  Widget _buildMetaChipWithIcon(IconData icon, String text, Color bgColor, Color textColor) {
+  Widget _buildMetaChipWithIcon(
+    IconData icon,
+    String text,
+    Color bgColor,
+    Color textColor,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -1193,5 +1345,4 @@ class _PartyClickedSalePurcOrderClickedPageState extends State<PartyClickedSaleP
       ),
     );
   }
-
 }

@@ -22,7 +22,8 @@ class FastMovingInactiveItemsCriteria extends StatefulWidget {
   );
 }
 
-class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteria> {
+class _FastMovingInactiveItemsState
+    extends State<FastMovingInactiveItemsCriteria> {
   late TextEditingController fastmovingitemsdayscontroller;
   late TextEditingController inactiveitemsdayscontroller;
   late TextEditingController fastmovingitemsqtycontroller;
@@ -117,13 +118,17 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
       SnackBar(
         behavior: SnackBarBehavior.floating,
         elevation: 0,
-        backgroundColor: isSuccess ? const Color(0xFF138A63) : const Color(0xFFB42318),
+        backgroundColor: isSuccess
+            ? const Color(0xFF138A63)
+            : const Color(0xFFB42318),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         content: Row(
           children: [
             Icon(
-              isSuccess ? Icons.check_circle_outline_rounded : Icons.error_outline_rounded,
+              isSuccess
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.error_outline_rounded,
               color: Colors.white,
               size: 20,
             ),
@@ -203,13 +208,11 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
         child: AppBar(
-          backgroundColor:  app_color,
+          backgroundColor: app_color,
           elevation: 6,
           automaticallyImplyLeading: false,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -218,16 +221,16 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
             },
           ),
           title: GestureDetector(
-            onTap: () {
-
-            },
+            onTap: () {},
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(
                   child: Text(
                     "Items Criteria",
-                    style: GoogleFonts.poppins(color: Colors.white, fontSize: 20,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -256,7 +259,8 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
                   if (fastmoving_visible)
                     _buildCriteriaCard(
                       title: 'Fast Moving Criteria',
-                      subtitle: 'Items that move quickly within the selected range.',
+                      subtitle:
+                          'Items that move quickly within the selected range.',
                       icon: Icons.flash_on_rounded,
                       color: const Color(0xFF0F766E),
                       isWide: isWide,
@@ -264,7 +268,9 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
                         _buildValidatedField(
                           label: 'No. of Days',
                           controller: fastmovingitemsdayscontroller,
-                          errorText: fastmovingitemsdayscontroller.text.isEmpty ? 'Required' : null,
+                          errorText: fastmovingitemsdayscontroller.text.isEmpty
+                              ? 'Required'
+                              : null,
                           onChanged: (val) {
                             fastmovingitems = val;
                           },
@@ -272,7 +278,9 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
                         _buildValidatedField(
                           label: 'Min Qty',
                           controller: fastmovingitemsqtycontroller,
-                          errorText: fastmovingitemsqtycontroller.text.isEmpty ? 'Required' : null,
+                          errorText: fastmovingitemsqtycontroller.text.isEmpty
+                              ? 'Required'
+                              : null,
                           onChanged: (val) {
                             fastmovingqtyitems = val;
                           },
@@ -280,7 +288,9 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
                         _buildValidatedField(
                           label: 'Min Value',
                           controller: fastmovingitemsvaluecontroller,
-                          errorText: fastmovingitemsvaluecontroller.text.isEmpty ? 'Required' : null,
+                          errorText: fastmovingitemsvaluecontroller.text.isEmpty
+                              ? 'Required'
+                              : null,
                           onChanged: (val) {
                             fastmovingvalueitems = val;
                           },
@@ -298,7 +308,9 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
                         _buildValidatedField(
                           label: 'No. of Days',
                           controller: slowmovingitemsdayscontroller,
-                          errorText: slowmovingitemsdayscontroller.text.isEmpty ? 'Required' : null,
+                          errorText: slowmovingitemsdayscontroller.text.isEmpty
+                              ? 'Required'
+                              : null,
                           onChanged: (val) {
                             slowmovingitems = val;
                           },
@@ -306,7 +318,9 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
                         _buildValidatedField(
                           label: 'Max Qty',
                           controller: slowmovingitemsqtycontroller,
-                          errorText: slowmovingitemsqtycontroller.text.isEmpty ? 'Required' : null,
+                          errorText: slowmovingitemsqtycontroller.text.isEmpty
+                              ? 'Required'
+                              : null,
                           onChanged: (val) {
                             slowmovingqtyitems = val;
                           },
@@ -314,7 +328,9 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
                         _buildValidatedField(
                           label: 'Max Value',
                           controller: slowmovingitemsvaluecontroller,
-                          errorText: slowmovingitemsvaluecontroller.text.isEmpty ? 'Required' : null,
+                          errorText: slowmovingitemsvaluecontroller.text.isEmpty
+                              ? 'Required'
+                              : null,
                           onChanged: (val) {
                             slowmovingvalueitems = val;
                           },
@@ -332,7 +348,9 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
                         _buildValidatedField(
                           label: 'No. of Days',
                           controller: inactiveitemsdayscontroller,
-                          errorText: inactiveitemsdayscontroller.text.isEmpty ? 'Required' : null,
+                          errorText: inactiveitemsdayscontroller.text.isEmpty
+                              ? 'Required'
+                              : null,
                           onChanged: (val) {
                             inactiveitems = val;
                           },
@@ -350,13 +368,18 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
                       icon: const Icon(Icons.save_alt_rounded),
                       label: Text(
                         'Save Criteria',
-                        style: GoogleFonts.poppins(fontSize: 15.5, fontWeight: FontWeight.w700),
+                        style: GoogleFonts.poppins(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: app_color,
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
                     ),
@@ -390,10 +413,14 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.16),
+              color: Theme.of(context).cardColor.withOpacity(0.16),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.inventory_2_rounded, color: Colors.white, size: 25),
+            child: const Icon(
+              Icons.inventory_2_rounded,
+              color: Colors.white,
+              size: 25,
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -453,7 +480,7 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: _borderColor),
           boxShadow: [
@@ -514,10 +541,10 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
               children: fields
                   .map(
                     (field) => SizedBox(
-                  width: isWide ? 220 : double.infinity,
-                  child: field,
-                ),
-              )
+                      width: isWide ? 220 : double.infinity,
+                      child: field,
+                    ),
+                  )
                   .toList(),
             ),
           ],
@@ -552,12 +579,16 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
               Tooltip(
                 message: tooltipText,
                 decoration: BoxDecoration(
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.all(8),
                 textStyle: GoogleFonts.poppins(color: Colors.white),
-                child: const Icon(Icons.info_outline, size: 16, color: Colors.grey),
+                child: Icon(
+                  Icons.info_outline,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ],
@@ -572,7 +603,10 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
           decoration: InputDecoration(
             filled: true,
             fillColor: const Color(0xFFF7F9FC),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 13,
+              vertical: 12,
+            ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: _borderColor),
@@ -583,11 +617,17 @@ class _FastMovingInactiveItemsState extends State<FastMovingInactiveItemsCriteri
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFB42318), width: 1.1),
+              borderSide: const BorderSide(
+                color: Color(0xFFB42318),
+                width: 1.1,
+              ),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFB42318), width: 1.4),
+              borderSide: const BorderSide(
+                color: Color(0xFFB42318),
+                width: 1.4,
+              ),
             ),
             errorText: errorText,
             errorStyle: GoogleFonts.poppins(

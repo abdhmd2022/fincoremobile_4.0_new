@@ -20,7 +20,11 @@ import 'UserView.dart';
 import 'constants.dart';
 
 class Sidebar extends StatelessWidget {
-  final bool isDashEnable, isRolesVisible, isUserEnable, isRolesEnable, isUserVisible;
+  final bool isDashEnable,
+      isRolesVisible,
+      isUserEnable,
+      isRolesEnable,
+      isUserVisible;
   final String? Username, Email;
   final TickerProvider tickerProvider;
 
@@ -28,7 +32,14 @@ class Sidebar extends StatelessWidget {
   bool isReceiptEntryVisible = false, isReceiptEntryEnable = true;
   bool isVanAllocationVisible = false, isVanAllocationEnable = true;
 
-  String SalesEntryHolder = '',VanAllocationHolder = '', username_prefs = '', password_prefs = '', ReceiptEntryHolder = '',serial_no='', company_name='', assignedGodown = '';
+  String SalesEntryHolder = '',
+      VanAllocationHolder = '',
+      username_prefs = '',
+      password_prefs = '',
+      ReceiptEntryHolder = '',
+      serial_no = '',
+      company_name = '',
+      assignedGodown = '';
   String? socketId = '', deviceIdentifier = '';
   late IO.Socket socket;
 
@@ -50,8 +61,8 @@ class Sidebar extends StatelessWidget {
       'transports': ['websocket'],
       'path': '/main/socket.io',
       'secure': true,
-      'autoConnect': false,
-      'auth': {'token': authTokenBase}
+      'autoConnect': true,
+      'auth': {'token': authTokenBase},
     });
 
     socket.on('connect', (_) {
@@ -91,8 +102,9 @@ class Sidebar extends StatelessWidget {
         final List<dynamic> allocations = jsonDecode(allocationString);
 
         if (allocations.isNotEmpty) {
-          final Map<String, dynamic> allocation =
-          Map<String, dynamic>.from(allocations.first);
+          final Map<String, dynamic> allocation = Map<String, dynamic>.from(
+            allocations.first,
+          );
 
           assignedGodown = allocation['godown']?.toString().trim() ?? '';
         }
@@ -111,12 +123,21 @@ class Sidebar extends StatelessWidget {
     isVanAllocationVisible = VanAllocationHolder == 'True';
   }
 
-  Widget _buildTile({required IconData icon, required String title, required VoidCallback onTap, bool enabled = true}) {
+  Widget _buildTile(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    bool enabled = true,
+  }) {
     return ListTile(
       leading: Icon(icon, color: Colors.teal.shade600),
       title: Text(
         title,
-        style: GoogleFonts.poppins(fontSize: 15, color: Colors.black),
+        style: GoogleFonts.poppins(
+          fontSize: 15,
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
       enabled: enabled,
       onTap: onTap,
@@ -125,6 +146,7 @@ class Sidebar extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     );
   }
+
   Widget _buildInfoChip(IconData icon, String? text, BuildContext context) {
     return ConstrainedBox(
       constraints: BoxConstraints(
@@ -133,12 +155,12 @@ class Sidebar extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color: Theme.of(context).cardColor.withOpacity(0.15),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min, // 🔥 important (no full width)
-            crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(icon, size: 14, color: Colors.white70),
             SizedBox(width: 6),
@@ -147,10 +169,7 @@ class Sidebar extends StatelessWidget {
               fit: FlexFit.loose, // 🔥 key fix
               child: Text(
                 text ?? '',
-                style: GoogleFonts.poppins(
-                  fontSize: 12,
-                  color: Colors.white,
-                ),
+                style: GoogleFonts.poppins(fontSize: 12, color: Colors.white),
                 softWrap: true, // multi-line
               ),
             ),
@@ -163,12 +182,14 @@ class Sidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Colors.white, // Very light purple-pink like in your screenshot
+      backgroundColor: Theme.of(
+        context,
+      ).scaffoldBackgroundColor, // Very light purple-pink like in your screenshot
 
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.only(top: 90,bottom:30,left:20,right:20),
+            padding: EdgeInsets.only(top: 90, bottom: 30, left: 20, right: 20),
             width: double.infinity,
             decoration: BoxDecoration(
               color: app_color,
@@ -181,13 +202,9 @@ class Sidebar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  backgroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   radius: 24,
-                  child: Icon(
-                    Icons.person,
-                    color: app_color,
-                    size: 24,
-                  ),
+                  child: Icon(Icons.person, color: app_color, size: 24),
                 ),
                 SizedBox(width: 16),
                 Expanded(
@@ -210,11 +227,11 @@ class Sidebar extends StatelessWidget {
                           fontSize: 13,
 
                           color: Colors.white70,
-
                         ),
                       ),
                       SizedBox(height: 4),
-/*
+
+                      /*
                       Wrap(
                         spacing: 6,
                         runSpacing: 6, // 🔥 IMPORTANT
@@ -223,26 +240,36 @@ class Sidebar extends StatelessWidget {
                           _buildInfoChip(Icons.business, company_name,context),
                         ],
                       ),*/
-
                       ConstrainedBox(
                         constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width * 0.7, // control width
+                          maxWidth:
+                              MediaQuery.of(context).size.width *
+                              0.7, // control width
                         ),
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
+                            color: Theme.of(
+                              context,
+                            ).cardColor.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-
                               Row(
-                                mainAxisSize: MainAxisSize.min, // 🔥 important (no full width)
+                                mainAxisSize: MainAxisSize
+                                    .min, // 🔥 important (no full width)
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.confirmation_number, size: 14, color: Colors.white70),
+                                  Icon(
+                                    Icons.confirmation_number,
+                                    size: 14,
+                                    color: Colors.white70,
+                                  ),
                                   SizedBox(width: 6),
 
                                   Flexible(
@@ -259,14 +286,19 @@ class Sidebar extends StatelessWidget {
                                 ],
                               ),
 
-                              SizedBox(height: 4,),
+                              SizedBox(height: 4),
 
                               Row(
-                                mainAxisSize: MainAxisSize.min, // 🔥 important (no full width)
+                                mainAxisSize: MainAxisSize
+                                    .min, // 🔥 important (no full width)
                                 crossAxisAlignment: CrossAxisAlignment.center,
 
                                 children: [
-                                  Icon(Icons.business, size: 14, color: Colors.white70),
+                                  Icon(
+                                    Icons.business,
+                                    size: 14,
+                                    color: Colors.white70,
+                                  ),
                                   SizedBox(width: 6),
 
                                   Flexible(
@@ -309,14 +341,11 @@ class Sidebar extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                              ]
-
+                              ],
                             ],
                           ),
-
                         ),
-                      )
-
+                      ),
                     ],
                   ),
                 ),
@@ -324,47 +353,93 @@ class Sidebar extends StatelessWidget {
             ),
           ),
 
-
           Expanded(
             child: ListView(
               children: [
-                _buildTile(title: 'Dashboard', icon: Icons.dashboard, enabled: isDashEnable, onTap: () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Dashboard()));
-                }),
-                _buildTile(title: 'Companies', icon: Icons.business, onTap: () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SerialSelect()));
-                }),
-                if (isRolesVisible)
-                  _buildTile(title: 'Roles', icon: Icons.group, enabled: isRolesEnable, onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => RolesView()));
-                  }),
-                if (isUserVisible)
-                  _buildTile(title: 'Users', icon: Icons.person, enabled: isUserEnable, onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => UserView()));
-                  }),
-
-                if (vanSalesSerialNo.contains(serial_no.trim()) && isVanAllocationVisible)                _buildTile(
-                  title: 'Van Allocation',
-                  icon: Icons.local_shipping_outlined,
+                _buildTile(
+                  context,
+                  title: 'Dashboard',
+                  icon: Icons.dashboard,
+                  enabled: isDashEnable,
                   onTap: () {
-                    Navigator.pop(context);
-
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const ViewVanAllocationScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => Dashboard()),
                     );
                   },
                 ),
-                _buildTile(title: 'Settings', icon: Icons.settings, onTap: () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Settings()));
-                }),
+                _buildTile(
+                  context,
+                  title: 'Companies',
+                  icon: Icons.business,
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => SerialSelect()),
+                    );
+                  },
+                ),
+                if (isRolesVisible)
+                  _buildTile(
+                    context,
+                    title: 'Roles',
+                    icon: Icons.group,
+                    enabled: isRolesEnable,
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => RolesView()),
+                      );
+                    },
+                  ),
+                if (isUserVisible)
+                  _buildTile(
+                    context,
+                    title: 'Users',
+                    icon: Icons.person,
+                    enabled: isUserEnable,
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => UserView()),
+                      );
+                    },
+                  ),
+
+                if (vanSalesSerialNo.contains(serial_no.trim()) &&
+                    isVanAllocationVisible)
+                  _buildTile(
+                    context,
+                    title: 'Van Allocation',
+                    icon: Icons.local_shipping_outlined,
+                    onTap: () {
+                      Navigator.pop(context);
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ViewVanAllocationScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                _buildTile(
+                  context,
+                  title: 'Settings',
+                  icon: Icons.settings,
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => Settings()),
+                    );
+                  },
+                ),
                 Divider(),
 
                 _buildTile(
+                  context,
                   title: 'Change Password',
                   icon: Icons.lock_outline,
                   onTap: () {
@@ -376,13 +451,26 @@ class Sidebar extends StatelessWidget {
                   },
                 ),
 
-                _buildTile(title: 'Help', icon: Icons.help_outline, onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => Help()));
-                }),
-                _buildTile(title: 'Logout', icon: Icons.logout, onTap: () {
-                  _showConfirmationDialogAndNavigate(context);
-                }),
+                _buildTile(
+                  context,
+                  title: 'Help',
+                  icon: Icons.help_outline,
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => Help()),
+                    );
+                  },
+                ),
+                _buildTile(
+                  context,
+                  title: 'Logout',
+                  icon: Icons.logout,
+                  onTap: () {
+                    _showConfirmationDialogAndNavigate(context);
+                  },
+                ),
               ],
             ),
           ),
@@ -393,11 +481,10 @@ class Sidebar extends StatelessWidget {
               '© CSH LLC 2023-2026 • Version 4.0',
               style: GoogleFonts.poppins(
                 fontSize: 12,
-                color: Colors.grey.shade600,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
-
         ],
       ),
     );
@@ -417,8 +504,11 @@ class Sidebar extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
-          backgroundColor: Colors.white,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 32,
+            vertical: 24,
+          ),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -434,7 +524,7 @@ class Sidebar extends StatelessWidget {
                   child: const Icon(
                     Icons.logout_rounded,
                     size: 40,
-                    color: app_color
+                    color: app_color,
                   ),
                 ),
                 const SizedBox(height: 18),
@@ -445,7 +535,7 @@ class Sidebar extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -457,7 +547,7 @@ class Sidebar extends StatelessWidget {
                   'Are you sure you want to log out of your account?',
                   style: GoogleFonts.poppins(
                     fontSize: 14.5,
-                    color: Colors.black54,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -475,7 +565,8 @@ class Sidebar extends StatelessWidget {
                         style: OutlinedButton.styleFrom(
                           side: BorderSide(color: app_color),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                         child: Text(
@@ -507,10 +598,8 @@ class Sidebar extends StatelessWidget {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => Login(
-                                  username: '',
-                                  password: '',
-                                ),
+                                builder: (_) =>
+                                    Login(username: '', password: ''),
                               ),
                             );
                           });
@@ -519,7 +608,8 @@ class Sidebar extends StatelessWidget {
                           backgroundColor: app_color,
                           elevation: 2,
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                         child: Text(

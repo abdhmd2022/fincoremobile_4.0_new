@@ -16,7 +16,6 @@ import 'dart:io';
 import 'constants.dart';
 
 class Data {
-
   final String vchno;
   final String vchdate;
   final double amount;
@@ -33,57 +32,73 @@ class Data {
 
   factory Data.fromJson(Map<String, dynamic> json) {
     return Data(
-    vchno : json['vchno'].toString(),
-    vchdate: json['vchdate'].toString(),
-    amount: double.tryParse(json['amount'].toString()) ?? 0,
-    ispostdated: json['ispostdated'].toString(),
-    isoptional: json['isoptional'].toString(),
+      vchno: json['vchno'].toString(),
+      vchdate: json['vchdate'].toString(),
+      amount: double.tryParse(json['amount'].toString()) ?? 0,
+      ispostdated: json['ispostdated'].toString(),
+      isoptional: json['isoptional'].toString(),
     );
   }
 }
 
-class PartyTotalClickedRest extends StatefulWidget
-{
-  final String startdate_string,enddate_string,type,ledger,total;
+class PartyTotalClickedRest extends StatefulWidget {
+  final String startdate_string, enddate_string, type, ledger, total;
 
-  const PartyTotalClickedRest(
-      {required this.startdate_string,
-        required this.enddate_string,
-        required this.type,
-        required this.ledger,
-        required this.total
-      }
-      );
+  const PartyTotalClickedRest({
+    required this.startdate_string,
+    required this.enddate_string,
+    required this.type,
+    required this.ledger,
+    required this.total,
+  });
   @override
-  _PartyTotalClickedRestPageState createState() => _PartyTotalClickedRestPageState(startDateString: startdate_string,
-      endDateString: enddate_string,type: type,total: total,ledger:  ledger);
+  _PartyTotalClickedRestPageState createState() =>
+      _PartyTotalClickedRestPageState(
+        startDateString: startdate_string,
+        endDateString: enddate_string,
+        type: type,
+        total: total,
+        ledger: ledger,
+      );
 }
 
-class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with TickerProviderStateMixin{
+class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
+    with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String startDateString = "",endDateString = "",type = "",ledger = "",total = "",token = '';
+  String startDateString = "",
+      endDateString = "",
+      type = "",
+      ledger = "",
+      total = "",
+      token = '';
 
   int counter = 0;
 
-  double total_double  = 0;
+  double total_double = 0;
 
   String total_main = "0";
 
-  List<Data> filteredItems = []; // Initialize an empty list to hold the filtered items
+  List<Data> filteredItems =
+      []; // Initialize an empty list to hold the filtered items
 
-  _PartyTotalClickedRestPageState(
-      {required this.startDateString,
-        required this.endDateString,
-        required this.type,
-        required this.ledger,
-        required this.total
-      }
-      );
+  _PartyTotalClickedRestPageState({
+    required this.startDateString,
+    required this.endDateString,
+    required this.type,
+    required this.ledger,
+    required this.total,
+  });
 
   String? SecuritybtnAcessHolder;
-  bool isDashEnable = true,isRolesEnable = true,isUserEnable = true,isRolesVisible = true,
-      isUserVisible = true,_isSearchViewVisible = false,_isListVisible = false,
-      isVisiblePostDated = true,isVisibleOptional = true;
+  bool isDashEnable = true,
+      isRolesEnable = true,
+      isUserEnable = true,
+      isRolesVisible = true,
+      isUserVisible = true,
+      _isSearchViewVisible = false,
+      _isListVisible = false,
+      isVisiblePostDated = true,
+      isVisibleOptional = true;
 
   String email = "";
   String name = "";
@@ -101,15 +116,27 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
 
   String HttpURL = "";
 
-  String? hostname = "",company = "",serial_no = "",company_lowercase = "",username = "";
+  String? hostname = "",
+      company = "",
+      serial_no = "",
+      company_lowercase = "",
+      username = "";
   List<dynamic> myData = [];
   bool _isLoading = false;
 
   bool isSortVisible = false;
 
-  final List<String> itemList = ['Default', 'Newest to Oldest', 'Oldest to Newest', 'A->Z', 'Z->A', 'Amount High to Low', 'Amount Low to High'];
+  final List<String> itemList = [
+    'Default',
+    'Newest to Oldest',
+    'Oldest to Newest',
+    'A->Z',
+    'Z->A',
+    'Amount High to Low',
+    'Amount Low to High',
+  ];
 
-  ScrollController _scrollController= ScrollController();
+  ScrollController _scrollController = ScrollController();
 
   List<Data> item_list = [];
 
@@ -126,17 +153,21 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
 
     // Replace this list with your actual list data
 
-    double totalHeight = itemList.length * 50.0 + 30.0 + 50.0; // Assuming each item has a height of 50 and adding padding height
+    double totalHeight =
+        itemList.length * 50.0 +
+        30.0 +
+        50.0; // Assuming each item has a height of 50 and adding padding height
 
     showModalBottomSheet<void>(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       context: context,
       builder: (BuildContext context) {
         return Container(
           constraints: BoxConstraints(
-            maxHeight: totalHeight, // Set the maximum height of the selection window with additional padding
+            maxHeight:
+                totalHeight, // Set the maximum height of the selection window with additional padding
           ),
-          color: Colors.white, // Set the background color of the selection window
+          color: Theme.of(context).colorScheme.surface,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -150,7 +181,8 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                   ),
                 ),
               ),
-              Expanded( // Wrap the ListView.builder with Expanded
+              Expanded(
+                // Wrap the ListView.builder with Expanded
                 child: ListView.builder(
                   itemCount: itemList.length,
                   itemExtent: 50, // Set the height of each item in the list
@@ -159,7 +191,8 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                     return GestureDetector(
                       onTap: () {
                         setState(() {
-                          selectedSortOption = itemList[index]; // Update the selected index
+                          selectedSortOption =
+                              itemList[index]; // Update the selected index
                         });
                         switch (selectedSortOption) {
                           case 'Default':
@@ -185,19 +218,27 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                             break;
                         }
                         print('Tile $index selected');
-                        Navigator.pop(context); // Close the selection window after a tile is selected
+                        Navigator.pop(
+                          context,
+                        ); // Close the selection window after a tile is selected
                       },
                       child: Container(
                         child: ListTile(
-                          leading: Icon(icons[index]), // Add the icon to each list tile
+                          leading: Icon(
+                            icons[index],
+                          ), // Add the icon to each list tile
                           title: Text(
                             itemList[index],
                             style: GoogleFonts.poppins(
-                              fontWeight: itemList[index] == selectedSortOption ? FontWeight.bold : FontWeight.normal, // Apply bold style to the text if the tile is selected
+                              fontWeight: itemList[index] == selectedSortOption
+                                  ? FontWeight.bold
+                                  : FontWeight
+                                        .normal, // Apply bold style to the text if the tile is selected
                             ),
                           ),
-                          trailing: itemList[index] == selectedSortOption ? Icon(Icons.check,
-                            color: Color(0xFF30D5C8),) : null, // Show arrow icon if the tile is selected
+                          trailing: itemList[index] == selectedSortOption
+                              ? Icon(Icons.check, color: Color(0xFF30D5C8))
+                              : null, // Show arrow icon if the tile is selected
                         ),
                       ),
                     );
@@ -213,7 +254,7 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
 
   void sortByDefault() {
     setState(() {
-      if(filteredItems.isNotEmpty) {
+      if (filteredItems.isNotEmpty) {
         filteredItems = List.from(item_list);
         _scrollController.animateTo(
           0.0,
@@ -226,8 +267,7 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
 
   void sortByAlphabetAtoZ() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
+      if (filteredItems.isNotEmpty) {
         filteredItems.sort((a, b) => a.vchno.compareTo(b.vchno));
         _scrollController.animateTo(
           0.0,
@@ -235,14 +275,12 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
   void sortByAlphabetZtoA() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
+      if (filteredItems.isNotEmpty) {
         filteredItems.sort((a, b) => b.vchno.compareTo(a.vchno));
         _scrollController.animateTo(
           0.0,
@@ -250,14 +288,12 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
   void sortByDateLowtoHigh() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
+      if (filteredItems.isNotEmpty) {
         filteredItems.sort((a, b) => a.vchdate.compareTo(b.vchdate));
         _scrollController.animateTo(
           0.0,
@@ -265,14 +301,12 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
   void sortByDateHightoLow() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
+      if (filteredItems.isNotEmpty) {
         filteredItems.sort((a, b) => b.vchdate.compareTo(a.vchdate));
         _scrollController.animateTo(
           0.0,
@@ -280,14 +314,12 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
   void sortByAmountLowtoHigh() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
+      if (filteredItems.isNotEmpty) {
         filteredItems.sort((a, b) => a.amount.compareTo(b.amount));
         _scrollController.animateTo(
           0.0,
@@ -295,14 +327,12 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
   void sortByAmountHightoLow() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
+      if (filteredItems.isNotEmpty) {
         filteredItems.sort((a, b) => b.amount.compareTo(a.amount));
         _scrollController.animateTo(
           0.0,
@@ -314,23 +344,20 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
   }
 
   String formatCostCenter(String costcenter) {
-
     String costcenter_string = "";
-    if(costcenter == 'null')
-    {
+    if (costcenter == 'null') {
       costcenter_string = '*Not Applicable';
-    }
-    else
-    {
+    } else {
       costcenter_string = costcenter;
-
     }
     // Apply any transformations or formatting to the 'amount' variable here
     return costcenter_string;
   }
 
   Future<void> generateAndSharePDF_Rest() async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+    final font = pw.Font.ttf(
+      await rootBundle.load("assets/fonts/NotoSans.ttf"),
+    );
 
     final pdf = pw.Document();
 
@@ -338,7 +365,13 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
     final reportname = '$type Summary';
     final partyname = ledger;
 
-    final headersRow3 = ['Vch No', 'Vch Date', 'Post Dated', 'Optional', 'Amount'];
+    final headersRow3 = [
+      'Vch No',
+      'Vch Date',
+      'Post Dated',
+      'Optional',
+      'Amount',
+    ];
 
     final itemsPerPage = 10;
     final pageCount = (item_list.length / itemsPerPage).ceil();
@@ -391,12 +424,18 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
               children: [
                 pw.Text(
                   companyName,
-                  style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
+                  style: pw.TextStyle(
+                    fontSize: 20,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
                 ),
                 pw.SizedBox(height: 10),
                 pw.Text(
                   reportname,
-                  style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
+                  style: pw.TextStyle(
+                    fontSize: 18,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
                 ),
                 pw.SizedBox(height: 10),
 
@@ -405,13 +444,13 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                   children: [
                     pw.Text(
                       'Ledger:',
-                      style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+                      style: pw.TextStyle(
+                        fontSize: 16,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
                     ),
                     pw.SizedBox(width: 5),
-                    pw.Text(
-                      partyname,
-                      style: pw.TextStyle(fontSize: 16),
-                    ),
+                    pw.Text(partyname, style: pw.TextStyle(fontSize: 16)),
                   ],
                 ),
                 pw.SizedBox(height: 10),
@@ -449,15 +488,20 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
     final file = File(tempFilePath);
     await file.writeAsBytes(pdfData);
 
-    await Share.shareXFiles(
-      [XFile(tempFilePath)],
-      text: 'Sharing $type Report of $company',
-    );
+    await Share.shareXFiles([
+      XFile(tempFilePath),
+    ], text: 'Sharing $type Report of $company');
   }
 
   Future<void> generateAndShareCSV_Rest() async {
     final List<List<dynamic>> csvData = [];
-    final headersRow = ['Vch No', 'Vch Date', 'Post Dated', 'Optional', 'Amount'];
+    final headersRow = [
+      'Vch No',
+      'Vch Date',
+      'Post Dated',
+      'Optional',
+      'Amount',
+    ];
     csvData.add(headersRow);
 
     for (final item in item_list) {
@@ -478,19 +522,15 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
     final file = File(tempFilePath);
     await file.writeAsString(csvString);
 
-    await Share.shareXFiles(
-      [XFile(tempFilePath)],
-      text: 'Sharing $type Report of $company',
-    );
+    await Share.shareXFiles([
+      XFile(tempFilePath),
+    ], text: 'Sharing $type Report of $company');
   }
 
-
   String formatVchNo(String vchno) {
-
-    if(vchno == "null")
-      {
-        vchno = "No Voucher No.";
-      }
+    if (vchno == "null") {
+      vchno = "No Voucher No.";
+    }
 
     return vchno;
   }
@@ -505,63 +545,56 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
     return formattedDate;
   }
 
-  Future<void> fetchData(final String ledger,final String startdate, final String enddate, final String vchtype) async {
-
+  Future<void> fetchData(
+    final String ledger,
+    final String startdate,
+    final String enddate,
+    final String vchtype,
+  ) async {
     setState(() {
       _isLoading = true;
       _isListVisible = true;
       isSortVisible = false;
-
     });
 
     item_list.clear();
     filteredItems.clear();
 
-    try
-    {
+    try {
       final url = Uri.parse(HttpURL!);
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
+      var body = jsonEncode({
         'startdate': startdate,
         'enddate': enddate,
         'ledger': ledger,
-        'vchtypes' : vchtype,
+        'vchtypes': vchtype,
       });
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-      if (response.statusCode == 200)
-      {
+      if (response.statusCode == 200) {
         print(response.body);
         final List<dynamic> values_list = jsonDecode(response.body);
         if (values_list != null) {
           isVisibleNoDataFound = false;
 
-          item_list.addAll(values_list.map((json) => Data.fromJson(json)).toList());
+          item_list.addAll(
+            values_list.map((json) => Data.fromJson(json)).toList(),
+          );
           filteredItems = item_list;
-
-        }
-        else {
-
+        } else {
           throw Exception('Failed to fetch data');
         }
         setState(() {
           _isLoading = false;
         });
-
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
@@ -569,13 +602,10 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
     }
 
     setState(() {
-      if(item_list.isEmpty)
-      {
+      if (item_list.isEmpty) {
         isVisibleNoDataFound = true;
         isSortVisible = false;
-      }
-      else
-      {
+      } else {
         isSortVisible = true;
         switch (selectedSortOption) {
           case 'Default':
@@ -606,32 +636,26 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
   }
 
   Future<void> _initSharedPreferences() async {
-
     prefs = await SharedPreferences.getInstance();
 
     setState(() {
       hostname = prefs.getString('hostname');
-      company  = prefs.getString('company_name');
+      company = prefs.getString('company_name');
       company_lowercase = company!.replaceAll(' ', '').toLowerCase();
       serial_no = prefs.getString('serial_no');
       username = prefs.getString('username');
       token = prefs.getString('token')!;
     });
 
-    try
-    {
+    try {
       selectedSortOption = prefs.getString('sort')!;
-      if(selectedSortOption == null || selectedSortOption == 'null')
-      {
+      if (selectedSortOption == null || selectedSortOption == 'null') {
         selectedSortOption = 'Default';
       }
-      if(!itemList.contains(selectedSortOption))
-      {
+      if (!itemList.contains(selectedSortOption)) {
         selectedSortOption = 'Default';
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       selectedSortOption = 'Default';
     }
 
@@ -639,35 +663,24 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
 
     SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
 
-
     String? email_nav = prefs.getString('email_nav');
     String? name_nav = prefs.getString('name_nav');
 
-    if (email_nav!=null && name_nav!= null)
-    {
+    if (email_nav != null && name_nav != null) {
       name = name_nav;
       email = email_nav;
-    }
-    else
-    {
+    } else {
       String val = "";
-      if (SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         val = SecuritybtnAcessHolder!;
-      }
-      else if (SecuritybtnAcessHolder == "False")
-      {
+      } else if (SecuritybtnAcessHolder == "False") {
         val = "";
       }
-
     }
-    if(SecuritybtnAcessHolder == "True")
-    {
+    if (SecuritybtnAcessHolder == "True") {
       isRolesVisible = true;
       isUserVisible = true;
-    }
-    else
-    {
+    } else {
       isRolesVisible = false;
       isUserVisible = false;
     }
@@ -675,12 +688,11 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
     startdate_text = convertDateFormat(startDateString);
     enddate_text = convertDateFormat(endDateString);
 
-    fetchData(ledger,startDateString, endDateString, type);
+    fetchData(ledger, startDateString, endDateString, type);
   }
 
   @override
-  void initState()
-  {
+  void initState() {
     super.initState();
     _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     _initSharedPreferences();
@@ -690,155 +702,162 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-        backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
-          child: AppBar(
-            backgroundColor:  app_color,
-            elevation: 6,
-            automaticallyImplyLeading: false,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-            ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-            centerTitle: false,
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  ledger,
-                  style:  GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  type,
-                  style:  GoogleFonts.poppins(
-                    color: Colors.white70,
-                    fontSize: 13,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  counter++;
-                  if (counter % 2 == 0) {
-                    setState(() {
-                      _isSearchViewVisible = false;
-                    });
-                  }
-                  else
-                  {
-                    setState(() {
-                      _isSearchViewVisible = true;
-                    });
-                  }
-                },
-                icon: Icon(
-                  Icons.search,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: AppBar(
+          backgroundColor: app_color,
+          elevation: 6,
+          automaticallyImplyLeading: false,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          centerTitle: false,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                ledger,
+                style: GoogleFonts.poppins(
                   color: Colors.white,
-                  size: 30,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              IconButton(
-                  onPressed: () {
-
-                    final RenderBox button = context.findRenderObject() as RenderBox;
-                    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-                    final Offset buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
-
-                    showMenu(
-                        context: context,
-                        position: RelativeRect.fromLTRB(
-                          overlay.size.width - buttonPosition.dx ,
-                          buttonPosition.dy - button.size.height,
-                          overlay.size.width - buttonPosition.dx,
-                          buttonPosition.dy,
-                        ),
-                        items: <PopupMenuEntry<String>>[
-                          PopupMenuItem<String>(
-                              child: GestureDetector(
-                                onTap: ()
-                                {
-                                  Navigator.pop(context);
-                                  if(!item_list.isEmpty)
-                                  {
-                                    generateAndSharePDF_Rest();
-                                  }
-                                },
-                                child:  Row(children: [
-                                  Icon( Icons.picture_as_pdf,
-                                    size: 16,
-                                    color: Color(0xFF26ADA3),),
-                                  SizedBox(width: 5,),
-                                  Text(
-                                    'Share as PDF',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.normal,
-                                      color: Color(0xFF26ADA3),
-                                      fontSize: 16,
-                                    ),
-                                  )]),)
-                          ),
-
-                          PopupMenuItem<String>(
-                              child: GestureDetector(
-                                onTap: ()
-                                {
-                                  Navigator.pop(context);
-
-                                  if(!item_list.isEmpty)
-                                  {
-                                    generateAndShareCSV_Rest();
-                                  }
-                                },
-
-                                child:  Row(children: [
-                                  Icon( Icons.add_chart_outlined,
-                                    size: 16,
-                                    color: Color(0xFF26ADA3),),
-                                  SizedBox(width: 5,),
-
-                                  Text(
-                                    'Share as CSV',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.normal,
-                                      color: Color(0xFF26ADA3),
-                                      fontSize: 16,
-                                    ),
-                                  )]),)
-                          )]);},
-                  icon: Icon(
-                    Icons.share,
-                    color: Colors.white,
-                    size: 30,
-                  ))
+              Text(
+                type,
+                style: GoogleFonts.poppins(
+                  color: Colors.white70,
+                  fontSize: 13,
+                  fontWeight: FontWeight.normal,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                counter++;
+                if (counter % 2 == 0) {
+                  setState(() {
+                    _isSearchViewVisible = false;
+                  });
+                } else {
+                  setState(() {
+                    _isSearchViewVisible = true;
+                  });
+                }
+              },
+              icon: Icon(Icons.search, color: Colors.white, size: 30),
+            ),
+            IconButton(
+              onPressed: () {
+                final RenderBox button =
+                    context.findRenderObject() as RenderBox;
+                final RenderBox overlay =
+                    Overlay.of(context).context.findRenderObject() as RenderBox;
+                final Offset buttonPosition = button.localToGlobal(
+                  Offset.zero,
+                  ancestor: overlay,
+                );
+
+                showMenu(
+                  color: Theme.of(context).colorScheme.surface,
+                  context: context,
+                  position: RelativeRect.fromLTRB(
+                    overlay.size.width - buttonPosition.dx,
+                    buttonPosition.dy - button.size.height,
+                    overlay.size.width - buttonPosition.dx,
+                    buttonPosition.dy,
+                  ),
+                  items: <PopupMenuEntry<String>>[
+                    PopupMenuItem<String>(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                          if (!item_list.isEmpty) {
+                            generateAndSharePDF_Rest();
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.picture_as_pdf,
+                              size: 16,
+                              color: Color(0xFF26ADA3),
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              'Share as PDF',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.normal,
+                                color: Color(0xFF26ADA3),
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    PopupMenuItem<String>(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+
+                          if (!item_list.isEmpty) {
+                            generateAndShareCSV_Rest();
+                          }
+                        },
+
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.add_chart_outlined,
+                              size: 16,
+                              color: Color(0xFF26ADA3),
+                            ),
+                            SizedBox(width: 5),
+
+                            Text(
+                              'Share as CSV',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.normal,
+                                color: Color(0xFF26ADA3),
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+              icon: Icon(Icons.share, color: Colors.white, size: 30),
+            ),
+          ],
         ),
+      ),
 
-
-        drawer: Sidebar(
-          isDashEnable: isDashEnable,
-          isRolesVisible: isRolesVisible,
-          isRolesEnable: isRolesEnable,
-          isUserEnable: isUserEnable,
-          isUserVisible: isUserVisible,
-          Username: name,
-          Email: email,
-          tickerProvider: this), // add the Sidebar widget here
+      drawer: Sidebar(
+        isDashEnable: isDashEnable,
+        isRolesVisible: isRolesVisible,
+        isRolesEnable: isRolesEnable,
+        isUserEnable: isUserEnable,
+        isUserVisible: isUserVisible,
+        Username: name,
+        Email: email,
+        tickerProvider: this,
+      ), // add the Sidebar widget here
 
       body: Stack(
         children: [
@@ -848,7 +867,7 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Theme.of(context).cardColor.withOpacity(0.9),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
@@ -870,8 +889,8 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                         style: GoogleFonts.poppins(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
-                          color: Colors.black87,
-                          letterSpacing: 0.3,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          letterSpacing: 0,
                         ),
                       ),
                     ),
@@ -881,12 +900,25 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                     // Date Range pill
                     Center(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Colors.white.withOpacity(0.2),
-                              Colors.white.withOpacity(0.8),
+                              Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest.withOpacity(
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? 0.85
+                                    : 0.35,
+                              ),
+                              Theme.of(context).cardColor.withOpacity(
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? 0.95
+                                    : 0.9,
+                              ),
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -897,21 +929,24 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.calendar_month_rounded, size: 18, color: app_color),
+                            Icon(
+                              Icons.calendar_month_rounded,
+                              size: 18,
+                              color: app_color,
+                            ),
                             const SizedBox(width: 10),
                             Text(
                               "$startdate_text → $enddate_text",
                               style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
-                                color: Colors.black87,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ],
                         ),
                       ),
                     ),
-
                   ],
                 ),
               ),
@@ -919,10 +954,19 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
               // Content Section
               Expanded(
                 child: Container(
-                  margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                  padding: const EdgeInsets.only(left: 0, right: 0, top: 4, bottom: 4),
+                  margin: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    bottom: 16,
+                  ),
+                  padding: const EdgeInsets.only(
+                    left: 0,
+                    right: 0,
+                    top: 4,
+                    bottom: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -935,10 +979,13 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                   child: Column(
                     children: [
                       // Search bar
-
                       if (_isSearchViewVisible) ...[
                         Padding(
-                          padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
+                          padding: const EdgeInsets.only(
+                            left: 12,
+                            right: 12,
+                            top: 12,
+                          ),
                           child: Material(
                             elevation: 2,
                             borderRadius: BorderRadius.circular(14),
@@ -954,32 +1001,55 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                                   setState(() {
                                     filteredItems = item_list.where((item) {
                                       final query = value.toLowerCase();
-                                      return item.vchno.toLowerCase().contains(query);
+                                      return item.vchno.toLowerCase().contains(
+                                        query,
+                                      );
                                     }).toList();
                                   });
                                 }
                               },
-                              style: GoogleFonts.poppins(fontSize: 15),
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                               decoration: InputDecoration(
                                 hintText: 'Search by Voucher No...',
-                                prefixIcon: const Icon(Icons.search, color: Colors.black54),
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
                                 filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                                fillColor:
+                                    Theme.of(
+                                      context,
+                                    ).inputDecorationTheme.fillColor ??
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                  horizontal: 16,
+                                ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: Colors.grey.shade200),
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context).dividerColor,
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(color: app_color, width: 1.5),
+                                  borderSide: const BorderSide(
+                                    color: app_color,
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        )
+                        ),
                       ],
-
 
                       // No data found
                       if (isVisibleNoDataFound)
@@ -992,7 +1062,9 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                                 Icon(
                                   Icons.search_off_rounded,
                                   size: 48,
-                                  color: Colors.grey,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                 ),
                                 SizedBox(height: 12),
                                 Text(
@@ -1000,7 +1072,9 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                                   style: GoogleFonts.poppins(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.black54,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ],
@@ -1014,7 +1088,10 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                         child: Expanded(
                           child: ListView.builder(
                             controller: _scrollController,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
                             itemCount: filteredItems.length,
                             itemBuilder: (context, index) {
                               final card = filteredItems[index];
@@ -1022,7 +1099,7 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 14),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: Theme.of(context).cardColor,
                                   borderRadius: BorderRadius.circular(18),
                                   boxShadow: [
                                     BoxShadow(
@@ -1033,26 +1110,40 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                                   ],
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                    vertical: 16,
+                                  ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       // 🔹 Header Row (Voucher No + Date Chip)
                                       Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Container(
                                             width: 36,
                                             height: 36,
                                             decoration: const BoxDecoration(
                                               gradient: LinearGradient(
-                                                colors: [Color(0xFF7F7FD5), Color(0xFF86A8E7)],
+                                                colors: [
+                                                  Color(0xFF7F7FD5),
+                                                  Color(0xFF86A8E7),
+                                                ],
                                                 begin: Alignment.topLeft,
                                                 end: Alignment.bottomRight,
                                               ),
-                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(10),
+                                              ),
                                             ),
-                                            child: const Icon(Icons.receipt_long, size: 18, color: Colors.white),
+                                            child: const Icon(
+                                              Icons.receipt_long,
+                                              size: 18,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                           const SizedBox(width: 10),
 
@@ -1063,25 +1154,38 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                                               style: GoogleFonts.poppins(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w700,
-                                                color: Colors.black87,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface,
                                               ),
                                             ),
                                           ),
 
                                           // 📅 Date Chip (colored background)
                                           Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 6,
+                                            ),
                                             decoration: BoxDecoration(
-                                              gradient:  LinearGradient(
-                                                colors: [Colors.orange.withOpacity(0.03),
-                                                  Colors.orange.withOpacity(0.1),],
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  Colors.orange.withOpacity(
+                                                    0.03,
+                                                  ),
+                                                  Colors.orange.withOpacity(
+                                                    0.1,
+                                                  ),
+                                                ],
                                                 begin: Alignment.topLeft,
                                                 end: Alignment.bottomRight,
                                               ),
-                                              borderRadius: BorderRadius.circular(20),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: Colors.orange.withOpacity(0.08),
+                                                  color: Colors.orange
+                                                      .withOpacity(0.08),
                                                   blurRadius: 6,
                                                   offset: const Offset(0, 3),
                                                 ),
@@ -1089,10 +1193,16 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                                             ),
                                             child: Row(
                                               children: [
-                                                const Icon(Icons.calendar_today_outlined, size: 13, color: Colors.orange),
+                                                const Icon(
+                                                  Icons.calendar_today_outlined,
+                                                  size: 13,
+                                                  color: Colors.orange,
+                                                ),
                                                 const SizedBox(width: 5),
                                                 Text(
-                                                  convertDateFormat(card.vchdate),
+                                                  convertDateFormat(
+                                                    card.vchdate,
+                                                  ),
                                                   style: GoogleFonts.poppins(
                                                     fontSize: 12.5,
                                                     fontWeight: FontWeight.w500,
@@ -1111,39 +1221,50 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                                       Align(
                                         alignment: Alignment.centerRight,
                                         child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 8,
+                                          ),
                                           decoration: BoxDecoration(
-                                            color: Colors.white,
+                                            color: Theme.of(context).cardColor,
                                             border: Border.all(
-                                              color: Colors.deepOrangeAccent.withOpacity(0.8),
+                                              color: Colors.deepOrangeAccent
+                                                  .withOpacity(0.8),
                                               width: 1.4,
                                             ),
-                                            borderRadius: BorderRadius.circular(20),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.deepOrange.withOpacity(0.08),
+                                                color: Colors.deepOrange
+                                                    .withOpacity(0.08),
                                                 blurRadius: 4,
                                                 offset: const Offset(0, 2),
                                               ),
                                             ],
                                           ),
                                           child: Row(
-                                            mainAxisSize: MainAxisSize.min, // ✅ only as wide as text
+                                            mainAxisSize: MainAxisSize
+                                                .min, // ✅ only as wide as text
                                             children: [
-
                                               Flexible(
                                                 child: Text(
                                                   '${formatAmount(card.amount.toString())}',
-                                                  softWrap: true, // ✅ allows text to wrap to next line
-                                                  overflow: TextOverflow.visible, // ✅ ensures nothing gets cut off
-                                                  textAlign: TextAlign.end, // or TextAlign.center if needed
+                                                  softWrap:
+                                                      true, // ✅ allows text to wrap to next line
+                                                  overflow: TextOverflow
+                                                      .visible, // ✅ ensures nothing gets cut off
+                                                  textAlign: TextAlign
+                                                      .end, // or TextAlign.center if needed
                                                   style: GoogleFonts.poppins(
                                                     fontSize: 13.5,
                                                     fontWeight: FontWeight.w600,
-                                                    color: Colors.deepOrangeAccent,
+                                                    color:
+                                                        Colors.deepOrangeAccent,
                                                   ),
                                                 ),
-                                              )
+                                              ),
                                             ],
                                           ),
                                         ),
@@ -1156,15 +1277,25 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                                         spacing: 8,
                                         runSpacing: 6,
                                         children: [
-                                          if (card.ispostdated == "1" && isVisiblePostDated)
+                                          if (card.ispostdated == "1" &&
+                                              isVisiblePostDated)
                                             _buildStatusChip(
+                                              context: context,
                                               label: 'Post Dated',
-                                              colors: const [Color(0xFF3A7BD5), Color(0xFF00D2FF)],
+                                              colors: const [
+                                                Color(0xFF3A7BD5),
+                                                Color(0xFF00D2FF),
+                                              ],
                                             ),
-                                          if (card.isoptional == "1" && isVisibleOptional)
+                                          if (card.isoptional == "1" &&
+                                              isVisibleOptional)
                                             _buildStatusChip(
+                                              context: context,
                                               label: 'Optional',
-                                              colors: const [Color(0xFFFFB347), Color(0xFFFFCC33)],
+                                              colors: const [
+                                                Color(0xFFFFB347),
+                                                Color(0xFFFFCC33),
+                                              ],
                                             ),
                                         ],
                                       ),
@@ -1174,14 +1305,8 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                               );
                             },
                           ),
-
-
-
-
-
                         ),
                       ),
-
                     ],
                   ),
                 ),
@@ -1201,7 +1326,10 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                     _showSelectionWindow(context);
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [app_color, app_color],
@@ -1211,7 +1339,7 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                       borderRadius: BorderRadius.circular(50),
                       boxShadow: [
                         BoxShadow(
-                          color:  app_color.withOpacity(0.3),
+                          color: app_color.withOpacity(0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 6),
                         ),
@@ -1220,7 +1348,11 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.tune_rounded, color: Colors.white, size: 20),
+                        const Icon(
+                          Icons.tune_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'Sort',
@@ -1228,7 +1360,7 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
                             color: Colors.white,
                             fontSize: 15.5,
                             fontWeight: FontWeight.w600,
-                            letterSpacing: 0.3,
+                            letterSpacing: 0,
                           ),
                         ),
                       ],
@@ -1238,25 +1370,28 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest> with 
               ),
             ),
 
-
           // Loading Indicator
           Visibility(
             visible: _isLoading,
-            child: Center(
-                child: AppLogoLoader())
+            child: Center(child: AppLogoLoader()),
           ),
         ],
       ),
-    );}}
+    );
+  }
+}
 
 Widget _buildStatusChip({
+  required BuildContext context,
   required String label,
   required List<Color> colors,
 }) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
     decoration: BoxDecoration(
-      color: const Color(0xFFF7F8FA),
+      color: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).colorScheme.surfaceContainerHighest
+          : const Color(0xFFF7F8FA),
       borderRadius: BorderRadius.circular(16),
       border: Border.all(color: colors.last.withOpacity(0.3)),
     ),
@@ -1274,7 +1409,11 @@ Widget _buildStatusChip({
             ),
             borderRadius: BorderRadius.circular(6),
           ),
-          child: const Icon(Icons.check_circle_outline, size: 12, color: Colors.white),
+          child: const Icon(
+            Icons.check_circle_outline,
+            size: 12,
+            color: Colors.white,
+          ),
         ),
         const SizedBox(width: 6),
         Text(
@@ -1282,11 +1421,10 @@ Widget _buildStatusChip({
           style: GoogleFonts.poppins(
             fontSize: 12.5,
             fontWeight: FontWeight.w500,
-            color: Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ],
     ),
   );
 }
-

@@ -18,11 +18,11 @@ import 'package:pdf/widgets.dart' as pw;
 
 import 'constants.dart';
 
-class ReceiptRegistration extends StatefulWidget
-{
+class ReceiptRegistration extends StatefulWidget {
   const ReceiptRegistration({Key? key}) : super(key: key);
   @override
-  _ReceiptRegistrationPageState createState() => _ReceiptRegistrationPageState();
+  _ReceiptRegistrationPageState createState() =>
+      _ReceiptRegistrationPageState();
 }
 
 class Bills {
@@ -40,7 +40,6 @@ class Bills {
 }
 
 class Cheque {
-
   final String instno;
   final String? instdate;
   final String? bankname;
@@ -56,7 +55,8 @@ class Cheque {
   });
 }
 
-class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with TickerProviderStateMixin {
+class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
+    with TickerProviderStateMixin {
   bool isDashEnable = true,
       isRolesVisible = true,
       isUserEnable = true,
@@ -87,19 +87,15 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
   TextEditingController _banknameController = TextEditingController();
 
-
-
   bool get isSelectedBankCashInHand =>
       _selectedbankcashname != null &&
-          _selectedbankcashname!['type'] == 'Cash-in-Hand';
+      _selectedbankcashname!['type'] == 'Cash-in-Hand';
 
   bool get isUniGasUser =>
-      serial_no != null &&
-          vanSalesSerialNo.contains(serial_no);
+      serial_no != null && vanSalesSerialNo.contains(serial_no);
 
-
-
-  late final TextEditingController controller_narration = TextEditingController();
+  late final TextEditingController controller_narration =
+      TextEditingController();
 
   final FocusNode _textFieldFocusNodeNarration = FocusNode();
 
@@ -130,29 +126,26 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     return currentSerial == uniGasSerialNumber;
   }
 
-
-
   void removeOutstandingBillFromReceipt(Map<String, dynamic> bill) {
     final String billNo = bill["billno"]?.toString() ?? "";
 
     setState(() {
-      bills.removeWhere(
-            (b) => b.billNo == billNo && b.billName == "Agst Ref",
-      );
+      bills.removeWhere((b) => b.billNo == billNo && b.billName == "Agst Ref");
 
       totalBillAmount = bills.fold(
         0.0,
-            (double previousAmount, Bills bill) => previousAmount + bill.billAmount,
+        (double previousAmount, Bills bill) => previousAmount + bill.billAmount,
       );
 
-      roundedtotalBillAmount =
-          double.parse(totalBillAmount.toStringAsFixed(decimal!));
+      roundedtotalBillAmount = double.parse(
+        totalBillAmount.toStringAsFixed(decimal!),
+      );
 
-      NumberFormat formatter =
-      NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+      NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
 
-      controller_totalamt.text =
-          formatter.format(roundedtotalBillAmount).toString();
+      controller_totalamt.text = formatter
+          .format(roundedtotalBillAmount)
+          .toString();
 
       isVisibleBillHeading = bills.isNotEmpty;
     });
@@ -188,7 +181,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     if (billNo.isEmpty || amount <= 0) return;
 
     final bool alreadyAdded = bills.any(
-          (b) => b.billNo == billNo && b.billName == "Agst Ref",
+      (b) => b.billNo == billNo && b.billName == "Agst Ref",
     );
 
     if (alreadyAdded) {
@@ -206,21 +199,19 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         ),
       );
 
-      totalBillAmount = bills.fold(
-        0.0,
-            (double previousAmount, Bills bill) {
-          return previousAmount + bill.billAmount;
-        },
+      totalBillAmount = bills.fold(0.0, (double previousAmount, Bills bill) {
+        return previousAmount + bill.billAmount;
+      });
+
+      roundedtotalBillAmount = double.parse(
+        totalBillAmount.toStringAsFixed(decimal!),
       );
 
-      roundedtotalBillAmount =
-          double.parse(totalBillAmount.toStringAsFixed(decimal!));
+      NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
 
-      NumberFormat formatter =
-      NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
-
-      controller_totalamt.text =
-          formatter.format(roundedtotalBillAmount).toString();
+      controller_totalamt.text = formatter
+          .format(roundedtotalBillAmount)
+          .toString();
 
       isVisibleBillHeading = bills.isNotEmpty;
 
@@ -257,7 +248,8 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       };
 
       final body = jsonEncode({
-        "startdate": int.tryParse(prefs.getString('startfrom') ?? '') ??
+        "startdate":
+            int.tryParse(prefs.getString('startfrom') ?? '') ??
             int.parse(_dateFormat.format(yearStartDate)),
         "enddate": int.parse(receiptdatestring),
         "orderby": "billdate",
@@ -265,11 +257,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         "ledger": ledgerName,
       });
 
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: body,
-      );
+      final response = await http.post(url, headers: headers, body: body);
       print('outstanding -> ${response.body}');
 
       if (response.statusCode == 200) {
@@ -280,13 +268,13 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         double billsOutstanding = 0.0;
 
         for (var item in values) {
-          billsOutstanding += double.tryParse(
-            item["outstanding"].toString(),
-          ) ?? 0.0;
+          billsOutstanding +=
+              double.tryParse(item["outstanding"].toString()) ?? 0.0;
         }
 
         setState(() {
-          openingOutstanding = double.tryParse(data["opening"].toString()) ?? 0.0;
+          openingOutstanding =
+              double.tryParse(data["opening"].toString()) ?? 0.0;
           outstandingBills = values;
           // totalOutstanding = openingOutstanding + billsOutstanding;
           totalOutstanding = billsOutstanding;
@@ -313,8 +301,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     if (!showOutstandingCard) return const SizedBox.shrink();
 
     final int totalBills = outstandingBills.length;
-    final int visibleCount =
-    visibleOutstandingBillCount > totalBills ? totalBills : visibleOutstandingBillCount;
+    final int visibleCount = visibleOutstandingBillCount > totalBills
+        ? totalBills
+        : visibleOutstandingBillCount;
 
     final visibleBills = outstandingBills.take(visibleCount).toList();
 
@@ -334,9 +323,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: Theme.of(context).dividerColor),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
@@ -381,7 +370,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                             "Outstanding Balance",
                             style: GoogleFonts.poppins(
                               fontSize: 12,
-                              color: Colors.grey.shade600,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -411,7 +402,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                         ? Colors.redAccent
                                         : balanceType == "CR"
                                         ? Colors.green
-                                        : Colors.grey.shade700,
+                                        : Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -444,13 +437,14 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                               ],
                             ),
 
-                          if (!isOutstandingLoading &&
-                              outstandingError.isEmpty)
+                          if (!isOutstandingLoading && outstandingError.isEmpty)
                             Text(
                               "$totalBills pending bill(s)",
                               style: GoogleFonts.poppins(
                                 fontSize: 11,
-                                color: Colors.grey.shade500,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                               ),
                             ),
                         ],
@@ -471,7 +465,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                         isOutstandingExpanded
                             ? Icons.keyboard_arrow_up
                             : Icons.keyboard_arrow_down,
-                        color: Colors.grey.shade600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                   ],
                 ),
@@ -485,14 +479,14 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                 padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
                 child: Column(
                   children: [
-                    Divider(color: Colors.grey.shade200),
+                    Divider(color: Theme.of(context).dividerColor),
 
                     if (outstandingBills.isEmpty)
                       Text(
                         "No outstanding bills found",
                         style: GoogleFonts.poppins(
                           fontSize: 12,
-                          color: Colors.grey.shade500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       )
                     else
@@ -501,16 +495,22 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                           Column(
                             children: visibleBills.map((bill) {
                               final double billOutstanding =
-                                  double.tryParse(bill["outstanding"].toString()) ?? 0.0;
+                                  double.tryParse(
+                                    bill["outstanding"].toString(),
+                                  ) ??
+                                  0.0;
 
-                              final String billType =
-                              billOutstanding < 0 ? "DR" : "CR";
+                              final String billType = billOutstanding < 0
+                                  ? "DR"
+                                  : "CR";
 
-                              final double billDisplayAmount =
-                              billOutstanding.abs();
+                              final double billDisplayAmount = billOutstanding
+                                  .abs();
 
                               final bool isAdded = bills.any(
-                                    (b) => b.billNo == bill["billno"]?.toString() && b.billName == "Agst Ref",
+                                (b) =>
+                                    b.billNo == bill["billno"]?.toString() &&
+                                    b.billName == "Agst Ref",
                               );
 
                               return GestureDetector(
@@ -518,10 +518,14 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                   closeKeyboard(context);
 
                                   if (!isAdded) {
-                                    addOutstandingBillToReceipt(Map<String, dynamic>.from(bill));
+                                    addOutstandingBillToReceipt(
+                                      Map<String, dynamic>.from(bill),
+                                    );
                                   }
                                   if (isAdded) {
-                                    removeOutstandingBillFromReceipt(Map<String, dynamic>.from(bill));
+                                    removeOutstandingBillFromReceipt(
+                                      Map<String, dynamic>.from(bill),
+                                    );
                                   }
                                 },
                                 /*onLongPress: () {
@@ -534,10 +538,19 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                   margin: const EdgeInsets.only(bottom: 8),
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: isAdded ? app_color.withOpacity(0.04) : Colors.grey.shade50,
+                                    color: isAdded
+                                        ? app_color.withOpacity(0.04)
+                                        : (Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? Theme.of(context)
+                                                    .colorScheme
+                                                    .surfaceContainerHighest
+                                              : Colors.grey.shade50),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: isAdded ? app_color.withOpacity(0.55) : Colors.grey.shade200,
+                                      color: isAdded
+                                          ? app_color.withOpacity(0.55)
+                                          : Colors.grey.shade200,
                                       width: isAdded ? 1.3 : 1,
                                     ),
                                   ),
@@ -547,40 +560,58 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                         children: [
                                           Expanded(
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Row(
                                                   children: [
                                                     Flexible(
                                                       child: Text(
-                                                        bill["billno"]?.toString() ?? "No Bill No",
+                                                        bill["billno"]
+                                                                ?.toString() ??
+                                                            "No Bill No",
                                                         maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: GoogleFonts.poppins(
-                                                          fontSize: 13,
-                                                          fontWeight: FontWeight.w600,
-                                                        ),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                              fontSize: 13,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                            ),
                                                       ),
                                                     ),
 
                                                     if (isAdded) ...[
                                                       const SizedBox(width: 6),
                                                       Container(
-                                                        padding: const EdgeInsets.symmetric(
-                                                          horizontal: 7,
-                                                          vertical: 2,
-                                                        ),
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 7,
+                                                              vertical: 2,
+                                                            ),
                                                         decoration: BoxDecoration(
-                                                          color: app_color.withOpacity(0.10),
-                                                          borderRadius: BorderRadius.circular(20),
+                                                          color: app_color
+                                                              .withOpacity(
+                                                                0.10,
+                                                              ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                20,
+                                                              ),
                                                         ),
                                                         child: Text(
                                                           "Added",
-                                                          style: GoogleFonts.poppins(
-                                                            fontSize: 9,
-                                                            color: app_color,
-                                                            fontWeight: FontWeight.w700,
-                                                          ),
+                                                          style:
+                                                              GoogleFonts.poppins(
+                                                                fontSize: 9,
+                                                                color:
+                                                                    app_color,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700,
+                                                              ),
                                                         ),
                                                       ),
                                                     ],
@@ -590,10 +621,13 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                                 Text(
                                                   "${bill["billtype"] ?? ""} • ${formatlastsaledate(bill["billdate"].toString())}",
                                                   maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: GoogleFonts.poppins(
                                                     fontSize: 11,
-                                                    color: Colors.grey.shade600,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
                                                   ),
                                                 ),
                                               ],
@@ -617,15 +651,19 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                               ),
                                               const SizedBox(width: 6),
                                               Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 7,
-                                                  vertical: 2,
-                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 7,
+                                                      vertical: 2,
+                                                    ),
                                                 decoration: BoxDecoration(
                                                   color: billType == "DR"
-                                                      ? Colors.redAccent.withOpacity(0.10)
-                                                      : Colors.green.withOpacity(0.10),
-                                                  borderRadius: BorderRadius.circular(20),
+                                                      ? Colors.redAccent
+                                                            .withOpacity(0.10)
+                                                      : Colors.green
+                                                            .withOpacity(0.10),
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
                                                 ),
                                                 child: Text(
                                                   billType,
@@ -653,11 +691,13 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                             TextButton.icon(
                               onPressed: () {
                                 setState(() {
-                                  if (visibleOutstandingBillCount >= totalBills) {
+                                  if (visibleOutstandingBillCount >=
+                                      totalBills) {
                                     visibleOutstandingBillCount = 5;
                                   } else {
                                     visibleOutstandingBillCount += 5;
-                                    if (visibleOutstandingBillCount > totalBills) {
+                                    if (visibleOutstandingBillCount >
+                                        totalBills) {
                                       visibleOutstandingBillCount = totalBills;
                                     }
                                   }
@@ -696,14 +736,13 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     setState(() {
       bills.removeAt(index);
       // Calculate the total price of items
-      totalBillAmount = bills
-          .fold(
-          0.0, (double previousAmount,
-          Bills bill) {
+      totalBillAmount = bills.fold(0.0, (double previousAmount, Bills bill) {
         return previousAmount + bill.billAmount;
       });
 
-      roundedtotalBillAmount = double.parse(totalBillAmount.toStringAsFixed(decimal!));
+      roundedtotalBillAmount = double.parse(
+        totalBillAmount.toStringAsFixed(decimal!),
+      );
       NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
       String formattedtotal = formatter.format(roundedtotalBillAmount);
       controller_totalamt.text = formattedtotal.toString();
@@ -724,31 +763,23 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         instDateController.text = instdatetxt;
         isVisibleChequeHeading = false;
         isPaymentModeVisible = false;
-      }
-      else
-      {
+      } else {
         isVisibleBillHeading = true;
-        if (_selectedbankcashname != null && _selectedbankcashname!['type'] == 'Cash-in-Hand') {
-
+        if (_selectedbankcashname != null &&
+            _selectedbankcashname!['type'] == 'Cash-in-Hand') {
           isPaymentModeVisible = false;
           _selectedpaymentmode = paymentmode_data.first;
           cheque.clear();
           updateChequeAmount();
           isVisibleChequeHeading = false;
           isChequeVisible = false;
-        }
-        else
-        {
-          if(bills.isNotEmpty)
-          {
-            if(cheque.isNotEmpty)
-            {
+        } else {
+          if (bills.isNotEmpty) {
+            if (cheque.isNotEmpty) {
               isPaymentModeVisible = true;
               isChequeVisible = true;
               isVisibleChequeHeading = true;
-            }
-            else
-            {
+            } else {
               isPaymentModeVisible = true;
               _selectedpaymentmode = paymentmode_data.first;
               cheque.clear();
@@ -757,9 +788,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
               isVisibleChequeHeading = false;
               isChequeVisible = true;
             }
-          }
-          else
-          {
+          } else {
             isPaymentModeVisible = true;
             _selectedpaymentmode = paymentmode_data.first;
             cheque.clear();
@@ -770,8 +799,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
           }
         }
       }
-      if(roundedtotalBillAmount < roundedtotalChequeAmount)
-      {
+      if (roundedtotalBillAmount < roundedtotalChequeAmount) {
         cheque.clear();
         updateChequeAmount();
         isVisibleChequeHeading = false;
@@ -779,18 +807,19 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     });
   }
 
-  Map<String, dynamic> jsonEntryData =
-  {
+  Map<String, dynamic> jsonEntryData = {
     "DATE": "",
     "VOUCHERTYPENAME": "",
     "PARTYLEDGERNAME": "",
-    "VOUCHERNUMBER" : "",
+    "VOUCHERNUMBER": "",
     "ENTEREDBY": "",
     "NARRATION": "",
     "ALLLEDGERENTRIES.LIST": [],
   };
 
-  bool isVisibleBillHeading = false,isVisibleChequeHeading = false,isChequeVisible = false;
+  bool isVisibleBillHeading = false,
+      isVisibleChequeHeading = false,
+      isChequeVisible = false;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -803,40 +832,32 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
   List<String> vchnos = [];
 
   void checkVchNoExistence(String vchNo) {
-
-    if(vchNo.isEmpty || vchNo == '')
-    {
+    if (vchNo.isEmpty || vchNo == '') {
       setState(() {
         errorMessageVchNo = 'Voucher No. cannot be empty';
       });
-    }
-    else
-    {
+    } else {
       if (vchnos.contains(vchNo)) {
         setState(() {
-
-          errorMessageVchNo = 'Voucher no: $vchNo against $_selectedvchtypename already exists';
+          errorMessageVchNo =
+              'Voucher no: $vchNo against $_selectedvchtypename already exists';
         });
       } else {
         setState(() {
           errorMessageVchNo = '';
-
         });
       }
     }
   }
 
   bool isInstNoRepeated(String instNo, List<Cheque> cheques) {
-    if(instNo.isNotEmpty)
-      {
-        for (var cheque in cheques)
-        {
-          if (cheque.instno == instNo)
-          {
-            return true; // Found a match, instno is repeated
-          }
+    if (instNo.isNotEmpty) {
+      for (var cheque in cheques) {
+        if (cheque.instno == instNo) {
+          return true; // Found a match, instno is repeated
         }
       }
+    }
     return false; // No match found
   }
 
@@ -860,15 +881,72 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
   late List<String> partydata = [];
 
-  List<String> bankname_data = ['Not Applicable',"RAK Bank (UAE)", "Mashreq Bank (UAE)", "National Bank of Abu Dhabi (UAE)", "ADCB (UAE)", "Arab Bank (UAE)", "Commercial Bank of Dubai (UAE)", "Emirates NBD (UAE)", "Habib Bank AG Zurich (UAE)", "National Bank of Fujairah (UAE)", "Standard Chartered Bank (UAE)", "Bank of Baroda (UAE)", "HSBC Bank (UAE)", "Union National Bank (UAE)", "United Arab Bank (UAE)", "Al Ahli Bank of Kuwait (UAE)", "Noor Islamic Bank (UAE)", "Emirates Bank (UAE)", "Emirates Islamic Bank (UAE)", "United Bank Ltd. (UAE)", "Dubai Islamic Bank (UAE)", "ADIB (UAE)", "Bank of Sharjah (UAE)", "Blom Bank France (UAE)", "First Gulf Bank (UAE)", "Invest Bank (UAE)", "Habib Bank Limited (UAE)", "Oman Arab Bank (UAE)", "NBAD(UAE)", "NCB Bank(UAE)", "NBQ Bank (UAE)", "HBL Bank (UAE)", "Al Hilal Bank(UAE)", "FGB (UAE)", "Sharjah Islamic Bank(UAE)", "Noor Bank(UAE)", "CBI - Commercial Bank International (UAE)", "Janata Bank Ltd (UAE)", "Ajman Bank (UAE)", "Bank Melli Iran (UAE)", "FAB - First Abu Dhabi Bank (UAE)", "Citi Bank (UAE)", "The Saudi British Bank (UAE)", "BNP Paribas (UAE)", "Arab African International Bank (UAE)", "AL Masraf (UAE)", "Banque Misr (UAE)", "Samba Financial Group (UAE)"];
+  List<String> bankname_data = [
+    'Not Applicable',
+    "RAK Bank (UAE)",
+    "Mashreq Bank (UAE)",
+    "National Bank of Abu Dhabi (UAE)",
+    "ADCB (UAE)",
+    "Arab Bank (UAE)",
+    "Commercial Bank of Dubai (UAE)",
+    "Emirates NBD (UAE)",
+    "Habib Bank AG Zurich (UAE)",
+    "National Bank of Fujairah (UAE)",
+    "Standard Chartered Bank (UAE)",
+    "Bank of Baroda (UAE)",
+    "HSBC Bank (UAE)",
+    "Union National Bank (UAE)",
+    "United Arab Bank (UAE)",
+    "Al Ahli Bank of Kuwait (UAE)",
+    "Noor Islamic Bank (UAE)",
+    "Emirates Bank (UAE)",
+    "Emirates Islamic Bank (UAE)",
+    "United Bank Ltd. (UAE)",
+    "Dubai Islamic Bank (UAE)",
+    "ADIB (UAE)",
+    "Bank of Sharjah (UAE)",
+    "Blom Bank France (UAE)",
+    "First Gulf Bank (UAE)",
+    "Invest Bank (UAE)",
+    "Habib Bank Limited (UAE)",
+    "Oman Arab Bank (UAE)",
+    "NBAD(UAE)",
+    "NCB Bank(UAE)",
+    "NBQ Bank (UAE)",
+    "HBL Bank (UAE)",
+    "Al Hilal Bank(UAE)",
+    "FGB (UAE)",
+    "Sharjah Islamic Bank(UAE)",
+    "Noor Bank(UAE)",
+    "CBI - Commercial Bank International (UAE)",
+    "Janata Bank Ltd (UAE)",
+    "Ajman Bank (UAE)",
+    "Bank Melli Iran (UAE)",
+    "FAB - First Abu Dhabi Bank (UAE)",
+    "Citi Bank (UAE)",
+    "The Saudi British Bank (UAE)",
+    "BNP Paribas (UAE)",
+    "Arab African International Bank (UAE)",
+    "AL Masraf (UAE)",
+    "Banque Misr (UAE)",
+    "Samba Financial Group (UAE)",
+  ];
 
   List<String> billsdata = ['On Account', 'New Ref', 'Agst Ref'];
 
-  String user_email_fetched = "",token = '';
+  String user_email_fetched = "", token = '';
 
   bool isVisibleDueDate = false, isVisibleBillNo = false;
 
-  String name = "", email = "", receiptdatestring = '', receiptdatetxt = '',instdatestring = '', instdatetxt = '',currencycode = '',billduedatestring = '', billduedatetxt = '';
+  String name = "",
+      email = "",
+      receiptdatestring = '',
+      receiptdatetxt = '',
+      instdatestring = '',
+      instdatetxt = '',
+      currencycode = '',
+      billduedatestring = '',
+      billduedatetxt = '';
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -880,21 +958,21 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
   late dynamic _selectedpaymentmode = '';
 
-  late final TextEditingController controller_totalamt = TextEditingController();
+  late final TextEditingController controller_totalamt =
+      TextEditingController();
 
   String formatAmountVoucher(String amount) {
     int? decimal = prefs?.getInt('decimalplace') ?? 2;
 
     String amount_string = "";
-    if(amount == "null" || amount.isEmpty)
-    {
+    if (amount == "null" || amount.isEmpty) {
       amount = "0";
     }
     double amount_double = double.parse(amount);
 
     NumberFormat formatter = NumberFormat.decimalPatternDigits(
       locale: 'en_us',
-      decimalDigits:decimal,
+      decimalDigits: decimal,
     );
     String formattedAmount = formatter.format(amount_double);
 
@@ -916,7 +994,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
               width: MediaQuery.of(context).size.width * 0.85,
               padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(28),
               ),
               child: Column(
@@ -927,10 +1005,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                     height: 50,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.green,
-                        width: 4.0,
-                      ),
+                      border: Border.all(color: Colors.green, width: 4.0),
                     ),
                     child: const Icon(
                       Icons.done,
@@ -976,31 +1051,32 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
                             receiptdate = DateTime.now();
                             receiptdatestring = _dateFormat.format(receiptdate);
-                            receiptdatetxt = formatlastsaledate(receiptdatestring);
+                            receiptdatetxt = formatlastsaledate(
+                              receiptdatestring,
+                            );
                             _dateController.text = receiptdatetxt;
 
-                            if(serial_no != uniGasSerialNumber){
+                            if (serial_no != uniGasSerialNumber) {
                               _selectedvchtypename = vchtypenamedata.first;
                             }
                             fetchvchnos(_selectedvchtypename);
 
-                            if(serial_no != uniGasSerialNumber){
+                            if (serial_no != uniGasSerialNumber) {
                               _selectedbankcashname = null;
                               _bankcashnameController.text = "";
                             }
-
 
                             bills.clear();
                             cheque.clear();
 
                             updateChequeAmount();
 
-                            totalBillAmount = bills.fold(
-                              0.0,
-                                  (double previousAmount, Bills bill) {
-                                return previousAmount + bill.billAmount;
-                              },
-                            );
+                            totalBillAmount = bills.fold(0.0, (
+                              double previousAmount,
+                              Bills bill,
+                            ) {
+                              return previousAmount + bill.billAmount;
+                            });
 
                             roundedtotalBillAmount = double.parse(
                               totalBillAmount.toStringAsFixed(decimal!),
@@ -1011,8 +1087,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                               'en_US',
                             );
 
-                            controller_totalamt.text =
-                                formatter.format(roundedtotalBillAmount);
+                            controller_totalamt.text = formatter.format(
+                              roundedtotalBillAmount,
+                            );
 
                             isVisibleBillHeading = bills.isNotEmpty;
                             isVisibleChequeHeading = cheque.isNotEmpty;
@@ -1020,7 +1097,11 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
                           Navigator.pop(context);
                         },
-                        icon: const Icon(Icons.close_rounded, size: 18, color: Colors.white),
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
                         label: Text(
                           'No, Thanks',
                           style: GoogleFonts.poppins(
@@ -1031,7 +1112,10 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.redAccent,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -1043,7 +1127,11 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                           Navigator.pop(context);
                           await generateVoucherPDF();
                         },
-                        icon: const Icon(Icons.share_rounded, size: 18, color: Colors.white),
+                        icon: const Icon(
+                          Icons.share_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
                         label: Text(
                           'Share',
                           style: GoogleFonts.poppins(
@@ -1054,7 +1142,10 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: app_color,
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 12,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -1198,10 +1289,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return Transform.scale(
           scale: Curves.easeOutBack.transform(animation.value),
-          child: Opacity(
-            opacity: animation.value,
-            child: child,
-          ),
+          child: Opacity(opacity: animation.value, child: child),
         );
       },
     );
@@ -1210,14 +1298,46 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
   String convertAmountToWords(num amount) {
     if (amount == null) return "Invalid input";
 
-    List<String> units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-    List<String> teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-    List<String> tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-
+    List<String> units = [
+      '',
+      'One',
+      'Two',
+      'Three',
+      'Four',
+      'Five',
+      'Six',
+      'Seven',
+      'Eight',
+      'Nine',
+    ];
+    List<String> teens = [
+      'Ten',
+      'Eleven',
+      'Twelve',
+      'Thirteen',
+      'Fourteen',
+      'Fifteen',
+      'Sixteen',
+      'Seventeen',
+      'Eighteen',
+      'Nineteen',
+    ];
+    List<String> tens = [
+      '',
+      '',
+      'Twenty',
+      'Thirty',
+      'Forty',
+      'Fifty',
+      'Sixty',
+      'Seventy',
+      'Eighty',
+      'Ninety',
+    ];
 
     NumberFormat formatter = NumberFormat.decimalPatternDigits(
       locale: 'en_us',
-      decimalDigits:decimal,
+      decimalDigits: decimal,
     );
     String formattedAmount = formatter.format(amount);
 
@@ -1228,11 +1348,21 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     String currencyWords = getCurrencyWords(currencycode);
     String fractionalUnit = getFractionalUnit(currencycode);
 
-    String integerWords = convertIntegerToWords(units, teens, tens, integerPart);
+    String integerWords = convertIntegerToWords(
+      units,
+      teens,
+      tens,
+      integerPart,
+    );
     String result = '$currencyWords $integerWords';
 
     if (decimalPart > 0) {
-      String decimalWords = convertIntegerToWords(units, teens, tens, decimalPart);
+      String decimalWords = convertIntegerToWords(
+        units,
+        teens,
+        tens,
+        decimalPart,
+      );
       result += ' and $decimalWords $fractionalUnit Only';
     } else {
       result += ' Only';
@@ -1242,58 +1372,92 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
   }
 
   String getCurrencyWords(String currencyCode) {
-    switch(currencyCode.toLowerCase()) {
-      case 'aed': return 'UAE dirham';
-      case 'usd': return 'US dollar';
-      case 'inr': return 'Indian rupee';
-      case 'pkr': return 'Pakistani rupee';
-      case 'eur': return 'Euro';
-      case 'lkr': return 'Sri Lankan rupee';
-      case 'sar': return 'Saudi riyal';
-      case 'omr': return 'Omani rial';
-      case 'bhd': return 'Bahraini dinar';
-      case 'qar': return 'Qatari riyal';
-      case 'kwd': return 'Kuwaiti dinar';
-      case 'sle': return 'Sierra Leonean leone';
-      default: return '';
+    switch (currencyCode.toLowerCase()) {
+      case 'aed':
+        return 'UAE dirham';
+      case 'usd':
+        return 'US dollar';
+      case 'inr':
+        return 'Indian rupee';
+      case 'pkr':
+        return 'Pakistani rupee';
+      case 'eur':
+        return 'Euro';
+      case 'lkr':
+        return 'Sri Lankan rupee';
+      case 'sar':
+        return 'Saudi riyal';
+      case 'omr':
+        return 'Omani rial';
+      case 'bhd':
+        return 'Bahraini dinar';
+      case 'qar':
+        return 'Qatari riyal';
+      case 'kwd':
+        return 'Kuwaiti dinar';
+      case 'sle':
+        return 'Sierra Leonean leone';
+      default:
+        return '';
     }
   }
 
   String getFractionalUnit(String currencyCode) {
-    switch(currencyCode.toLowerCase()) {
-      case 'aed': return 'fils';
-      case 'usd': return 'cents';
-      case 'inr': return 'paise';
-      case 'pkr': return 'paisa';
-      case 'eur': return 'cents';
-      case 'lkr': return 'cents';
-      case 'sar': return 'halala';
-      case 'omr': return 'baisa';
-      case 'bhd': return 'fils';
-      case 'qar': return 'dirham';
-      case 'kwd': return 'fils';
-      case 'sle': return 'cents';
-      default: return '';
+    switch (currencyCode.toLowerCase()) {
+      case 'aed':
+        return 'fils';
+      case 'usd':
+        return 'cents';
+      case 'inr':
+        return 'paise';
+      case 'pkr':
+        return 'paisa';
+      case 'eur':
+        return 'cents';
+      case 'lkr':
+        return 'cents';
+      case 'sar':
+        return 'halala';
+      case 'omr':
+        return 'baisa';
+      case 'bhd':
+        return 'fils';
+      case 'qar':
+        return 'dirham';
+      case 'kwd':
+        return 'fils';
+      case 'sle':
+        return 'cents';
+      default:
+        return '';
     }
   }
 
-  String convertIntegerToWords(List<String> units, List<String> teens, List<String> tens, int amount) {
+  String convertIntegerToWords(
+    List<String> units,
+    List<String> teens,
+    List<String> tens,
+    int amount,
+  ) {
     if (amount == 0) return 'zero';
 
     String words = '';
 
     if (amount >= 1000000000) {
-      words += '${convertIntegerToWords(units, teens, tens, amount ~/ 1000000000)} billion ';
+      words +=
+          '${convertIntegerToWords(units, teens, tens, amount ~/ 1000000000)} billion ';
       amount %= 1000000000;
     }
 
     if (amount >= 1000000) {
-      words += '${convertIntegerToWords(units, teens, tens, amount ~/ 1000000)} million ';
+      words +=
+          '${convertIntegerToWords(units, teens, tens, amount ~/ 1000000)} million ';
       amount %= 1000000;
     }
 
     if (amount >= 1000) {
-      words += '${convertIntegerToWords(units, teens, tens, amount ~/ 1000)} thousand ';
+      words +=
+          '${convertIntegerToWords(units, teens, tens, amount ~/ 1000)} thousand ';
       amount %= 1000;
     }
 
@@ -1322,174 +1486,306 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     pdf.addPage(
       pw.Page(
         build: (pw.Context context) {
-
           return pw.Stack(
-              children:[
+            children: [
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  // Tax Invoice Heading
+                  pw.Header(
+                    level: 0,
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border(bottom: pw.BorderSide.none),
+                    ),
 
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.center,
-                  children: [
-                    // Tax Invoice Heading
-                    pw.Header(
-                        level: 0,
-                        decoration: pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide.none)),
-
-                        child: pw.Center(child:pw.Column(children: [
-                          pw.Text(company!, textAlign: pw.TextAlign.center,
-                              style: pw.TextStyle(
-                                  fontSize: 18
-                              )),
+                    child: pw.Center(
+                      child: pw.Column(
+                        children: [
+                          pw.Text(
+                            company!,
+                            textAlign: pw.TextAlign.center,
+                            style: pw.TextStyle(fontSize: 18),
+                          ),
                           pw.SizedBox(height: 20),
-                          pw.Text('Receipt Voucher', textAlign: pw.TextAlign.center,
-                              style: pw.TextStyle(
-                                  fontSize: 18
-                              ))
-                        ]), )
+                          pw.Text(
+                            'Receipt Voucher',
+                            textAlign: pw.TextAlign.center,
+                            style: pw.TextStyle(fontSize: 18),
+                          ),
+                        ],
+                      ),
                     ),
+                  ),
 
-                    pw.SizedBox(height: 10),
+                  pw.SizedBox(height: 10),
 
-                    pw.Table(
-                        border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide.none,
-                            bottom: pw.BorderSide.none
-                        ),
-                        children:[
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide.none,
+                      bottom: pw.BorderSide.none,
+                    ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 5,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                              alignment: pw.Alignment.centerLeft,
 
-                          pw.TableRow(children: [
+                              child: pw.Row(
+                                children: [
+                                  pw.Text(
+                                    'No. : ',
+                                    style: pw.TextStyle(fontSize: 12),
+                                  ),
 
-                            pw.Expanded(
-                              flex: 5,
-                              child: pw.Container(
-                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                  alignment: pw.Alignment.centerLeft,
-
-                                  child: pw.Row(children: [
-
-                                    pw.Text(
-                                      'No. : ',
-                                      style: pw.TextStyle(
-                                        fontSize: 12,
-                                      ),
-                                    ),
-
-
-                                    pw.Text(
-                                      _vchnoController.text,
-                                      style: pw.TextStyle(
-                                        fontSize: 12,
-                                      ),
-                                    ),
-
-                                  ])
+                                  pw.Text(
+                                    _vchnoController.text,
+                                    style: pw.TextStyle(fontSize: 12),
+                                  ),
+                                ],
                               ),
                             ),
+                          ),
 
+                          pw.Expanded(
+                            flex: 5,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                              alignment: pw.Alignment.centerRight,
 
-                            pw.Expanded(
-                              flex: 5,
-                              child: pw.Container(
+                              child: pw.Row(
+                                mainAxisAlignment: pw.MainAxisAlignment.end,
+                                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                                children: [
+                                  pw.Text(
+                                    'Dated : ',
+                                    style: pw.TextStyle(fontSize: 12),
+                                  ),
 
-
-                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                  alignment: pw.Alignment.centerRight,
-
-                                  child: pw.Row(
-                                      mainAxisAlignment: pw.MainAxisAlignment.end,
-                                      crossAxisAlignment: pw.CrossAxisAlignment.end,
-                                      children: [
-
-
-
-                                        pw.Text(
-                                          'Dated : ',
-                                          style: pw.TextStyle(
-                                            fontSize: 12,
-                                          ),
-                                        ),
-
-
-                                        pw.Text(
-                                          formatlastsaledate(receiptdatestring),
-                                          style: pw.TextStyle(
-                                            fontSize: 12,
-                                          ),
-                                        ),
-
-                                      ])
+                                  pw.Text(
+                                    formatlastsaledate(receiptdatestring),
+                                    style: pw.TextStyle(fontSize: 12),
+                                  ),
+                                ],
                               ),
                             ),
-                          ])
-                        ]
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  pw.SizedBox(height: 5),
+
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide.none,
+                      bottom: pw.BorderSide.none,
                     ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 5,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 15),
+                              alignment: pw.Alignment.centerLeft,
 
-                    pw.SizedBox(height:5),
+                              child: pw.Row(
+                                children: [
+                                  pw.Text(
+                                    'Remarks : ',
+                                    style: pw.TextStyle(fontSize: 12),
+                                  ),
 
-                    pw.Table(
-                        border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide.none,
-                            bottom: pw.BorderSide.none
-                        ),
-                        children:[
-
-                          pw.TableRow(children: [
-
-
-
-
-                            pw.Expanded(
-                              flex: 5,
-                              child: pw.Container(
-                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 15),
-                                  alignment: pw.Alignment.centerLeft,
-
-                                  child: pw.Row(children: [
-
-                                    pw.Text(
-                                      'Remarks : ',
-                                      style: pw.TextStyle(
-                                        fontSize: 12,
-                                      ),
-                                    ),
-
-                                    pw.Text(
-                                      controller_narration.text,
-                                      style: pw.TextStyle(
-                                        fontSize: 12,
-                                      ),
-                                    )])
+                                  pw.Text(
+                                    controller_narration.text,
+                                    style: pw.TextStyle(fontSize: 12),
+                                  ),
+                                ],
                               ),
                             ),
-                          ])
-                        ]
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  pw.SizedBox(height: 20),
+
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      verticalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      bottom: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                      top: pw.BorderSide(color: PdfColor.fromHex('#050400')),
                     ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 7,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(10, 2, 5, 2),
+                              alignment: pw.Alignment.centerLeft,
 
-                    pw.SizedBox(height: 20),
+                              child: pw.Text(
+                                'Particulars',
+                                style: pw.TextStyle(fontSize: 11),
+                              ),
+                            ),
+                          ),
 
-                    pw.Table(
-                        border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            bottom:  pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            top:  pw.BorderSide(color: PdfColor.fromHex('#050400'))
-                        ),
-                        children:[
+                          pw.Expanded(
+                            flex: 3,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                              alignment: pw.Alignment.centerRight,
 
-                          pw.TableRow(children: [
+                              child: pw.Text(
+                                'Amount',
+                                style: pw.TextStyle(fontSize: 11),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
 
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      bottom: pw.BorderSide.none,
+                      top: pw.BorderSide.none,
+                    ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 7,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 3, 5, 2),
+                              alignment: pw.Alignment.centerLeft,
+
+                              child: pw.Text(
+                                'Account :',
+                                style: pw.TextStyle(fontSize: 11),
+                              ),
+                            ),
+                          ),
+
+                          pw.Expanded(
+                            flex: 3,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                              alignment: pw.Alignment.centerRight,
+
+                              child: pw.Text(
+                                '',
+                                style: pw.TextStyle(fontSize: 11),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      bottom: pw.BorderSide.none,
+                      top: pw.BorderSide.none,
+                    ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 7,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(15, 3, 5, 2),
+                              alignment: pw.Alignment.centerLeft,
+
+                              child: pw.Text(
+                                _selectedparty,
+                                style: pw.TextStyle(fontSize: 11),
+                              ),
+                            ),
+                          ),
+
+                          pw.Expanded(
+                            flex: 3,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                              alignment: pw.Alignment.centerRight,
+
+                              child: pw.Text(
+                                formatAmountVoucher(
+                                  roundedtotalBillAmount.toString(),
+                                ),
+                                style: pw.TextStyle(fontSize: 11),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      bottom: pw.BorderSide.none,
+                      top: pw.BorderSide.none,
+                    ),
+                    children: [
+                      for (var bill in bills.asMap().entries)
+                        pw.TableRow(
+                          children: [
                             pw.Expanded(
-                              flex:7,
+                              flex: 7,
                               child: pw.Container(
-                                padding: pw.EdgeInsets.fromLTRB(10, 2, 5, 2),
+                                padding: pw.EdgeInsets.fromLTRB(20, 2, 10, 2),
                                 alignment: pw.Alignment.centerLeft,
 
-                                child: pw.Text(
-                                  'Particulars',
-                                  style: pw.TextStyle(
-                                    fontSize: 11,
-                                  ),
+                                child: pw.Row(
+                                  children: [
+                                    pw.Text(
+                                      bill.value.billName,
+                                      style: pw.TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: pw.FontWeight.bold,
+                                      ),
+                                    ),
+                                    pw.SizedBox(width: 2),
+                                    pw.Text(
+                                      formatAmountVoucher(
+                                        bill.value.billAmount.toString(),
+                                      ),
+                                      style: pw.TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: pw.FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -1497,169 +1793,364 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                             pw.Expanded(
                               flex: 3,
                               child: pw.Container(
-
-
-                                padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
-                                alignment: pw.Alignment.centerRight,
-
-                                child: pw.Text(
-                                  'Amount',
-                                  style: pw.TextStyle(
-                                    fontSize: 11,
-                                  ),
-                                ),
-
-                              ),
-                            ),
-                          ])
-                        ]
-                    ),
-
-                    pw.Table(
-                        border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            bottom:  pw.BorderSide.none,
-                            top:  pw.BorderSide.none
-                        ),
-                        children:[
-
-                          pw.TableRow(children: [
-
-
-
-
-                            pw.Expanded(
-                              flex:7,
-                              child: pw.Container(
-                                padding: pw.EdgeInsets.fromLTRB(5, 3, 5, 2),
-                                alignment: pw.Alignment.centerLeft,
-
-                                child: pw.Text(
-                                  'Account :',
-                                  style: pw.TextStyle(
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-
-                            pw.Expanded(
-                              flex: 3,
-                              child: pw.Container(
-
-
                                 padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
                                 alignment: pw.Alignment.centerRight,
 
                                 child: pw.Text(
                                   '',
-                                  style: pw.TextStyle(
-                                    fontSize: 11,
-                                  ),
+                                  style: pw.TextStyle(fontSize: 11),
                                 ),
-
                               ),
                             ),
-                          ])
-                        ]
-                    ),
-
-                    pw.Table(
-                        border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            bottom:  pw.BorderSide.none,
-                            top:  pw.BorderSide.none
+                          ],
                         ),
-                        children:[
-                          pw.TableRow(children: [
-                            pw.Expanded(
-                              flex:7,
-                              child: pw.Container(
-                                padding: pw.EdgeInsets.fromLTRB(15, 3, 5, 2),
-                                alignment: pw.Alignment.centerLeft,
+                    ],
+                  ),
 
-                                child: pw.Text(
-                                  _selectedparty,
-                                  style: pw.TextStyle(
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-
-                            pw.Expanded(
-                              flex: 3,
-                              child: pw.Container(
-
-
-                                padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
-                                alignment: pw.Alignment.centerRight,
-
-                                child: pw.Text(
-                                  formatAmountVoucher(roundedtotalBillAmount.toString()),
-                                  style: pw.TextStyle(
-                                    fontSize: 11,
-                                  ),
-                                ),
-
-                              ),
-                            ),
-                          ])
-                        ]
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      bottom: pw.BorderSide.none,
+                      top: pw.BorderSide.none,
                     ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 7,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(20, 2, 5, 2),
+                              alignment: pw.Alignment.centerLeft,
 
-                    pw.Table(
-                        border: pw.TableBorder(
+                              child: pw.SizedBox(height: 25),
+                            ),
+                          ),
+
+                          pw.Expanded(
+                            flex: 3,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                              alignment: pw.Alignment.centerRight,
+
+                              child: pw.SizedBox(height: 25),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      bottom: pw.BorderSide.none,
+                      top: pw.BorderSide.none,
+                    ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 7,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                              alignment: pw.Alignment.centerLeft,
+
+                              child: pw.Text(
+                                'Through : ',
+                                style: pw.TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: pw.FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          pw.Expanded(
+                            flex: 3,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                              alignment: pw.Alignment.centerRight,
+
+                              child: pw.Text(
+                                '',
+                                style: pw.TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: pw.FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      bottom: pw.BorderSide.none,
+                      top: pw.BorderSide.none,
+                    ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 7,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                              alignment: pw.Alignment.centerLeft,
+
+                              child: pw.Text(
+                                _selectedbankcashname!['name']!,
+                                style: pw.TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: pw.FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          pw.Expanded(
+                            flex: 3,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                              alignment: pw.Alignment.centerRight,
+
+                              child: pw.Text(
+                                '',
+                                style: pw.TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: pw.FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  if (cheque.isNotEmpty)
+                    pw.Column(
+                      children: [
+                        pw.Table(
+                          border: pw.TableBorder(
                             horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            bottom:  pw.BorderSide.none,
-                            top:  pw.BorderSide.none
-                        ),
-                        children:[
-                          for(var bill in bills.asMap().entries)
-
-                            pw.TableRow(children: [
-
-
-
-
-                              pw.Expanded(
-                                flex:7,
-                                child: pw.Container(
-                                    padding: pw.EdgeInsets.fromLTRB(20, 2, 10, 2),
+                            verticalInside: pw.BorderSide(
+                              color: PdfColor.fromHex('#050400'),
+                            ),
+                            bottom: pw.BorderSide.none,
+                            top: pw.BorderSide.none,
+                          ),
+                          children: [
+                            pw.TableRow(
+                              children: [
+                                pw.Expanded(
+                                  flex: 7,
+                                  child: pw.Container(
+                                    padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
                                     alignment: pw.Alignment.centerLeft,
 
-                                    child: pw.Row(children: [
-                                      pw.Text(
-                                        bill.value.billName,
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.bold
-                                        ),
+                                    child: pw.Text(
+                                      'Bank Transaction Details:',
+                                      style: pw.TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: pw.FontWeight.normal,
                                       ),
-                                      pw.SizedBox(width: 2),
-                                      pw.Text(
-                                        formatAmountVoucher(bill.value.billAmount.toString()),
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.bold
-                                        ),
-                                      ),
+                                    ),
+                                  ),
+                                ),
 
-                                    ])
+                                pw.Expanded(
+                                  flex: 3,
+                                  child: pw.Container(
+                                    padding: pw.EdgeInsets.fromLTRB(
+                                      5,
+                                      2,
+                                      10,
+                                      2,
+                                    ),
+                                    alignment: pw.Alignment.centerRight,
+
+                                    child: pw.Text(
+                                      '',
+                                      style: pw.TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: pw.FontWeight.normal,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        for (var cheque in cheque.asMap().entries)
+                          pw.Table(
+                            border: pw.TableBorder(
+                              horizontalInside: pw.BorderSide.none,
+                              verticalInside: pw.BorderSide(
+                                color: PdfColor.fromHex('#050400'),
+                              ),
+                              bottom: pw.BorderSide.none,
+                              top: pw.BorderSide.none,
+                            ),
+                            children: [
+                              pw.TableRow(
+                                children: [
+                                  pw.Expanded(
+                                    flex: 7,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        2,
+                                        5,
+                                        2,
+                                      ),
+                                      alignment: pw.Alignment.centerLeft,
+
+                                      child: pw.Row(
+                                        children: [
+                                          pw.Text(
+                                            cheque.value.paymentMode,
+                                            style: pw.TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: pw.FontWeight.normal,
+                                            ),
+                                          ),
+
+                                          pw.SizedBox(width: 10),
+
+                                          pw.Text(
+                                            formatlastsaledate(
+                                              cheque.value.instdate.toString(),
+                                            ),
+                                            style: pw.TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: pw.FontWeight.normal,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+
+                                  pw.Expanded(
+                                    flex: 3,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        2,
+                                        10,
+                                        2,
+                                      ),
+                                      alignment: pw.Alignment.centerRight,
+
+                                      child: pw.Text(
+                                        '',
+                                        style: pw.TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: pw.FontWeight.normal,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  pw.Column(
+                    children: [
+                      pw.Table(
+                        border: pw.TableBorder(
+                          horizontalInside: pw.BorderSide.none,
+                          verticalInside: pw.BorderSide(
+                            color: PdfColor.fromHex('#050400'),
+                          ),
+                          bottom: pw.BorderSide.none,
+                          top: pw.BorderSide.none,
+                        ),
+                        children: [
+                          pw.TableRow(
+                            children: [
+                              pw.Expanded(
+                                flex: 7,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 30, 5, 2),
+                                  alignment: pw.Alignment.centerLeft,
+
+                                  child: pw.Text(
+                                    'Amount (in words) :',
+                                    style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal,
+                                    ),
+                                  ),
                                 ),
                               ),
-
 
                               pw.Expanded(
                                 flex: 3,
                                 child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 30, 10, 2),
+                                  alignment: pw.Alignment.centerRight,
 
+                                  child: pw.Text(
+                                    '',
+                                    style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
 
+                      pw.Table(
+                        border: pw.TableBorder(
+                          horizontalInside: pw.BorderSide.none,
+                          verticalInside: pw.BorderSide(
+                            color: PdfColor.fromHex('#050400'),
+                          ),
+                          bottom: pw.BorderSide.none,
+                          top: pw.BorderSide.none,
+                        ),
+                        children: [
+                          pw.TableRow(
+                            children: [
+                              pw.Expanded(
+                                flex: 7,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                                  alignment: pw.Alignment.centerLeft,
+
+                                  child: pw.Text(
+                                    convertAmountToWords(totalBillAmount),
+                                    style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              pw.Expanded(
+                                flex: 3,
+                                child: pw.Container(
                                   padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
                                   alignment: pw.Alignment.centerRight,
 
@@ -1667,517 +2158,173 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                     '',
                                     style: pw.TextStyle(
                                       fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal,
                                     ),
                                   ),
-
                                 ),
                               ),
-                            ])
-                        ]
-                    ),
+                            ],
+                          ),
+                        ],
+                      ),
 
-                    pw.Table(
+                      pw.Table(
                         border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            bottom:  pw.BorderSide.none,
-                            top:  pw.BorderSide.none
+                          horizontalInside: pw.BorderSide.none,
+                          verticalInside: pw.BorderSide(
+                            color: PdfColor.fromHex('#050400'),
+                          ),
+                          bottom: pw.BorderSide.none,
+                          top: pw.BorderSide.none,
+                          right: pw.BorderSide.none,
                         ),
-                        children:[
-                          pw.TableRow(children: [
-                            pw.Expanded(
-                              flex:7,
-                              child: pw.Container(
-                                  padding: pw.EdgeInsets.fromLTRB(20, 2, 5, 2),
+                        children: [
+                          pw.TableRow(
+                            children: [
+                              pw.Expanded(
+                                flex: 7,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 0),
                                   alignment: pw.Alignment.centerLeft,
 
-                                  child: pw.SizedBox(height:25)
+                                  child: pw.Text(
+                                    '',
+                                    style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
 
-
-                            pw.Expanded(
-                              flex: 3,
-                              child: pw.Container(
-
-
-                                  padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                              pw.Expanded(
+                                flex: 3,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(0, 5, 0, 0),
                                   alignment: pw.Alignment.centerRight,
 
-                                  child: pw.SizedBox(height:25)
-
-                              ),
-                            ),
-                          ])
-                        ]
-                    ),
-
-
-                    pw.Table(
-                        border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            bottom:  pw.BorderSide.none,
-                            top:  pw.BorderSide.none
-                        ),
-                        children:[
-                          pw.TableRow(children: [
-                            pw.Expanded(
-                              flex:7,
-                              child: pw.Container(
-                                padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
-                                alignment: pw.Alignment.centerLeft,
-
-                                child: pw.Text(
-                                  'Through : ',
-                                  style: pw.TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: pw.FontWeight.normal
-                                  ),
-                                ),
-                              ),
-                            ),
-
-
-                            pw.Expanded(
-                              flex: 3,
-                              child: pw.Container(
-
-
-                                padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
-                                alignment: pw.Alignment.centerRight,
-
-                                child: pw.Text(
-                                  '',
-                                  style: pw.TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: pw.FontWeight.normal
-                                  ),
-                                ),
-
-                              ),
-                            ),
-                          ])
-                        ]
-                    ),
-                    pw.Table(
-                        border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            bottom:  pw.BorderSide.none,
-                            top:  pw.BorderSide.none
-                        ),
-                        children:[
-                          pw.TableRow(children: [
-                            pw.Expanded(
-                              flex:7,
-                              child: pw.Container(
-                                padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
-                                alignment: pw.Alignment.centerLeft,
-
-                                child: pw.Text(
-                                  _selectedbankcashname!['name']!,
-                                  style: pw.TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: pw.FontWeight.normal
-                                  ),
-                                ),
-                              ),
-                            ),
-
-
-                            pw.Expanded(
-                              flex: 3,
-                              child: pw.Container(
-
-
-                                padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
-                                alignment: pw.Alignment.centerRight,
-
-                                child: pw.Text(
-                                  '',
-                                  style: pw.TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: pw.FontWeight.normal
-                                  ),
-                                ),
-
-                              ),
-                            ),
-                          ])
-                        ]
-                    ),
-
-                    if(cheque.isNotEmpty)
-                      pw.Column(
-                          children: [
-                            pw.Table(
-                                border: pw.TableBorder(
-                                    horizontalInside: pw.BorderSide.none,
-                                    verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                    bottom:  pw.BorderSide.none,
-                                    top:  pw.BorderSide.none
-                                ),
-                                children:[
-                                  pw.TableRow(children: [
-                                    pw.Expanded(
-                                      flex:7,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
-                                        alignment: pw.Alignment.centerLeft,
-
-                                        child: pw.Text(
-                                          'Bank Transaction Details:',
-                                          style: pw.TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: pw.FontWeight.normal
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-
-                                    pw.Expanded(
-                                      flex: 3,
-                                      child: pw.Container(
-
-
-                                        padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
-                                        alignment: pw.Alignment.centerRight,
-
-                                        child: pw.Text(
-                                          '',
-                                          style: pw.TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: pw.FontWeight.normal
-                                          ),
-                                        ),
-
-                                      ),
-                                    ),
-                                  ])
-                                ]
-                            ),
-
-                            for(var cheque in cheque.asMap().entries)
-                              pw.Table(
-                                  border: pw.TableBorder(
+                                  child: pw.Table(
+                                    border: pw.TableBorder(
                                       horizontalInside: pw.BorderSide.none,
-                                      verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                      bottom:  pw.BorderSide.none,
-                                      top:  pw.BorderSide.none
-                                  ),
-                                  children:[
-                                    pw.TableRow(children: [
-                                      pw.Expanded(
-                                        flex:7,
-                                        child: pw.Container(
-                                            padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
-                                            alignment: pw.Alignment.centerLeft,
-
-                                            child: pw.Row(children: [
-
-                                              pw.Text(
-                                                cheque.value.paymentMode,
-                                                style: pw.TextStyle(
-                                                    fontSize: 11,
-                                                    fontWeight: pw.FontWeight.normal
-                                                ),
-                                              ),
-
-                                              pw.SizedBox(width: 10),
-
-                                              pw.Text(
-                                                formatlastsaledate(cheque.value.instdate.toString()),
-                                                style: pw.TextStyle(
-                                                    fontSize: 11,
-                                                    fontWeight: pw.FontWeight.normal
-                                                ),
-                                              ),
-                                            ])
-                                        ),
+                                      verticalInside: pw.BorderSide.none,
+                                      bottom: pw.BorderSide(
+                                        color: PdfColor.fromHex('#050400'),
                                       ),
+                                      top: pw.BorderSide(
+                                        color: PdfColor.fromHex('#050400'),
+                                      ),
+                                      right: pw.BorderSide.none,
+                                    ),
+                                    children: [
+                                      pw.TableRow(
+                                        children: [
+                                          pw.Expanded(
+                                            flex: 3,
+                                            child: pw.Container(
+                                              padding: pw.EdgeInsets.fromLTRB(
+                                                0,
+                                                5,
+                                                10,
+                                                5,
+                                              ),
+                                              alignment:
+                                                  pw.Alignment.centerRight,
 
-
-                                      pw.Expanded(
-                                        flex: 3,
-                                        child: pw.Container(
-
-
-                                          padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
-                                          alignment: pw.Alignment.centerRight,
-
-                                          child: pw.Text(
-                                            '',
-                                            style: pw.TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: pw.FontWeight.normal
+                                              child: pw.Text(
+                                                formatAmountVoucher(
+                                                  totalBillAmount.toString(),
+                                                ),
+                                                style: pw.TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight:
+                                                      pw.FontWeight.normal,
+                                                ),
+                                              ),
                                             ),
                                           ),
-
-                                        ),
+                                        ],
                                       ),
-                                    ])
-                                  ]
+                                    ],
+                                  ),
+                                ),
                               ),
-                          ]
+                            ],
+                          ),
+                        ],
                       ),
-                    pw.Column(
+
+                      pw.Table(
+                        border: pw.TableBorder(
+                          horizontalInside: pw.BorderSide.none,
+                          verticalInside: pw.BorderSide.none,
+                          bottom: pw.BorderSide.none,
+                          top: pw.BorderSide.none,
+                          right: pw.BorderSide.none,
+                        ),
                         children: [
-                          pw.Table(
-                              border: pw.TableBorder(
-                                  horizontalInside: pw.BorderSide.none,
-                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                  bottom:  pw.BorderSide.none,
-                                  top:  pw.BorderSide.none
+                          pw.TableRow(
+                            children: [
+                              pw.Expanded(
+                                flex: 7,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 50, 5, 0),
+                                  alignment: pw.Alignment.centerLeft,
+
+                                  child: pw.Text(
+                                    '',
+                                    style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              children:[
-                                pw.TableRow(children: [
-                                  pw.Expanded(
-                                    flex:7,
-                                    child: pw.Container(
-                                      padding: pw.EdgeInsets.fromLTRB(5, 30, 5, 2),
-                                      alignment: pw.Alignment.centerLeft,
 
-                                      child: pw.Text(
-                                        'Amount (in words) :',
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.normal
-                                        ),
-                                      ),
+                              pw.Expanded(
+                                flex: 3,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(0, 50, 5, 0),
+                                  alignment: pw.Alignment.centerLeft,
+
+                                  child: pw.Text(
+                                    'Authorised Signatory',
+                                    style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal,
                                     ),
                                   ),
-
-
-                                  pw.Expanded(
-                                    flex: 3,
-                                    child: pw.Container(
-
-
-                                      padding: pw.EdgeInsets.fromLTRB(5, 30, 10, 2),
-                                      alignment: pw.Alignment.centerRight,
-
-                                      child: pw.Text(
-                                        '',
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.normal
-                                        ),
-                                      ),
-
-                                    ),
-                                  ),
-                                ])
-                              ]
-                          ),
-
-                          pw.Table(
-                              border: pw.TableBorder(
-                                  horizontalInside: pw.BorderSide.none,
-                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                  bottom:  pw.BorderSide.none,
-                                  top:  pw.BorderSide.none
+                                ),
                               ),
-                              children:[
-                                pw.TableRow(children: [
-                                  pw.Expanded(
-                                    flex:7,
-                                    child: pw.Container(
-                                      padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
-                                      alignment: pw.Alignment.centerLeft,
-
-                                      child: pw.Text(
-                                        convertAmountToWords(totalBillAmount),
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.normal
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-
-                                  pw.Expanded(
-                                    flex: 3,
-                                    child: pw.Container(
-
-
-                                      padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
-                                      alignment: pw.Alignment.centerRight,
-
-                                      child: pw.Text(
-                                        '',
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.normal
-                                        ),
-                                      ),
-
-                                    ),
-                                  ),
-                                ])
-                              ]
+                            ],
                           ),
-
-                          pw.Table(
-                              border: pw.TableBorder(
-                                  horizontalInside: pw.BorderSide.none,
-                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                  bottom:  pw.BorderSide.none,
-                                  top:  pw.BorderSide.none,
-                                  right:  pw.BorderSide.none
-                              ),
-                              children:[
-                                pw.TableRow(children: [
-                                  pw.Expanded(
-                                    flex:7,
-                                    child: pw.Container(
-                                      padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 0),
-                                      alignment: pw.Alignment.centerLeft,
-
-                                      child: pw.Text(
-                                        '',
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.normal
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-
-                                  pw.Expanded(
-                                    flex:3,
-                                    child: pw.Container(
-                                      padding: pw.EdgeInsets.fromLTRB(0, 5, 0, 0),
-                                      alignment: pw.Alignment.centerRight,
-
-                                      child: pw.Table(
-                                          border: pw.TableBorder(
-                                              horizontalInside: pw.BorderSide.none,
-                                              verticalInside: pw.BorderSide.none,
-                                              bottom:  pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                              top:  pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                              right:  pw.BorderSide.none
-                                          ),
-                                          children:[
-                                            pw.TableRow(children: [
-
-
-
-                                              pw.Expanded(
-                                                flex:3,
-                                                child: pw.Container(
-                                                  padding: pw.EdgeInsets.fromLTRB(0, 5, 10, 5),
-                                                  alignment: pw.Alignment.centerRight,
-
-                                                  child: pw.Text(
-                                                    formatAmountVoucher(totalBillAmount.toString()),
-                                                    style: pw.TextStyle(
-                                                        fontSize: 11,
-                                                        fontWeight: pw.FontWeight.normal
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-
-
-
-                                            ])
-                                          ]
-                                      ),
-                                    ),
-                                  ),
-
-
-
-                                ])
-                              ]
-                          ),
-
-                          pw.Table(
-                              border: pw.TableBorder(
-                                  horizontalInside: pw.BorderSide.none,
-                                  verticalInside: pw.BorderSide.none,
-                                  bottom:  pw.BorderSide.none,
-                                  top:  pw.BorderSide.none,
-                                  right:  pw.BorderSide.none
-                              ),
-                              children:[
-                                pw.TableRow(children: [
-                                  pw.Expanded(
-                                    flex:7,
-                                    child: pw.Container(
-                                      padding: pw.EdgeInsets.fromLTRB(5, 50, 5, 0),
-                                      alignment: pw.Alignment.centerLeft,
-
-                                      child: pw.Text(
-                                        '',
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.normal
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-
-                                  pw.Expanded(
-                                    flex:3,
-                                    child: pw.Container(
-                                      padding: pw.EdgeInsets.fromLTRB(0, 50, 5, 0),
-                                      alignment: pw.Alignment.centerLeft,
-
-                                      child: pw.Text(
-                                        'Authorised Signatory',
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.normal
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-
-
-                                ])
-                              ]
-                          ),
-
-
-
-
-                        ]
-                    )
-
-
-                  ],
-                ),
-                pw.Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: pw.Container(
-                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                    alignment: pw.Alignment.center,
-                    child: pw.Text(
-                      'Created in Fincore Go',
-                      textAlign: pw.TextAlign.center,
-                      style: pw.TextStyle(
-                          fontSize: 10,
-                          color: PdfColor.fromInt(0xFFCCCCCC)
+                        ],
                       ),
+                    ],
+                  ),
+                ],
+              ),
+              pw.Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: pw.Container(
+                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                  alignment: pw.Alignment.center,
+                  child: pw.Text(
+                    'Created in Fincore Go',
+                    textAlign: pw.TextAlign.center,
+                    style: pw.TextStyle(
+                      fontSize: 10,
+                      color: PdfColor.fromInt(0xFFCCCCCC),
                     ),
                   ),
                 ),
-
-              ]
+              ),
+            ],
           );
         },
       ),
     );
-
 
     final pdfData = await pdf.save();
 
@@ -2187,12 +2334,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     final file = File(filePath);
     await file.writeAsBytes(pdfData);
 
-    await Share.shareXFiles(
-      [XFile(filePath, mimeType: 'application/pdf')],
-      text: 'Sharing Receipt Voucher for $_selectedparty',
-    );
-
-
+    await Share.shareXFiles([
+      XFile(filePath, mimeType: 'application/pdf'),
+    ], text: 'Sharing Receipt Voucher for $_selectedparty');
 
     setState(() {
       _selectedparty = null;
@@ -2204,8 +2348,6 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
       isChequeVisible = false;
 
-
-
       openingOutstanding = 0.0;
       outstandingBills.clear();
 
@@ -2216,16 +2358,15 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       receiptdatestring = _dateFormat.format(receiptdate);
       receiptdatetxt = formatlastsaledate(receiptdatestring);
       _dateController.text = receiptdatetxt;
-      if(serial_no != uniGasSerialNumber){
+      if (serial_no != uniGasSerialNumber) {
         _selectedvchtypename = vchtypenamedata.first;
       }
 
       fetchvchnos(_selectedvchtypename);
 
-      if(serial_no != uniGasSerialNumber){
+      if (serial_no != uniGasSerialNumber) {
         _selectedbankcashname = null;
-        _bankcashnameController.text =
-        _selectedbankcashname != null
+        _bankcashnameController.text = _selectedbankcashname != null
             ? _selectedbankcashname!['name']!
             : "";
       }
@@ -2235,47 +2376,41 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
       updateChequeAmount();
 
-      totalBillAmount = bills.fold(0.0,(double previousAmount, Bills bill) {
+      totalBillAmount = bills.fold(0.0, (double previousAmount, Bills bill) {
         return previousAmount + bill.billAmount;
-      },
+      });
+      roundedtotalBillAmount = double.parse(
+        totalBillAmount.toStringAsFixed(decimal!),
       );
-      roundedtotalBillAmount = double.parse(totalBillAmount.toStringAsFixed(decimal!));
       NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
       String formattedtotal = formatter.format(roundedtotalBillAmount);
       controller_totalamt.text = formattedtotal.toString();
 
-      if (bills.isEmpty)
-      {
+      if (bills.isEmpty) {
         isVisibleBillHeading = false;
-      }
-      else
-      {
+      } else {
         isVisibleBillHeading = true;
       }
 
-      if (cheque.isEmpty)
-      {
+      if (cheque.isEmpty) {
         isVisibleChequeHeading = false;
-      }
-      else
-      {
+      } else {
         isVisibleChequeHeading = true;
       }
     });
-
   }
 
-
-
-
-  void updateChequeAmount () {
-    totalChequeAmount = cheque.fold(
-      0.0, (double previousAmount, Cheque cheque) {
-        return previousAmount + cheque.chequeAmount;
-      },
-    );
+  void updateChequeAmount() {
+    totalChequeAmount = cheque.fold(0.0, (
+      double previousAmount,
+      Cheque cheque,
+    ) {
+      return previousAmount + cheque.chequeAmount;
+    });
     // Update formatted total amount
-    roundedtotalChequeAmount = double.parse(totalChequeAmount.toStringAsFixed(decimal!));
+    roundedtotalChequeAmount = double.parse(
+      totalChequeAmount.toStringAsFixed(decimal!),
+    );
   }
 
   String getCurrencySymbol(String currencyCode) {
@@ -2284,27 +2419,31 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     Locale locale = Localizations.localeOf(context);
 
     try {
-      if (currencyCode == 'INR' || currencyCode == 'EUR' || currencyCode == 'PKR' || currencyCode == 'USD')
-      {
-        format =  NumberFormat.simpleCurrency(locale: locale.toString(), name: currencyCode);
-      }
-      else
-      {
-        format =  NumberFormat.currency(locale: locale.toString(), name: currencyCode);
+      if (currencyCode == 'INR' ||
+          currencyCode == 'EUR' ||
+          currencyCode == 'PKR' ||
+          currencyCode == 'USD') {
+        format = NumberFormat.simpleCurrency(
+          locale: locale.toString(),
+          name: currencyCode,
+        );
+      } else {
+        format = NumberFormat.currency(
+          locale: locale.toString(),
+          name: currencyCode,
+        );
       }
       return format.currencySymbol;
-    }
-    catch (e)
-    {
+    } catch (e) {
       return 'AED';
     }
   }
 
   bool isNumeric(String s) {
-    if(s == null) {
+    if (s == null) {
       return false;
     }
-     return double.tryParse(s) != null;
+    return double.tryParse(s) != null;
   }
 
   String? hostname = "",
@@ -2319,7 +2458,10 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
   late DateTime billduedate;
   late DateTime instdate;
 
-  String? HttpURL_loadData,HttpURL_receiptEntry,HttpURL_fetchvchnos, HttpURL_fetchoutstanding;
+  String? HttpURL_loadData,
+      HttpURL_receiptEntry,
+      HttpURL_fetchvchnos,
+      HttpURL_fetchoutstanding;
 
   final DateFormat _dateFormat = DateFormat('yyyyMMdd');
 
@@ -2340,8 +2482,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     Map<String, List<Map<String, dynamic>>> patternGroups = {};
 
     for (String vch in vchnos) {
-      List<RegExpMatch> matches =
-      RegExp(r'\d+').allMatches(vch).toList();
+      List<RegExpMatch> matches = RegExp(r'\d+').allMatches(vch).toList();
 
       if (matches.isNotEmpty) {
         RegExpMatch selectedMatch = matches.last;
@@ -2369,8 +2510,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
         patternGroups.putIfAbsent(patternKey, () => []);
 
-        bool exists = patternGroups[patternKey]!
-            .any((e) => e["number"] == number);
+        bool exists = patternGroups[patternKey]!.any(
+          (e) => e["number"] == number,
+        );
 
         if (!exists) {
           patternGroups[patternKey]!.add({
@@ -2391,12 +2533,10 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         .reduce((a, b) => a.value.length > b.value.length ? a : b)
         .key;
 
-    List<Map<String, dynamic>> selectedList =
-    patternGroups[selectedPattern]!;
+    List<Map<String, dynamic>> selectedList = patternGroups[selectedPattern]!;
 
     // 🔥 STEP 1: Extract & sort numbers
-    List<int> numbers =
-    selectedList.map((e) => e["number"] as int).toList();
+    List<int> numbers = selectedList.map((e) => e["number"] as int).toList();
     numbers = numbers.toSet().toList();
 
     numbers.sort();
@@ -2417,8 +2557,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     }
 
     // 🔥 STEP 3: Format number
-    String newNumber =
-    nextNumber.toString().padLeft(length, '0');
+    String newNumber = nextNumber.toString().padLeft(length, '0');
 
     // reconstruct
     List<String> parts = selectedPattern.split("#");
@@ -2429,7 +2568,6 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
   }
 
   Future<void> saveEntry() async {
-
     // ❌ Prevent save if party not selected
     if (_selectedparty == null || _selectedparty.toString().trim().isEmpty) {
       Fluttertoast.showToast(msg: "Please select Party");
@@ -2444,19 +2582,17 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       return;
     }
 
-    if (bills.isEmpty)
-    {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Atleast add 1 bill')));
-    }
-    else {
+    if (bills.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Atleast add 1 bill')));
+    } else {
       setState(() {
         _isLoading = true;
       });
       jsonEntryData.clear();
       String narrationValue = controller_narration.text;
       String vchnoValue = _vchnoController.text;
-
 
       jsonEntryData["DATE"] = receiptdatestring;
       jsonEntryData["VOUCHERTYPENAME"] = _selectedvchtypename;
@@ -2468,32 +2604,43 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       final List<Map<String, dynamic>> allLedgerEntriesList = [];
 
       // Get the list of non-"On Account" bills
-      final List<Map<String, dynamic>> nonOnAccountBills = bills.where((bill) => bill.billName != "On Account").map((bill) {
-        final Map<String, dynamic> billData = {
-          "BILLTYPE": bill.billName,
-          "AMOUNT": bill.billAmount,
-        };
+      final List<Map<String, dynamic>> nonOnAccountBills = bills
+          .where((bill) => bill.billName != "On Account")
+          .map((bill) {
+            final Map<String, dynamic> billData = {
+              "BILLTYPE": bill.billName,
+              "AMOUNT": bill.billAmount,
+            };
 
-        // Conditionally add BILLNO and BILL CREDIT PERIOD if BILLTYPE is not "On Account"
-        if (bill.billName != "On Account") {
-          billData["NAME"] = bill.billNo;
-          billData["BILLCREDITPERIOD"] = bill.billDueDate ?? ""; // Assuming billDueDate is part of the bill object
-        }
+            // Conditionally add BILLNO and BILL CREDIT PERIOD if BILLTYPE is not "On Account"
+            if (bill.billName != "On Account") {
+              billData["NAME"] = bill.billNo;
+              billData["BILLCREDITPERIOD"] =
+                  bill.billDueDate ??
+                  ""; // Assuming billDueDate is part of the bill object
+            }
 
-        return billData;
-      }).toList();
+            return billData;
+          })
+          .toList();
 
-// Get the list of "On Account" bills
-      final List<Map<String, dynamic>> onAccountBills = bills.where((bill) => bill.billName == "On Account").map((bill) {
-        final Map<String, dynamic> billData = {
-          "BILLTYPE": bill.billName,
-          "AMOUNT": bill.billAmount,
-        };
-        return billData;
-      }).toList();
+      // Get the list of "On Account" bills
+      final List<Map<String, dynamic>> onAccountBills = bills
+          .where((bill) => bill.billName == "On Account")
+          .map((bill) {
+            final Map<String, dynamic> billData = {
+              "BILLTYPE": bill.billName,
+              "AMOUNT": bill.billAmount,
+            };
+            return billData;
+          })
+          .toList();
 
-// Combine the lists, placing "On Account" bills at the end
-      final List<Map<String, dynamic>> allBillAllocations = [...nonOnAccountBills, ...onAccountBills];
+      // Combine the lists, placing "On Account" bills at the end
+      final List<Map<String, dynamic>> allBillAllocations = [
+        ...nonOnAccountBills,
+        ...onAccountBills,
+      ];
 
       final Map<String, dynamic> allLedgerEntry = {
         "LEDGERNAME": _selectedparty,
@@ -2506,11 +2653,14 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
       // Add bank allocation details
       final Map<String, dynamic> bankAllocation = {
-        "LEDGERNAME": _selectedbankcashname!['name'], // Assuming you're getting bank name dynamically
-        "AMOUNT": -totalBillAmount, // Assuming you have totalBankAmount calculated
+        "LEDGERNAME":
+            _selectedbankcashname!['name'], // Assuming you're getting bank name dynamically
+        "AMOUNT":
+            -totalBillAmount, // Assuming you have totalBankAmount calculated
         "ISPARTYLEDGER": "No",
         "ISDEEMEDPOSITIVE": "Yes",
-        "BANKALLOCATIONS.LIST": [] // Conditionally empty list based on the type of selected bank/cash
+        "BANKALLOCATIONS.LIST":
+            [], // Conditionally empty list based on the type of selected bank/cash
       };
       allLedgerEntriesList.add(bankAllocation);
 
@@ -2518,11 +2668,12 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       if (_selectedbankcashname!['type'] != 'Cash-in-Hand') {
         bankAllocation["BANKALLOCATIONS.LIST"] = cheque.map((cheque) {
           return {
-
             "DATE": receiptdatestring,
             "INSTRUMENTDATE": cheque.instdate ?? receiptdatestring,
             "TRANSACTIONTYPE": cheque.paymentMode,
-            "BANKNAME": (cheque.bankname != "Not Applicable") ? cheque.bankname : "",
+            "BANKNAME": (cheque.bankname != "Not Applicable")
+                ? cheque.bankname
+                : "",
             "PAYMENTFAVOURING": _selectedparty,
             "INSTRUMENTNUMBER": cheque.instno,
             "BANKPARTYNAME": _selectedparty,
@@ -2534,41 +2685,35 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       jsonEntryData['ALLLEDGERENTRIES.LIST'] = allLedgerEntriesList;
 
       Map<String, dynamic> jsonData = {
-        'type' : 'receipt',
-        'data' : jsonEntryData
+        'type': 'receipt',
+        'data': jsonEntryData,
       };
 
       final jsonString = json.encode(jsonData);
 
       print(jsonString);
-      try
-      {
+      try {
         final url_receiptentry = Uri.parse(HttpURL_receiptEntry!);
-        Map<String,String> headers_receiptentry = {
-          'Authorization' : 'Bearer $token',
-          "Content-Type": "application/json"
+        Map<String, String> headers_receiptentry = {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json",
         };
 
         var body_receiptentry = jsonString;
 
         final response_receiptentry = await http.post(
-            url_receiptentry,
-            body: body_receiptentry,
-            headers:headers_receiptentry
+          url_receiptentry,
+          body: body_receiptentry,
+          headers: headers_receiptentry,
         );
 
         if (response_receiptentry.statusCode == 200) {
-          if(response_receiptentry.body == 'Entry created successfully') {
-
+          if (response_receiptentry.body == 'Entry created successfully') {
             showReceiptVoucherDialog(context);
-
-          }
-          else
-          {
+          } else {
             Fluttertoast.showToast(msg: 'an error occoured');
           }
-        }
-        else {
+        } else {
           Map<String, dynamic> data = json.decode(response_receiptentry.body);
           String error = '';
 
@@ -2576,30 +2721,22 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
             setState(() {
               error = data['error'];
             });
-          }
-          else {
+          } else {
             error = "Error in data fetching!!!";
           }
           Fluttertoast.showToast(msg: error);
         }
-      }
-      catch (e)
-      {
+      } catch (e) {
         setState(() {
           _isLoading = false;
         });
         print(e);
       }
-
     }
-    setState(()
-    {
+    setState(() {
       _isLoading = false;
     });
-
-
   }
-
 
   /*Future<void> loadData() async {
     vchtypenamedata.clear();
@@ -2648,7 +2785,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
 
-        *//*print(response.body);*//*
+        */ /*print(response.body);*/ /*
         setState(() {
           final String currentSerialNo = serial_no?.trim() ?? '';
           final bool isUniGasSerial = vanSalesSerialNo.contains(currentSerialNo);
@@ -2789,7 +2926,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     }
     catch (e)
     {
-      *//*print(e);*//*
+      */ /*print(e);*/ /*
     }
 
     setState(() {
@@ -2803,14 +2940,13 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     bankcashname_data.clear();
     bills.clear();
 
-    totalBillAmount = bills.fold(
-      0.0,
-          (double previousAmount, Bills bill) {
-        return previousAmount + bill.billAmount;
-      },
-    );
+    totalBillAmount = bills.fold(0.0, (double previousAmount, Bills bill) {
+      return previousAmount + bill.billAmount;
+    });
 
-    roundedtotalBillAmount = double.parse(totalBillAmount.toStringAsFixed(decimal!));
+    roundedtotalBillAmount = double.parse(
+      totalBillAmount.toStringAsFixed(decimal!),
+    );
     NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
     String formattedtotal = formatter.format(roundedtotalBillAmount);
     controller_totalamt.text = formattedtotal.toString();
@@ -2837,10 +2973,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         "Content-Type": "application/json",
       };
 
-      final response = await http.post(
-        url,
-        headers: headers,
-      );
+      final response = await http.post(url, headers: headers);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
@@ -2880,7 +3013,8 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
             final String receiptVoucherType =
                 allocation['receipt_voucher_type']?.toString().trim() ?? '';
 
-            final String commonVoucherType = allocation['voucher_type']?.toString().trim() ?? '';
+            final String commonVoucherType =
+                allocation['voucher_type']?.toString().trim() ?? '';
 
             savedReceiptVoucherType = receiptVoucherType.isNotEmpty
                 ? receiptVoucherType
@@ -2889,8 +3023,8 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
           final bool hasValidSavedVoucherType =
               savedReceiptVoucherType.isNotEmpty &&
-                  savedReceiptVoucherType.toLowerCase() != 'null' &&
-                  vchtypenamedata.contains(savedReceiptVoucherType);
+              savedReceiptVoucherType.toLowerCase() != 'null' &&
+              vchtypenamedata.contains(savedReceiptVoucherType);
 
           _selectedvchtypename = (hasValidSavedVoucherType
               ? savedReceiptVoucherType
@@ -2903,8 +3037,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
           partydata.sort();
 
           bankcashname_data = List<Map<String, String>>.from(
-            jsonResponse['cashLedgers']
-                ?.map((cashLedger) => Map<String, String>.from(cashLedger)) ??
+            jsonResponse['cashLedgers']?.map(
+                  (cashLedger) => Map<String, String>.from(cashLedger),
+                ) ??
                 [],
           );
 
@@ -2914,13 +3049,13 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
           if (isUniGasSerial && allocation != null) {
             final String savedCashLedger =
                 allocation!['cash_ledger']?.toString().trim() ??
-                    allocation!['cashledger']?.toString().trim() ??
-                    allocation!['bank_cash_ledger']?.toString().trim() ??
-                    '';
+                allocation!['cashledger']?.toString().trim() ??
+                allocation!['bank_cash_ledger']?.toString().trim() ??
+                '';
 
             if (savedCashLedger.isNotEmpty) {
               final matchedCashLedger = bankcashname_data.where(
-                    (ledger) => ledger['name'] == savedCashLedger,
+                (ledger) => ledger['name'] == savedCashLedger,
               );
 
               if (matchedCashLedger.isNotEmpty) {
@@ -2930,8 +3065,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
             }
           }
 
-          _bankcashnameController.text =
-          _selectedbankcashname != null ? _selectedbankcashname!['name']! : "";
+          _bankcashnameController.text = _selectedbankcashname != null
+              ? _selectedbankcashname!['name']!
+              : "";
 
           if (_selectedbankcashname != null &&
               _selectedbankcashname!['type'] == 'Cash-in-Hand') {
@@ -3001,32 +3137,29 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       lastDate: DateTime(2101),
       builder: (BuildContext context, Widget? child) {
         return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme:  ColorScheme.light().copyWith(
-              primary:  app_color,
-            ),
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(
+              context,
+            ).colorScheme.copyWith(primary: app_color),
           ),
           child: child!,
         );
       },
     );
-    if (picked != null && picked != receiptdate)
-      {
-        setState(() {
-          receiptdate = picked;
-          receiptdatestring = _dateFormat.format(receiptdate);
-          receiptdatetxt = formatlastsaledate(receiptdatestring);
-          _dateController.text = receiptdatetxt;
-          if (_selectedparty != null &&
-              _selectedparty.toString().trim().isNotEmpty) {
-            if (showOutstandingBills) {
-              fetchPartyOutstanding(_selectedparty.toString());
-            }
-
+    if (picked != null && picked != receiptdate) {
+      setState(() {
+        receiptdate = picked;
+        receiptdatestring = _dateFormat.format(receiptdate);
+        receiptdatetxt = formatlastsaledate(receiptdatestring);
+        _dateController.text = receiptdatetxt;
+        if (_selectedparty != null &&
+            _selectedparty.toString().trim().isNotEmpty) {
+          if (showOutstandingBills) {
+            fetchPartyOutstanding(_selectedparty.toString());
           }
-        });
-      }
-
+        }
+      });
+    }
   } // main receipt date
 
   Future<void> _selectinstDate(BuildContext context) async {
@@ -3037,29 +3170,26 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       lastDate: DateTime(2101),
       builder: (BuildContext context, Widget? child) {
         return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme:  ColorScheme.light().copyWith(
-              primary:  app_color,
-            ),
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(
+              context,
+            ).colorScheme.copyWith(primary: app_color),
           ),
           child: child!,
         );
       },
     );
-    if (picked != null && picked != instdate)
-      {
-        setState(() {
-          instdate = picked;
-          instdatestring = _dateFormat.format(instdate);
-          instdatetxt = formatlastsaledate(instdatestring);
-          instDateController.text = instdatetxt;
-        });
-      }
-
+    if (picked != null && picked != instdate) {
+      setState(() {
+        instdate = picked;
+        instdatestring = _dateFormat.format(instdate);
+        instdatetxt = formatlastsaledate(instdatestring);
+        instDateController.text = instdatetxt;
+      });
+    }
   }
 
   Future<void> _selectbilldueDate(BuildContext context) async {
-
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: billduedate,
@@ -3067,25 +3197,23 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       lastDate: DateTime(2101),
       builder: (BuildContext context, Widget? child) {
         return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme:  ColorScheme.light().copyWith(
-              primary:  app_color,
-            ),
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(
+              context,
+            ).colorScheme.copyWith(primary: app_color),
           ),
           child: child!,
         );
       },
     );
-    if (picked != null && picked != receiptdate)
-      {
-        setState(() {
-          billduedate = picked;
-          billduedatestring = _dateFormat.format(billduedate);
-          billduedatetxt = formatlastsaledate(billduedatestring);
-          _billduedateController.text = billduedatetxt;
-        });
-      }
-
+    if (picked != null && picked != receiptdate) {
+      setState(() {
+        billduedate = picked;
+        billduedatestring = _dateFormat.format(billduedate);
+        billduedatetxt = formatlastsaledate(billduedatestring);
+        _billduedateController.text = billduedatetxt;
+      });
+    }
   } // bill due date selection
 
   /*Future<void> _showBillsDetailsPopup(BuildContext context) async {
@@ -3094,7 +3222,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             titlePadding: EdgeInsets.zero,
             title: Column(
@@ -3150,11 +3278,11 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                         hintText: "Select Bill Type",
                         labelStyle: GoogleFonts.poppins(
                           fontSize: 12.5,
-                          color: Colors.grey[700],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         hintStyle: GoogleFonts.poppins(
                           fontSize: 12.5,
-                          color: Colors.grey[400],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         prefixIcon: Container(
                           margin: const EdgeInsets.all(8), // 👈 smaller margin
@@ -3170,7 +3298,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14), // 👈 slightly tighter radius
-                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderSide: BorderSide(color: Theme.of(context).dividerColor),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -3220,11 +3348,11 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                             hintText: "Enter Bill No",
                             labelStyle: GoogleFonts.poppins(
                               fontSize: 12.5,
-                              color: Colors.grey[700],
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             hintStyle: GoogleFonts.poppins(
                               fontSize: 12.5,
-                              color: Colors.grey[400],
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             prefixIcon: Container(
                               margin: const EdgeInsets.all(8),
@@ -3274,11 +3402,11 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                             hintText: "Enter due date",
                             labelStyle: GoogleFonts.poppins(
                               fontSize: 13,
-                              color: Colors.grey[700],
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             hintStyle: GoogleFonts.poppins(
                               fontSize: 13,
-                              color: Colors.grey[400],
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             prefixIcon: Container(
                               margin: const EdgeInsets.all(8),
@@ -3323,11 +3451,11 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                           hintText: "0",
                           labelStyle: GoogleFonts.poppins(
                             fontSize: 13,
-                            color: Colors.grey[700],
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           hintStyle: GoogleFonts.poppins(
                             fontSize: 13,
-                            color: Colors.grey[400],
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           prefix: Container(
                             margin: const EdgeInsets.only(right: 8),
@@ -3378,7 +3506,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                   billAmountController.clear();
                 },
                 child: Text('Cancel',
-                  style: GoogleFonts.poppins(color: Colors.grey),
+                  style: GoogleFonts.poppins(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ),
 
@@ -3459,14 +3587,12 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
               return AnimatedPadding(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOut,
-                padding: EdgeInsets.only(
-                  bottom: mediaQuery.viewInsets.bottom,
-                ),
+                padding: EdgeInsets.only(bottom: mediaQuery.viewInsets.bottom),
                 child: FractionallySizedBox(
                   heightFactor: sheetHeight,
                   child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(24),
                       ),
@@ -3508,7 +3634,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                           style: GoogleFonts.poppins(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
 
@@ -3517,7 +3643,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                         Expanded(
                           child: SingleChildScrollView(
                             keyboardDismissBehavior:
-                            ScrollViewKeyboardDismissBehavior.manual,
+                                ScrollViewKeyboardDismissBehavior.manual,
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
                             child: Form(
                               key: _billsFormkey,
@@ -3530,22 +3656,30 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                       hintText: "Select Bill Type",
                                       labelStyle: GoogleFonts.poppins(
                                         fontSize: 12.5,
-                                        color: Colors.grey[700],
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                       ),
                                       hintStyle: GoogleFonts.poppins(
                                         fontSize: 12.5,
-                                        color: Colors.grey[400],
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                       ),
                                       prefixIcon: Container(
                                         margin: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
                                           gradient: const LinearGradient(
-                                            colors: [Colors.indigo, Colors.cyan],
+                                            colors: [
+                                              Colors.indigo,
+                                              Colors.cyan,
+                                            ],
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
                                           ),
-                                          borderRadius:
-                                          BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
                                         ),
                                         child: const Icon(
                                           Icons.book,
@@ -3556,13 +3690,13 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(14),
                                         borderSide: BorderSide(
-                                          color: Colors.grey.shade300,
+                                          color: Theme.of(context).dividerColor,
                                         ),
                                       ),
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(14),
                                         borderSide: BorderSide(
-                                          color: Colors.grey.shade300,
+                                          color: Theme.of(context).dividerColor,
                                         ),
                                       ),
                                       focusedBorder: OutlineInputBorder(
@@ -3573,10 +3707,10 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                         ),
                                       ),
                                       contentPadding:
-                                      const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 10,
-                                      ),
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 10,
+                                          ),
                                     ),
                                     value: _selectedbill,
                                     items: billsdata.map((String value) {
@@ -3624,11 +3758,15 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                           hintText: "Enter Bill No",
                                           labelStyle: GoogleFonts.poppins(
                                             fontSize: 12.5,
-                                            color: Colors.grey[700],
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                           ),
                                           hintStyle: GoogleFonts.poppins(
                                             fontSize: 12.5,
-                                            color: Colors.grey[400],
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                           ),
                                           prefixIcon: Container(
                                             margin: const EdgeInsets.all(8),
@@ -3642,7 +3780,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                                 end: Alignment.bottomRight,
                                               ),
                                               borderRadius:
-                                              BorderRadius.circular(12),
+                                                  BorderRadius.circular(12),
                                             ),
                                             child: const Icon(
                                               Icons.confirmation_num_outlined,
@@ -3651,29 +3789,34 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                             ),
                                           ),
                                           border: OutlineInputBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                           ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                             borderSide: BorderSide(
-                                              color: Colors.grey.shade300,
+                                              color: Theme.of(
+                                                context,
+                                              ).dividerColor,
                                             ),
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                             borderSide: BorderSide(
                                               color: app_color,
                                               width: 1.5,
                                             ),
                                           ),
                                           contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 10,
-                                          ),
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 10,
+                                              ),
                                         ),
                                       ),
                                     ),
@@ -3687,9 +3830,11 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                         controller: _billduedateController,
                                         validator: (value) {
                                           if (value!.isNotEmpty) {
-                                            if (double.tryParse(value) == null) {
+                                            if (double.tryParse(value) ==
+                                                null) {
                                               return 'Invalid input, please enter a number';
-                                            } else if (double.parse(value) < 0) {
+                                            } else if (double.parse(value) <
+                                                0) {
                                               return 'Due date days cannot be negative';
                                             }
                                           }
@@ -3700,11 +3845,15 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                           hintText: "Enter due date",
                                           labelStyle: GoogleFonts.poppins(
                                             fontSize: 13,
-                                            color: Colors.grey[700],
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                           ),
                                           hintStyle: GoogleFonts.poppins(
                                             fontSize: 13,
-                                            color: Colors.grey[400],
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                           ),
                                           prefixIcon: Container(
                                             margin: const EdgeInsets.all(8),
@@ -3718,7 +3867,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                                 end: Alignment.bottomRight,
                                               ),
                                               borderRadius:
-                                              BorderRadius.circular(12),
+                                                  BorderRadius.circular(12),
                                             ),
                                             child: const Icon(
                                               Icons.calendar_today,
@@ -3727,29 +3876,34 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                             ),
                                           ),
                                           border: OutlineInputBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                           ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                             borderSide: BorderSide(
-                                              color: Colors.grey.shade300,
+                                              color: Theme.of(
+                                                context,
+                                              ).dividerColor,
                                             ),
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                             borderSide: BorderSide(
                                               color: app_color,
                                               width: 1.5,
                                             ),
                                           ),
                                           contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 10,
-                                          ),
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 10,
+                                              ),
                                         ),
                                       ),
                                     ),
@@ -3777,15 +3931,20 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                         hintText: "0",
                                         labelStyle: GoogleFonts.poppins(
                                           fontSize: 13,
-                                          color: Colors.grey[700],
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                         hintStyle: GoogleFonts.poppins(
                                           fontSize: 13,
-                                          color: Colors.grey[400],
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                         prefix: Container(
-                                          margin:
-                                          const EdgeInsets.only(right: 8),
+                                          margin: const EdgeInsets.only(
+                                            right: 8,
+                                          ),
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 8,
                                             vertical: 4,
@@ -3813,29 +3972,34 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                           ),
                                         ),
                                         border: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           borderSide: BorderSide(
                                             color: app_color,
                                             width: 1.5,
                                           ),
                                         ),
                                         contentPadding:
-                                        const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 10,
-                                        ),
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 10,
+                                            ),
                                       ),
                                     ),
                                   ),
@@ -3850,7 +4014,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                           child: Container(
                             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.08),
@@ -3876,7 +4040,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                       _selectedbill = billsdata.first;
                                       isVisibleDueDate =
                                           _selectedbill == 'New Ref' ||
-                                              _selectedbill == 'Agst Ref';
+                                          _selectedbill == 'Agst Ref';
                                       isVisibleBillNo = isVisibleDueDate;
                                       _billduedateController.clear();
                                       billAmountController.clear();
@@ -3884,7 +4048,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                     child: Text(
                                       'Cancel',
                                       style: GoogleFonts.poppins(
-                                        color: Colors.grey,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -4007,13 +4173,13 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                 hintText: 'Enter Inst No',
                                 labelStyle: GoogleFonts.poppins(
                                   fontSize: 13,
-                                  color: Colors.grey.shade700,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 10, // 👈 tighter padding
                                 ),
                                 filled: true,
-                                fillColor: Colors.white.withOpacity(0.95),
+                                fillColor: Theme.of(context).inputDecorationTheme.fillColor ?? Theme.of(context).cardColor.withOpacity(0.95),
                                 prefixIcon: Container(
                                   margin: const EdgeInsets.all(8),
                                   decoration: const BoxDecoration(
@@ -4028,7 +4194,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                                  borderSide: BorderSide(color: Theme.of(context).dividerColor, width: 1),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
@@ -4050,13 +4216,13 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                 hintText: 'Select Date',
                                 labelStyle: GoogleFonts.poppins(
                                   fontSize: 13,
-                                  color: Colors.grey.shade700,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 10, // 👈 tighter padding
                                 ),
                                 filled: true,
-                                fillColor: Colors.white.withOpacity(0.95),
+                                fillColor: Theme.of(context).inputDecorationTheme.fillColor ?? Theme.of(context).cardColor.withOpacity(0.95),
                                 prefixIcon: Container(
                                   margin: const EdgeInsets.all(8),
                                   decoration: const BoxDecoration(
@@ -4071,7 +4237,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                                  borderSide: BorderSide(color: Theme.of(context).dividerColor, width: 1),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
@@ -4103,12 +4269,12 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                       hintText: 'Search Bank',
                                       labelStyle: GoogleFonts.poppins(
                                         fontSize: 13,
-                                        color: Colors.grey.shade700,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       ),
                                       contentPadding:
                                       const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                       filled: true,
-                                      fillColor: Colors.white.withOpacity(0.95),
+                                      fillColor: Theme.of(context).inputDecorationTheme.fillColor ?? Theme.of(context).cardColor.withOpacity(0.95),
                                       prefixIcon: Container(
                                         margin: const EdgeInsets.all(8),
                                         decoration: const BoxDecoration(
@@ -4134,17 +4300,17 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                                 });
                                               },
                                               child:
-                                              const Icon(Icons.close, color: Colors.grey, size: 20),
+                                              Icon(Icons.close, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
                                             ),
                                           const SizedBox(width: 4),
-                                          const Icon(Icons.arrow_drop_down, color: Colors.black87),
+                                          Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurface),
                                           const SizedBox(width: 8),
                                         ],
                                       ),
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(14),
                                         borderSide:
-                                        BorderSide(color: Colors.grey.shade300, width: 1),
+                                        BorderSide(color: Theme.of(context).dividerColor, width: 1),
                                       ),
                                       focusedBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(14),
@@ -4175,11 +4341,11 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
 
                                 // ✅ New API uses EmptyBuilder instead of noItemsFoundBuilder
-                                emptyBuilder: (context) => const Padding(
+                                emptyBuilder: (context) => Padding(
                                   padding: EdgeInsets.all(8.0),
                                   child: Text(
                                     'No matching bank found',
-                                    style: TextStyle(color: Colors.grey),
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                                   ),
                                 ),
                               )
@@ -4207,10 +4373,10 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                 ),
                                 labelStyle: GoogleFonts.poppins(
                                   fontSize: 13,
-                                  color: Colors.grey.shade700,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 filled: true,
-                                fillColor: Colors.white.withOpacity(0.95),
+                                fillColor: Theme.of(context).inputDecorationTheme.fillColor ?? Theme.of(context).cardColor.withOpacity(0.95),
                                 prefixIcon: Container(
                                   margin:  EdgeInsets.all(8),
                                   width: 32,
@@ -4237,7 +4403,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                                  borderSide: BorderSide(color: Theme.of(context).dividerColor, width: 1),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
@@ -4267,7 +4433,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                           chequeAmountController.clear();
                         });
                       },
-                      child: Text('Cancel', style: GoogleFonts.poppins(color: Colors.grey)),
+                      child: Text('Cancel', style: GoogleFonts.poppins(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -4331,14 +4497,12 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
               return AnimatedPadding(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOut,
-                padding: EdgeInsets.only(
-                  bottom: mediaQuery.viewInsets.bottom,
-                ),
+                padding: EdgeInsets.only(bottom: mediaQuery.viewInsets.bottom),
                 child: FractionallySizedBox(
                   heightFactor: sheetHeight,
                   child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(24),
                       ),
@@ -4380,7 +4544,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                           style: GoogleFonts.poppins(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -4390,15 +4554,16 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                         Expanded(
                           child: SingleChildScrollView(
                             keyboardDismissBehavior:
-                            ScrollViewKeyboardDismissBehavior.manual,
+                                ScrollViewKeyboardDismissBehavior.manual,
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
                             child: Form(
                               key: _chequedetailsFormkey,
                               child: Column(
                                 children: <Widget>[
                                   Padding(
-                                    padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                    ),
                                     child: TextFormField(
                                       controller: instNoController,
                                       decoration: InputDecoration(
@@ -4406,16 +4571,26 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                         hintText: 'Enter Inst No',
                                         labelStyle: GoogleFonts.poppins(
                                           fontSize: 13,
-                                          color: Colors.grey.shade700,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                         contentPadding:
-                                        const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 10,
-                                        ),
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 10,
+                                            ),
                                         filled: true,
                                         fillColor:
-                                        Colors.white.withOpacity(0.95),
+                                            Theme.of(
+                                              context,
+                                            ).inputDecorationTheme.fillColor ??
+                                            (Theme.of(context)
+                                                    .inputDecorationTheme
+                                                    .fillColor ??
+                                                Theme.of(
+                                                  context,
+                                                ).cardColor.withOpacity(0.95)),
                                         prefixIcon: Container(
                                           margin: const EdgeInsets.all(8),
                                           decoration: const BoxDecoration(
@@ -4438,16 +4613,20 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                           ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                           borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
                                             width: 1,
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                           borderSide: BorderSide(
                                             color: app_color,
                                             width: 1.5,
@@ -4458,8 +4637,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                   ),
 
                                   Padding(
-                                    padding:
-                                    const EdgeInsets.symmetric(vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 4,
+                                    ),
                                     child: TextFormField(
                                       controller: instDateController,
                                       readOnly: true,
@@ -4469,21 +4649,34 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                         hintText: 'Select Date',
                                         labelStyle: GoogleFonts.poppins(
                                           fontSize: 13,
-                                          color: Colors.grey.shade700,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                         contentPadding:
-                                        const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 10,
-                                        ),
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 10,
+                                            ),
                                         filled: true,
                                         fillColor:
-                                        Colors.white.withOpacity(0.95),
+                                            Theme.of(
+                                              context,
+                                            ).inputDecorationTheme.fillColor ??
+                                            (Theme.of(context)
+                                                    .inputDecorationTheme
+                                                    .fillColor ??
+                                                Theme.of(
+                                                  context,
+                                                ).cardColor.withOpacity(0.95)),
                                         prefixIcon: Container(
                                           margin: const EdgeInsets.all(8),
                                           decoration: const BoxDecoration(
                                             gradient: LinearGradient(
-                                              colors: [Colors.teal, Colors.cyan],
+                                              colors: [
+                                                Colors.teal,
+                                                Colors.cyan,
+                                              ],
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                             ),
@@ -4498,16 +4691,20 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                           ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                           borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
                                             width: 1,
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                           borderSide: BorderSide(
                                             color: app_color,
                                             width: 1.5,
@@ -4518,20 +4715,21 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                   ),
 
                                   Padding(
-                                    padding:
-                                    const EdgeInsets.symmetric(vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 4,
+                                    ),
                                     child: TypeAheadField<String>(
                                       suggestionsCallback: (pattern) {
                                         return bankname_data.where((item) {
-                                          final name =
-                                          item.toString().toLowerCase();
+                                          final name = item
+                                              .toString()
+                                              .toLowerCase();
                                           return name.contains(
                                             pattern.toLowerCase(),
                                           );
                                         }).toList();
                                       },
-                                      builder:
-                                          (context, controller, focusNode) {
+                                      builder: (context, controller, focusNode) {
                                         controller.text =
                                             _banknameController.text;
 
@@ -4543,16 +4741,26 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                             hintText: 'Search Bank',
                                             labelStyle: GoogleFonts.poppins(
                                               fontSize: 13,
-                                              color: Colors.grey.shade700,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
                                             ),
                                             contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 10,
-                                            ),
+                                                const EdgeInsets.symmetric(
+                                                  horizontal: 12,
+                                                  vertical: 10,
+                                                ),
                                             filled: true,
                                             fillColor:
-                                            Colors.white.withOpacity(0.95),
+                                                Theme.of(context)
+                                                    .inputDecorationTheme
+                                                    .fillColor ??
+                                                (Theme.of(context)
+                                                        .inputDecorationTheme
+                                                        .fillColor ??
+                                                    Colors.white.withOpacity(
+                                                      0.95,
+                                                    )),
                                             prefixIcon: Container(
                                               margin: const EdgeInsets.all(8),
                                               decoration: const BoxDecoration(
@@ -4569,8 +4777,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                                 ),
                                               ),
                                               child: const Icon(
-                                                Icons
-                                                    .account_balance_outlined,
+                                                Icons.account_balance_outlined,
                                                 color: Colors.white,
                                                 size: 20,
                                               ),
@@ -4586,31 +4793,37 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                                         selectedbankname = "";
                                                       });
                                                     },
-                                                    child: const Icon(
+                                                    child: Icon(
                                                       Icons.close,
-                                                      color: Colors.grey,
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurfaceVariant,
                                                       size: 20,
                                                     ),
                                                   ),
                                                 const SizedBox(width: 4),
-                                                const Icon(
+                                                Icon(
                                                   Icons.arrow_drop_down,
-                                                  color: Colors.black87,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).colorScheme.onSurface,
                                                 ),
                                                 const SizedBox(width: 8),
                                               ],
                                             ),
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(14),
+                                                  BorderRadius.circular(14),
                                               borderSide: BorderSide(
-                                                color: Colors.grey.shade300,
+                                                color: Theme.of(
+                                                  context,
+                                                ).dividerColor,
                                                 width: 1,
                                               ),
                                             ),
                                             focusedBorder: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(14),
+                                                  BorderRadius.circular(14),
                                               borderSide: BorderSide(
                                                 color: app_color,
                                                 width: 1.5,
@@ -4621,16 +4834,15 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                       },
                                       itemBuilder:
                                           (context, String suggestion) {
-                                        return ListTile(
-                                          title: Text(
-                                            suggestion,
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                            ),
-                                          ),
-
-                                        );
-                                      },
+                                            return ListTile(
+                                              title: Text(
+                                                suggestion,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            );
+                                          },
                                       onSelected: (String suggestion) {
                                         closeKeyboard(context);
 
@@ -4639,21 +4851,24 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                           _banknameController.text = suggestion;
                                         });
                                       },
-                                      emptyBuilder: (context) =>
-                                      const Padding(
+                                      emptyBuilder: (context) => Padding(
                                         padding: EdgeInsets.all(8.0),
                                         child: Text(
                                           'No matching bank found',
-                                          style:
-                                          TextStyle(color: Colors.grey),
+                                          style: TextStyle(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
 
                                   Padding(
-                                    padding:
-                                    const EdgeInsets.symmetric(vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 4,
+                                    ),
                                     child: TextFormField(
                                       controller: chequeAmountController,
                                       keyboardType: TextInputType.number,
@@ -4670,17 +4885,27 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                         labelText: 'Amount',
                                         hintText: '0',
                                         contentPadding:
-                                        const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 10,
-                                        ),
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 10,
+                                            ),
                                         labelStyle: GoogleFonts.poppins(
                                           fontSize: 13,
-                                          color: Colors.grey.shade700,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                         filled: true,
                                         fillColor:
-                                        Colors.white.withOpacity(0.95),
+                                            Theme.of(
+                                              context,
+                                            ).inputDecorationTheme.fillColor ??
+                                            (Theme.of(context)
+                                                    .inputDecorationTheme
+                                                    .fillColor ??
+                                                Theme.of(
+                                                  context,
+                                                ).cardColor.withOpacity(0.95)),
                                         prefixIcon: Container(
                                           margin: const EdgeInsets.all(8),
                                           width: 32,
@@ -4694,8 +4919,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                             ),
-                                            borderRadius:
-                                            BorderRadius.circular(12),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
                                           ),
                                           alignment: Alignment.center,
                                           child: Text(
@@ -4708,16 +4934,20 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                           ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                           borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
                                             width: 1,
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                           borderSide: BorderSide(
                                             color: app_color,
                                             width: 1.5,
@@ -4737,7 +4967,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                           child: Container(
                             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.08),
@@ -4755,8 +4985,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                         vertical: 14,
                                       ),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(14),
+                                        borderRadius: BorderRadius.circular(14),
                                       ),
                                     ),
                                     onPressed: () {
@@ -4768,10 +4997,12 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                             selectedbankname;
                                         instNoController.clear();
                                         instdate = DateTime.now();
-                                        instdatestring =
-                                            _dateFormat.format(instdate);
-                                        instdatetxt =
-                                            formatlastsaledate(instdatestring);
+                                        instdatestring = _dateFormat.format(
+                                          instdate,
+                                        );
+                                        instdatetxt = formatlastsaledate(
+                                          instdatestring,
+                                        );
                                         instDateController.text = instdatetxt;
                                         chequeAmountController.clear();
                                       });
@@ -4779,7 +5010,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                     child: Text(
                                       'Cancel',
                                       style: GoogleFonts.poppins(
-                                        color: Colors.grey,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -4796,13 +5029,12 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                         vertical: 14,
                                       ),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(14),
+                                        borderRadius: BorderRadius.circular(14),
                                       ),
                                     ),
                                     onPressed: () {
                                       if (_chequedetailsFormkey.currentState !=
-                                          null &&
+                                              null &&
                                           _chequedetailsFormkey.currentState!
                                               .validate()) {
                                         _chequedetailsFormkey.currentState!
@@ -4843,67 +5075,78 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     String dueDateString = '';
     if (billName == "New Ref" || billName == "Agst Ref") {
       String billDueDateinDaysString = _billduedateController.text;
-      if(billDueDateinDaysString.isNotEmpty)
-        {
-          int billDueDateinDaysint = int.parse(billDueDateinDaysString);
+      if (billDueDateinDaysString.isNotEmpty) {
+        int billDueDateinDaysint = int.parse(billDueDateinDaysString);
 
-          DateTime currentDate = DateTime.now();
-          DateTime finalDate = currentDate.add(Duration(days: billDueDateinDaysint));
-          dueDateString = DateFormat('yyyyMMdd').format(finalDate);
-        }
-      else
-        {
-          DateTime currentDate = DateTime.now();
-          DateTime finalDate = currentDate;
-          dueDateString = DateFormat('yyyyMMdd').format(finalDate);
-        }
+        DateTime currentDate = DateTime.now();
+        DateTime finalDate = currentDate.add(
+          Duration(days: billDueDateinDaysint),
+        );
+        dueDateString = DateFormat('yyyyMMdd').format(finalDate);
+      } else {
+        DateTime currentDate = DateTime.now();
+        DateTime finalDate = currentDate;
+        dueDateString = DateFormat('yyyyMMdd').format(finalDate);
+      }
     }
 
     if (billAmount.isNotEmpty) {
       // Check if a bill with name "On Account" already exists
-      if (billName == "On Account" && bills.any((bill) => bill.billName == "On Account")) {
+      if (billName == "On Account" &&
+          bills.any((bill) => bill.billName == "On Account")) {
         // Show message that the bill already exists
         showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
               title: Text("Duplicate Bill"),
-              content: Text("A bill with the name 'On Account' already exists."),
+              content: Text(
+                "A bill with the name 'On Account' already exists.",
+              ),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
                   child: Text("OK"),
-                )]);});
+                ),
+              ],
+            );
+          },
+        );
         return; // Exit the function without adding the bill
       }
 
       // Create a new bill
       Navigator.of(context).pop();
-      double parsedAmount = double.parse(billAmount.replaceAll(',', '')) ;
+      double parsedAmount = double.parse(billAmount.replaceAll(',', ''));
       final newBill = Bills(
         billName: billName,
         billAmount: parsedAmount,
-        billNo: (billName == "New Ref" || billName == "Agst Ref") ? billNo : null,
-        billDueDate: (billName == "New Ref" || billName == "Agst Ref") ? dueDateString : null,
+        billNo: (billName == "New Ref" || billName == "Agst Ref")
+            ? billNo
+            : null,
+        billDueDate: (billName == "New Ref" || billName == "Agst Ref")
+            ? dueDateString
+            : null,
       );
 
       // Add the new bill to the list and update the total bill amount
-      setState(()
-      {
+      setState(() {
         bills.add(newBill);
         // Update visibility of bill heading
         isVisibleBillHeading = bills.isNotEmpty;
-        totalBillAmount = bills.fold(
-          0.0,
-              (double previousAmount, Bills bill) {
-            return previousAmount + bill.billAmount;
-          },
-        );
+        totalBillAmount = bills.fold(0.0, (double previousAmount, Bills bill) {
+          return previousAmount + bill.billAmount;
+        });
         // Update formatted total amount
-        roundedtotalBillAmount = double.parse(totalBillAmount.toStringAsFixed(decimal!));
-        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+        roundedtotalBillAmount = double.parse(
+          totalBillAmount.toStringAsFixed(decimal!),
+        );
+        NumberFormat formatter = NumberFormat(
+          '#,##0.${'0' * decimal!}',
+          'en_US',
+        );
         String formattedtotal = formatter.format(roundedtotalBillAmount);
         controller_totalamt.text = formattedtotal.toString();
       });
@@ -4911,29 +5154,25 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       // Reset selected bill and visibility of due date and bill number
       setState(() {
         _selectedbill = billsdata.first;
-        isVisibleDueDate = (_selectedbill == 'New Ref' || _selectedbill == "Agst Ref");
-        isVisibleBillNo = (_selectedbill == "Agst Ref" || _selectedbill == 'New Ref');
-        if (_selectedbankcashname != null && _selectedbankcashname!['type'] == 'Cash-in-Hand')
-        {
+        isVisibleDueDate =
+            (_selectedbill == 'New Ref' || _selectedbill == "Agst Ref");
+        isVisibleBillNo =
+            (_selectedbill == "Agst Ref" || _selectedbill == 'New Ref');
+        if (_selectedbankcashname != null &&
+            _selectedbankcashname!['type'] == 'Cash-in-Hand') {
           isPaymentModeVisible = false;
           _selectedpaymentmode = paymentmode_data.first;
           cheque.clear();
           updateChequeAmount();
           isVisibleChequeHeading = false;
           isChequeVisible = false;
-        }
-        else
-        {
-          if(bills.isNotEmpty)
-          {
-            if(cheque.isNotEmpty)
-            {
+        } else {
+          if (bills.isNotEmpty) {
+            if (cheque.isNotEmpty) {
               isPaymentModeVisible = true;
               isChequeVisible = true;
               isVisibleChequeHeading = true;
-            }
-            else
-            {
+            } else {
               isPaymentModeVisible = true;
               _selectedpaymentmode = paymentmode_data.first;
               cheque.clear();
@@ -4941,9 +5180,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
               isVisibleChequeHeading = false;
               isChequeVisible = true;
             }
-          }
-          else
-          {
+          } else {
             isPaymentModeVisible = true;
             _selectedpaymentmode = paymentmode_data.first;
             cheque.clear();
@@ -4990,13 +5227,19 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
     bool hasRepeatedInstNo = isInstNoRepeated(instNo, cheque);
 
-    double remainingchequeamount = roundedtotalBillAmount - roundedtotalChequeAmount;
+    double remainingchequeamount =
+        roundedtotalBillAmount - roundedtotalChequeAmount;
 
-    print('before processing cheque amount $chequeAmount and roundedbillamount $roundedtotalBillAmount and roundedchequeAmount $roundedtotalChequeAmount and entered cheque amount $formattedAmountDouble and remaining cheque amount $remainingchequeamount');
+    print(
+      'before processing cheque amount $chequeAmount and roundedbillamount $roundedtotalBillAmount and roundedchequeAmount $roundedtotalChequeAmount and entered cheque amount $formattedAmountDouble and remaining cheque amount $remainingchequeamount',
+    );
 
-    if (chequeAmount.isNotEmpty && roundedtotalChequeAmount <= roundedtotalBillAmount && roundedtotalChequeAmount !=roundedtotalBillAmount  && !hasRepeatedInstNo && formattedAmountDouble <= roundedtotalBillAmount && formattedAmountDouble <= remainingchequeamount)
-    {
-
+    if (chequeAmount.isNotEmpty &&
+        roundedtotalChequeAmount <= roundedtotalBillAmount &&
+        roundedtotalChequeAmount != roundedtotalBillAmount &&
+        !hasRepeatedInstNo &&
+        formattedAmountDouble <= roundedtotalBillAmount &&
+        formattedAmountDouble <= remainingchequeamount) {
       Navigator.of(context).pop();
 
       final newCheque = Cheque(
@@ -5004,7 +5247,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         instdate: instDateString,
         bankname: bankName,
         chequeAmount: parsedAmount,
-        paymentMode: paymentMode
+        paymentMode: paymentMode,
       );
 
       // Add the new bill to the list and update the total bill amount
@@ -5014,7 +5257,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         isVisibleChequeHeading = cheque.isNotEmpty;
         updateChequeAmount();
       });
-      print('after processing cheque amount $chequeAmount and roundedbillamount $roundedtotalBillAmount and roundedchequeAmount $roundedtotalChequeAmount and entered cheque amount $formattedAmountDouble and remaining cheque amount $remainingchequeamount');
+      print(
+        'after processing cheque amount $chequeAmount and roundedbillamount $roundedtotalBillAmount and roundedchequeAmount $roundedtotalChequeAmount and entered cheque amount $formattedAmountDouble and remaining cheque amount $remainingchequeamount',
+      );
 
       // Reset selected bill and visibility of due date and bill number
       setState(() {
@@ -5027,104 +5272,108 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         _banknameController.text = selectedbankname;
         chequeAmountController.clear();
       });
+    } else if (formattedAmountDouble > remainingchequeamount) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Alert"),
+            content: Text(
+              "Entered $_selectedpaymentmode amount exceeds remaining total amount",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK", style: GoogleFonts.poppins(color: app_color)),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    } else if (hasRepeatedInstNo) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Alert"),
+            content: Text(
+              "A cheque with the inst no '$instNo' already exists.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK", style: GoogleFonts.poppins(color: app_color)),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    } else if (roundedtotalBillAmount < 0 || roundedtotalBillAmount == 0) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Alert"),
+            content: Text("First add bills then proceed for payment details"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK", style: GoogleFonts.poppins(color: app_color)),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    } else if (roundedtotalChequeAmount == roundedtotalBillAmount) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Alert"),
+            content: Text("Cheques for the total amount already added"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK", style: GoogleFonts.poppins(color: app_color)),
+              ),
+            ],
+          );
+        },
+      );
+      return; // Exit the function without adding the bill
+    } else if (formattedAmountDouble > roundedtotalBillAmount) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Alert"),
+            content: Text(
+              "Entered $_selectedpaymentmode amount should not be greater than total amount",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK", style: GoogleFonts.poppins(color: app_color)),
+              ),
+            ],
+          );
+        },
+      );
+      return;
     }
-    else if (formattedAmountDouble > remainingchequeamount)
-      {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text("Alert"),
-              content: Text("Entered $_selectedpaymentmode amount exceeds remaining total amount"),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("OK",
-                      style: GoogleFonts.poppins(
-                          color: app_color
-                      )))]);});
-        return;
-      }
-    else if (hasRepeatedInstNo)
-    {
-        showDialog(
-          context: context,
-          builder: (context)
-          {
-            return AlertDialog(
-              title: Text("Alert"),
-              content: Text("A cheque with the inst no '$instNo' already exists."),
-              actions: [
-                TextButton (
-                  onPressed: ()
-                  {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("OK",
-                      style: GoogleFonts.poppins(
-                          color: app_color
-                      )))]);});
-        return;
-      }
-    else if (roundedtotalBillAmount < 0 || roundedtotalBillAmount == 0)
-      {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text("Alert"),
-              content: Text("First add bills then proceed for payment details"),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("OK",
-                      style: GoogleFonts.poppins(
-                          color: app_color
-                      )))]);});
-        return;
-      }
-    else if (roundedtotalChequeAmount ==roundedtotalBillAmount)
-      {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text("Alert"),
-              content: Text("Cheques for the total amount already added"),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("OK",
-                      style: GoogleFonts.poppins(
-                          color: app_color
-                      )))]);});
-        return; // Exit the function without adding the bill
-      }
-    else if (formattedAmountDouble > roundedtotalBillAmount)
-      {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text("Alert"),
-              content: Text("Entered $_selectedpaymentmode amount should not be greater than total amount"),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("OK",
-                      style: GoogleFonts.poppins(
-                          color: app_color
-                      )))]);});
-        return;
-      }
   } // add cheque function
 
   Future<void> _initSharedPreferences() async {
@@ -5137,7 +5386,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       username = prefs.getString('username');
       token = prefs.getString('token')!;
       currencycode = prefs.getString('currencycode') ?? 'AED';
-       bankname_data.sort((a, b) {
+      bankname_data.sort((a, b) {
         if (a == 'Not Applicable') {
           return -1; // 'Not Applicable' comes before everything else
         } else if (b == 'Not Applicable') {
@@ -5175,13 +5424,16 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
       /*print('hostname: $hostname');*/
 
-      HttpURL_fetchvchnos = '$hostname/api/entry/nos/$company_lowercase/$serial_no';
+      HttpURL_fetchvchnos =
+          '$hostname/api/entry/nos/$company_lowercase/$serial_no';
 
-      HttpURL_fetchoutstanding = '$hostname/api/ledger/getOutstandingOpening/$company_lowercase/$serial_no';
+      HttpURL_fetchoutstanding =
+          '$hostname/api/ledger/getOutstandingOpening/$company_lowercase/$serial_no';
 
       /*HttpURL_fetchvchnos = 'http://192.168.2.110:4999/api/entry/nos/$company_lowercase/$serial_no';*/
 
-      HttpURL_loadData = '$hostname/api/entry/getReceiptData/$company_lowercase/$serial_no';
+      HttpURL_loadData =
+          '$hostname/api/entry/getReceiptData/$company_lowercase/$serial_no';
       /*HttpURL_loadData = 'http://192.168.2.110:4999/api/entry/getReceiptData/$company_lowercase/$serial_no';*/
 
       HttpURL_receiptEntry = '$hostname/api/entry/create/$company/$serial_no';
@@ -5193,24 +5445,22 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
         name = name_nav;
         email = email_nav;
       }
-      if (SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         isRolesVisible = true;
         isUserVisible = true;
-      }
-      else
-      {
+      } else {
         isRolesVisible = false;
         isUserVisible = false;
-      }});
+      }
+    });
     await loadData();
   }
 
-
-
   Future<void> _selectDateRangeVchNo(BuildContext context) async {
-
-    final initialDateRange = DateTimeRange(start: yearStartDate, end: yearEndDate);
+    final initialDateRange = DateTimeRange(
+      start: yearStartDate,
+      end: yearEndDate,
+    );
 
     DateTimeRange? selectedDateRange = await showDateRangePicker(
       context: context,
@@ -5218,18 +5468,21 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
       builder: (BuildContext context, Widget? child) {
-        return  Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: ColorScheme.light().copyWith(
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
               primary: app_color, // main accent color
               onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black87,
+              surface: Theme.of(context).colorScheme.surface,
+              onSurface: Theme.of(context).colorScheme.onSurface,
             ),
             datePickerTheme: DatePickerThemeData(
-              rangeSelectionBackgroundColor: app_color.withOpacity(0.15), // 🔹 light shade of your app_color
-              rangeSelectionOverlayColor:
-              MaterialStatePropertyAll(app_color.withOpacity(0.15)),
+              rangeSelectionBackgroundColor: app_color.withOpacity(
+                0.15,
+              ), // 🔹 light shade of your app_color
+              rangeSelectionOverlayColor: MaterialStatePropertyAll(
+                app_color.withOpacity(0.15),
+              ),
             ),
           ),
           child: child!,
@@ -5237,8 +5490,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       },
     );
 
-    if (selectedDateRange != null &&
-        selectedDateRange != initialDateRange) {
+    if (selectedDateRange != null && selectedDateRange != initialDateRange) {
       setState(() {
         yearStartDate = selectedDateRange.start;
         yearEndDate = selectedDateRange.end;
@@ -5249,9 +5501,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
   }
 
   Future<void> fetchvchnos(String vchname) async {
-
     // Format the dates as yyyyMMdd
-     String formattedStartDateVchNo = prefs.getString('startfrom') ?? _dateFormat.format(yearStartDate);
+    String formattedStartDateVchNo =
+        prefs.getString('startfrom') ?? _dateFormat.format(yearStartDate);
 
     String formattedEndDateVchNo = DateFormat('yyyyMMdd').format(yearEndDate);
 
@@ -5263,32 +5515,23 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
     // vchnos fetching
     try {
       final url = Uri.parse(HttpURL_fetchvchnos!);
-      Map<String,String> headers =
-      {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
       Map<String, dynamic> jsonDatabody = {
         "to": formattedEndDateVchNo,
         "from": formattedStartDateVchNo,
-        "vchname" : vchname
+        "vchname": vchname,
       };
 
       String jsonDatabodyString = jsonEncode(jsonDatabody);
 
-      var body =jsonDatabodyString;
-      final response = await http.post
-        (
-          url,
-          headers:headers,
-          body:body
-      );
+      var body = jsonDatabodyString;
+      final response = await http.post(url, headers: headers, body: body);
 
-      if (response.statusCode == 200)
-      {
-
-
+      if (response.statusCode == 200) {
         /*print(response.body);*/
         /*setState(() {
           final Map<String, dynamic> jsonResponse = json.decode(response.body);
@@ -5323,27 +5566,20 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
 
           _vchnoController.text = nextVch;
         });
-      }
-      else
-      {
+      } else {
         vchnos.clear();
         Map<String, dynamic> data = json.decode(response.body);
         String error = '';
-        if (data.containsKey('error'))
-        {
+        if (data.containsKey('error')) {
           setState(() {
             error = data['error'];
           });
-        }
-        else
-        {
+        } else {
           error = 'Something went wrong!!!';
         }
         Fluttertoast.showToast(msg: error);
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       vchnos.clear();
       print(e);
     }
@@ -5352,7 +5588,6 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       _isLoading = false;
     });
   }
-
 
   @override
   void initState() {
@@ -5363,23 +5598,21 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
   @override
   Widget build(BuildContext context) {
     final NumberFormat currencyFormat = NumberFormat(
-      "#,##0.${'0' * decimal!}",  // 👈 dynamically repeat '0' for decimal places
+      "#,##0.${'0' * decimal!}", // 👈 dynamically repeat '0' for decimal places
     );
     final bool canEditVoucherNo =
         SecuritybtnAcessHolder.toString().toLowerCase() == 'true';
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       key: _scaffoldKey,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
         child: AppBar(
-          backgroundColor:  app_color,
+          backgroundColor: app_color,
           elevation: 6,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
           automaticallyImplyLeading: false,
           leading: IconButton(
@@ -5393,9 +5626,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
           ),
           centerTitle: true,
           title: GestureDetector(
-            onTap: () {
-
-            },
+            onTap: () {},
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -5416,38 +5647,39 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
       ),
 
       drawer: Sidebar(
-          isDashEnable: isDashEnable,
-          isRolesVisible: isRolesVisible,
-          isRolesEnable: isRolesEnable,
-          isUserEnable: isUserEnable,
-          isUserVisible: isUserVisible,
-          Username: name,
-          Email: email,
-          tickerProvider: this),
+        isDashEnable: isDashEnable,
+        isRolesVisible: isRolesVisible,
+        isRolesEnable: isRolesEnable,
+        isUserEnable: isUserEnable,
+        isUserVisible: isUserVisible,
+        Username: name,
+        Email: email,
+        tickerProvider: this,
+      ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
           closeKeyboard(context);
         },
-        child:  WillPopScope(
-            onWillPop: () async {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => PendingReceiptEntry()),
-              );
-              return true;
-            },
-            child:Stack(children: [
-
-              ListView(children: [
-
-               /* GestureDetector(
+        child: WillPopScope(
+          onWillPop: () async {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => PendingReceiptEntry()),
+            );
+            return true;
+          },
+          child: Stack(
+            children: [
+              ListView(
+                children: [
+                  /* GestureDetector(
                   onTap: () => _selectDateRangeVchNo(context),
                   child: Container(
                     margin: const EdgeInsets.only(top:8,bottom:4, left: 12, right : 12),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Theme.of(context).cardColor.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
@@ -5489,7 +5721,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                 style: GoogleFonts.poppins(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.grey[800],
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -5505,577 +5737,1306 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                           ),
                         ),
 
-                        Icon(Icons.keyboard_arrow_down, color: Colors.grey[600]),
+                        Icon(Icons.keyboard_arrow_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ],
                     ),
                   ),
                 ),*/
+                  const SizedBox.shrink(),
 
-                const SizedBox.shrink(),
-
-
-                Container(
+                  Container(
                     child: Column(
-                        children: [
-                          Form(
-                            key: _formKey,
-                            child: Column(
-                              children: [
-
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 20,right:20, top: 16,bottom:8),
-                                  child: TextFormField(
-
-                                    controller: _dateController,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black87,
-                                    ),
-                                    decoration: InputDecoration(
-                                      labelText: "Date",
-                                      labelStyle: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[700],
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.white.withOpacity(0.95),
-
-                                      // 🌈 Gradient Calendar Icon
-                                      prefixIcon: GestureDetector(
-                                        onTap: () {
-                                          closeKeyboard(context);
-
-                                          if (isUniGasUser) {
-                                            Fluttertoast.showToast(
-                                              msg: "Voucher date cannot be changed",
-                                              backgroundColor: Colors.redAccent,
-                                              textColor: Colors.white,
-                                            );
-                                            return;
-                                          }
-
-                                          _selectreceiptDate(context);
-                                        },
-                                        child: Container(
-                                          margin: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [app_color, app_color.withOpacity(0.7)],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          child: const Icon(Icons.calendar_today, color: Colors.white, size: 20),
-                                        ),
-                                      ),
-
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                        borderSide: BorderSide(
-                                          color: Colors.grey.shade300,
-                                          width: 1,
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                        borderSide: BorderSide(
-                                          color: app_color,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
-                                    ),
-                                    readOnly: true,
-                                    onTap: () {
-                                      closeKeyboard(context);
-
-                                      if (isUniGasUser) {
-                                        Fluttertoast.showToast(
-                                          msg: "Voucher date cannot be changed",
-                                          backgroundColor: Colors.redAccent,
-                                          textColor: Colors.white,
-                                        );
-                                        return;
-                                      }
-
-                                      _selectreceiptDate(context);
-                                    },
-                                  ),
+                      children: [
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 20,
+                                  right: 20,
+                                  top: 16,
+                                  bottom: 8,
                                 ),
-
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                                  child: TextFormField(
-                                    controller: _vchnoController,
-
-                                    // Editable only when security access is true
-                                    readOnly: !canEditVoucherNo,
-                                    enableInteractiveSelection: canEditVoucherNo,
-                                    onChanged: canEditVoucherNo
-                                        ? (value) {
-                                      checkVchNoExistence(value.trim());
-                                    }
-                                        : null,
-
-
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
+                                child: TextFormField(
+                                  controller: _dateController,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                                  decoration: InputDecoration(
+                                    labelText: "Date",
+                                    labelStyle: GoogleFonts.poppins(
+                                      fontSize: 13,
                                       fontWeight: FontWeight.w500,
-                                      color: isVchEditable ? Colors.black87 : Colors.grey, // 👈 visual hint
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                     ),
+                                    filled: true,
+                                    fillColor:
+                                        Theme.of(
+                                          context,
+                                        ).inputDecorationTheme.fillColor ??
+                                        (Theme.of(
+                                              context,
+                                            ).inputDecorationTheme.fillColor ??
+                                            Theme.of(
+                                              context,
+                                            ).cardColor.withOpacity(0.95)),
 
-                                    decoration: InputDecoration(
-                                      labelText: "Voucher No.",
-                                      labelStyle: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[700],
-                                      ),
+                                    // 🌈 Gradient Calendar Icon
+                                    prefixIcon: GestureDetector(
+                                      onTap: () {
+                                        closeKeyboard(context);
 
-                                      errorText:
-                                      errorMessageVchNo.isNotEmpty ? errorMessageVchNo : null,
+                                        if (isUniGasUser) {
+                                          Fluttertoast.showToast(
+                                            msg:
+                                                "Voucher date cannot be changed",
+                                            backgroundColor: Colors.redAccent,
+                                            textColor: Colors.white,
+                                          );
+                                          return;
+                                        }
 
-                                      filled: true,
-                                      fillColor: Colors.white.withOpacity(0.95),
-
-                                      prefixIcon: Container(
+                                        _selectreceiptDate(context);
+                                      },
+                                      child: Container(
                                         margin: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [Colors.deepOrangeAccent, Colors.orangeAccent],
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              app_color,
+                                              app_color.withOpacity(0.7),
+                                            ],
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
                                           ),
-                                          borderRadius: BorderRadius.all(Radius.circular(12)),
-                                        ),
-                                        child: const Icon(
-                                          Icons.confirmation_num_outlined,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-
-                                      // 👇 EDIT BUTTON
-                                      suffixIcon: canEditVoucherNo
-                                          ? IconButton(
-                                        icon: Icon(
-                                          isVchEditable ? Icons.lock_open : Icons.edit,
-                                          color: app_color,
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            isVchEditable = !isVchEditable;
-                                          });
-                                        },
-                                      )
-                                          : const Icon(Icons.lock, color: Colors.grey),
-
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: Colors.grey.shade300,
-                                          width: 1,
-                                        ),
-                                      ),
-
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: app_color,
-                                          width: 1.5,
-                                        ),
-                                      ),
-
-                                      errorBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: const BorderSide(
-                                          color: Colors.redAccent,
-                                          width: 1.5,
-                                        ),
-                                      ),
-
-                                      focusedErrorBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: const BorderSide(
-                                          color: Colors.redAccent,
-                                          width: 1.5,
-                                        ),
-                                      ),
-
-                                      contentPadding:
-                                      const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
-                                    ),
-                                  ),
-                                ),
-
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      top: 0, left: 20, right: 20, bottom: 0),
-                                  child:
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: Colors.grey.withOpacity(0.2),
-
-                                    ),
-                                    padding: EdgeInsets.all(10),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.info_outline_rounded,
-                                          color: Colors.grey,
-                                        ),
-                                        SizedBox(width: 10),
-                                        Expanded(
-                                          child: Text(
-                                            'Duplicate voucher numbers in Tally will trigger automatic assignment of a new number.',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.grey,
-                                            ),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 12, left: 20, right: 20, bottom: 0),
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    decoration: InputDecoration(
-                                      labelText: "Voucher Type Name",
-                                      labelStyle: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: isVoucherTypeLocked ? Colors.grey.shade500 : Colors.grey[700],
-                                      ),
-                                      filled: true,
-                                      fillColor: isVoucherTypeLocked
-                                          ? Colors.grey.shade100
-                                          : Colors.white.withOpacity(0.95),
-                                      prefixIcon: Container(
-                                        margin: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: isVoucherTypeLocked ? Colors.grey.shade400 : app_color,
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        child: Icon(
-                                          isVoucherTypeLocked ? Icons.lock_outline : Icons.receipt_long_outlined,
+                                        child: const Icon(
+                                          Icons.calendar_today,
                                           color: Colors.white,
                                           size: 20,
                                         ),
                                       ),
-                                      suffixIcon: Icon(
-                                        isVoucherTypeLocked ? Icons.lock_outline : Icons.arrow_drop_down,
-                                        color: isVoucherTypeLocked ? Colors.grey : Colors.black87,
+                                    ),
+
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      borderSide: BorderSide(
+                                        color: Theme.of(context).dividerColor,
+                                        width: 1,
                                       ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: isVoucherTypeLocked ? Colors.grey.shade300 : Colors.grey.shade300,
-                                          width: 1,
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      borderSide: BorderSide(
+                                        color: app_color,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                      horizontal: 14,
+                                    ),
+                                  ),
+                                  readOnly: true,
+                                  onTap: () {
+                                    closeKeyboard(context);
+
+                                    if (isUniGasUser) {
+                                      Fluttertoast.showToast(
+                                        msg: "Voucher date cannot be changed",
+                                        backgroundColor: Colors.redAccent,
+                                        textColor: Colors.white,
+                                      );
+                                      return;
+                                    }
+
+                                    _selectreceiptDate(context);
+                                  },
+                                ),
+                              ),
+
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 6,
+                                ),
+                                child: TextFormField(
+                                  controller: _vchnoController,
+
+                                  // Editable only when security access is true
+                                  readOnly: !canEditVoucherNo,
+                                  enableInteractiveSelection: canEditVoucherNo,
+                                  onChanged: canEditVoucherNo
+                                      ? (value) {
+                                          checkVchNoExistence(value.trim());
+                                        }
+                                      : null,
+
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: isVchEditable
+                                        ? Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface
+                                        : Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant, // 👈 visual hint
+                                  ),
+
+                                  decoration: InputDecoration(
+                                    labelText: "Voucher No.",
+                                    labelStyle: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+
+                                    errorText: errorMessageVchNo.isNotEmpty
+                                        ? errorMessageVchNo
+                                        : null,
+
+                                    filled: true,
+                                    fillColor:
+                                        Theme.of(
+                                          context,
+                                        ).inputDecorationTheme.fillColor ??
+                                        (Theme.of(
+                                              context,
+                                            ).inputDecorationTheme.fillColor ??
+                                            Theme.of(
+                                              context,
+                                            ).cardColor.withOpacity(0.95)),
+
+                                    prefixIcon: Container(
+                                      margin: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Colors.deepOrangeAccent,
+                                            Colors.orangeAccent,
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(12),
                                         ),
                                       ),
-                                      disabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                                      child: const Icon(
+                                        Icons.confirmation_num_outlined,
+                                        color: Colors.white,
+                                        size: 20,
                                       ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(color: app_color, width: 1.5),
-                                      ),
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                                     ),
-                                    hint:  Text("Voucher Type Name",
+
+                                    // 👇 EDIT BUTTON
+                                    suffixIcon: canEditVoucherNo
+                                        ? IconButton(
+                                            icon: Icon(
+                                              isVchEditable
+                                                  ? Icons.lock_open
+                                                  : Icons.edit,
+                                              color: app_color,
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                isVchEditable = !isVchEditable;
+                                              });
+                                            },
+                                          )
+                                        : Icon(
+                                            Icons.lock,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(
+                                        color: Theme.of(context).dividerColor,
+                                        width: 1,
+                                      ),
+                                    ),
+
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(
+                                        color: app_color,
+                                        width: 1.5,
+                                      ),
+                                    ),
+
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: const BorderSide(
+                                        color: Colors.redAccent,
+                                        width: 1.5,
+                                      ),
+                                    ),
+
+                                    focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: const BorderSide(
+                                        color: Colors.redAccent,
+                                        width: 1.5,
+                                      ),
+                                    ),
+
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                      horizontal: 14,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  top: 0,
+                                  left: 20,
+                                  right: 20,
+                                  bottom: 0,
+                                ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    color: Colors.grey.withOpacity(0.2),
+                                  ),
+                                  padding: EdgeInsets.all(10),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.info_outline_rounded,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                      ),
+                                      SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          'Duplicate voucher numbers in Tally will trigger automatic assignment of a new number.',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 12,
+                                  left: 20,
+                                  right: 20,
+                                  bottom: 0,
+                                ),
+                                child: DropdownButtonFormField<String>(
+                                  isExpanded: true,
+                                  decoration: InputDecoration(
+                                    labelText: "Voucher Type Name",
+                                    labelStyle: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: isVoucherTypeLocked
+                                          ? Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant
+                                          : Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                    ),
+                                    filled: true,
+                                    fillColor: isVoucherTypeLocked
+                                        ? (Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? Theme.of(context)
+                                                    .colorScheme
+                                                    .surfaceContainerHighest
+                                              : Colors.grey.shade100)
+                                        : (Theme.of(context)
+                                                  .inputDecorationTheme
+                                                  .fillColor ??
+                                              Theme.of(
+                                                context,
+                                              ).cardColor.withOpacity(0.95)),
+                                    prefixIcon: Container(
+                                      margin: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: isVoucherTypeLocked
+                                            ? Colors.grey.shade400
+                                            : app_color,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Icon(
+                                        isVoucherTypeLocked
+                                            ? Icons.lock_outline
+                                            : Icons.receipt_long_outlined,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    suffixIcon: Icon(
+                                      isVoucherTypeLocked
+                                          ? Icons.lock_outline
+                                          : Icons.arrow_drop_down,
+                                      color: isVoucherTypeLocked
+                                          ? Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant
+                                          : Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(
+                                        color: isVoucherTypeLocked
+                                            ? Colors.grey.shade300
+                                            : Colors.grey.shade300,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(
+                                        color: Theme.of(context).dividerColor,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(
+                                        color: app_color,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 14,
+                                    ),
+                                  ),
+                                  hint: Text(
+                                    "Voucher Type Name",
                                     style: GoogleFonts.poppins(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,
-                                      color: isVoucherTypeLocked ? Colors.grey.shade500 : Colors.grey[700],
-                                    ),),
-                                    value: _selectedvchtypename.isNotEmpty ? _selectedvchtypename : null,
-                                    items: vchtypenamedata.map((item) {
-                                      return DropdownMenuItem<String>(
-                                        value: item,
-                                        child: Text(
-                                          item,
+                                      color: isVoucherTypeLocked
+                                          ? Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant
+                                          : Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  value: _selectedvchtypename.isNotEmpty
+                                      ? _selectedvchtypename
+                                      : null,
+                                  items: vchtypenamedata.map((item) {
+                                    return DropdownMenuItem<String>(
+                                      value: item,
+                                      child: Text(
+                                        item,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: isVoucherTypeLocked
+                                              ? Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant
+                                              : Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+
+                                  // ✅ main lock fix
+                                  onChanged: isVoucherTypeLocked
+                                      ? null
+                                      : (value) {
+                                          if (value == null) return;
+
+                                          setState(() {
+                                            _selectedvchtypename = value;
+                                          });
+
+                                          fetchvchnos(_selectedvchtypename);
+                                        },
+                                ),
+                              ),
+
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 12,
+                                  left: 20,
+                                  right: 20,
+                                  bottom: 0,
+                                ),
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  child: TypeAheadField<String>(
+                                    suggestionsCallback: (pattern) {
+                                      return partydata.where((item) {
+                                        final name = item
+                                            .toString()
+                                            .toLowerCase();
+                                        return name.contains(
+                                          pattern.toLowerCase(),
+                                        );
+                                      }).toList();
+                                    },
+
+                                    builder: (context, controller, focusNode) {
+                                      _partyController = controller;
+
+                                      return TextField(
+                                        controller: controller,
+                                        focusNode: focusNode,
+                                        decoration: InputDecoration(
+                                          labelText: "Party",
+                                          hintText: 'Search',
+                                          hintStyle: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                          labelStyle: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                          filled: true,
+                                          fillColor:
+                                              Theme.of(context)
+                                                  .inputDecorationTheme
+                                                  .fillColor ??
+                                              (Theme.of(context)
+                                                      .inputDecorationTheme
+                                                      .fillColor ??
+                                                  Colors.white.withOpacity(
+                                                    0.95,
+                                                  )),
+
+                                          // 🌈 Gradient Prefix Icon
+                                          prefixIcon: Container(
+                                            margin: const EdgeInsets.all(8),
+                                            decoration: const BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  Colors.purple,
+                                                  Colors.deepOrange,
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(12),
+                                              ),
+                                            ),
+                                            child: const Icon(
+                                              Icons.person_outline,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+
+                                          // ✖️ Cross + ⬇ Dropdown in suffix
+                                          suffixIcon: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              if (controller.text.isNotEmpty)
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      controller.clear();
+                                                      _selectedparty = "";
+                                                      showOutstandingCard =
+                                                          false;
+                                                      totalOutstanding = 0.0;
+                                                      outstandingError = "";
+                                                    });
+                                                  },
+                                                  child: Icon(
+                                                    Icons.close,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              const SizedBox(width: 4),
+                                              Icon(
+                                                Icons.arrow_drop_down,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface,
+                                              ),
+                                              const SizedBox(width: 8),
+                                            ],
+                                          ),
+
+                                          // Borders
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Theme.of(
+                                                context,
+                                              ).dividerColor,
+                                              width: 1,
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: app_color,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 14,
+                                                vertical: 14,
+                                              ),
+                                        ),
+                                      );
+                                    },
+
+                                    itemBuilder: (context, String suggestion) {
+                                      return ListTile(
+                                        title: Text(
+                                          suggestion,
                                           style: GoogleFonts.poppins(
                                             fontSize: 14,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
+                                          ),
+                                        ),
+                                      );
+                                    },
+
+                                    onSelected: (String suggestion) {
+                                      closeKeyboard(context);
+
+                                      setState(() {
+                                        _selectedparty = suggestion;
+                                        _partyController.text = _selectedparty;
+                                      });
+
+                                      if (showOutstandingBills) {
+                                        fetchPartyOutstanding(suggestion);
+                                      }
+                                    },
+
+                                    // ✅ new API → emptyBuilder replaces noItemsFoundBuilder
+                                    emptyBuilder: (context) => Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        'No matching party found',
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              buildOutstandingCard(),
+
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 12,
+                                  left: 20,
+                                  right: 20,
+                                  bottom: 0,
+                                ),
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  child: TypeAheadField<Map<String, String>>(
+                                    controller: _bankcashnameController,
+
+                                    suggestionsCallback: (pattern) async {
+                                      if (isBankCashLedgerLocked) return [];
+
+                                      return bankcashname_data
+                                          .where(
+                                            (item) => item['name']!
+                                                .toLowerCase()
+                                                .contains(
+                                                  pattern.toLowerCase(),
+                                                ),
+                                          )
+                                          .toList();
+                                    },
+
+                                    itemBuilder: (context, suggestion) {
+                                      return ListTile(
+                                        title: Text(
+                                          suggestion['name']!,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      );
+                                    },
+
+                                    onSelected: isBankCashLedgerLocked
+                                        ? null
+                                        : (suggestion) {
+                                            setState(() {
+                                              _selectedbankcashname =
+                                                  suggestion;
+                                              _bankcashnameController.text =
+                                                  suggestion['name']!;
+                                            });
+
+                                            if (_selectedbankcashname!['type'] ==
+                                                'Cash-in-Hand') {
+                                              setState(() {
+                                                isPaymentModeVisible = false;
+                                                _selectedpaymentmode =
+                                                    paymentmode_data.first;
+                                                cheque.clear();
+                                                updateChequeAmount();
+                                                isVisibleChequeHeading = false;
+                                                isChequeVisible = false;
+                                              });
+                                            }
+                                          },
+
+                                    builder: (context, controller, focusNode) {
+                                      return TextFormField(
+                                        controller: controller,
+                                        focusNode: isBankCashLedgerLocked
+                                            ? AlwaysDisabledFocusNode()
+                                            : focusNode,
+                                        readOnly: isBankCashLedgerLocked,
+                                        enabled: !isBankCashLedgerLocked,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          color: isBankCashLedgerLocked
+                                              ? Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant
+                                              : Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface,
+                                        ),
+
+                                        decoration: InputDecoration(
+                                          labelText: "Bank / Cash Ledger",
+                                          labelStyle: GoogleFonts.poppins(
+                                            fontSize: 13,
                                             fontWeight: FontWeight.w500,
-                                            color: isVoucherTypeLocked ? Colors.grey.shade600 : Colors.black87,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                          filled: true,
+                                          hint: Text(
+                                            "Bank / Cash Ledger",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: isVoucherTypeLocked
+                                                  ? Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant
+                                                  : Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                            ),
+                                          ),
+                                          fillColor: isBankCashLedgerLocked
+                                              ? (Theme.of(context).brightness ==
+                                                        Brightness.dark
+                                                    ? Theme.of(context)
+                                                          .colorScheme
+                                                          .surfaceContainerHighest
+                                                    : Colors.grey.shade100)
+                                              : (Theme.of(context)
+                                                        .inputDecorationTheme
+                                                        .fillColor ??
+                                                    Colors.white.withOpacity(
+                                                      0.95,
+                                                    )),
+                                          prefixIcon: Container(
+                                            margin: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: isBankCashLedgerLocked
+                                                  ? Colors.grey.shade400
+                                                  : app_color,
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Icon(
+                                              isBankCashLedgerLocked
+                                                  ? Icons.lock_outline
+                                                  : Icons
+                                                        .account_balance_wallet_outlined,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+                                          suffixIcon: Icon(
+                                            isBankCashLedgerLocked
+                                                ? Icons.lock_outline
+                                                : Icons.arrow_drop_down,
+                                            color: isBankCashLedgerLocked
+                                                ? Theme.of(
+                                                    context,
+                                                  ).colorScheme.onSurfaceVariant
+                                                : Theme.of(
+                                                    context,
+                                                  ).colorScheme.onSurface,
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Theme.of(
+                                                context,
+                                              ).dividerColor,
+                                            ),
+                                          ),
+                                          disabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Theme.of(
+                                                context,
+                                              ).dividerColor,
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: app_color,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+
+                              Container(
+                                margin: const EdgeInsets.only(
+                                  left: 20,
+                                  right: 20,
+                                  top: 12,
+                                  bottom: 5,
+                                ),
+                                padding: const EdgeInsets.only(bottom: 0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: app_color.withOpacity(0.07),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.06),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // 🔹 Header Row
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 7,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          // Gradient start icon
+                                          Container(
+                                            width: 34,
+                                            height: 34,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: const LinearGradient(
+                                                colors: [
+                                                  Colors.blueGrey,
+                                                  Colors.grey,
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.blue
+                                                      .withOpacity(0.3),
+                                                  blurRadius: 6,
+                                                  offset: const Offset(0, 3),
+                                                ),
+                                              ],
+                                            ),
+                                            child: const Icon(
+                                              Icons.receipt_long,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+
+                                          // Title
+                                          Expanded(
+                                            child: Text(
+                                              "Bills",
+                                              style: GoogleFonts.poppins(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16,
+                                                color: app_color,
+                                              ),
+                                            ),
+                                          ),
+
+                                          // Gradient add icon
+                                          GestureDetector(
+                                            onTap: () {
+                                              _selectedbill = billsdata.first;
+                                              if (_selectedbill == 'New Ref' ||
+                                                  _selectedbill == 'Agst Ref') {
+                                                setState(() {
+                                                  isVisibleDueDate = true;
+                                                  isVisibleBillNo = true;
+                                                });
+                                              } else {
+                                                setState(() {
+                                                  isVisibleDueDate = false;
+                                                  isVisibleBillNo = false;
+                                                });
+                                              }
+
+                                              billAmountController.clear();
+                                              billNoController.clear();
+                                              _billduedateController.clear();
+                                              closeKeyboard(context);
+
+                                              _showBillsDetailsPopup(context);
+                                            },
+                                            child: Container(
+                                              width: 34,
+                                              height: 34,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                gradient: const LinearGradient(
+                                                  colors: [
+                                                    Colors.orange,
+                                                    Colors.deepOrange,
+                                                  ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.orange
+                                                        .withOpacity(0.3),
+                                                    blurRadius: 6,
+                                                    offset: const Offset(0, 3),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: const Icon(
+                                                Icons.add,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    // 🔹 Bills List (Ledger style cards)
+                                    ListView.builder(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemCount: bills.length,
+                                      itemBuilder: (context, index) {
+                                        final bill = bills[index];
+                                        final bool showBillNo =
+                                            (bill.billName == "Agst Ref" ||
+                                                bill.billName == "New Ref") &&
+                                            bill.billNo != 'null' &&
+                                            bill.billNo != '';
+
+                                        return Dismissible(
+                                          key: UniqueKey(),
+                                          direction:
+                                              DismissDirection.endToStart,
+                                          background: Container(
+                                            alignment: Alignment.centerRight,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 20,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.redAccent,
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                            ),
+                                            child: const Icon(
+                                              Icons.delete,
+                                              color: Colors.white,
+                                              size: 22,
+                                            ),
+                                          ),
+                                          onDismissed: (direction) {
+                                            _deleteBill(index);
+                                          },
+                                          child: Container(
+                                            margin: const EdgeInsets.only(
+                                              left: 16,
+                                              right: 16,
+                                              bottom: 6,
+                                              top: 2,
+                                            ),
+                                            padding: const EdgeInsets.all(14),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(
+                                                context,
+                                              ).cardColor,
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                              border: Border.all(
+                                                color: Colors.grey.shade200,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.03),
+                                                  blurRadius: 6,
+                                                  offset: const Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Expanded(
+                                                      flex: 5,
+                                                      child: Text(
+                                                        bill.billName,
+                                                        style: GoogleFonts.poppins(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .onSurface,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 5,
+                                                      child: Text(
+                                                        "Bill No: ${showBillNo ? bill.billNo ?? "N/A" : "N/A"}",
+                                                        textAlign:
+                                                            TextAlign.end,
+                                                        style: GoogleFonts.poppins(
+                                                          fontSize: 13,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: Theme.of(context)
+                                                              .colorScheme
+                                                              .onSurfaceVariant,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 10),
+
+                                                // Amount Row (Gradient currency icon + Amount)
+                                                Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    Container(
+                                                      width: 26,
+                                                      height: 26,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        gradient:
+                                                            const LinearGradient(
+                                                              colors: [
+                                                                Colors.teal,
+                                                                Colors.cyan,
+                                                              ],
+                                                              begin: Alignment
+                                                                  .topLeft,
+                                                              end: Alignment
+                                                                  .bottomRight,
+                                                            ),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.cyan
+                                                                .withOpacity(
+                                                                  0.3,
+                                                                ),
+                                                            blurRadius: 6,
+                                                            offset:
+                                                                const Offset(
+                                                                  0,
+                                                                  3,
+                                                                ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      alignment:
+                                                          Alignment.center,
+                                                      child: Text(
+                                                        getCurrencySymbol(
+                                                          currencycode,
+                                                        ),
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 11,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Text(
+                                                      currencyFormat.format(
+                                                        bill.billAmount,
+                                                      ),
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 15,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color:
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .colorScheme
+                                                                    .onSurface,
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              Visibility(
+                                visible:
+                                    isPaymentModeVisible &&
+                                    !isSelectedBankCashInHand,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 8,
+                                    left: 20,
+                                    right: 20,
+                                    bottom: 0,
+                                  ),
+                                  child: DropdownButtonFormField<String>(
+                                    isExpanded: true,
+                                    value: _selectedpaymentmode,
+                                    hint: Text(
+                                      'Select Payment Mode',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+
+                                    items: paymentmode_data.map((item) {
+                                      return DropdownMenuItem<String>(
+                                        value: item.toString(),
+                                        child: Text(
+                                          item.toString(),
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
                                           ),
                                         ),
                                       );
                                     }).toList(),
-
-                                    // ✅ main lock fix
-                                    onChanged: isVoucherTypeLocked
-                                        ? null
-                                        : (value) {
-                                      if (value == null) return;
-
+                                    onChanged: (value) async {
                                       setState(() {
-                                        _selectedvchtypename = value;
+                                        _selectedpaymentmode = value!;
                                       });
 
-                                      fetchvchnos(_selectedvchtypename);
+                                      if (bills.isEmpty) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'At least add 1 bill',
+                                            ),
+                                          ),
+                                        );
+
+                                        isChequeVisible = false;
+                                        selectedbankname = bankname_data.first;
+                                        _banknameController.text =
+                                            selectedbankname;
+                                        instNoController.clear();
+                                        instdate = DateTime.now();
+                                        instdatestring = _dateFormat.format(
+                                          instdate,
+                                        );
+                                        instdatetxt = formatlastsaledate(
+                                          instdatestring,
+                                        );
+                                        instDateController.text = instdatetxt;
+                                        chequeAmountController.clear();
+                                        cheque.clear();
+                                        updateChequeAmount();
+                                      } else {
+                                        setState(() {
+                                          isChequeVisible = true;
+                                        });
+                                      }
                                     },
-                                  )
-                                ),
+                                    decoration: InputDecoration(
+                                      labelText: "Payment Mode",
+                                      labelStyle: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                      ),
+                                      filled: true,
+                                      fillColor:
+                                          Theme.of(
+                                            context,
+                                          ).inputDecorationTheme.fillColor ??
+                                          (Theme.of(context)
+                                                  .inputDecorationTheme
+                                                  .fillColor ??
+                                              Theme.of(
+                                                context,
+                                              ).cardColor.withOpacity(0.95)),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 14,
+                                          ),
 
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 0),
-                                  child: Container(
-                                      width: MediaQuery.of(context).size.width,
-                                      child: TypeAheadField<String>(
-                                        suggestionsCallback: (pattern) {
-                                          return partydata.where((item) {
-                                            final name = item.toString().toLowerCase();
-                                            return name.contains(pattern.toLowerCase());
-                                          }).toList();
-                                        },
-
-                                        builder: (context, controller, focusNode) {
-                                          _partyController = controller;
-
-                                          return TextField(
-                                            controller: controller,
-                                            focusNode: focusNode,
-                                            decoration: InputDecoration(
-                                              labelText: "Party",
-                                              hintText: 'Search',
-                                              hintStyle: GoogleFonts.poppins(
-                                                fontSize: 13,
-                                                color: Colors.grey.shade500,
-                                              ),
-                                              labelStyle: GoogleFonts.poppins(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.grey[700],
-                                              ),
-                                              filled: true,
-                                              fillColor: Colors.white.withOpacity(0.95),
-
-                                              // 🌈 Gradient Prefix Icon
-                                              prefixIcon: Container(
-                                                margin: const EdgeInsets.all(8),
-                                                decoration: const BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    colors: [Colors.purple, Colors.deepOrange],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                                                ),
-                                                child: const Icon(Icons.person_outline,
-                                                    color: Colors.white, size: 20),
-                                              ),
-
-                                              // ✖️ Cross + ⬇ Dropdown in suffix
-                                              suffixIcon: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  if (controller.text.isNotEmpty)
-                                                    GestureDetector(
-                                                      onTap: () {
-                                                        setState(() {
-                                                          controller.clear();
-                                                          _selectedparty = "";
-                                                          showOutstandingCard = false;
-                                                          totalOutstanding = 0.0;
-                                                          outstandingError = "";
-                                                        });
-                                                      },
-                                                      child:
-                                                      const Icon(Icons.close, color: Colors.grey, size: 20),
-                                                    ),
-                                                  const SizedBox(width: 4),
-                                                  const Icon(Icons.arrow_drop_down, color: Colors.black87),
-                                                  const SizedBox(width: 8),
-                                                ],
-                                              ),
-
-                                              // Borders
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide:
-                                                BorderSide(color: Colors.grey.shade300, width: 1),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide:
-                                                BorderSide(color: app_color, width: 1.5),
-                                              ),
-                                              contentPadding:
-                                              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                            ),
-                                          );
-                                        },
-
-                                        itemBuilder: (context, String suggestion) {
-                                          return ListTile(
-                                            title: Text(
-                                              suggestion,
-                                              style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
-                                            ),
-                                          );
-                                        },
-
-                                        onSelected: (String suggestion) {
-                                          closeKeyboard(context);
-
-                                          setState(() {
-                                            _selectedparty = suggestion;
-                                            _partyController.text = _selectedparty;
-                                          });
-
-                                          if (showOutstandingBills) {
-                                            fetchPartyOutstanding(suggestion);
-                                          }
-
-                                        },
-
-                                        // ✅ new API → emptyBuilder replaces noItemsFoundBuilder
-                                        emptyBuilder: (context) => const Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            'No matching party found',
-                                            style: TextStyle(color: Colors.grey),
+                                      // 🌈 Gradient Prefix Icon
+                                      prefixIcon: Container(
+                                        margin: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Colors.teal,
+                                              Colors.indigo,
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
                                           ),
                                         ),
-                                      )
+                                        child: const Icon(
+                                          Icons.payment_outlined,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                      ),
 
+                                      // Borders
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                        borderSide: BorderSide(
+                                          color: Theme.of(context).dividerColor,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                        borderSide: BorderSide(
+                                          color: app_color,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
+                              ),
 
-                                buildOutstandingCard(),
-
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 0),
-                                  child: Container(
-                                      width: MediaQuery.of(context).size.width,
-                                      child: TypeAheadField<Map<String, String>>(
-                                        controller: _bankcashnameController,
-
-                                        suggestionsCallback: (pattern) async {
-                                          if (isBankCashLedgerLocked) return [];
-
-                                          return bankcashname_data
-                                              .where((item) =>
-                                              item['name']!
-                                                  .toLowerCase()
-                                                  .contains(pattern.toLowerCase()))
-                                              .toList();
-                                        },
-
-                                        itemBuilder: (context, suggestion) {
-                                          return ListTile(
-                                            title: Text(
-                                              suggestion['name']!,
-                                              style: GoogleFonts.poppins(fontSize: 14),
-                                            ),
-                                          );
-                                        },
-
-                                        onSelected: isBankCashLedgerLocked
-                                            ? null
-                                            : (suggestion) {
-                                          setState(() {
-                                            _selectedbankcashname = suggestion;
-                                            _bankcashnameController.text = suggestion['name']!;
-                                          });
-
-                                          if (_selectedbankcashname!['type'] == 'Cash-in-Hand') {
-                                            setState(() {
-                                              isPaymentModeVisible = false;
-                                              _selectedpaymentmode = paymentmode_data.first;
-                                              cheque.clear();
-                                              updateChequeAmount();
-                                              isVisibleChequeHeading = false;
-                                              isChequeVisible = false;
-                                            });
-                                          }
-                                        },
-
-                                        builder: (context, controller, focusNode) {
-                                          return TextFormField(
-                                            controller: controller,
-                                            focusNode: isBankCashLedgerLocked ? AlwaysDisabledFocusNode() : focusNode,
-                                            readOnly: isBankCashLedgerLocked,
-                                            enabled: !isBankCashLedgerLocked,
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 14,
-                                              color: isBankCashLedgerLocked ? Colors.grey.shade600 : Colors.black87,
-                                            ),
-
-                                            decoration: InputDecoration(
-                                              labelText: "Bank / Cash Ledger",
-                                              labelStyle: GoogleFonts.poppins(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.grey[700],
-                                              ),
-                                              filled: true,
-                                              hint:  Text("Bank / Cash Ledger",
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: isVoucherTypeLocked ? Colors.grey.shade500 : Colors.grey[700],
-                                                ),),
-                                              fillColor: isBankCashLedgerLocked
-                                                  ? Colors.grey.shade100
-                                                  : Colors.white.withOpacity(0.95),
-                                              prefixIcon: Container(
-                                                margin: const EdgeInsets.all(8),
-                                                decoration: BoxDecoration(
-                                                  color: isBankCashLedgerLocked ? Colors.grey.shade400 : app_color,
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                child: Icon(
-                                                  isBankCashLedgerLocked
-                                                      ? Icons.lock_outline
-                                                      : Icons.account_balance_wallet_outlined,
-                                                  color: Colors.white,
-                                                  size: 20,
-                                                ),
-                                              ),
-                                              suffixIcon: Icon(
-                                                isBankCashLedgerLocked ? Icons.lock_outline : Icons.arrow_drop_down,
-                                                color: isBankCashLedgerLocked ? Colors.grey : Colors.black87,
-                                              ),
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: BorderSide(color: Colors.grey.shade300),
-                                              ),
-                                              disabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: BorderSide(color: Colors.grey.shade300),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: BorderSide(color: app_color, width: 1.5),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      )
-
+                              Visibility(
+                                visible: isChequeVisible,
+                                child: Container(
+                                  margin: const EdgeInsets.only(
+                                    left: 20,
+                                    right: 20,
+                                    top: 10,
+                                    bottom: 0,
                                   ),
-                                ),
-
-
-                                Container(
-                                  margin: const EdgeInsets.only(left: 20, right: 20, top: 12, bottom: 5),
                                   padding: const EdgeInsets.only(bottom: 0),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
                                     color: app_color.withOpacity(0.07),
+                                    borderRadius: BorderRadius.circular(20),
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.black.withOpacity(0.06),
@@ -6085,40 +7046,50 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                     ],
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
-                                      // 🔹 Header Row
+                                      // 🔹 Header Row with PaymentMode + Add Icon
                                       Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 7,
+                                        ),
                                         child: Row(
                                           children: [
-                                            // Gradient start icon
                                             Container(
                                               width: 34,
                                               height: 34,
                                               decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
-                                                gradient: const LinearGradient(
-                                                  colors: [Colors.blueGrey, Colors.grey],
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Colors.purpleAccent,
+                                                    Colors.deepPurple,
+                                                  ],
                                                   begin: Alignment.topLeft,
                                                   end: Alignment.bottomRight,
                                                 ),
                                                 boxShadow: [
                                                   BoxShadow(
-                                                    color: Colors.blue.withOpacity(0.3),
+                                                    color: Colors.teal
+                                                        .withOpacity(0.3),
                                                     blurRadius: 6,
                                                     offset: const Offset(0, 3),
-                                                  )
+                                                  ),
                                                 ],
                                               ),
-                                              child: const Icon(Icons.receipt_long, color: Colors.white, size: 20),
+                                              child: const Icon(
+                                                Icons.payment,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
                                             ),
                                             const SizedBox(width: 12),
 
-                                            // Title
                                             Expanded(
                                               child: Text(
-                                                "Bills",
+                                                _selectedpaymentmode,
                                                 style: GoogleFonts.poppins(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 16,
@@ -6127,169 +7098,253 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                               ),
                                             ),
 
-                                            // Gradient add icon
                                             GestureDetector(
-                                              onTap: () {
-                                                _selectedbill = billsdata.first;
-                                                if (_selectedbill == 'New Ref' || _selectedbill == 'Agst Ref') {
-                                                  setState(() {
-                                                    isVisibleDueDate = true;
-                                                    isVisibleBillNo = true;
-                                                  });
-                                                } else {
-                                                  setState(() {
-                                                    isVisibleDueDate = false;
-                                                    isVisibleBillNo = false;
-                                                  });
-                                                }
-
-                                                billAmountController.clear();
-                                                billNoController.clear();
-                                                _billduedateController.clear();
-                                                closeKeyboard(context);
-
-                                                _showBillsDetailsPopup(context);
-                                              },
+                                              onTap: () =>
+                                                  _showChequeDetailsPopup(
+                                                    context,
+                                                  ),
                                               child: Container(
                                                 width: 34,
                                                 height: 34,
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
-                                                  gradient: const LinearGradient(
-                                                    colors: [Colors.orange, Colors.deepOrange],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
+                                                  gradient:
+                                                      const LinearGradient(
+                                                        colors: [
+                                                          Colors.orange,
+                                                          Colors
+                                                              .deepOrangeAccent,
+                                                        ],
+                                                        begin:
+                                                            Alignment.topLeft,
+                                                        end: Alignment
+                                                            .bottomRight,
+                                                      ),
                                                   boxShadow: [
                                                     BoxShadow(
-                                                      color: Colors.orange.withOpacity(0.3),
+                                                      color: Colors.orange
+                                                          .withOpacity(0.3),
                                                       blurRadius: 6,
-                                                      offset: const Offset(0, 3),
-                                                    )
+                                                      offset: const Offset(
+                                                        0,
+                                                        3,
+                                                      ),
+                                                    ),
                                                   ],
                                                 ),
-                                                child: const Icon(Icons.add, color: Colors.white, size: 20),
+                                                child: const Icon(
+                                                  Icons.add,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                ),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
 
-
-                                      // 🔹 Bills List (Ledger style cards)
+                                      // 🔹 Cheque List
                                       ListView.builder(
-                                        physics: const NeverScrollableScrollPhysics(),
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
                                         shrinkWrap: true,
-                                        itemCount: bills.length,
+                                        itemCount: cheque.length,
                                         itemBuilder: (context, index) {
-                                          final bill = bills[index];
-                                          final bool showBillNo = (bill.billName == "Agst Ref" ||
-                                              bill.billName == "New Ref") &&
-                                              bill.billNo != 'null' &&
-                                              bill.billNo != '';
+                                          final cheques = cheque[index];
+                                          final bool showInstNo =
+                                              !(cheques.instno == "null" ||
+                                                  cheques.instno.isEmpty ||
+                                                  cheques.instno == "");
 
                                           return Dismissible(
                                             key: UniqueKey(),
-                                            direction: DismissDirection.endToStart,
+                                            direction:
+                                                DismissDirection.endToStart,
                                             background: Container(
                                               alignment: Alignment.centerRight,
-                                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 20,
+                                                  ),
                                               decoration: BoxDecoration(
                                                 color: Colors.redAccent,
-                                                borderRadius: BorderRadius.circular(14),
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
                                               ),
-                                              child: const Icon(Icons.delete, color: Colors.white, size: 22),
+                                              child: const Icon(
+                                                Icons.delete,
+                                                color: Colors.white,
+                                                size: 22,
+                                              ),
                                             ),
                                             onDismissed: (direction) {
-                                              _deleteBill(index);
+                                              setState(() {
+                                                cheque.removeAt(index);
+                                                updateChequeAmount();
+                                                isVisibleChequeHeading =
+                                                    cheque.isNotEmpty;
+                                              });
                                             },
                                             child: Container(
-                                              margin: const EdgeInsets.only(left: 16,right:16, bottom: 6,top:2),
-                                              padding: const EdgeInsets.all(14),
+                                              margin: const EdgeInsets.only(
+                                                left: 16,
+                                                right: 16,
+                                                bottom: 6,
+                                                top: 2,
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 14,
+                                                    vertical: 12,
+                                                  ),
                                               decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: BorderRadius.circular(14),
-                                                border: Border.all(color: Colors.grey.shade200),
+                                                color: Theme.of(
+                                                  context,
+                                                ).cardColor,
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
+                                                border: Border.all(
+                                                  color: Colors.grey.shade200,
+                                                ),
                                                 boxShadow: [
                                                   BoxShadow(
-                                                    color: Colors.black.withOpacity(0.03),
+                                                    color: Colors.black
+                                                        .withOpacity(0.03),
                                                     blurRadius: 6,
                                                     offset: const Offset(0, 2),
                                                   ),
                                                 ],
                                               ),
                                               child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
+                                                  // 🔹 First row → Inst No + Inst Date
                                                   Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
                                                     children: [
-                                                      Expanded(
-                                                        flex: 5,
-                                                        child: Text(
-                                                          bill.billName,
-                                                          style: GoogleFonts.poppins(
-                                                            fontSize: 14,
-                                                            fontWeight: FontWeight.w600,
-                                                            color: Colors.black87,
+                                                      Row(
+                                                        children: [
+                                                          const Icon(
+                                                            Icons
+                                                                .confirmation_num_outlined,
+                                                            color: Colors
+                                                                .deepPurple,
+                                                            size: 18,
                                                           ),
-                                                        ),
+                                                          const SizedBox(
+                                                            width: 6,
+                                                          ),
+                                                          Text(
+                                                            "Inst No: ${showInstNo ? cheques.instno : "N/A"}",
+                                                            style: GoogleFonts.poppins(
+                                                              fontSize: 13,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              color:
+                                                                  Theme.of(
+                                                                        context,
+                                                                      )
+                                                                      .colorScheme
+                                                                      .onSurface,
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
-                                                      Expanded(
-                                                        flex: 5,
-                                                        child: Text(
-                                                          "Bill No: ${showBillNo ? bill.billNo ?? "N/A" : "N/A"}",
-                                                          textAlign: TextAlign.end,
-                                                          style: GoogleFonts.poppins(
-                                                            fontSize: 13,
-                                                            fontWeight: FontWeight.w500,
-                                                            color: Colors.black54,
+                                                      Row(
+                                                        children: [
+                                                          const Icon(
+                                                            Icons.date_range,
+                                                            color: Colors.teal,
+                                                            size: 18,
                                                           ),
-                                                        ),
+                                                          const SizedBox(
+                                                            width: 6,
+                                                          ),
+                                                          Text(
+                                                            formatdate(
+                                                              cheques.instdate ??
+                                                                  '',
+                                                            ),
+                                                            style: GoogleFonts.poppins(
+                                                              fontSize: 13,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              color:
+                                                                  Theme.of(
+                                                                        context,
+                                                                      )
+                                                                      .colorScheme
+                                                                      .onSurface,
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ],
                                                   ),
-                                                  const SizedBox(height: 10),
 
-                                                  // Amount Row (Gradient currency icon + Amount)
+                                                  const SizedBox(height: 8),
+
+                                                  // 🔹 Amount row
                                                   Row(
-                                                    crossAxisAlignment: CrossAxisAlignment.center,
                                                     children: [
                                                       Container(
                                                         width: 26,
                                                         height: 26,
                                                         decoration: BoxDecoration(
-                                                          shape: BoxShape.circle,
-                                                          gradient: const LinearGradient(
-                                                            colors: [Colors.teal, Colors.cyan],
-                                                            begin: Alignment.topLeft,
-                                                            end: Alignment.bottomRight,
-                                                          ),
-                                                          boxShadow: [
-                                                            BoxShadow(
-                                                              color: Colors.cyan.withOpacity(0.3),
-                                                              blurRadius: 6,
-                                                              offset: const Offset(0, 3),
-                                                            )
-                                                          ],
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          gradient:
+                                                              LinearGradient(
+                                                                colors: [
+                                                                  Colors
+                                                                      .deepPurple
+                                                                      .shade400,
+                                                                  Colors
+                                                                      .blue
+                                                                      .shade600,
+                                                                ],
+
+                                                                begin: Alignment
+                                                                    .topLeft,
+                                                                end: Alignment
+                                                                    .bottomRight,
+                                                              ),
                                                         ),
-                                                        alignment: Alignment.center,
-                                                        child: Text(
-                                                          getCurrencySymbol(currencycode),
-                                                          style: GoogleFonts.poppins(
-                                                            color: Colors.white,
-                                                            fontWeight: FontWeight.bold,
-                                                            fontSize: 11,
+                                                        child: Center(
+                                                          child: Text(
+                                                            getCurrencySymbol(
+                                                              currencycode,
+                                                            ),
+                                                            style:
+                                                                GoogleFonts.poppins(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 11,
+                                                                ),
                                                           ),
                                                         ),
                                                       ),
                                                       const SizedBox(width: 8),
                                                       Text(
-                                                        currencyFormat.format(bill.billAmount),
+                                                        currencyFormat.format(
+                                                          cheques.chequeAmount,
+                                                        ),
                                                         style: GoogleFonts.poppins(
-                                                          fontSize: 15,
-                                                          fontWeight: FontWeight.w600,
-                                                          color: Colors.black87,
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .onSurface,
                                                         ),
                                                       ),
                                                     ],
@@ -6300,517 +7355,281 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration> with Tick
                                           );
                                         },
                                       ),
-
                                     ],
                                   ),
                                 ),
+                              ),
+                            ],
+                          ),
+                        ),
 
-                                Visibility(
-                                  visible: isPaymentModeVisible && !isSelectedBankCashInHand,
-                                  child:  Padding(
-                                    padding: const EdgeInsets.only(top: 8, left: 20, right: 20, bottom: 0),
-                                    child: DropdownButtonFormField<String>(
-                                      isExpanded: true,
-                                      value: _selectedpaymentmode,
-                                      hint: Text(
-                                        'Select Payment Mode',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 8,
+                            left: 20,
+                            right: 20,
+                            bottom: 0,
+                          ),
+                          child: TextFormField(
+                            controller: controller_narration,
+                            focusNode: _textFieldFocusNodeNarration,
+                            validator: (value) => null,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: 'Narration',
+                              hintText: 'Enter narration',
 
-                                      items: paymentmode_data.map((item) {
-                                        return DropdownMenuItem<String>(
-                                          value: item.toString(),
-                                          child: Text(
-                                            item.toString(),
-                                            style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
-                                          ),
-                                        );
-                                      }).toList(),
-                                      onChanged: (value) async {
-                                        setState(() {
-                                          _selectedpaymentmode = value!;
-                                        });
-
-                                        if (bills.isEmpty) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('At least add 1 bill')),
-                                          );
-
-                                          isChequeVisible = false;
-                                          selectedbankname = bankname_data.first;
-                                          _banknameController.text = selectedbankname;
-                                          instNoController.clear();
-                                          instdate = DateTime.now();
-                                          instdatestring = _dateFormat.format(instdate);
-                                          instdatetxt = formatlastsaledate(instdatestring);
-                                          instDateController.text = instdatetxt;
-                                          chequeAmountController.clear();
-                                          cheque.clear();
-                                          updateChequeAmount();
-                                        } else {
-                                          setState(() {
-                                            isChequeVisible = true;
-                                          });
-                                        }
-                                      },
-                                      decoration: InputDecoration(
-                                        labelText: "Payment Mode",
-                                        labelStyle: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.grey[700],
-                                        ),
-                                        filled: true,
-                                        fillColor: Colors.white.withOpacity(0.95),
-                                        contentPadding:
-                                        const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-
-                                        // 🌈 Gradient Prefix Icon
-                                        prefixIcon: Container(
-                                          margin: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            gradient: const LinearGradient(
-                                              colors: [Colors.teal, Colors.indigo],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          child: const Icon(Icons.payment_outlined,
-                                              color: Colors.white, size: 20),
-                                        ),
-
-                                        // Borders
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(color: app_color, width: 1.5),
-                                        ),
-                                      ),
-                                    ),
+                              // 🌈 Gradient Icon (different decent color from vchtype)
+                              prefixIcon: Container(
+                                margin: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Colors.deepPurple,
+                                      Colors.indigo,
+                                    ], // decent gradient
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-
-                                Visibility(
-                                  visible: isChequeVisible,
-                                  child: Container(
-                                    margin: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 0),
-                                    padding: const EdgeInsets.only(bottom: 0),
-                                    decoration: BoxDecoration(
-                                      color: app_color.withOpacity(0.07),
-                                      borderRadius: BorderRadius.circular(20),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.06),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        // 🔹 Header Row with PaymentMode + Add Icon
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-                                          child: Row(
-                                            children: [
-                                              Container(
-                                                width: 34,
-                                                height: 34,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  gradient:  LinearGradient(
-                                                    colors: [Colors.purpleAccent, Colors.deepPurple],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.teal.withOpacity(0.3),
-                                                      blurRadius: 6,
-                                                      offset: const Offset(0, 3),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: const Icon(Icons.payment, color: Colors.white, size: 20),
-                                              ),
-                                              const SizedBox(width: 12),
-
-                                              Expanded(
-                                                child: Text(
-                                                  _selectedpaymentmode,
-                                                  style: GoogleFonts.poppins(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 16,
-                                                    color: app_color,
-                                                  ),
-                                                ),
-                                              ),
-
-                                              GestureDetector(
-                                                onTap: () => _showChequeDetailsPopup(context),
-                                                child: Container(
-                                                  width: 34,
-                                                  height: 34,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    gradient: const LinearGradient(
-                                                      colors: [Colors.orange, Colors.deepOrangeAccent],
-                                                      begin: Alignment.topLeft,
-                                                      end: Alignment.bottomRight,
-                                                    ),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.orange.withOpacity(0.3),
-                                                        blurRadius: 6,
-                                                        offset: const Offset(0, 3),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: const Icon(Icons.add, color: Colors.white, size: 20),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-
-                                        // 🔹 Cheque List
-                                        ListView.builder(
-                                          physics: const NeverScrollableScrollPhysics(),
-                                          shrinkWrap: true,
-                                          itemCount: cheque.length,
-                                          itemBuilder: (context, index) {
-                                            final cheques = cheque[index];
-                                            final bool showInstNo = !(cheques.instno == "null" ||
-                                                cheques.instno.isEmpty ||
-                                                cheques.instno == "");
-
-                                            return Dismissible(
-                                              key: UniqueKey(),
-                                              direction: DismissDirection.endToStart,
-                                              background: Container(
-                                                alignment: Alignment.centerRight,
-                                                padding: const EdgeInsets.symmetric(horizontal: 20),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.redAccent,
-                                                  borderRadius: BorderRadius.circular(14),
-                                                ),
-                                                child: const Icon(Icons.delete, color: Colors.white, size: 22),
-                                              ),
-                                              onDismissed: (direction) {
-                                                setState(() {
-                                                  cheque.removeAt(index);
-                                                  updateChequeAmount();
-                                                  isVisibleChequeHeading = cheque.isNotEmpty;
-                                                });
-                                              },
-                                              child: Container(
-                                                margin: const EdgeInsets.only(left: 16,right:16, bottom: 6,top:2),
-                                                padding:
-                                                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius: BorderRadius.circular(14),
-                                                  border: Border.all(color: Colors.grey.shade200),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.black.withOpacity(0.03),
-                                                      blurRadius: 6,
-                                                      offset: const Offset(0, 2),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    // 🔹 First row → Inst No + Inst Date
-                                                    Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      children: [
-                                                        Row(
-                                                          children: [
-                                                            const Icon(Icons.confirmation_num_outlined,
-                                                                color: Colors.deepPurple, size: 18),
-                                                            const SizedBox(width: 6),
-                                                            Text(
-                                                              "Inst No: ${showInstNo ? cheques.instno : "N/A"}",
-                                                              style: GoogleFonts.poppins(
-                                                                fontSize: 13,
-                                                                fontWeight: FontWeight.w500,
-                                                                color: Colors.black87,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        Row(
-                                                          children: [
-                                                            const Icon(Icons.date_range,
-                                                                color: Colors.teal, size: 18),
-                                                            const SizedBox(width: 6),
-                                                            Text(
-                                                              formatdate(cheques.instdate ?? ''),
-                                                              style: GoogleFonts.poppins(
-                                                                fontSize: 13,
-                                                                fontWeight: FontWeight.w500,
-                                                                color: Colors.black87,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
-
-                                                    const SizedBox(height: 8),
-
-                                                    // 🔹 Amount row
-                                                    Row(
-                                                      children: [
-                                                        Container(
-                                                          width: 26,
-                                                          height: 26,
-                                                          decoration: BoxDecoration(
-                                                            shape: BoxShape.circle,
-                                                            gradient:  LinearGradient(
-                                                              colors: [Colors.deepPurple.shade400, Colors.blue.shade600],
-
-                                                              begin: Alignment.topLeft,
-                                                              end: Alignment.bottomRight,
-                                                            ),
-                                                          ),
-                                                          child: Center(
-                                                            child: Text(
-                                                              getCurrencySymbol(currencycode),
-                                                              style: GoogleFonts.poppins(
-                                                                  color: Colors.white,
-                                                                  fontWeight: FontWeight.bold,
-                                                                  fontSize: 11),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(width: 8),
-                                                        Text(
-                                                          currencyFormat.format(cheques.chequeAmount),
-                                                          style: GoogleFonts.poppins(
-                                                            fontSize: 14,
-                                                            fontWeight: FontWeight.w600,
-                                                            color: Colors.black87,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                child: const Icon(
+                                  Icons.notes_rounded,
+                                  color: Colors.white,
+                                  size: 20,
                                 ),
+                              ),
 
+                              filled: true,
+                              fillColor:
+                                  Theme.of(
+                                    context,
+                                  ).inputDecorationTheme.fillColor ??
+                                  (Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.fillColor ??
+                                      Theme.of(
+                                        context,
+                                      ).cardColor.withOpacity(0.95)),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 14,
+                              ),
 
-                              ],),),
+                              // Borders
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).dividerColor,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).dividerColor,
+                                  width: 1,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                  color: app_color,
+                                  width: 1.5,
+                                ),
+                              ),
 
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8, left: 20, right: 20, bottom: 0),
-                            child: TextFormField(
-                              controller: controller_narration,
-                              focusNode: _textFieldFocusNodeNarration,
-                              validator: (value) => null,
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
+                              labelStyle: GoogleFonts.poppins(
+                                fontSize: 13,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.black87,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                               ),
-                              decoration: InputDecoration(
-                                labelText: 'Narration',
-                                hintText: 'Enter narration',
+                            ),
+                          ),
+                        ),
 
-                                // 🌈 Gradient Icon (different decent color from vchtype)
-                                prefixIcon: Container(
-                                  margin: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Colors.deepPurple, Colors.indigo], // decent gradient
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 10,
+                            left: 20,
+                            right: 20,
+                            bottom: 0,
+                          ),
+                          child: TextFormField(
+                            enabled: false,
+                            controller: controller_totalamt,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,4}'),
+                              ),
+                            ],
+                            keyboardType: TextInputType.number,
+                            validator: (value) => null,
+                            style: GoogleFonts.poppins(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: 'Amount',
+                              hintText: 'Enter Amount',
+
+                              // 🌈 Gradient Currency Symbol
+                              prefix: Container(
+                                margin: const EdgeInsets.only(right: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.grey,
+                                      Colors.brown,
+                                    ], // 🔵 unique from narration
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
-                                  child: const Icon(
-                                    Icons.notes_rounded,
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  getCurrencySymbol(
+                                    currencycode,
+                                  ), // e.g. AED, $, ₹
+                                  style: GoogleFonts.poppins(
                                     color: Colors.white,
-                                    size: 20,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                              ),
 
-                                filled: true,
-                                fillColor: Colors.white.withOpacity(0.95),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-
-                                // Borders
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(color: Colors.black),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  borderSide: BorderSide(color: app_color, width: 1.5),
-                                ),
-
-                                labelStyle: GoogleFonts.poppins(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey[700],
+                              // Borders
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).dividerColor,
                                 ),
                               ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                  color: app_color,
+                                  width: 1.5,
+                                ),
+                              ),
+
+                              // Label
+                              labelStyle: GoogleFonts.poppins(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                                horizontal: 12,
+                              ),
+                              filled: true,
+                              fillColor:
+                                  Theme.of(
+                                    context,
+                                  ).inputDecorationTheme.fillColor ??
+                                  Colors.white,
                             ),
                           ),
+                        ),
 
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 0),
-                            child: TextFormField(
-                              enabled: false,
-                              controller: controller_totalamt,
-                              inputFormatters: <TextInputFormatter>[
-                                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,4}')),
-                              ],
-                              keyboardType: TextInputType.number,
-                              validator: (value) => null,
-                              style: GoogleFonts.poppins(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
+                        Container(
+                          padding: const EdgeInsets.only(top: 20),
+                          margin: const EdgeInsets.only(
+                            bottom: 30,
+                            left: 20,
+                            right: 20,
+                          ),
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: errorMessageVchNo.isNotEmpty
+                                ? null
+                                : () {
+                                    if (_formKey.currentState != null &&
+                                        _formKey.currentState!.validate()) {
+                                      _formKey.currentState!.save();
+                                      saveEntry();
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 16,
+                                horizontal: 20,
                               ),
-                              decoration: InputDecoration(
-                                labelText: 'Amount',
-                                hintText: 'Enter Amount',
-
-                                // 🌈 Gradient Currency Symbol
-                                prefix: Container(
-                                  margin: const EdgeInsets.only(right: 8),
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: const BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [Colors.grey, Colors.brown], // 🔵 unique from narration
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  30,
+                                ), // pill shape
+                              ),
+                              elevation: 8,
+                              backgroundColor:
+                                  app_color, // ✅ always full app_color
+                              disabledBackgroundColor:
+                                  Colors.grey.shade300, // disabled state
+                              shadowColor: app_color.withOpacity(0.4),
+                            ),
+                            child: Container(
+                              alignment: Alignment.center,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.white,
+                                    size: 22,
                                   ),
-                                  child: Text(
-                                    getCurrencySymbol(currencycode), // e.g. AED, $, ₹
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    "Save",
                                     style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
                                       color: Colors.white,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1,
                                     ),
                                   ),
-                                ),
-
-                                // Borders
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(color: Colors.black),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  borderSide: BorderSide(color: Colors.black54),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  borderSide: BorderSide(color: app_color, width: 1.5),
-                                ),
-
-                                // Label
-                                labelStyle: GoogleFonts.poppins(
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-                                filled: true,
-                                fillColor: Colors.white,
+                                ],
                               ),
                             ),
                           ),
-
-
-                          Container(
-                            padding: const EdgeInsets.only(top: 20),
-                            margin: const EdgeInsets.only(bottom: 30, left: 20, right: 20),
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: errorMessageVchNo.isNotEmpty
-                                  ? null
-                                  : () {
-                                if (_formKey.currentState != null &&
-                                    _formKey.currentState!.validate()) {
-                                  _formKey.currentState!.save();
-                                  saveEntry();
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30), // pill shape
-                                ),
-                                elevation: 8,
-                                backgroundColor: app_color, // ✅ always full app_color
-                                disabledBackgroundColor: Colors.grey.shade300, // disabled state
-                                shadowColor: app_color.withOpacity(0.4),
-                              ),
-                              child: Container(
-                                alignment: Alignment.center,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.check_circle,
-                                      color: Colors.white,
-                                      size: 22,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      "Save",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                        letterSpacing: 1,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        ]
-
-                    ))],),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
 
               Visibility(
                 visible: _isLoading,
-                child: Center(
-                    child: AppLogoLoader())
-              )
-            ],)
+                child: Center(child: AppLogoLoader()),
+              ),
+            ],
+          ),
         ),
       ),
-
-    );}}
+    );
+  }
+}
 
 class AlwaysDisabledFocusNode extends FocusNode {
   @override

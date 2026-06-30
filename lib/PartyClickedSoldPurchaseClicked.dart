@@ -16,9 +16,7 @@ import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
-
 class Data {
-
   final String vchno;
   final String vchdate;
   final String rate;
@@ -33,64 +31,82 @@ class Data {
 
   factory Data.fromJson(Map<String, dynamic> json) {
     return Data(
-      vchno : json['vchno'].toString(),
+      vchno: json['vchno'].toString(),
       vchdate: json['vchdate'].toString(),
       rate: json['rate'].toString(),
       qty: json['qty'].toString(),
-
     );
   }
 }
 
-class PartyClickedSoldPurchaseClicked extends StatefulWidget
-{
-  final String startdate_string,enddate_string,type,ledger,item,unit;
+class PartyClickedSoldPurchaseClicked extends StatefulWidget {
+  final String startdate_string, enddate_string, type, ledger, item, unit;
 
-  const PartyClickedSoldPurchaseClicked(
-      {required this.startdate_string,
-        required this.enddate_string,
-        required this.type,
-        required this.ledger,
-        required this.item,
-        required this.unit,
-      }
-      );
+  const PartyClickedSoldPurchaseClicked({
+    required this.startdate_string,
+    required this.enddate_string,
+    required this.type,
+    required this.ledger,
+    required this.item,
+    required this.unit,
+  });
   @override
-  _PartyClickedSoldPurchaseClickedPageState createState() => _PartyClickedSoldPurchaseClickedPageState(startDateString: startdate_string,
-      endDateString: enddate_string,type: type,item: item,ledger:  ledger,unit:unit);
+  _PartyClickedSoldPurchaseClickedPageState createState() =>
+      _PartyClickedSoldPurchaseClickedPageState(
+        startDateString: startdate_string,
+        endDateString: enddate_string,
+        type: type,
+        item: item,
+        ledger: ledger,
+        unit: unit,
+      );
 }
 
-class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPurchaseClicked> with TickerProviderStateMixin{
+class _PartyClickedSoldPurchaseClickedPageState
+    extends State<PartyClickedSoldPurchaseClicked>
+    with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String startDateString = "",endDateString = "",type = "",ledger = "",item = "",unit="";
+  String startDateString = "",
+      endDateString = "",
+      type = "",
+      ledger = "",
+      item = "",
+      unit = "";
 
   int counter = 0;
-  double total_double  = 0;
+  double total_double = 0;
 
-  String total_main = "0",token = '';
+  String total_main = "0", token = '';
 
   bool isSortVisible = false;
 
   String selectedSortOption = '';
 
+  List<Data> filteredItems =
+      []; // Initialize an empty list to hold the filtered items
 
-
-  List<Data> filteredItems = []; // Initialize an empty list to hold the filtered items
-
-  _PartyClickedSoldPurchaseClickedPageState(
-      {required this.startDateString,
-        required this.endDateString,
-        required this.type,
-        required this.ledger,
-        required this.item,
-        required this.unit,
-      }
-      );
+  _PartyClickedSoldPurchaseClickedPageState({
+    required this.startDateString,
+    required this.endDateString,
+    required this.type,
+    required this.ledger,
+    required this.item,
+    required this.unit,
+  });
 
   String? SecuritybtnAcessHolder;
-  bool isDashEnable = true,isRolesEnable = true,isUserEnable = true,isRolesVisible = true,
-      isUserVisible = true,_isSearchViewVisible = false,_isListVisible = false,_isBillsListVisible = false,
-      _isVoucherTypeListVisible = false, _isCostCenterListVisible = false,isVisiblePostDated = true,isVisibleOptional = true;
+  bool isDashEnable = true,
+      isRolesEnable = true,
+      isUserEnable = true,
+      isRolesVisible = true,
+      isUserVisible = true,
+      _isSearchViewVisible = false,
+      _isListVisible = false,
+      _isBillsListVisible = false,
+      _isVoucherTypeListVisible = false,
+      _isCostCenterListVisible = false,
+      isVisiblePostDated = true,
+      isVisibleOptional = true;
 
   String email = "";
   String name = "";
@@ -99,7 +115,7 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
 
   late NumberFormat currencyFormat;
 
-  ScrollController _scrollController= ScrollController();
+  ScrollController _scrollController = ScrollController();
 
   TextEditingController searchController = TextEditingController();
 
@@ -114,18 +130,27 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
 
   String HttpURL = "";
 
-  String? hostname = "",company = "",serial_no = "",company_lowercase = "",username = "";
+  String? hostname = "",
+      company = "",
+      serial_no = "",
+      company_lowercase = "",
+      username = "";
   List<dynamic> myData = [];
   bool _isLoading = false;
 
-
   List<Data> item_list = [];
 
-  final List<String> itemList = ['Default', 'Newest to Oldest', 'Oldest to Newest', 'A->Z', 'Z->A'];
+  final List<String> itemList = [
+    'Default',
+    'Newest to Oldest',
+    'Oldest to Newest',
+    'A->Z',
+    'Z->A',
+  ];
 
   void sortByDefault() {
     setState(() {
-      if(filteredItems.isNotEmpty) {
+      if (filteredItems.isNotEmpty) {
         filteredItems = List.from(item_list);
         _scrollController.animateTo(
           0.0,
@@ -133,14 +158,12 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
   void sortByAlphabetAtoZ() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
+      if (filteredItems.isNotEmpty) {
         filteredItems.sort((a, b) => a.vchno.compareTo(b.vchno));
         _scrollController.animateTo(
           0.0,
@@ -148,15 +171,12 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
           curve: Curves.easeInOut,
         );
       }
-
-
     });
   }
 
   void sortByAlphabetZtoA() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
+      if (filteredItems.isNotEmpty) {
         filteredItems.sort((a, b) => b.vchno.compareTo(a.vchno));
         _scrollController.animateTo(
           0.0,
@@ -164,14 +184,12 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
   void sortByDateLowtoHigh() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
+      if (filteredItems.isNotEmpty) {
         filteredItems.sort((a, b) => a.vchdate.compareTo(b.vchdate));
         _scrollController.animateTo(
           0.0,
@@ -179,14 +197,12 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
   void sortByDateHightoLow() {
     setState(() {
-      if(filteredItems.isNotEmpty)
-      {
+      if (filteredItems.isNotEmpty) {
         filteredItems.sort((a, b) => b.vchdate.compareTo(a.vchdate));
         _scrollController.animateTo(
           0.0,
@@ -194,7 +210,6 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
@@ -209,18 +224,21 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
 
     // Replace this list with your actual list data
 
-
-    double totalHeight = itemList.length * 50.0 + 30.0 + 50.0; // Assuming each item has a height of 50 and adding padding height
+    double totalHeight =
+        itemList.length * 50.0 +
+        30.0 +
+        50.0; // Assuming each item has a height of 50 and adding padding height
 
     showModalBottomSheet<void>(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       context: context,
       builder: (BuildContext context) {
         return Container(
           constraints: BoxConstraints(
-            maxHeight: totalHeight, // Set the maximum height of the selection window with additional padding
+            maxHeight:
+                totalHeight, // Set the maximum height of the selection window with additional padding
           ),
-          color: Colors.white, // Set the background color of the selection window
+          color: Theme.of(context).colorScheme.surface,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -234,7 +252,8 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                   ),
                 ),
               ),
-              Expanded( // Wrap the ListView.builder with Expanded
+              Expanded(
+                // Wrap the ListView.builder with Expanded
                 child: ListView.builder(
                   itemCount: itemList.length,
                   itemExtent: 50, // Set the height of each item in the list
@@ -243,7 +262,8 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                     return GestureDetector(
                       onTap: () {
                         setState(() {
-                          selectedSortOption = itemList[index]; // Update the selected value
+                          selectedSortOption =
+                              itemList[index]; // Update the selected value
                         });
                         // Now, you can use a switch or if-else statement to check the selected value
                         switch (selectedSortOption) {
@@ -264,19 +284,27 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                             break;
                         }
                         print('Tile $index selected');
-                        Navigator.pop(context); // Close the selection window after a tile is selected
+                        Navigator.pop(
+                          context,
+                        ); // Close the selection window after a tile is selected
                       },
                       child: Container(
                         child: ListTile(
-                          leading: Icon(icons[index]), // Add the icon to each list tile
+                          leading: Icon(
+                            icons[index],
+                          ), // Add the icon to each list tile
                           title: Text(
                             itemList[index],
                             style: GoogleFonts.poppins(
-                              fontWeight: itemList[index] == selectedSortOption ? FontWeight.bold : FontWeight.normal, // Apply bold style to the text if the tile is selected
+                              fontWeight: itemList[index] == selectedSortOption
+                                  ? FontWeight.bold
+                                  : FontWeight
+                                        .normal, // Apply bold style to the text if the tile is selected
                             ),
                           ),
-                          trailing: itemList[index] == selectedSortOption ? Icon(Icons.check,
-                            color: app_color,) : null, // Show arrow icon if the tile is selected
+                          trailing: itemList[index] == selectedSortOption
+                              ? Icon(Icons.check, color: app_color)
+                              : null, // Show arrow icon if the tile is selected
                         ),
                       ),
                     );
@@ -291,7 +319,9 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
   }
 
   Future<void> generateAndSharePDF_Sold() async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+    final font = pw.Font.ttf(
+      await rootBundle.load("assets/fonts/NotoSans.ttf"),
+    );
     final pdf = pw.Document();
 
     final companyName = company!;
@@ -306,8 +336,9 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
 
     for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       final startIndex = pageNumber * itemsPerPage;
-      final endIndex =
-      (pageNumber + 1) * itemsPerPage > item_list.length ? item_list.length : (pageNumber + 1) * itemsPerPage;
+      final endIndex = (pageNumber + 1) * itemsPerPage > item_list.length
+          ? item_list.length
+          : (pageNumber + 1) * itemsPerPage;
       final itemsSubset = item_list.sublist(startIndex, endIndex);
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -315,7 +346,7 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
           item.vchno,
           convertDateFormat(item.vchdate),
           item.qty,
-          item.rate
+          item.rate,
         ];
       }).toList();
 
@@ -347,30 +378,49 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.center,
                 children: [
-                  pw.Text(companyName,
-                      style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    companyName,
+                    style: pw.TextStyle(
+                      fontSize: 20,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                   pw.SizedBox(height: 10),
-                  pw.Text(reportname,
-                      style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    reportname,
+                    style: pw.TextStyle(
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                   pw.SizedBox(height: 10),
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.center,
                     children: [
-                      pw.Text(convertDateFormat(startDateString),
-                          style: pw.TextStyle(fontSize: 16)),
+                      pw.Text(
+                        convertDateFormat(startDateString),
+                        style: pw.TextStyle(fontSize: 16),
+                      ),
                       pw.SizedBox(width: 5),
                       pw.Text('to', style: pw.TextStyle(fontSize: 16)),
                       pw.SizedBox(width: 5),
-                      pw.Text(convertDateFormat(endDateString),
-                          style: pw.TextStyle(fontSize: 16)),
+                      pw.Text(
+                        convertDateFormat(endDateString),
+                        style: pw.TextStyle(fontSize: 16),
+                      ),
                     ],
                   ),
                   pw.SizedBox(height: 10),
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.center,
                     children: [
-                      pw.Text('Ledger:',
-                          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                      pw.Text(
+                        'Ledger:',
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
                       pw.SizedBox(width: 5),
                       pw.Text(ledgername, style: pw.TextStyle(fontSize: 16)),
                     ],
@@ -379,8 +429,13 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.center,
                     children: [
-                      pw.Text('Item:',
-                          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                      pw.Text(
+                        'Item:',
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
                       pw.SizedBox(width: 5),
                       pw.Text(item_name, style: pw.TextStyle(fontSize: 16)),
                     ],
@@ -402,14 +457,15 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
     await file.writeAsBytes(pdfData);
 
     // ✅ Updated sharing method
-    await Share.shareXFiles(
-      [XFile(tempFilePath)],
-      text: 'Sharing $reportname Report of $company',
-    );
+    await Share.shareXFiles([
+      XFile(tempFilePath),
+    ], text: 'Sharing $reportname Report of $company');
   }
 
   Future<void> generateAndSharePDF_Purchase() async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+    final font = pw.Font.ttf(
+      await rootBundle.load("assets/fonts/NotoSans.ttf"),
+    );
     final pdf = pw.Document();
 
     final companyName = company!;
@@ -424,8 +480,9 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
 
     for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       final startIndex = pageNumber * itemsPerPage;
-      final endIndex =
-      (pageNumber + 1) * itemsPerPage > item_list.length ? item_list.length : (pageNumber + 1) * itemsPerPage;
+      final endIndex = (pageNumber + 1) * itemsPerPage > item_list.length
+          ? item_list.length
+          : (pageNumber + 1) * itemsPerPage;
       final itemsSubset = item_list.sublist(startIndex, endIndex);
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -433,7 +490,7 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
           item.vchno,
           convertDateFormat(item.vchdate),
           item.qty,
-          item.rate
+          item.rate,
         ];
       }).toList();
 
@@ -465,30 +522,49 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.center,
                 children: [
-                  pw.Text(companyName,
-                      style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    companyName,
+                    style: pw.TextStyle(
+                      fontSize: 20,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                   pw.SizedBox(height: 10),
-                  pw.Text(reportname,
-                      style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    reportname,
+                    style: pw.TextStyle(
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                   pw.SizedBox(height: 10),
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.center,
                     children: [
-                      pw.Text(convertDateFormat(startDateString),
-                          style: pw.TextStyle(fontSize: 16)),
+                      pw.Text(
+                        convertDateFormat(startDateString),
+                        style: pw.TextStyle(fontSize: 16),
+                      ),
                       pw.SizedBox(width: 5),
                       pw.Text('to', style: pw.TextStyle(fontSize: 16)),
                       pw.SizedBox(width: 5),
-                      pw.Text(convertDateFormat(endDateString),
-                          style: pw.TextStyle(fontSize: 16)),
+                      pw.Text(
+                        convertDateFormat(endDateString),
+                        style: pw.TextStyle(fontSize: 16),
+                      ),
                     ],
                   ),
                   pw.SizedBox(height: 10),
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.center,
                     children: [
-                      pw.Text('Ledger:',
-                          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                      pw.Text(
+                        'Ledger:',
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
                       pw.SizedBox(width: 5),
                       pw.Text(ledgername, style: pw.TextStyle(fontSize: 16)),
                     ],
@@ -497,8 +573,13 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.center,
                     children: [
-                      pw.Text('Item:',
-                          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                      pw.Text(
+                        'Item:',
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
                       pw.SizedBox(width: 5),
                       pw.Text(item_name, style: pw.TextStyle(fontSize: 16)),
                     ],
@@ -520,10 +601,9 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
     await file.writeAsBytes(pdfData);
 
     // ✅ Updated sharing method
-    await Share.shareXFiles(
-      [XFile(tempFilePath)],
-      text: 'Sharing $reportname Report of $company',
-    );
+    await Share.shareXFiles([
+      XFile(tempFilePath),
+    ], text: 'Sharing $reportname Report of $company');
   }
 
   Future<void> generateAndShareCSV_Sold() async {
@@ -537,7 +617,7 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
         item.vchno,
         convertDateFormat(item.vchdate),
         item.qty,
-        item.rate
+        item.rate,
       ];
       csvData.add(rowData);
     }
@@ -549,10 +629,9 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
     await file.writeAsString(csvString);
 
     // ✅ Updated sharing method
-    await Share.shareXFiles(
-      [XFile(tempFilePath)],
-      text: 'Sharing $reportname Report of $company',
-    );
+    await Share.shareXFiles([
+      XFile(tempFilePath),
+    ], text: 'Sharing $reportname Report of $company');
   }
 
   Future<void> generateAndShareCSV_Purchased() async {
@@ -566,7 +645,7 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
         item.vchno,
         convertDateFormat(item.vchdate),
         item.qty,
-        item.rate
+        item.rate,
       ];
       csvData.add(rowData);
     }
@@ -578,34 +657,24 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
     await file.writeAsString(csvString);
 
     // ✅ Updated sharing method
-    await Share.shareXFiles(
-      [XFile(tempFilePath)],
-      text: 'Sharing $reportname Report of $company',
-    );
+    await Share.shareXFiles([
+      XFile(tempFilePath),
+    ], text: 'Sharing $reportname Report of $company');
   }
 
-
   String formatCostCenter(String costcenter) {
-
     String costcenter_string = "";
-    if(costcenter == 'null')
-    {
+    if (costcenter == 'null') {
       costcenter_string = '*Not Applicable';
-    }
-    else
-    {
+    } else {
       costcenter_string = costcenter;
-
     }
     // Apply any transformations or formatting to the 'amount' variable here
     return costcenter_string;
   }
 
-
   String formatVchNo(String vchno) {
-
-    if(vchno == "null")
-    {
+    if (vchno == "null") {
       vchno = "No Voucher No.";
     }
 
@@ -622,9 +691,15 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
     return formattedDate;
   }
 
-  Future<void> fetchData(final String item, final String ledger, final String startdate, final String enddate, final String type,final String select,final String orderby) async
-  {
-
+  Future<void> fetchData(
+    final String item,
+    final String ledger,
+    final String startdate,
+    final String enddate,
+    final String type,
+    final String select,
+    final String orderby,
+  ) async {
     setState(() {
       _isLoading = true;
       _isListVisible = true;
@@ -634,54 +709,44 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
     item_list.clear();
     filteredItems.clear();
 
-    try
-    {
+    try {
       final url = Uri.parse(HttpURL!);
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
+      var body = jsonEncode({
         'startdate': startdate,
         'enddate': enddate,
         'party': ledger,
-        'vchtype' : type,
-        'select' : select,
-        'orderby' : orderby,
-        'item' : item,
+        'vchtype': type,
+        'select': select,
+        'orderby': orderby,
+        'item': item,
       });
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-      if (response.statusCode == 200)
-      {
+      if (response.statusCode == 200) {
         print(type);
         final List<dynamic> values_list = jsonDecode(response.body);
         if (values_list != null) {
           isVisibleNoDataFound = false;
 
-          item_list.addAll(values_list.map((json) => Data.fromJson(json)).toList());
+          item_list.addAll(
+            values_list.map((json) => Data.fromJson(json)).toList(),
+          );
           filteredItems = item_list;
-
-        }
-        else {
-
+        } else {
           throw Exception('Failed to fetch data');
         }
         setState(() {
           _isLoading = false;
         });
-
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
@@ -689,13 +754,10 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
     }
 
     setState(() {
-      if(item_list.isEmpty)
-      {
+      if (item_list.isEmpty) {
         isVisibleNoDataFound = true;
         isSortVisible = false;
-
-      }
-      else {
+      } else {
         isSortVisible = true;
         switch (selectedSortOption) {
           case 'Default':
@@ -720,12 +782,11 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
   }
 
   Future<void> _initSharedPreferences() async {
-
     prefs = await SharedPreferences.getInstance();
 
     setState(() {
       hostname = prefs.getString('hostname');
-      company  = prefs.getString('company_name');
+      company = prefs.getString('company_name');
       company_lowercase = company!.replaceAll(' ', '').toLowerCase();
       serial_no = prefs.getString('serial_no');
       username = prefs.getString('username');
@@ -736,42 +797,43 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
 
     currencyCode = prefs.getString('currencycode') ?? "AED";
 
-
     try {
-      if (currencyCode == 'INR' || currencyCode == 'EUR' ||
-          currencyCode == 'USD' || currencyCode == 'PKR') {
+      if (currencyCode == 'INR' ||
+          currencyCode == 'EUR' ||
+          currencyCode == 'USD' ||
+          currencyCode == 'PKR') {
         currencyFormat = NumberFormat('#,##0');
         NumberFormat format = NumberFormat.simpleCurrency(
-            locale: 'en', name: currencyCode);
+          locale: 'en',
+          name: currencyCode,
+        );
         currencysymbol = format.currencySymbol;
       } else {
         NumberFormat format = NumberFormat.currency(
-            locale: 'en', name: currencyCode);
+          locale: 'en',
+          name: currencyCode,
+        );
         currencysymbol = format.currencySymbol;
-          currencyFormat = NumberFormat('#,##0');
+        currencyFormat = NumberFormat('#,##0');
       }
     } catch (e) {
       NumberFormat format = NumberFormat.currency(
-          locale: 'en', name: currencyCode);
+        locale: 'en',
+        name: currencyCode,
+      );
       currencysymbol = format.currencySymbol;
       currencyFormat = NumberFormat('#,##0');
     }
-    try
-    {
+    try {
       selectedSortOption = prefs.getString('sort')!;
-      if(selectedSortOption == null || selectedSortOption == 'null')
-      {
+      if (selectedSortOption == null || selectedSortOption == 'null') {
         selectedSortOption = 'Default';
       }
 
-      if(!itemList.contains(selectedSortOption))
-      {
+      if (!itemList.contains(selectedSortOption)) {
         selectedSortOption = 'Default';
-
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       selectedSortOption = 'Default';
     }
 
@@ -779,35 +841,24 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
 
     SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
 
-
     String? email_nav = prefs.getString('email_nav');
     String? name_nav = prefs.getString('name_nav');
 
-    if (email_nav!=null && name_nav!= null)
-    {
+    if (email_nav != null && name_nav != null) {
       name = name_nav;
       email = email_nav;
-    }
-    else
-    {
+    } else {
       String val = "";
-      if (SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         val = SecuritybtnAcessHolder!;
-      }
-      else if (SecuritybtnAcessHolder == "False")
-      {
+      } else if (SecuritybtnAcessHolder == "False") {
         val = "";
       }
-
     }
-    if(SecuritybtnAcessHolder == "True")
-    {
+    if (SecuritybtnAcessHolder == "True") {
       isRolesVisible = true;
       isUserVisible = true;
-    }
-    else
-    {
+    } else {
       isRolesVisible = false;
       isUserVisible = false;
     }
@@ -815,7 +866,15 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
     startdate_text = convertDateFormat(startDateString);
     enddate_text = convertDateFormat(endDateString);
 
-    fetchData(item, ledger,startDateString,endDateString,type,"true","vchno");
+    fetchData(
+      item,
+      ledger,
+      startDateString,
+      endDateString,
+      type,
+      "true",
+      "vchno",
+    );
   }
 
   @override
@@ -829,11 +888,11 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.white,
-      appBar:   PreferredSize(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: AppBar(
-          backgroundColor:  app_color,
+          backgroundColor: app_color,
           elevation: 6,
           automaticallyImplyLeading: false,
 
@@ -847,23 +906,18 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
             },
           ),
           centerTitle: true,
-          title:
-
-
-          Row(
+          title: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Flexible(
-                  child:  Text(
-                    ledger,
-                    style:  GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                    ),
-
-
+                child: Text(
+                  ledger,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
                   ),
+                ),
               ),
             ],
           ),
@@ -873,64 +927,56 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
               onPressed: () {
                 counter++;
                 setState(() {
-                  _isSearchViewVisible =! _isSearchViewVisible;
+                  _isSearchViewVisible = !_isSearchViewVisible;
                 });
                 searchController.clear();
                 filteredItems = item_list;
               },
-              icon: Icon(
-                Icons.search,
-                color: Colors.white,
-
-                size: 30,
-              ),
+              icon: Icon(Icons.search, color: Colors.white, size: 30),
             ),
             IconButton(
               onPressed: () {
-
-                final RenderBox button = context.findRenderObject() as RenderBox;
-                final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-                final Offset buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
+                final RenderBox button =
+                    context.findRenderObject() as RenderBox;
+                final RenderBox overlay =
+                    Overlay.of(context).context.findRenderObject() as RenderBox;
+                final Offset buttonPosition = button.localToGlobal(
+                  Offset.zero,
+                  ancestor: overlay,
+                );
 
                 showMenu(
+                  color: Theme.of(context).colorScheme.surface,
                   context: context,
                   position: RelativeRect.fromLTRB(
-                    overlay.size.width - buttonPosition.dx ,
+                    overlay.size.width - buttonPosition.dx,
                     buttonPosition.dy - button.size.height,
                     overlay.size.width - buttonPosition.dx,
                     buttonPosition.dy,
                   ),
                   items: <PopupMenuEntry<String>>[
-
-
                     PopupMenuItem<String>(
-
-                        child: GestureDetector(
-                          onTap: ()
-                          {
-                            Navigator.pop(context);
-                            if(type == 'Sales')
-                            {
-                              if(!item_list.isEmpty)
-                              {
-                                generateAndSharePDF_Sold();
-                              }
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                          if (type == 'Sales') {
+                            if (!item_list.isEmpty) {
+                              generateAndSharePDF_Sold();
                             }
-                            else if (type == 'Purchase')
-                            {
-                              if(!item_list.isEmpty)
-                              {
-                                generateAndSharePDF_Purchase();
-                              }
+                          } else if (type == 'Purchase') {
+                            if (!item_list.isEmpty) {
+                              generateAndSharePDF_Purchase();
                             }
-
-                          },
-                          child:  Row(children: [
-
-                            Icon( Icons.picture_as_pdf,
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.picture_as_pdf,
                               size: 16,
-                              color: Color(0xFF26ADA3),),
-                            SizedBox(width: 5,),
+                              color: Color(0xFF26ADA3),
+                            ),
+                            SizedBox(width: 5),
 
                             Text(
                               'Share as PDF',
@@ -939,37 +985,35 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                                 color: Color(0xFF26ADA3),
                                 fontSize: 16,
                               ),
-                            )]),)
-
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
 
                     PopupMenuItem<String>(
-                        child: GestureDetector(
-                          onTap: ()
-                          {
-                            Navigator.pop(context);
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
 
-                            if(type == 'Sales')
-                            {
-                              if(!item_list.isEmpty)
-                              {
-                                generateAndShareCSV_Sold();
-                              }
+                          if (type == 'Sales') {
+                            if (!item_list.isEmpty) {
+                              generateAndShareCSV_Sold();
                             }
-                            else if (type == 'Purchase')
-                            {
-                              if(!item_list.isEmpty)
-                              {
-                                generateAndShareCSV_Purchased();
-                              }
+                          } else if (type == 'Purchase') {
+                            if (!item_list.isEmpty) {
+                              generateAndShareCSV_Purchased();
                             }
-                          },
-                          child:  Row(children: [
-
-                            Icon( Icons.add_chart_outlined,
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.add_chart_outlined,
                               size: 16,
-                              color: Color(0xFF26ADA3),),
-                            SizedBox(width: 5,),
+                              color: Color(0xFF26ADA3),
+                            ),
+                            SizedBox(width: 5),
 
                             Text(
                               'Share as CSV',
@@ -978,44 +1022,44 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                                 color: Color(0xFF26ADA3),
                                 fontSize: 16,
                               ),
-                            )]),)
-                    )
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 );
               },
-              icon: Icon(
-                Icons.share,
-                color: Colors.white,
-                size: 30,
-              ),
+              icon: Icon(Icons.share, color: Colors.white, size: 30),
             ),
           ],
         ),
       ),
 
-
-        drawer: Sidebar(
-          isDashEnable: isDashEnable,
-          isRolesVisible: isRolesVisible,
-          isRolesEnable: isRolesEnable,
-          isUserEnable: isUserEnable,
-          isUserVisible: isUserVisible,
-          Username: name,
-          Email: email,
-          tickerProvider: this), // add the Sidebar widget here
+      drawer: Sidebar(
+        isDashEnable: isDashEnable,
+        isRolesVisible: isRolesVisible,
+        isRolesEnable: isRolesEnable,
+        isUserEnable: isUserEnable,
+        isUserVisible: isUserVisible,
+        Username: name,
+        Email: email,
+        tickerProvider: this,
+      ), // add the Sidebar widget here
 
       body: Stack(
-
         children: [
           Column(
             children: [
-
-
-
               Container(
-                margin: EdgeInsets.only(left: 12,right:12,top:12, bottom: 6),
+                margin: EdgeInsets.only(
+                  left: 12,
+                  right: 12,
+                  top: 12,
+                  bottom: 6,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
@@ -1031,33 +1075,58 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Padding(padding: EdgeInsets.only(top: 0,left: 20,right: 20,bottom: 10),
-                        child: Container(child:
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: 0,
+                          left: 20,
+                          right: 20,
+                          bottom: 10,
+                        ),
+                        child: Container(
+                          child: Center(
+                            child: Text(
+                              item,
+                              textAlign: TextAlign.center,
 
-                        Center(child:   Text(item,
-                          textAlign: TextAlign.center,
-
-                          style: GoogleFonts.poppins(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17
-                          ),),),
-                        ),),
+                              style: GoogleFonts.poppins(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
 
                       SizedBox(height: 8),
+
                       /// 📆 Date Range (Single Widget)
                       InkWell(
-                        onTap: () {
-
-                        },
+                        onTap: () {},
                         borderRadius: BorderRadius.circular(50),
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                Colors.white.withOpacity(0.2),
-                                Colors.white.withOpacity(0.8),
+                                Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest
+                                    .withOpacity(
+                                      Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? 0.85
+                                          : 0.35,
+                                    ),
+                                Theme.of(context).cardColor.withOpacity(
+                                  Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? 0.95
+                                      : 0.9,
+                                ),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -1068,14 +1137,20 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.calendar_month_rounded, size: 18, color: app_color),
+                              Icon(
+                                Icons.calendar_month_rounded,
+                                size: 18,
+                                color: app_color,
+                              ),
                               SizedBox(width: 10),
                               Text(
                                 "$startdate_text → $enddate_text",
                                 style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 14,
-                                  color: Colors.black87,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                               ),
                             ],
@@ -1088,10 +1163,19 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
               ),
               Expanded(
                 child: Container(
-                  margin: const EdgeInsets.only(left: 12, right: 12, bottom: 16),
-                  padding: const EdgeInsets.only(left: 0, right: 0, top: 4, bottom: 4),
+                  margin: const EdgeInsets.only(
+                    left: 12,
+                    right: 12,
+                    bottom: 16,
+                  ),
+                  padding: const EdgeInsets.only(
+                    left: 0,
+                    right: 0,
+                    top: 4,
+                    bottom: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -1103,11 +1187,14 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                   ),
                   child: Column(
                     children: [
-
                       // Search Field
                       if (_isSearchViewVisible) ...[
                         Padding(
-                          padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
+                          padding: const EdgeInsets.only(
+                            left: 12,
+                            right: 12,
+                            top: 12,
+                          ),
                           child: Material(
                             elevation: 2,
                             borderRadius: BorderRadius.circular(14),
@@ -1118,28 +1205,58 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                                 setState(() {
                                   filteredItems = value.isEmpty
                                       ? item_list
-                                      : item_list.where((item) => item.vchno.toLowerCase().contains(value.toLowerCase())).toList();
+                                      : item_list
+                                            .where(
+                                              (item) => item.vchno
+                                                  .toLowerCase()
+                                                  .contains(
+                                                    value.toLowerCase(),
+                                                  ),
+                                            )
+                                            .toList();
                                 });
                               },
-                              style: GoogleFonts.poppins(fontSize: 15),
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                               decoration: InputDecoration(
                                 hintText: 'Search...',
-                                prefixIcon: const Icon(Icons.search, color: Colors.black54),
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
                                 filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                                fillColor:
+                                    Theme.of(
+                                      context,
+                                    ).inputDecorationTheme.fillColor ??
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                  horizontal: 16,
+                                ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: Colors.grey.shade200),
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context).dividerColor,
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(color: app_color, width: 1.5),
+                                  borderSide: const BorderSide(
+                                    color: app_color,
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        )
+                        ),
                       ],
 
                       // No data found message
@@ -1153,7 +1270,9 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                                 Icon(
                                   Icons.search_off_rounded,
                                   size: 48,
-                                  color: Colors.grey,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                 ),
                                 SizedBox(height: 12),
                                 Text(
@@ -1161,14 +1280,15 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                                   style: GoogleFonts.poppins(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.black54,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ],
                             ),
                           ),
                         ),
-
 
                       const SizedBox(height: 8),
 
@@ -1186,7 +1306,7 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 14),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: Theme.of(context).cardColor,
                                   borderRadius: BorderRadius.circular(18),
                                   boxShadow: [
                                     BoxShadow(
@@ -1198,26 +1318,40 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                                   ],
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 16,
+                                  ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       // 🔹 Top Row: Voucher + Qty Badge
                                       Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
                                           Container(
                                             width: 34,
                                             height: 34,
                                             decoration: const BoxDecoration(
                                               gradient: LinearGradient(
-                                                colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)],
+                                                colors: [
+                                                  Color(0xFF00C9FF),
+                                                  Color(0xFF92FE9D),
+                                                ],
                                                 begin: Alignment.topLeft,
                                                 end: Alignment.bottomRight,
                                               ),
-                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(10),
+                                              ),
                                             ),
-                                            child: const Icon(Icons.receipt_long, size: 18, color: Colors.white),
+                                            child: const Icon(
+                                              Icons.receipt_long,
+                                              size: 18,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                           const SizedBox(width: 10),
 
@@ -1229,7 +1363,9 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                                               style: GoogleFonts.poppins(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w600,
-                                                color: Colors.black87,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface,
                                               ),
                                             ),
                                           ),
@@ -1238,18 +1374,29 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
 
                                           // Qty Badge
                                           Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 5,
+                                            ),
                                             decoration: BoxDecoration(
                                               gradient: const LinearGradient(
-                                                colors: [Color(0xFF43CEA2), Color(0xFF185A9D)],
+                                                colors: [
+                                                  Color(0xFF43CEA2),
+                                                  Color(0xFF185A9D),
+                                                ],
                                                 begin: Alignment.topLeft,
                                                 end: Alignment.bottomRight,
                                               ),
-                                              borderRadius: BorderRadius.circular(20),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
                                             ),
                                             child: Row(
                                               children: [
-                                                const Icon(Icons.inventory_2_outlined, size: 14, color: Colors.white),
+                                                const Icon(
+                                                  Icons.inventory_2_outlined,
+                                                  size: 14,
+                                                  color: Colors.white,
+                                                ),
                                                 const SizedBox(width: 5),
                                                 Text(
                                                   'Qty: ${item.qty}',
@@ -1269,8 +1416,10 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
 
                                       // 🔹 Middle Row: Date & Rate
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           // Date Info
                                           Row(
@@ -1280,14 +1429,23 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                                                 height: 28,
                                                 decoration: const BoxDecoration(
                                                   gradient: LinearGradient(
-                                                    colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)],
+                                                    colors: [
+                                                      Color(0xFF56CCF2),
+                                                      Color(0xFF2F80ED),
+                                                    ],
                                                     begin: Alignment.topLeft,
                                                     end: Alignment.bottomRight,
                                                   ),
-                                                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                        Radius.circular(8),
+                                                      ),
                                                 ),
-                                                child: const Icon(Icons.calendar_today_outlined,
-                                                    size: 14, color: Colors.white),
+                                                child: const Icon(
+                                                  Icons.calendar_today_outlined,
+                                                  size: 14,
+                                                  color: Colors.white,
+                                                ),
                                               ),
                                               const SizedBox(width: 8),
                                               Text(
@@ -1295,7 +1453,9 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                                                 softWrap: true,
                                                 style: GoogleFonts.poppins(
                                                   fontSize: 13.5,
-                                                  color: Colors.black54,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
                                                 ),
                                               ),
                                             ],
@@ -1304,25 +1464,37 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                                           SizedBox(width: 12),
                                           // Rate Info with currency symbol 💰
                                           Flexible(
-                                            child:  Container(
-                                              margin: const EdgeInsets.only(top: 4),
-                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                            child: Container(
+                                              margin: const EdgeInsets.only(
+                                                top: 4,
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 6,
+                                                  ),
                                               decoration: BoxDecoration(
                                                 gradient: const LinearGradient(
-                                                  colors: [Color(0xFFFF9966), Color(0xFFFF5E62)], // orange-red gradient
+                                                  colors: [
+                                                    Color(0xFFFF9966),
+                                                    Color(0xFFFF5E62),
+                                                  ], // orange-red gradient
                                                   begin: Alignment.topLeft,
                                                   end: Alignment.bottomRight,
                                                 ),
-                                                borderRadius: BorderRadius.circular(20),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
                                                 boxShadow: [
                                                   BoxShadow(
-                                                    color: Colors.black12.withOpacity(0.1),
+                                                    color: Colors.black12
+                                                        .withOpacity(0.1),
                                                     blurRadius: 6,
                                                     offset: const Offset(0, 3),
                                                   ),
                                                 ],
                                               ),
-                                              clipBehavior: Clip.none, // 👈 ensures overflow is visible
+                                              clipBehavior: Clip
+                                                  .none, // 👈 ensures overflow is visible
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
@@ -1330,36 +1502,36 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                                                     fit: FlexFit.loose,
                                                     child: Text(
                                                       'Rate: ${currencysymbol ?? ''} ${formatRate(item.rate)}',
-                                                      textAlign: TextAlign.right,
+                                                      textAlign:
+                                                          TextAlign.right,
                                                       softWrap: true,
 
-                                                      overflow: TextOverflow.visible, // 👈 makes long text fully visible
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 13.5,
+                                                      overflow: TextOverflow
+                                                          .visible, // 👈 makes long text fully visible
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 13.5,
 
-                                                        fontWeight: FontWeight.w600,
-                                                        color: Colors.white,
-                                                      ),
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: Colors.white,
+                                                          ),
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                            )
-                                          )
-
-
-
+                                            ),
+                                          ),
                                         ],
                                       ),
-
                                     ],
                                   ),
                                 ),
                               );
                             },
                           ),
-
-                        )],
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -1378,7 +1550,7 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                     width: 100,
                     height: 40,
                     decoration: BoxDecoration(
-                      color:  app_color, // soft teal background
+                      color: app_color, // soft teal background
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -1400,14 +1572,21 @@ class _PartyClickedSoldPurchaseClickedPageState extends State<PartyClickedSoldPu
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
-                        )]))))
-            )
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
 
           Visibility(
             visible: _isLoading,
-            child: Center(
-                child: AppLogoLoader()))
-        ]  ));
+            child: Center(child: AppLogoLoader()),
+          ),
+        ],
+      ),
+    );
   }
 }

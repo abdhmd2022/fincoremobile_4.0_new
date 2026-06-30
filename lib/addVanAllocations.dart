@@ -31,7 +31,8 @@ class UserModel {
 
   factory UserModel.fromNormalUserJson(Map<String, dynamic> json) {
     return UserModel(
-      role_name: json['role_name']?.toString() ??
+      role_name:
+          json['role_name']?.toString() ??
           json['worker_role']?.toString() ??
           'User',
       name: json['customer_name']?.toString() ?? '',
@@ -42,7 +43,8 @@ class UserModel {
 
   factory UserModel.fromAdminJson(Map<String, dynamic> json) {
     return UserModel(
-      role_name: json['role_name']?.toString() ??
+      role_name:
+          json['role_name']?.toString() ??
           json['worker_role']?.toString() ??
           'Admin',
       name: json['name']?.toString() ?? '',
@@ -51,8 +53,6 @@ class UserModel {
     );
   }
 }
-
-
 
 class _VanAllocationScreenState extends State<VanAllocationScreen> {
   final Color primaryColor = app_color;
@@ -65,8 +65,8 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       serial_no = "",
       company_lowercase = "",
       username = "",
-      base_currency = "",token = '';
-
+      base_currency = "",
+      token = '';
 
   final TextEditingController searchController = TextEditingController();
   final TextEditingController serialController = TextEditingController();
@@ -79,9 +79,6 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
   String? selectedReceiptVchType;
   UserModel? selectedUser;
   String? selectedCompany;
-
-
-
 
   List<UserModel> users = [];
 
@@ -100,14 +97,16 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
   bool isSaving = false;
   bool isLoading = true;
   late SharedPreferences prefs;
-  String email= "";
+  String email = "";
   int formResetKey = 0;
 
   Future<void> fetchUsers(String selectedserial) async {
     final usersUrl = Uri.parse('$BASE_URL_config/api/login/get');
 
     // Replace this with your actual get allocations API
-    final allocationsUrl = Uri.parse('$BASE_URL_config/api/spectra/Allocations?serial_no=$serial_no&company_name=$company');
+    final allocationsUrl = Uri.parse(
+      '$BASE_URL_config/api/spectra/Allocations?serial_no=$serial_no&company_name=$company',
+    );
 
     Map<String, String> headers = {
       'Authorization': 'Bearer $authTokenBase',
@@ -131,8 +130,9 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       final Set<String> allocatedUserNames = {};
 
       if (allocationResponse.statusCode == 200) {
-        final List<dynamic> allocationJsonList =
-        json.decode(allocationResponse.body);
+        final List<dynamic> allocationJsonList = json.decode(
+          allocationResponse.body,
+        );
 
         for (final item in allocationJsonList) {
           final map = item as Map<String, dynamic>;
@@ -156,10 +156,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       // -----------------------------------------
       final normalResponse = await http.post(
         usersUrl,
-        body: jsonEncode({
-          'serialno': selectedserial,
-          'admin': false,
-        }),
+        body: jsonEncode({'serialno': selectedserial, 'admin': false}),
         headers: headers,
       );
 
@@ -172,24 +169,26 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
         users.addAll(
           normalJsonList
               .where((json) {
-            final map = json as Map<String, dynamic>;
+                final map = json as Map<String, dynamic>;
 
-            final userName =
-            map['user_name']?.toString().trim().toLowerCase();
+                final userName = map['user_name']
+                    ?.toString()
+                    .trim()
+                    .toLowerCase();
 
-            // If user_name is null, keep user
-            if (userName == null || userName.isEmpty) {
-              return true;
-            }
+                // If user_name is null, keep user
+                if (userName == null || userName.isEmpty) {
+                  return true;
+                }
 
-            // If user already allocated, don't add user
-            return !allocatedUserNames.contains(userName);
-          })
+                // If user already allocated, don't add user
+                return !allocatedUserNames.contains(userName);
+              })
               .map((json) {
-            return UserModel.fromNormalUserJson(
-              json as Map<String, dynamic>,
-            );
-          })
+                return UserModel.fromNormalUserJson(
+                  json as Map<String, dynamic>,
+                );
+              })
               .toList(),
         );
       }
@@ -201,6 +200,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       print("Fetch Users Error: $e");
     }
   }
+
   @override
   void initState() {
     super.initState();
@@ -222,7 +222,6 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       token = prefs.getString('token')!;
       base_currency = prefs.getString('base_currency')!;
       await Future.wait([
-
         fetchUsers(serial_no!),
 
         fetchVanAllocationData(),
@@ -241,8 +240,6 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       });
     }
   }
-
-
 
   Future<void> fetchAllocations() async {
     try {
@@ -269,12 +266,12 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
 
   bool get isFormValid =>
       selectedUser != null &&
-          selectedLocation != null &&
-          selectedDeliveryNoteVchType != null &&
-          selectedSalesVchType != null &&
-          selectedReceiptVchType != null &&
-          selectedSalesLedger != null &&
-          selectedCashLedger != null;
+      selectedLocation != null &&
+      selectedDeliveryNoteVchType != null &&
+      selectedSalesVchType != null &&
+      selectedReceiptVchType != null &&
+      selectedSalesLedger != null &&
+      selectedCashLedger != null;
 
   Future<void> fetchVanAllocationData() async {
     try {
@@ -314,8 +311,9 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
         final Set<String> allocatedLocations = {};
 
         if (allocationResponse.statusCode == 200) {
-          final List<dynamic> allocationJsonList =
-          jsonDecode(allocationResponse.body);
+          final List<dynamic> allocationJsonList = jsonDecode(
+            allocationResponse.body,
+          );
 
           for (final item in allocationJsonList) {
             final map = item as Map<String, dynamic>;
@@ -323,17 +321,25 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
             final serialNo = map['serial_no']?.toString().trim();
 
             if (serialNo == serial_no) {
-              final deliveryNoteVchType =
-              map['voucher_type_name']?.toString().trim().toLowerCase();
+              final deliveryNoteVchType = map['voucher_type_name']
+                  ?.toString()
+                  .trim()
+                  .toLowerCase();
 
-              final salesVchType =
-              map['sales_voucher_type']?.toString().trim().toLowerCase();
+              final salesVchType = map['sales_voucher_type']
+                  ?.toString()
+                  .trim()
+                  .toLowerCase();
 
-              final receiptVchType =
-              map['receipt_voucher_type']?.toString().trim().toLowerCase();
+              final receiptVchType = map['receipt_voucher_type']
+                  ?.toString()
+                  .trim()
+                  .toLowerCase();
 
-              final godownName =
-              map['godown_name']?.toString().trim().toLowerCase();
+              final godownName = map['godown_name']
+                  ?.toString()
+                  .trim()
+                  .toLowerCase();
 
               if (godownName != null && godownName.isNotEmpty) {
                 allocatedLocations.add(godownName);
@@ -355,7 +361,9 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           }
         }
 
-        debugPrint("Allocated Delivery Note Vch Types: $allocatedDeliveryNoteVchTypes");
+        debugPrint(
+          "Allocated Delivery Note Vch Types: $allocatedDeliveryNoteVchTypes",
+        );
         debugPrint("Allocated Sales Vch Types: $allocatedSalesVchTypes");
         debugPrint("Allocated Receipt Vch Types: $allocatedReceiptVchTypes");
 
@@ -365,8 +373,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           for (final item in apiVchTypes) {
             final map = item as Map<String, dynamic>;
 
-            final parent =
-                map['parent']?.toString().trim().toLowerCase() ?? '';
+            final parent = map['parent']?.toString().trim().toLowerCase() ?? '';
 
             if (parent == parentName.toLowerCase()) {
               return List<String>.from(map['name'] ?? [])
@@ -380,20 +387,19 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
         }
 
         setState(() {
-          deliveryNoteVchTypes = getVchTypesByParent('delivery note')
-              .where((vch) {
+          deliveryNoteVchTypes = getVchTypesByParent('delivery note').where((
+            vch,
+          ) {
             final vchName = vch.toString().trim().toLowerCase();
             return !allocatedDeliveryNoteVchTypes.contains(vchName);
           }).toList();
 
-          salesVchTypes = getVchTypesByParent('sales')
-              .where((vch) {
+          salesVchTypes = getVchTypesByParent('sales').where((vch) {
             final vchName = vch.toString().trim().toLowerCase();
             return !allocatedSalesVchTypes.contains(vchName);
           }).toList();
 
-          receiptVchTypes = getVchTypesByParent('receipt')
-              .where((vch) {
+          receiptVchTypes = getVchTypesByParent('receipt').where((vch) {
             final vchName = vch.toString().trim().toLowerCase();
             return !allocatedReceiptVchTypes.contains(vchName);
           }).toList();
@@ -404,10 +410,12 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
 
           locations = List<String>.from(data['locations'] ?? [])
               .where((location) {
-            final locationName = location.toString().trim().toLowerCase();
-            return locationName.isNotEmpty &&
-                !allocatedLocations.contains(locationName);
-          }).toSet().toList();
+                final locationName = location.toString().trim().toLowerCase();
+                return locationName.isNotEmpty &&
+                    !allocatedLocations.contains(locationName);
+              })
+              .toSet()
+              .toList();
 
           if (selectedLocation != null &&
               !locations.contains(selectedLocation)) {
@@ -459,15 +467,11 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
     });
   }
 
-
   Future<void> _saveAllocation() async {
-
     if (!isFormValid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill all fields'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
       return;
     }
 
@@ -476,9 +480,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
     });
 
     try {
-      final url = Uri.parse(
-        '$BASE_URL_config/api/spectra/Allocations',
-      );
+      final url = Uri.parse('$BASE_URL_config/api/spectra/Allocations');
       final body = {
         "user_name": selectedUser!.email,
         "serial_no": serial_no ?? "",
@@ -488,12 +490,12 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
         "sales_voucher_type": selectedSalesVchType!,
         "receipt_voucher_type": selectedReceiptVchType!,
         "sales_ledger":
-        (selectedSalesLedger == null || selectedSalesLedger!.isEmpty)
+            (selectedSalesLedger == null || selectedSalesLedger!.isEmpty)
             ? null
             : selectedSalesLedger,
 
         "cash_ledger":
-        (selectedCashLedger == null || selectedCashLedger!.isEmpty)
+            (selectedCashLedger == null || selectedCashLedger!.isEmpty)
             ? null
             : selectedCashLedger,
       };
@@ -513,16 +515,15 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
 
       debugPrint("SAVE ALLOCATION RESPONSE: ${response.body}");
 
-      if (response.statusCode == 200 ||
-          response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         /*ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Allocation saved successfully'),
           ),
         );*/
 
-         fetchUsers(serial_no!);
-         fetchVanAllocationData();
+        fetchUsers(serial_no!);
+        fetchVanAllocationData();
 
         _resetForm();
 
@@ -534,24 +535,17 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           final responseData = jsonDecode(response.body);
 
           if (responseData is Map<String, dynamic>) {
-
             errorMessage =
                 responseData['message'] ??
-                    responseData['error'] ??
-                    responseData['detail'] ??
-                    responseData['msg'] ??
-                    errorMessage;
-
+                responseData['error'] ??
+                responseData['detail'] ??
+                responseData['msg'] ??
+                errorMessage;
           } else if (responseData is String) {
-
             errorMessage = responseData;
-
           }
-
         } catch (_) {
-
           errorMessage = response.body.toString();
-
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -574,23 +568,19 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
     } catch (e) {
       debugPrint("SAVE ALLOCATION ERROR: $e");
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-        ),
-      );
-    }
-    finally {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    } finally {
       setState(() {
         isSaving = false;
       });
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-   /* if (isLoading) {
+    /* if (isLoading) {
       return Scaffold(
         backgroundColor: backgroundColor,
         body: Center(
@@ -600,7 +590,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
     }*/
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: primaryColor,
@@ -617,18 +607,13 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) =>
-                  const ViewVanAllocationScreen(),
+                  builder: (_) => const ViewVanAllocationScreen(),
                 ),
               );
             },
 
             child: Container(
-
-
-              decoration: BoxDecoration(
-
-              ),
+              decoration: BoxDecoration(),
 
               child: const Icon(
                 Icons.arrow_back_rounded,
@@ -646,9 +631,8 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
-                borderRadius:
-                BorderRadius.circular(12),
+                color: Theme.of(context).cardColor.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.local_shipping_outlined,
@@ -660,8 +644,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
             const SizedBox(width: 12),
 
             Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Van Allocation',
@@ -676,8 +659,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                   'Add user allocations',
                   style: GoogleFonts.poppins(
                     fontSize: 11,
-                    color:
-                    Colors.white.withOpacity(0.8),
+                    color: Colors.white.withOpacity(0.8),
                   ),
                 ),
               ],
@@ -685,50 +667,46 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           ],
         ),
       ),
-      body: isLoading ? Center(
-          child: AppLogoLoader()) : LayoutBuilder(
-        builder: (context, constraints) {
-          final bool isMobile = constraints.maxWidth < 700;
+      body: isLoading
+          ? Center(child: AppLogoLoader())
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                final bool isMobile = constraints.maxWidth < 700;
 
-          return Column(
-            children: [
-
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(isMobile ? 14 : 22),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1180),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          //  _buildSearchBar(),
-                          /*const SizedBox(height: 14),
+                return Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(isMobile ? 14 : 22),
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 1180),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                //  _buildSearchBar(),
+                                /*const SizedBox(height: 14),
                             _buildSummaryCards(isMobile),*/
+                                _buildAllocationForm(isMobile),
 
-                          _buildAllocationForm(isMobile),
-
-                          const SizedBox(height: 30),
-
-
-                        ],
+                                const SizedBox(height: 30),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-
+                  ],
+                );
+              },
+            ),
     );
   }
 
   Widget _buildSearchBar() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
@@ -737,9 +715,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(
-          color: Colors.grey.shade200,
-        ),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: TextField(
         controller: searchController,
@@ -753,7 +729,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           hintText: 'Search user, location, voucher type...',
           hintStyle: GoogleFonts.poppins(
             fontSize: 13,
-            color: Colors.grey.shade500,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
 
           prefixIcon: Container(
@@ -762,28 +738,25 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
               color: primaryColor.withOpacity(0.08),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              Icons.search_rounded,
-              color: primaryColor,
-              size: 22,
-            ),
+            child: Icon(Icons.search_rounded, color: primaryColor, size: 22),
           ),
 
           suffixIcon: searchController.text.isNotEmpty
               ? IconButton(
-            onPressed: () {
-              searchController.clear();
-              setState(() {});
-            },
-            icon: Icon(
-              Icons.close_rounded,
-              color: Colors.grey.shade500,
-            ),
-          )
+                  onPressed: () {
+                    searchController.clear();
+                    setState(() {});
+                  },
+                  icon: Icon(
+                    Icons.close_rounded,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                )
               : null,
 
           filled: true,
-          fillColor: Colors.white,
+          fillColor:
+              Theme.of(context).inputDecorationTheme.fillColor ?? Colors.white,
 
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 18,
@@ -797,9 +770,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
 
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(22),
-            borderSide: BorderSide(
-              color: Colors.grey.shade200,
-            ),
+            borderSide: BorderSide(color: Theme.of(context).dividerColor),
           ),
 
           focusedBorder: OutlineInputBorder(
@@ -813,7 +784,6 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       ),
     );
   }
-
 
   Widget _buildAllocationForm(bool isMobile) {
     return Container(
@@ -839,9 +809,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                   setState(() {
                     selectedLocation = val;
                   });
-
-
-                }
+                },
               ),
               _searchableDropdownField(
                 title: 'Delivery Note Voucher Type',
@@ -890,14 +858,12 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                 items: salesLedgers,
                 icon: Icons.account_balance_wallet_outlined,
                 hint: 'Search and select sales ledger',
-                  onSelected: (val) {
-                    closeKeyboard(context);
-                    setState(() {
-                      selectedSalesLedger = val;
-                    });
-
-
-                  }
+                onSelected: (val) {
+                  closeKeyboard(context);
+                  setState(() {
+                    selectedSalesLedger = val;
+                  });
+                },
               ),
               _searchableDropdownField(
                 title: 'Cash Ledger',
@@ -905,17 +871,13 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                 items: cashLedgers,
                 icon: Icons.payments_outlined,
                 hint: 'Search and select cash ledger',
-                  onSelected: (val) {
-                    closeKeyboard(context);
-                    setState(() {
-                      selectedCashLedger = val;
-                    });
-                  }
+                onSelected: (val) {
+                  closeKeyboard(context);
+                  setState(() {
+                    selectedCashLedger = val;
+                  });
+                },
               ),
-
-
-
-
             ],
           ),
           const SizedBox(height: 24),
@@ -957,60 +919,64 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                   ),
                   child: isSaving
                       ? Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                       SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: Platform.isIOS
-                            ?  CupertinoActivityIndicator(
-                          color: Colors.white,
-                          radius: 10,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: Platform.isIOS
+                                  ? CupertinoActivityIndicator(
+                                      color: Colors.white,
+                                      radius: 10,
+                                    )
+                                  : CircularProgressIndicator(
+                                      strokeWidth: 2.2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Saving...',
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         )
-                            :  CircularProgressIndicator(
-                          strokeWidth: 2.2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Saving...',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  )
                       : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.save_outlined,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Save Allocation',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.save_outlined,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Save Allocation',
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                 ),
-              ),            ],
+              ),
+            ],
           ),
-
         ],
       ),
     );
   }
 
-
-  Widget _responsiveWrap({required bool isMobile, required List<Widget> children}) {
+  Widget _responsiveWrap({
+    required bool isMobile,
+    required List<Widget> children,
+  }) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final double itemWidth = isMobile
@@ -1040,14 +1006,12 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
             enabled: false,
             style: GoogleFonts.poppins(
               fontSize: 13,
-              color: Colors.grey.shade700,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             decoration: _inputDecoration(
               Icons.person_off_outlined,
               'No user available',
-            ).copyWith(
-              hintText: 'No user available',
-            ),
+            ).copyWith(hintText: 'No user available'),
           )
         else
           Autocomplete<UserModel>(
@@ -1063,15 +1027,13 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
               final query = textEditingValue.text.toLowerCase();
 
               return users.where(
-                    (user) =>
-                user.name.toLowerCase().contains(query) ||
+                (user) =>
+                    user.name.toLowerCase().contains(query) ||
                     user.email.toLowerCase().contains(query),
               );
             },
 
-            initialValue: TextEditingValue(
-              text: selectedUser?.name ?? '',
-            ),
+            initialValue: TextEditingValue(text: selectedUser?.name ?? ''),
 
             onSelected: (value) {
               closeKeyboard(context);
@@ -1082,24 +1044,25 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
 
             fieldViewBuilder:
                 (context, controller, focusNode, onEditingComplete) {
-              return TextField(
-                controller: controller,
-                focusNode: focusNode,
-                style: GoogleFonts.poppins(fontSize: 13),
-                decoration: _inputDecoration(
-                  Icons.person_search_outlined,
-                  'Search and select user',
-                  showClear: controller.text.isNotEmpty || selectedUser != null,
-                  onClear: () {
-                    controller.clear();
+                  return TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    style: GoogleFonts.poppins(fontSize: 13),
+                    decoration: _inputDecoration(
+                      Icons.person_search_outlined,
+                      'Search and select user',
+                      showClear:
+                          controller.text.isNotEmpty || selectedUser != null,
+                      onClear: () {
+                        controller.clear();
 
-                    setState(() {
-                      selectedUser = null;
-                    });
-                  },
-                ),
-              );
-            },
+                        setState(() {
+                          selectedUser = null;
+                        });
+                      },
+                    ),
+                  );
+                },
 
             optionsViewBuilder: (context, onSelected, options) {
               final optionList = options.toList();
@@ -1113,7 +1076,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                     constraints: const BoxConstraints(maxHeight: 300),
                     width: MediaQuery.of(context).size.width * 0.9,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
@@ -1159,7 +1122,8 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
 
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         option.name,
@@ -1176,7 +1140,9 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                                         option.email,
                                         style: GoogleFonts.poppins(
                                           fontSize: 11,
-                                          color: Colors.grey.shade600,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                       ),
                                     ],
@@ -1216,120 +1182,125 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
             enabled: false,
             style: GoogleFonts.poppins(
               fontSize: 13,
-              color: Colors.grey.shade700,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             decoration: _inputDecoration(
               icon,
               'No $title available',
-            ).copyWith(
-              hintText: 'No $title available',
-            ),
+            ).copyWith(hintText: 'No $title available'),
           )
         else
-        Autocomplete<String>(
-          key: ValueKey('${title}_$formResetKey'),
-          optionsBuilder: (TextEditingValue textEditingValue) {
-            if (textEditingValue.text.isEmpty) {
-              return items;
-            }
+          Autocomplete<String>(
+            key: ValueKey('${title}_$formResetKey'),
+            optionsBuilder: (TextEditingValue textEditingValue) {
+              if (textEditingValue.text.isEmpty) {
+                return items;
+              }
 
-            return items.where(
-                  (item) => item
-                  .toLowerCase()
-                  .contains(textEditingValue.text.toLowerCase()),
-            );
-          },
-          initialValue: TextEditingValue(text: value ?? ''),
-          onSelected: onSelected,
-          fieldViewBuilder:
-              (context, controller, focusNode, onEditingComplete) {
-            controller.text = value ?? controller.text;
+              return items.where(
+                (item) => item.toLowerCase().contains(
+                  textEditingValue.text.toLowerCase(),
+                ),
+              );
+            },
+            initialValue: TextEditingValue(text: value ?? ''),
+            onSelected: onSelected,
+            fieldViewBuilder:
+                (context, controller, focusNode, onEditingComplete) {
+                  controller.text = value ?? controller.text;
 
-            return TextField(
-              controller: controller,
-              focusNode: focusNode,
-              style: GoogleFonts.poppins(fontSize: 13),
-              decoration: _inputDecoration(icon, hint,
-                showClear: controller.text.isNotEmpty || value != null,
-                onClear: () {
-                  controller.clear();
+                  return TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    style: GoogleFonts.poppins(fontSize: 13),
+                    decoration: _inputDecoration(
+                      icon,
+                      hint,
+                      showClear: controller.text.isNotEmpty || value != null,
+                      onClear: () {
+                        controller.clear();
 
-                  onSelected(null);
+                        onSelected(null);
 
-                  setState(() {});
-                },),
-            );
-          },
-          optionsViewBuilder: (context, onSelected, options) {
-            return Align(
-              alignment: Alignment.topLeft,
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  constraints: const BoxConstraints(maxHeight: 260),
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 18,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(10),
-                    shrinkWrap: true,
-                    itemCount: options.length,
-                    itemBuilder: (context, index) {
-                      final option = options.elementAt(index);
+                        setState(() {});
+                      },
+                    ),
+                  );
+                },
+            optionsViewBuilder: (context, onSelected, options) {
+              return Align(
+                alignment: Alignment.topLeft,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    constraints: const BoxConstraints(maxHeight: 260),
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 18,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(10),
+                      shrinkWrap: true,
+                      itemCount: options.length,
+                      itemBuilder: (context, index) {
+                        final option = options.elementAt(index);
 
-                      return InkWell(
-                        borderRadius: BorderRadius.circular(14),
-                        onTap: () => onSelected(option),
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: backgroundColor,
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                height: 40,
-                                width: 40,
-                                decoration: BoxDecoration(
-                                  color: primaryColor.withOpacity(0.12),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(icon, color: primaryColor, size: 20),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  option,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w600,
-                                    color: textColor,
+                        return InkWell(
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: () => onSelected(option),
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: backgroundColor,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                    color: primaryColor.withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    icon,
+                                    color: primaryColor,
+                                    size: 20,
                                   ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    option,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: textColor,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
-        ),
+              );
+            },
+          ),
       ],
     );
   }
@@ -1349,8 +1320,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           controller: controller,
           onChanged: (_) => setState(() {}),
           style: GoogleFonts.poppins(fontSize: 13),
-          decoration: _inputDecoration(icon, hint,
-          ),
+          decoration: _inputDecoration(icon, hint),
         ),
       ],
     );
@@ -1398,16 +1368,23 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: Colors.grey.shade200),
+            border: Border.all(color: Theme.of(context).dividerColor),
           ),
           child: Row(
             children: [
-              Icon(Icons.lock_outline, size: 20, color: Colors.grey.shade500),
+              Icon(
+                Icons.lock_outline,
+                size: 20,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Coming Soon',
-                  style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey.shade600),
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             ],
@@ -1418,43 +1395,36 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
   }
 
   InputDecoration _inputDecoration(
-      IconData icon,
-      String hint, {
-        VoidCallback? onClear,
-        bool showClear = false,
-      }) {
+    IconData icon,
+    String hint, {
+    VoidCallback? onClear,
+    bool showClear = false,
+  }) {
     return InputDecoration(
       hintText: hint,
 
       hintStyle: GoogleFonts.poppins(
         fontSize: 12.5,
-        color: Colors.grey.shade500,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
 
-      prefixIcon: Icon(
-        icon,
-        color: primaryColor,
-        size: 21,
-      ),
+      prefixIcon: Icon(icon, color: primaryColor, size: 21),
 
       suffixIcon: showClear
           ? IconButton(
-        onPressed: onClear,
-        icon: Icon(
-          Icons.close_rounded,
-          color: Colors.grey.shade500,
-          size: 20,
-        ),
-      )
+              onPressed: onClear,
+              icon: Icon(
+                Icons.close_rounded,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                size: 20,
+              ),
+            )
           : null,
 
       filled: true,
       fillColor: backgroundColor,
 
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 15,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
 
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
@@ -1463,17 +1433,12 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
 
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
-        borderSide: BorderSide(
-          color: Colors.grey.shade200,
-        ),
+        borderSide: BorderSide(color: Theme.of(context).dividerColor),
       ),
 
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
-        borderSide: BorderSide(
-          color: primaryColor,
-          width: 1.4,
-        ),
+        borderSide: BorderSide(color: primaryColor, width: 1.4),
       ),
     );
   }
@@ -1493,7 +1458,11 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
         Expanded(
           child: Text(
             title,
-            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: textColor,
+            ),
           ),
         ),
       ],
@@ -1503,7 +1472,11 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
   Widget _fieldLabel(String title) {
     return Text(
       title,
-      style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600, color: textColor),
+      style: GoogleFonts.poppins(
+        fontSize: 12.5,
+        fontWeight: FontWeight.w600,
+        color: textColor,
+      ),
     );
   }
 
@@ -1511,7 +1484,9 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: success ? Colors.green.withOpacity(0.12) : Colors.red.withOpacity(0.12),
+        color: success
+            ? Colors.green.withOpacity(0.12)
+            : Colors.red.withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -1529,9 +1504,9 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1540,7 +1515,10 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           const SizedBox(width: 6),
           Text(
             value,
-            style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w500),
+            style: GoogleFonts.poppins(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -1552,9 +1530,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       margin: const EdgeInsets.only(right: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: isSelected
-            ? primaryColor
-            : primaryColor.withOpacity(0.08),
+        color: isSelected ? primaryColor : primaryColor.withOpacity(0.08),
         borderRadius: BorderRadius.circular(30),
       ),
       child: Center(
@@ -1587,7 +1563,11 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
             const SizedBox(width: 5),
             Text(
               title,
-              style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w600, color: color),
+              style: GoogleFonts.poppins(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
             ),
           ],
         ),
@@ -1597,7 +1577,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
 
   BoxDecoration _cardDecoration({double radius = 22}) {
     return BoxDecoration(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(radius),
       boxShadow: [
         BoxShadow(

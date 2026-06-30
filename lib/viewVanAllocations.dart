@@ -16,8 +16,7 @@ class ViewVanAllocationScreen extends StatefulWidget {
       _ViewVanAllocationScreenState();
 }
 
-class _ViewVanAllocationScreenState
-    extends State<ViewVanAllocationScreen> {
+class _ViewVanAllocationScreenState extends State<ViewVanAllocationScreen> {
   final Color primaryColor = app_color;
   final Color backgroundColor = const Color(0xFFF5F7FA);
   final Color textColor = const Color(0xFF1F2937);
@@ -27,14 +26,12 @@ class _ViewVanAllocationScreenState
   String hostname = "";
   String token = "";
 
-  final TextEditingController searchController =
-  TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
   List<Map<String, dynamic>> allocations = [];
   List<Map<String, dynamic>> filteredAllocations = [];
 
-  dynamic serial_no="", company = "",
-      company_lowercase = "";
+  dynamic serial_no = "", company = "", company_lowercase = "";
 
   Set<int> expandedCards = {};
 
@@ -72,10 +69,8 @@ class _ViewVanAllocationScreenState
         },
       );
 
-      debugPrint(
-          "VIEW ALLOCATION URL: ${url}");
-      debugPrint(
-          "VIEW ALLOCATION RESPONSE: ${response.body}");
+      debugPrint("VIEW ALLOCATION URL: ${url}");
+      debugPrint("VIEW ALLOCATION RESPONSE: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -98,24 +93,19 @@ class _ViewVanAllocationScreenState
       filteredAllocations = allocations;
     } else {
       filteredAllocations = allocations.where((allocation) {
-        return allocation
-            .toString()
-            .toLowerCase()
-            .contains(query.toLowerCase());
+        return allocation.toString().toLowerCase().contains(
+          query.toLowerCase(),
+        );
       }).toList();
     }
 
     setState(() {});
   }
 
-  Future<void> deleteAllocation(
-      Map<String, dynamic> allocation,
-      ) async {
+  Future<void> deleteAllocation(Map<String, dynamic> allocation) async {
     try {
       final response = await http.delete(
-        Uri.parse(
-          '$BASE_URL_config/api/spectra/Allocations',
-        ),
+        Uri.parse('$BASE_URL_config/api/spectra/Allocations'),
 
         headers: {
           'Authorization': 'Bearer $authTokenBase',
@@ -129,9 +119,7 @@ class _ViewVanAllocationScreenState
         }),
       );
 
-      debugPrint(
-        "DELETE RESPONSE: ${response.body}",
-      );
+      debugPrint("DELETE RESPONSE: ${response.body}");
 
       if (response.statusCode == 200) {
         /*ScaffoldMessenger.of(context).showSnackBar(
@@ -145,29 +133,19 @@ class _ViewVanAllocationScreenState
         fetchAllocations();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Delete failed: ${response.body}',
-            ),
-          ),
+          SnackBar(content: Text('Delete failed: ${response.body}')),
         );
       }
     } catch (e) {
       debugPrint("DELETE ERROR: $e");
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Error: $e',
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
-  void showDeleteDialog(
-      Map<String, dynamic> allocation,
-      ) {
+  void showDeleteDialog(Map<String, dynamic> allocation) {
     showDialog(
       context: context,
       builder: (_) {
@@ -178,9 +156,7 @@ class _ViewVanAllocationScreenState
 
           title: Text(
             "Delete Allocation",
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w700,
-            ),
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w700),
           ),
 
           content: Text(
@@ -196,7 +172,7 @@ class _ViewVanAllocationScreenState
               child: Text(
                 "Cancel",
                 style: GoogleFonts.poppins(
-                  color: Colors.grey
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -205,8 +181,7 @@ class _ViewVanAllocationScreenState
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                  BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
 
@@ -218,9 +193,7 @@ class _ViewVanAllocationScreenState
 
               child: Text(
                 "Delete",
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                ),
+                style: GoogleFonts.poppins(color: Colors.white),
               ),
             ),
           ],
@@ -232,22 +205,20 @@ class _ViewVanAllocationScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: AppBar(
         elevation: 0,
         backgroundColor: primaryColor,
-        iconTheme:
-        const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         titleSpacing: 0,
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
-                borderRadius:
-                BorderRadius.circular(12),
+                color: Theme.of(context).cardColor.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.visibility_outlined,
@@ -259,8 +230,7 @@ class _ViewVanAllocationScreenState
             const SizedBox(width: 12),
 
             Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'View Allocations',
@@ -275,8 +245,7 @@ class _ViewVanAllocationScreenState
 
                   style: GoogleFonts.poppins(
                     fontSize: 11,
-                    color:
-                    Colors.white.withOpacity(0.8),
+                    color: Colors.white.withOpacity(0.8),
                   ),
                 ),
               ],
@@ -286,96 +255,90 @@ class _ViewVanAllocationScreenState
       ),
 
       body: isLoading
-          ? Center(
-          child: AppLogoLoader())
+          ? Center(child: AppLogoLoader())
           : RefreshIndicator(
-        color: primaryColor,
-        onRefresh: fetchAllocations,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              child: filteredAllocations.isEmpty
-                  ? ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight - 32,
-                ),
-                child: IntrinsicHeight(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSearchBar(),
+              color: primaryColor,
+              onRefresh: fetchAllocations,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    child: filteredAllocations.isEmpty
+                        ? ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: constraints.maxHeight - 32,
+                            ),
+                            child: IntrinsicHeight(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildSearchBar(),
 
-                      const SizedBox(height: 18),
+                                  const SizedBox(height: 18),
 
-                      _buildStatsRow(),
+                                  _buildStatsRow(),
 
-                      const SizedBox(height: 18),
+                                  const SizedBox(height: 18),
 
-                      Expanded(
-                        child: _emptyState(),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-                  : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSearchBar(),
+                                  Expanded(child: _emptyState()),
+                                ],
+                              ),
+                            ),
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildSearchBar(),
 
-                  const SizedBox(height: 18),
+                              const SizedBox(height: 18),
 
-                  _buildStatsRow(),
+                              _buildStatsRow(),
 
-                  const SizedBox(height: 18),
+                              const SizedBox(height: 18),
 
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: filteredAllocations.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 14),
-                    itemBuilder: (context, index) {
-                      final allocation = filteredAllocations[index];
-                      return _allocationCard(allocation, index);
-                    },
-                  ),
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: filteredAllocations.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(height: 14),
+                                itemBuilder: (context, index) {
+                                  final allocation = filteredAllocations[index];
+                                  return _allocationCard(allocation, index);
+                                },
+                              ),
 
-                  const SizedBox(height: 90),
-                ],
+                              const SizedBox(height: 90),
+                            ],
+                          ),
+                  );
+                },
               ),
-            );
-          },
-        ),
-      ),
+            ),
 
       floatingActionButton: filteredAllocations.isEmpty
           ? null
           : FloatingActionButton.extended(
-        backgroundColor: primaryColor,
-        elevation: 6,
-        onPressed: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) =>
-              const VanAllocationScreen(),
+              backgroundColor: primaryColor,
+              elevation: 6,
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const VanAllocationScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: Text(
+                "Create Allocation",
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-          );
-        },
-        icon: const Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
-        label: Text(
-          "Create Allocation",
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
     );
   }
 
@@ -384,10 +347,7 @@ class _ViewVanAllocationScreenState
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
         gradient: LinearGradient(
-          colors: [
-            Colors.white,
-            Colors.white.withOpacity(0.98),
-          ],
+          colors: [Colors.white, Colors.white.withOpacity(0.98)],
         ),
         boxShadow: [
           BoxShadow(
@@ -401,10 +361,7 @@ class _ViewVanAllocationScreenState
             offset: const Offset(0, 3),
           ),
         ],
-        border: Border.all(
-          color: primaryColor.withOpacity(0.14),
-          width: 1.3,
-        ),
+        border: Border.all(color: primaryColor.withOpacity(0.14), width: 1.3),
       ),
       child: TextField(
         controller: searchController,
@@ -418,7 +375,7 @@ class _ViewVanAllocationScreenState
           hintText: 'Search allocations...',
           hintStyle: GoogleFonts.poppins(
             fontSize: 12.8,
-            color: Colors.grey.shade500,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w400,
           ),
 
@@ -428,40 +385,39 @@ class _ViewVanAllocationScreenState
               color: primaryColor.withOpacity(0.10),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(
-              Icons.search_rounded,
-              color: primaryColor,
-              size: 22,
-            ),
+            child: Icon(Icons.search_rounded, color: primaryColor, size: 22),
           ),
 
           suffixIcon: searchController.text.isNotEmpty
               ? IconButton(
-            splashRadius: 20,
-            onPressed: () {
-              searchController.clear();
-              filterAllocations('');
-            },
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.close_rounded,
-                size: 18,
-                color: Colors.grey.shade700,
-              ),
-            ),
-          )
+                  splashRadius: 20,
+                  onPressed: () {
+                    searchController.clear();
+                    filterAllocations('');
+                  },
+                  icon: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest
+                          : Colors.grey.shade100,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.close_rounded,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                )
               : null,
 
           filled: true,
           fillColor: Colors.transparent,
 
-          contentPadding:
-          const EdgeInsets.symmetric(
+          contentPadding: const EdgeInsets.symmetric(
             horizontal: 20,
             vertical: 20,
           ),
@@ -481,10 +437,7 @@ class _ViewVanAllocationScreenState
 
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(28),
-            borderSide: BorderSide(
-              color: primaryColor,
-              width: 1.5,
-            ),
+            borderSide: BorderSide(color: primaryColor, width: 1.5),
           ),
         ),
       ),
@@ -503,16 +456,10 @@ class _ViewVanAllocationScreenState
         ),
 
         const SizedBox(width: 12),*/
-
         Expanded(
           child: _statCard(
             "Vehicle's",
-            allocations
-                .map((e) =>
-            e['godown_name'])
-                .toSet()
-                .length
-                .toString(),
+            allocations.map((e) => e['godown_name']).toSet().length.toString(),
             Icons.location_on_outlined,
           ),
         ),
@@ -522,11 +469,7 @@ class _ViewVanAllocationScreenState
         Expanded(
           child: _statCard(
             'Users',
-            allocations
-                .map((e) => e['user_name'])
-                .toSet()
-                .length
-                .toString(),
+            allocations.map((e) => e['user_name']).toSet().length.toString(),
             Icons.people_outline,
           ),
         ),
@@ -534,29 +477,19 @@ class _ViewVanAllocationScreenState
     );
   }
 
-  Widget _statCard(
-      String title,
-      String value,
-      IconData icon,
-      ) {
+  Widget _statCard(String title, String value, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: _cardDecoration(),
       child: Column(
         children: [
           Container(
-            padding:
-            const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color:
-              primaryColor.withOpacity(0.1),
-              borderRadius:
-              BorderRadius.circular(14),
+              color: primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(
-              icon,
-              color: primaryColor,
-            ),
+            child: Icon(icon, color: primaryColor),
           ),
 
           const SizedBox(height: 10),
@@ -576,7 +509,7 @@ class _ViewVanAllocationScreenState
             title,
             style: GoogleFonts.poppins(
               fontSize: 11,
-              color: Colors.grey.shade600,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -598,10 +531,7 @@ class _ViewVanAllocationScreenState
               CircleAvatar(
                 radius: 24,
                 backgroundColor: primaryColor.withOpacity(0.12),
-                child: Icon(
-                  Icons.person_outline,
-                  color: primaryColor,
-                ),
+                child: Icon(Icons.person_outline, color: primaryColor),
               ),
 
               const SizedBox(width: 14),
@@ -625,7 +555,7 @@ class _ViewVanAllocationScreenState
                       allocation['user_name'] ?? '',
                       style: GoogleFonts.poppins(
                         fontSize: 11.5,
-                        color: Colors.grey.shade600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),*/
                   ],
@@ -645,22 +575,15 @@ class _ViewVanAllocationScreenState
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => ModifyVanAllocationScreen(
-                          allocation: allocation,
-                        ),
+                        builder: (_) =>
+                            ModifyVanAllocationScreen(allocation: allocation),
                       ),
                     );
                   }
                 },
                 itemBuilder: (_) => const [
-                  PopupMenuItem(
-                    value: 'edit',
-                    child: Text('Modify'),
-                  ),
-                  PopupMenuItem(
-                    value: 'delete',
-                    child: Text('Delete'),
-                  ),
+                  PopupMenuItem(value: 'edit', child: Text('Modify')),
+                  PopupMenuItem(value: 'delete', child: Text('Delete')),
                 ],
               ),
             ],
@@ -737,7 +660,10 @@ class _ViewVanAllocationScreenState
                 });
               },
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -767,36 +693,25 @@ class _ViewVanAllocationScreenState
     );
   }
 
-
   Widget _actionButton(
-      String title,
-      IconData icon,
-      Color color, {
-        VoidCallback? onTap,
-      }) {
+    String title,
+    IconData icon,
+    Color color, {
+    VoidCallback? onTap,
+  }) {
     return InkWell(
-      borderRadius:
-      BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(14),
       onTap: onTap,
       child: Container(
-        padding:
-        const EdgeInsets.symmetric(
-          vertical: 12,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
-          borderRadius:
-          BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
-          mainAxisAlignment:
-          MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 18,
-            ),
+            Icon(icon, color: color, size: 18),
 
             const SizedBox(width: 6),
 
@@ -804,8 +719,7 @@ class _ViewVanAllocationScreenState
               title,
               style: GoogleFonts.poppins(
                 color: color,
-                fontWeight:
-                FontWeight.w600,
+                fontWeight: FontWeight.w600,
                 fontSize: 12,
               ),
             ),
@@ -831,7 +745,7 @@ class _ViewVanAllocationScreenState
             '$label: ',
             style: GoogleFonts.poppins(
               fontSize: 10.5,
-              color: Colors.grey.shade600,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -895,7 +809,7 @@ class _ViewVanAllocationScreenState
                 style: GoogleFonts.poppins(
                   fontSize: 13,
                   height: 1.5,
-                  color: Colors.grey.shade600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
 
@@ -921,10 +835,7 @@ class _ViewVanAllocationScreenState
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                icon: const Icon(
-                  Icons.add_rounded,
-                  color: Colors.white,
-                ),
+                icon: const Icon(Icons.add_rounded, color: Colors.white),
                 label: Text(
                   "Create Allocation",
                   style: GoogleFonts.poppins(
@@ -939,15 +850,14 @@ class _ViewVanAllocationScreenState
       ),
     );
   }
+
   BoxDecoration _cardDecoration() {
     return BoxDecoration(
-      color: Colors.white,
-      borderRadius:
-      BorderRadius.circular(24),
+      color: Theme.of(context).cardColor,
+      borderRadius: BorderRadius.circular(24),
       boxShadow: [
         BoxShadow(
-          color:
-          Colors.black.withOpacity(0.04),
+          color: Colors.black.withOpacity(0.04),
           blurRadius: 18,
           offset: const Offset(0, 8),
         ),

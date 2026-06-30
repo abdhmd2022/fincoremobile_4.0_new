@@ -47,9 +47,8 @@ class items {
     required this.alternate_unit,
     required this.denominator,
   });
-  
-  factory items.fromJson(Map<String, dynamic> json)
-  {
+
+  factory items.fromJson(Map<String, dynamic> json) {
     return items(
       itemname: json['name'].toString(),
       alias: json['alias'].toString(),
@@ -72,81 +71,102 @@ class items {
 String formatlastsaledate(String saledate) {
   String formated_saledate = "";
 
-  if(saledate == 'null' || saledate == '') {
-      formated_saledate = 'N/A';
-   }
-  else {
-      DateTime saledate_date = DateTime.parse(saledate);
-      formated_saledate = DateFormat("dd-MMM-yyyy").format(saledate_date);
-    }
+  if (saledate == 'null' || saledate == '') {
+    formated_saledate = 'N/A';
+  } else {
+    DateTime saledate_date = DateTime.parse(saledate);
+    formated_saledate = DateFormat("dd-MMM-yyyy").format(saledate_date);
+  }
   return formated_saledate;
 }
 
 String formatValue(String value) {
   String value_string = "";
 
-    if(value == "null")
-      {
-        value = "0";
-      }
-    value_string = CurrencyFormatter.formatCurrency_normal(value);
+  if (value == "null") {
+    value = "0";
+  }
+  value_string = CurrencyFormatter.formatCurrency_normal(value);
   return value_string;
 }
 
-String formatQtyDescription (String c_qty, String unit, String alternate_unit, String denominator) {
+String formatQtyDescription(
+  String c_qty,
+  String unit,
+  String alternate_unit,
+  String denominator,
+) {
   String qty = '';
 
-  if(alternate_unit != 'null' || denominator != 'null')
-    {
-      qty = '1 $alternate_unit = $denominator $unit';
-    }
+  if (alternate_unit != 'null' || denominator != 'null') {
+    qty = '1 $alternate_unit = $denominator $unit';
+  }
   return qty;
 }
 
 String formatRate(String value) {
-  if(value == "null")
-  {
+  if (value == "null") {
     value = "-";
   }
   return value;
 }
 
 String formatRate_Report(String value) {
-  if(value == "null")
-  {
+  if (value == "null") {
     value = "-";
   }
   return value;
 }
 
-class Items extends StatefulWidget
-{
+class Items extends StatefulWidget {
   @override
   _ItemsPageState createState() => _ItemsPageState();
 }
 
-class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
+class _ItemsPageState extends State<Items> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  bool isClicked_allitems = true,isClicked_fastmoving = false, isClicked_inactiveitems = false,isClicked_slowmoving = false;
+  bool isClicked_allitems = true,
+      isClicked_fastmoving = false,
+      isClicked_inactiveitems = false,
+      isClicked_slowmoving = false;
 
   int counter = 0;
 
-  List<items> filteredItems_inactive_items = []; // Initialize an empty list to hold the filtered items
-  List<items> filteredItems_all_items = []; // Initialize an empty list to hold the filtered items
-  List<items> filteredItems_active_items = []; // Initialize an empty list to hold the filtered items
+  List<items> filteredItems_inactive_items =
+      []; // Initialize an empty list to hold the filtered items
+  List<items> filteredItems_all_items =
+      []; // Initialize an empty list to hold the filtered items
+  List<items> filteredItems_active_items =
+      []; // Initialize an empty list to hold the filtered items
 
-  String item_count = "0",token = '';
+  String item_count = "0", token = '';
 
-  String fastmovingdays = '',fastmovingqty= '',fastmovingvalue= '' ,inactivedays = '',slowmovingdays = '',slowmovingqty= '',slowmovingvalue= '';
+  String fastmovingdays = '',
+      fastmovingqty = '',
+      fastmovingvalue = '',
+      inactivedays = '',
+      slowmovingdays = '',
+      slowmovingqty = '',
+      slowmovingvalue = '';
 
   String? SecuritybtnAcessHolder;
-  bool isDashEnable = true,isRolesEnable = true,isUserEnable = true,isRolesVisible = true,
-      isUserVisible = true,_isSearchViewVisible = true,_isAllList = false,_isInactiveList = false,_isActiveList = false;
+  bool isDashEnable = true,
+      isRolesEnable = true,
+      isUserEnable = true,
+      isRolesVisible = true,
+      isUserVisible = true,
+      _isSearchViewVisible = true,
+      _isAllList = false,
+      _isInactiveList = false,
+      _isActiveList = false;
 
-  bool allitems_visibility = false, fastmovingitems_visibility = false, inactiveitems_visibility = false, rate_visibility = false,
-  amount_visibility = false;
-  bool isVisibleNoAccess = false,isVisibleParent = false;
+  bool allitems_visibility = false,
+      fastmovingitems_visibility = false,
+      inactiveitems_visibility = false,
+      rate_visibility = false,
+      amount_visibility = false;
+  bool isVisibleNoAccess = false, isVisibleParent = false;
   String email = "";
   String name = "";
 
@@ -158,26 +178,26 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
 
   late int? decimal;
 
-  String formatAmountWithDRCR(String value){
-
-    if(value == "null" || value.isEmpty){
+  String formatAmountWithDRCR(String value) {
+    if (value == "null" || value.isEmpty) {
       return "-";
     }
 
     double amount = double.tryParse(value) ?? 0;
 
-    String formatted =
-    formatAmountinDecimals(amount.abs(), decimal!);
+    String formatted = formatAmountinDecimals(amount.abs(), decimal!);
 
-    if(amount < 0){
+    if (amount < 0) {
       return "$currencysymbol $formatted DR";
-    }else{
+    } else {
       return "$currencysymbol $formatted CR";
     }
   }
 
   void showToast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   TextEditingController searchController = TextEditingController();
@@ -191,10 +211,14 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
 
   String fastmovingdate = '';
 
-  String? hostname = "",company = "",serial_no = "",company_lowercase = "",username = "";
+  String? hostname = "",
+      company = "",
+      serial_no = "",
+      company_lowercase = "",
+      username = "";
   bool _isLoading = false;
 
-  String? HttpURL_Parent,HttpURL_allitems,HttpURL_active_inactive_items;
+  String? HttpURL_Parent, HttpURL_allitems, HttpURL_active_inactive_items;
 
   dynamic _selecteditem = "";
   List<String> spinner_list = [];
@@ -205,12 +229,18 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
 
   late NumberFormat currencyFormat;
 
-
   bool isVisibleFilterby = false;
 
   Future<void> generateAndShareCSV_AllItems() async {
     final List<List<dynamic>> csvData = [];
-    csvData.add(['Item Name', 'Qty', 'Rate', 'Last Sale Price', 'Standard Selling Price', 'Amount']);
+    csvData.add([
+      'Item Name',
+      'Qty',
+      'Rate',
+      'Last Sale Price',
+      'Standard Selling Price',
+      'Amount',
+    ]);
 
     for (final item in filteredItems_all_items) {
       csvData.add([
@@ -239,7 +269,14 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
 
   Future<void> generateAndShareCSV_FastSlowItems() async {
     final List<List<dynamic>> csvData = [];
-    csvData.add(['Item Name', 'Qty', 'Rate', 'Last Sale Price', 'Standard Selling Price', 'Amount']);
+    csvData.add([
+      'Item Name',
+      'Qty',
+      'Rate',
+      'Last Sale Price',
+      'Standard Selling Price',
+      'Amount',
+    ]);
 
     for (final item in filteredItems_active_items) {
       csvData.add([
@@ -268,7 +305,15 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
 
   Future<void> generateAndShareCSV_InactiveItems() async {
     final List<List<dynamic>> csvData = [];
-    csvData.add(['Item Name', 'Inactive Since', 'Qty', 'Rate', 'Last Sale Price', 'Standard Selling Price', 'Amount']);
+    csvData.add([
+      'Item Name',
+      'Inactive Since',
+      'Qty',
+      'Rate',
+      'Last Sale Price',
+      'Standard Selling Price',
+      'Amount',
+    ]);
 
     for (final item in filteredItems_inactive_items) {
       csvData.add([
@@ -297,13 +342,22 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
   }
 
   Future<void> generateAndSharePDF_AllItems() async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+    final font = pw.Font.ttf(
+      await rootBundle.load("assets/fonts/NotoSans.ttf"),
+    );
 
     final pdf = pw.Document();
     final companyName = company!;
     final reportname = 'Stock Summary';
     final parentname = _selecteditem;
-    final headersRow3 = ['Item Name', 'Qty', 'Rate', 'Last Sale Price', 'Standard Selling Price', 'Amount'];
+    final headersRow3 = [
+      'Item Name',
+      'Qty',
+      'Rate',
+      'Last Sale Price',
+      'Standard Selling Price',
+      'Amount',
+    ];
 
     final itemsPerPage = 8;
     final pageCount = (filteredItems_all_items.length / itemsPerPage).ceil();
@@ -313,7 +367,9 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
       final endIndex = (pageNumber + 1) * itemsPerPage;
       final itemsSubset = filteredItems_all_items.sublist(
         startIndex,
-        endIndex > filteredItems_all_items.length ? filteredItems_all_items.length : endIndex,
+        endIndex > filteredItems_all_items.length
+            ? filteredItems_all_items.length
+            : endIndex,
       );
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -336,8 +392,14 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
         headerHeight: 30,
         cellAlignment: pw.Alignment.center,
         cellPadding: const pw.EdgeInsets.all(5),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font), // ✅ Use your font
-        cellStyle: pw.TextStyle(fontSize: 12, font: font), // ✅ Use your font here too
+        headerStyle: pw.TextStyle(
+          fontWeight: pw.FontWeight.bold,
+          font: font,
+        ), // ✅ Use your font
+        cellStyle: pw.TextStyle(
+          fontSize: 12,
+          font: font,
+        ), // ✅ Use your font here too
         headers: headersRow3,
         data: tableSubsetRows,
       );
@@ -347,14 +409,32 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
           build: (context) => pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
-              pw.Text(companyName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                companyName,
+                style: pw.TextStyle(
+                  fontSize: 20,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
-              pw.Text(reportname, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                reportname,
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.center,
                 children: [
-                  pw.Text('Group:', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    'Group:',
+                    style: pw.TextStyle(
+                      fontSize: 16,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                   pw.SizedBox(width: 5),
                   pw.Text(parentname, style: const pw.TextStyle(fontSize: 16)),
                 ],
@@ -382,12 +462,21 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
   }
 
   Future<void> generateAndSharePDF_FastSlowItems() async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+    final font = pw.Font.ttf(
+      await rootBundle.load("assets/fonts/NotoSans.ttf"),
+    );
     final pdf = pw.Document();
     final companyName = company!;
     final reportname = 'Stock Summary';
     final parentname = _selecteditem;
-    final headersRow3 = ['Item Name', 'Qty', 'Rate', 'Last Sale Price', 'Standard Selling Price', 'Amount'];
+    final headersRow3 = [
+      'Item Name',
+      'Qty',
+      'Rate',
+      'Last Sale Price',
+      'Standard Selling Price',
+      'Amount',
+    ];
 
     final itemsPerPage = 8;
     final pageCount = (filteredItems_active_items.length / itemsPerPage).ceil();
@@ -397,7 +486,9 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
       final endIndex = (pageNumber + 1) * itemsPerPage;
       final itemsSubset = filteredItems_active_items.sublist(
         startIndex,
-        endIndex > filteredItems_active_items.length ? filteredItems_active_items.length : endIndex,
+        endIndex > filteredItems_active_items.length
+            ? filteredItems_active_items.length
+            : endIndex,
       );
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -420,8 +511,14 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
         headerHeight: 30,
         cellAlignment: pw.Alignment.center,
         cellPadding: const pw.EdgeInsets.all(5),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font), // ✅ Use your font
-        cellStyle: pw.TextStyle(fontSize: 12, font: font), // ✅ Use your font here too
+        headerStyle: pw.TextStyle(
+          fontWeight: pw.FontWeight.bold,
+          font: font,
+        ), // ✅ Use your font
+        cellStyle: pw.TextStyle(
+          fontSize: 12,
+          font: font,
+        ), // ✅ Use your font here too
         headers: headersRow3,
         data: tableSubsetRows,
       );
@@ -431,14 +528,32 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
           build: (context) => pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
-              pw.Text(companyName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                companyName,
+                style: pw.TextStyle(
+                  fontSize: 20,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
-              pw.Text(reportname, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                reportname,
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.center,
                 children: [
-                  pw.Text('Group:', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    'Group:',
+                    style: pw.TextStyle(
+                      fontSize: 16,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                   pw.SizedBox(width: 5),
                   pw.Text(parentname, style: const pw.TextStyle(fontSize: 16)),
                 ],
@@ -466,22 +581,35 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
   }
 
   Future<void> generateAndSharePDF_InactiveItems() async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+    final font = pw.Font.ttf(
+      await rootBundle.load("assets/fonts/NotoSans.ttf"),
+    );
     final pdf = pw.Document();
     final companyName = company!;
     final reportname = 'Stock Summary';
     final parentname = _selecteditem;
-    final headersRow3 = ['Item Name', 'Inactive Since', 'Qty', 'Rate', 'Last Sale Price', 'Standard Selling Price', 'Amount'];
+    final headersRow3 = [
+      'Item Name',
+      'Inactive Since',
+      'Qty',
+      'Rate',
+      'Last Sale Price',
+      'Standard Selling Price',
+      'Amount',
+    ];
 
     final itemsPerPage = 8;
-    final pageCount = (filteredItems_inactive_items.length / itemsPerPage).ceil();
+    final pageCount = (filteredItems_inactive_items.length / itemsPerPage)
+        .ceil();
 
     for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       final startIndex = pageNumber * itemsPerPage;
       final endIndex = (pageNumber + 1) * itemsPerPage;
       final itemsSubset = inactive_items_list.sublist(
         startIndex,
-        endIndex > filteredItems_inactive_items.length ? filteredItems_inactive_items.length : endIndex,
+        endIndex > filteredItems_inactive_items.length
+            ? filteredItems_inactive_items.length
+            : endIndex,
       );
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -505,8 +633,14 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
         headerHeight: 30,
         cellAlignment: pw.Alignment.center,
         cellPadding: const pw.EdgeInsets.all(5),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font), // ✅ Use your font
-        cellStyle: pw.TextStyle(fontSize: 12, font: font), // ✅ Use your font here too
+        headerStyle: pw.TextStyle(
+          fontWeight: pw.FontWeight.bold,
+          font: font,
+        ), // ✅ Use your font
+        cellStyle: pw.TextStyle(
+          fontSize: 12,
+          font: font,
+        ), // ✅ Use your font here too
         headers: headersRow3,
         data: tableSubsetRows,
       );
@@ -516,14 +650,32 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
           build: (context) => pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
-              pw.Text(companyName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                companyName,
+                style: pw.TextStyle(
+                  fontSize: 20,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
-              pw.Text(reportname, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                reportname,
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.center,
                 children: [
-                  pw.Text('Group:', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    'Group:',
+                    style: pw.TextStyle(
+                      fontSize: 16,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                   pw.SizedBox(width: 5),
                   pw.Text(parentname, style: const pw.TextStyle(fontSize: 16)),
                 ],
@@ -550,32 +702,25 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     );
   }
 
-
   Future<void> fetchParentData() async {
-
     setState(() {
       _isLoading = true;
     });
 
     spinner_list.clear();
 
-    try
-    {
+    try {
       final url = Uri.parse(HttpURL_Parent!);
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      final response = await http.post(
-          url,
-          headers:headers
-      );
+      final response = await http.post(url, headers: headers);
 
-      if (response.statusCode == 200)
-      {
-          spinner_list.add(allitems);
+      if (response.statusCode == 200) {
+        spinner_list.add(allitems);
 
         List<dynamic> data = jsonDecode(response.body);
         for (var item in data) {
@@ -586,62 +731,38 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
           _selecteditem = spinner_list[0];
         });
 
-        if(allitems_visibility) {
+        if (allitems_visibility) {
           fetchItemData('All Items', _selecteditem);
+        } else if (fastmovingitems_visibility) {
+          fetchItemData('FastMovingItems', _selecteditem);
+        } else if (inactiveitems_visibility) {
+          fetchItemData('InactiveItems', _selecteditem);
         }
-        else if (fastmovingitems_visibility)
-          {
-              fetchItemData ('FastMovingItems',_selecteditem);
-
-          }
-        else if (inactiveitems_visibility)
-          {
-            fetchItemData ('InactiveItems',_selecteditem);
-
-          }
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
       print(e);
     }
-
   }
 
-  void fetchItemData(String item_type,String item) {
-    if(item == "All Items")
-      {
-        item = "";
-      }
-    if(item_type == "All Items")
-      {
-        fetchall_items(item);
-
-      }
-    else if (item_type == "FastMovingItems")
-      {
-        fetchactive_items(item,_selectedFilter!);
-
-      }
-    else if (item_type == "SlowMovingItems")
-    {
-      fetchslow_items(item,_selectedFilter!);
-
+  void fetchItemData(String item_type, String item) {
+    if (item == "All Items") {
+      item = "";
     }
-    else if (item_type == "InactiveItems")
-      {
-        fetchinactive_items(item);
-
-      }
+    if (item_type == "All Items") {
+      fetchall_items(item);
+    } else if (item_type == "FastMovingItems") {
+      fetchactive_items(item, _selectedFilter!);
+    } else if (item_type == "SlowMovingItems") {
+      fetchslow_items(item, _selectedFilter!);
+    } else if (item_type == "InactiveItems") {
+      fetchinactive_items(item);
+    }
   }
 
-
-
-  Future<void> fetchall_items(final String parent) async{
-
+  Future<void> fetchall_items(final String parent) async {
     setState(() {
       item_count = "0";
       _isLoading = true;
@@ -654,48 +775,36 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
       isClicked_inactiveitems = false;
       isVisibleNoDataFound = false;
       isVisibleFilterby = false;
-
     });
 
     filteredItems_all_items.clear();
     all_items_list.clear();
 
-    try
-    {
+    try {
       final url = Uri.parse(HttpURL_allitems!);
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
-        'parent': parent
+      var body = jsonEncode({'parent': parent});
 
-      });
+      final response = await http.post(url, body: body, headers: headers);
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
-
-      if (response.statusCode == 200)
-      {
-
+      if (response.statusCode == 200) {
         final List<dynamic> values_list = jsonDecode(response.body);
 
         if (values_list != null) {
           isVisibleNoDataFound = false;
 
-          all_items_list.addAll(values_list.map((json) => items.fromJson(json)).toList());
+          all_items_list.addAll(
+            values_list.map((json) => items.fromJson(json)).toList(),
+          );
           filteredItems_all_items = all_items_list;
         }
-
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isInactiveList = false;
         _isAllList = false;
@@ -706,40 +815,35 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     }
 
     setState(() {
-      if(filteredItems_all_items.isEmpty)
-      {
+      if (filteredItems_all_items.isEmpty) {
         item_count = "0";
         _isInactiveList = false;
         _isAllList = false;
         _isActiveList = false;
         isVisibleNoDataFound = true;
+      } else {
+        item_count = filteredItems_all_items.length.toString();
+        _isInactiveList = false;
+        _isAllList = true;
+        _isActiveList = false;
       }
-      else
-        {
-            item_count = filteredItems_all_items.length.toString();
-            _isInactiveList = false;
-            _isAllList = true;
-            _isActiveList = false;
-        }
       _isLoading = false;
     });
-
   }
 
-  Future<void> fetchactive_items(final String parent,final String filter) async{
-
+  Future<void> fetchactive_items(
+    final String parent,
+    final String filter,
+  ) async {
     String qty = '';
     String value = '';
 
-    if(filter == 'qty')
-      {
-        qty = fastmovingqty;
-      }
-    if(filter == 'value')
-      {
-        value = fastmovingvalue;
-
-      }
+    if (filter == 'qty') {
+      qty = fastmovingqty;
+    }
+    if (filter == 'value') {
+      value = fastmovingvalue;
+    }
 
     int fastdays = int.parse(fastmovingdays);
     DateTime currentDate = DateTime.now();
@@ -763,36 +867,28 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     filteredItems_active_items.clear();
     active_items_list.clear();
 
-    try
-    {
+    try {
       final url = Uri.parse(HttpURL_active_inactive_items!);
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
-
-        "date" : formattedDate,
-        "status" : "FAST",
-        "qty" : qty,
-        "value" : value,
-        "parent" : parent
+      var body = jsonEncode({
+        "date": formattedDate,
+        "status": "FAST",
+        "qty": qty,
+        "value": value,
+        "parent": parent,
       });
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
       final decoded = jsonDecode(response.body);
 
       final prettyJson = const JsonEncoder.withIndent('  ').convert(decoded);
       print(prettyJson);
 
-
-      if (response.statusCode == 200)
-      {
+      if (response.statusCode == 200) {
         final List<dynamic> values_list = jsonDecode(response.body);
 
         if (values_list != null) {
@@ -837,13 +933,10 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
 
             active_items_list.add(items.fromJson(values_list[index]));
           }
-            filteredItems_active_items = active_items_list;
+          filteredItems_active_items = active_items_list;
         }
-
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isInactiveList = false;
         _isAllList = false;
@@ -854,37 +947,31 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     }
 
     setState(() {
-      if(filteredItems_active_items.isEmpty)
-      {
+      if (filteredItems_active_items.isEmpty) {
         item_count = "0";
 
         _isInactiveList = false;
         _isAllList = false;
         _isActiveList = false;
         isVisibleNoDataFound = true;
+      } else {
+        item_count = filteredItems_active_items.length.toString();
+        _isInactiveList = false;
+        _isActiveList = true;
+        _isAllList = false;
       }
-      else
-        {
-          item_count = filteredItems_active_items.length.toString();
-          _isInactiveList = false;
-          _isActiveList = true;
-          _isAllList = false;
-        }
       _isLoading = false;
     });
   }
 
-  Future<void> fetchslow_items(final String parent,final String filter) async{
-
+  Future<void> fetchslow_items(final String parent, final String filter) async {
     String qty = '';
     String value = '';
 
-    if(filter == 'qty')
-    {
+    if (filter == 'qty') {
       qty = slowmovingqty;
     }
-    if(filter == 'value')
-    {
+    if (filter == 'value') {
       value = slowmovingvalue;
     }
 
@@ -910,35 +997,27 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     filteredItems_active_items.clear();
     active_items_list.clear();
 
-    try
-    {
+    try {
       final url = Uri.parse(HttpURL_active_inactive_items!);
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
-
-        "date" : formattedDate,
-        "status" : "SLOW",
-        "qty" : qty,
-        "value" : value,
-        "parent" : parent
+      var body = jsonEncode({
+        "date": formattedDate,
+        "status": "SLOW",
+        "qty": qty,
+        "value": value,
+        "parent": parent,
       });
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-      if (response.statusCode == 200)
-      {
+      if (response.statusCode == 200) {
         final List<dynamic> values_list = jsonDecode(response.body);
 
-        if (values_list != null)
-        {
+        if (values_list != null) {
           isVisibleNoDataFound = false;
 
           for (var entry in values_list.asMap().entries) {
@@ -982,13 +1061,9 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
             active_items_list.add(items.fromJson(values_list[index]));
           }
           filteredItems_active_items = active_items_list;
-
         }
-
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isInactiveList = false;
         _isAllList = false;
@@ -999,28 +1074,24 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     }
 
     setState(() {
-      if(filteredItems_active_items.isEmpty)
-      {
+      if (filteredItems_active_items.isEmpty) {
         item_count = "0";
 
         _isInactiveList = false;
         _isAllList = false;
         _isActiveList = false;
         isVisibleNoDataFound = true;
+      } else {
+        item_count = filteredItems_active_items.length.toString();
+        _isInactiveList = false;
+        _isActiveList = true;
+        _isAllList = false;
       }
-      else
-        {
-          item_count = filteredItems_active_items.length.toString();
-          _isInactiveList = false;
-          _isActiveList = true;
-          _isAllList = false;
-        }
       _isLoading = false;
     });
   }
 
-  Future<void> fetchinactive_items(final String parent) async{
-
+  Future<void> fetchinactive_items(final String parent) async {
     setState(() {
       item_count = "0";
       _isLoading = true;
@@ -1044,30 +1115,23 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     DateTime newDate = currentDate.subtract(Duration(days: inactivedayss));
     String formattedDate = DateFormat('yyyyMMdd').format(newDate);
 
-    try
-    {
+    try {
       final url = Uri.parse(HttpURL_active_inactive_items!);
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
-        "date" : formattedDate,
-        "status" : "INACTIVE",
-        "parent" : parent,
+      var body = jsonEncode({
+        "date": formattedDate,
+        "status": "INACTIVE",
+        "parent": parent,
       });
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-      if (response.statusCode == 200)
-      {
-
+      if (response.statusCode == 200) {
         final List<dynamic> values_list = jsonDecode(response.body);
 
         if (values_list != null) {
@@ -1076,15 +1140,12 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
           for (var entry in values_list.asMap().entries) {
             int index = entry.key;
             dynamic item = entry.value;
-              inactive_items_list.add(items.fromJson(values_list[index]));
+            inactive_items_list.add(items.fromJson(values_list[index]));
           }
           filteredItems_inactive_items = inactive_items_list;
         }
-
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isInactiveList = false;
         _isAllList = false;
@@ -1095,59 +1156,63 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     }
 
     setState(() {
-      if(inactive_items_list.isEmpty)
-      {
+      if (inactive_items_list.isEmpty) {
         _isInactiveList = false;
         _isAllList = false;
         _isActiveList = false;
         item_count = "0";
         isVisibleNoDataFound = true;
+      } else {
+        item_count = filteredItems_inactive_items.length.toString();
+        _isInactiveList = true;
+        _isActiveList = false;
+        _isAllList = false;
       }
-      else
-        {
-          item_count = filteredItems_inactive_items.length.toString();
-          _isInactiveList = true;
-          _isActiveList = false;
-          _isAllList = false;
-        }
       _isLoading = false;
     });
   }
 
   Future<void> _initSharedPreferences() async {
-
     prefs = await SharedPreferences.getInstance();
 
-     decimal = prefs.getInt('decimalplace') ?? 2;
+    decimal = prefs.getInt('decimalplace') ?? 2;
 
     currencyFormat = new NumberFormat();
 
     String? currencyCode = '';
 
-    currencyCode = prefs.getString('currencycode')?? "AED";
+    currencyCode = prefs.getString('currencycode') ?? "AED";
 
     try {
-      if (currencyCode == 'INR' || currencyCode == 'EUR' ||
-          currencyCode == 'USD' || currencyCode == 'PKR') {
+      if (currencyCode == 'INR' ||
+          currencyCode == 'EUR' ||
+          currencyCode == 'USD' ||
+          currencyCode == 'PKR') {
         currencyFormat = NumberFormat('#,##0');
         NumberFormat format = NumberFormat.simpleCurrency(
-            locale: 'en', name: currencyCode);
+          locale: 'en',
+          name: currencyCode,
+        );
         currencysymbol = format.currencySymbol;
       } else {
         NumberFormat format = NumberFormat.currency(
-            locale: 'en', name: currencyCode);
+          locale: 'en',
+          name: currencyCode,
+        );
         currencysymbol = format.currencySymbol;
         currencyFormat = NumberFormat('#,##0');
       }
     } catch (e) {
       NumberFormat format = NumberFormat.currency(
-          locale: 'en', name: currencyCode);
+        locale: 'en',
+        name: currencyCode,
+      );
       currencysymbol = format.currencySymbol;
       currencyFormat = NumberFormat('#,##0');
     }
 
     hostname = prefs.getString('hostname');
-    company  = prefs.getString('company_name');
+    company = prefs.getString('company_name');
     company_lowercase = company!.replaceAll(' ', '').toLowerCase();
     serial_no = prefs.getString('serial_no');
     username = prefs.getString('username');
@@ -1169,94 +1234,73 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     String rateaccess = prefs.getString("rate") ?? 'False';
     String amountaccess = prefs.getString("item_amount") ?? 'False';
 
-    if(allitemsaccess == 'True')
-      {
-        allitems_visibility = true;
-      }
-    else
-      {
-        allitems_visibility = false;
-      }
-    if(fastmovingitemsaccess == 'True')
-    {
-      fastmovingitems_visibility = true;
+    if (allitemsaccess == 'True') {
+      allitems_visibility = true;
+    } else {
+      allitems_visibility = false;
     }
-    else
-    {
+    if (fastmovingitemsaccess == 'True') {
+      fastmovingitems_visibility = true;
+    } else {
       fastmovingitems_visibility = false;
     }
-    if(inactiveitemsaccess == 'True')
-    {
+    if (inactiveitemsaccess == 'True') {
       inactiveitems_visibility = true;
-    }
-    else
-    {
+    } else {
       inactiveitems_visibility = false;
     }
-    if(rateaccess == 'True')
-    {
+    if (rateaccess == 'True') {
       rate_visibility = true;
-    }
-    else
-    {
+    } else {
       rate_visibility = false;
     }
-    if(amountaccess == 'True')
-    {
+    if (amountaccess == 'True') {
       amount_visibility = true;
-    }
-    else
-    {
+    } else {
       amount_visibility = false;
     }
 
-    HttpURL_Parent = '$hostname/api/item/getParent/$company_lowercase/$serial_no';
-    HttpURL_allitems =  '$hostname/api/item/getitem/$company_lowercase/$serial_no';
-    HttpURL_active_inactive_items =  '$hostname/api/item/getMoving/$company_lowercase/$serial_no';
+    HttpURL_Parent =
+        '$hostname/api/item/getParent/$company_lowercase/$serial_no';
+    HttpURL_allitems =
+        '$hostname/api/item/getitem/$company_lowercase/$serial_no';
+    HttpURL_active_inactive_items =
+        '$hostname/api/item/getMoving/$company_lowercase/$serial_no';
 
     SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
 
     String? email_nav = prefs.getString('email_nav');
     String? name_nav = prefs.getString('name_nav');
 
-    if (email_nav!=null && name_nav!= null)
-    {
+    if (email_nav != null && name_nav != null) {
       name = name_nav;
       email = email_nav;
-    }
-    else
-    {
+    } else {
       String val = "";
-      if (SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         val = SecuritybtnAcessHolder!;
-      }
-      else if (SecuritybtnAcessHolder == "False")
-      {
+      } else if (SecuritybtnAcessHolder == "False") {
         val = "";
       }
     }
-    if(SecuritybtnAcessHolder == "True")
-    {
+    if (SecuritybtnAcessHolder == "True") {
       isRolesVisible = true;
       isUserVisible = true;
-    }
-    else
-    {
+    } else {
       isRolesVisible = false;
       isUserVisible = false;
     }
-    if(allitems_visibility || fastmovingitems_visibility || inactiveitems_visibility) {
+    if (allitems_visibility ||
+        fastmovingitems_visibility ||
+        inactiveitems_visibility) {
       isVisibleParent = true;
       isVisibleListLayout = true;
       await fetchParentData();
+    } else {
+      isVisibleListLayout = false;
+      isVisibleNoAccess = true;
+      isVisibleParent = false;
     }
-    else
-      {
-        isVisibleListLayout = false;
-        isVisibleNoAccess = true;
-        isVisibleParent = false;
-      }
   }
 
   String formatAmountinDecimals(num amount, int decimals) {
@@ -1265,7 +1309,6 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
       ..maximumFractionDigits = decimals;
     return formatter.format(amount);
   }
-
 
   String removeUnit(String value) {
     try {
@@ -1285,9 +1328,9 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
       return value; // agar parse fail ho jaye to original value
     }
   }
+
   @override
-  void initState()
-  {
+  void initState() {
     super.initState();
     _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     _initSharedPreferences();
@@ -1299,7 +1342,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(90),
@@ -1308,7 +1351,10 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
           flexibleSpace: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [app_color.withOpacity(0.95), app_color.withOpacity(0.75)],
+                colors: [
+                  app_color.withOpacity(0.95),
+                  app_color.withOpacity(0.75),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -1324,13 +1370,21 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
               Text(
                 company ?? '',
                 style: GoogleFonts.poppins(
-                    fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
               SizedBox(height: 4),
-              Text("Stock Summary",
-                  style: GoogleFonts.poppins(
-                      fontSize: 13, fontWeight: FontWeight.w400, color: Colors.white70)),
+              Text(
+                "Stock Summary",
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white70,
+                ),
+              ),
             ],
           ),
           centerTitle: true,
@@ -1346,118 +1400,121 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
             IconButton(
               icon: Icon(Icons.share_outlined, color: Colors.white, size: 26),
               onPressed: () {
-
-                final RenderBox button = context.findRenderObject() as RenderBox;
-                final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-                final Offset buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
+                final RenderBox button =
+                    context.findRenderObject() as RenderBox;
+                final RenderBox overlay =
+                    Overlay.of(context).context.findRenderObject() as RenderBox;
+                final Offset buttonPosition = button.localToGlobal(
+                  Offset.zero,
+                  ancestor: overlay,
+                );
 
                 showMenu(
-                    context: context,
-                    position: RelativeRect.fromLTRB(
-                      overlay.size.width - buttonPosition.dx ,
-                      buttonPosition.dy - button.size.height,
-                      overlay.size.width - buttonPosition.dx,
-                      buttonPosition.dy,
-                    ),
-                    items: <PopupMenuEntry<String>>[
-                      PopupMenuItem<String>(
-                          child: GestureDetector(
-                            onTap: ()
-                            {
-                              Navigator.pop(context);
-                              if(_isAllList)
-                              {
-                                if(!all_items_list.isEmpty)
-                                {
-                                  generateAndSharePDF_AllItems();
-                                }
-                                else
-                                {
-                                  showToast('Data Not Found');
-                                }
-                              }
-                              else if (_isActiveList)
-                              {
-                                if(!active_items_list.isEmpty)
-                                {
-                                  generateAndSharePDF_FastSlowItems();
-                                }
-                                else
-                                {
-                                  showToast('Data Not Found');
-                                }
-                              }
-                              else if (_isInactiveList)
-                              {
-                                if(!inactive_items_list.isEmpty)
-                                {
-                                  generateAndSharePDF_InactiveItems();
-                                }
-                                else
-                                {
-                                  showToast('Data Not Found');
-                                }
-                              }
-                            },
-                            child:  Row(children: [
+                  context: context,
+                  position: RelativeRect.fromLTRB(
+                    overlay.size.width - buttonPosition.dx,
+                    buttonPosition.dy - button.size.height,
+                    overlay.size.width - buttonPosition.dx,
+                    buttonPosition.dy,
+                  ),
+                  items: <PopupMenuEntry<String>>[
+                    PopupMenuItem<String>(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                          if (_isAllList) {
+                            if (!all_items_list.isEmpty) {
+                              generateAndSharePDF_AllItems();
+                            } else {
+                              showToast('Data Not Found');
+                            }
+                          } else if (_isActiveList) {
+                            if (!active_items_list.isEmpty) {
+                              generateAndSharePDF_FastSlowItems();
+                            } else {
+                              showToast('Data Not Found');
+                            }
+                          } else if (_isInactiveList) {
+                            if (!inactive_items_list.isEmpty) {
+                              generateAndSharePDF_InactiveItems();
+                            } else {
+                              showToast('Data Not Found');
+                            }
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.picture_as_pdf,
+                              size: 16,
+                              color: Color(0xFF26ADA3),
+                            ),
+                            SizedBox(width: 5),
 
-                              Icon( Icons.picture_as_pdf,
-                                size: 16,
-                                color: Color(0xFF26ADA3),),
-                              SizedBox(width: 5,),
-
-                              Text(
-                                'Share as PDF',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.normal,
-                                  color: Color(0xFF26ADA3),
-                                  fontSize: 16,
-                                ),
-                              )]),)
+                            Text(
+                              'Share as PDF',
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                color: Color(0xFF26ADA3),
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                    ),
 
-                      PopupMenuItem<String>(
-                          child: GestureDetector(
-                              onTap: ()
-                              {
-                                Navigator.pop(context);
+                    PopupMenuItem<String>(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
 
-                                if(_isAllList)
-                                {
-                                  if(!all_items_list.isEmpty)
-                                  {
-                                    generateAndShareCSV_AllItems();
-                                  }
-                                }
-                                else if(_isActiveList)
-                                {
-                                  if(!active_items_list.isEmpty)
-                                  {
-                                    generateAndShareCSV_FastSlowItems();
-                                  }}
-                                else if(_isInactiveList)
-                                {
-                                  if(!inactive_items_list.isEmpty)
-                                  {
-                                    generateAndShareCSV_InactiveItems();
-                                  }}},
-                              child:  Row(children: [
-                                Icon( Icons.add_chart_outlined,
-                                  size: 16,
-                                  color: Color(0xFF26ADA3),),
-                                SizedBox(width: 5,),
+                          if (_isAllList) {
+                            if (!all_items_list.isEmpty) {
+                              generateAndShareCSV_AllItems();
+                            }
+                          } else if (_isActiveList) {
+                            if (!active_items_list.isEmpty) {
+                              generateAndShareCSV_FastSlowItems();
+                            }
+                          } else if (_isInactiveList) {
+                            if (!inactive_items_list.isEmpty) {
+                              generateAndShareCSV_InactiveItems();
+                            }
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.add_chart_outlined,
+                              size: 16,
+                              color: Color(0xFF26ADA3),
+                            ),
+                            SizedBox(width: 5),
 
-                                Text(
-                                    'Share as CSV',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.normal,
-                                      color: Color(0xFF26ADA3),
-                                      fontSize: 16,
-                                    ))])))]);},
+                            Text(
+                              'Share as CSV',
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                color: Color(0xFF26ADA3),
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
             if (isVisibleFilterby)
               IconButton(
-                icon: Icon(Icons.filter_alt_rounded, color: Colors.white, size: 26),
+                icon: Icon(
+                  Icons.filter_alt_rounded,
+                  color: Colors.white,
+                  size: 26,
+                ),
                 onPressed: _showFilterBottomSheet, // 👇 new bottom sheet filter
               ),
             SizedBox(width: 6),
@@ -1472,12 +1529,19 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
               // 🔹 Dropdown + Tabs Container
               if (isVisibleParent)
                 Container(
-                  margin: EdgeInsets.only(top:10,left:16,right:16,bottom: 8),
+                  margin: EdgeInsets.only(
+                    top: 10,
+                    left: 16,
+                    right: 16,
+                    bottom: 8,
+                  ),
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 10),
+                    ],
                   ),
                   child: Column(
                     children: [
@@ -1492,25 +1556,55 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                         child: Row(
                           children: [
                             if (allitems_visibility)
-                              _buildTab("All Items", Icons.inventory_2_outlined, isClicked_allitems,
-                                      () => fetchItemData('All Items', _selecteditem)),
+                              _buildTab(
+                                "All Items",
+                                Icons.inventory_2_outlined,
+                                isClicked_allitems,
+                                () => fetchItemData('All Items', _selecteditem),
+                              ),
                             if (fastmovingitems_visibility)
-                              _buildTab("Fast Moving", Icons.flash_on_rounded, isClicked_fastmoving,
-                                      () => fetchItemData('FastMovingItems', _selecteditem)),
+                              _buildTab(
+                                "Fast Moving",
+                                Icons.flash_on_rounded,
+                                isClicked_fastmoving,
+                                () => fetchItemData(
+                                  'FastMovingItems',
+                                  _selecteditem,
+                                ),
+                              ),
                             if (fastmovingitems_visibility)
-                              _buildTab("Slow Moving", Icons.timer_outlined, isClicked_slowmoving,
-                                      () => fetchItemData('SlowMovingItems', _selecteditem)),
+                              _buildTab(
+                                "Slow Moving",
+                                Icons.timer_outlined,
+                                isClicked_slowmoving,
+                                () => fetchItemData(
+                                  'SlowMovingItems',
+                                  _selecteditem,
+                                ),
+                              ),
                             if (inactiveitems_visibility)
-                              _buildTab("Inactive", Icons.block, isClicked_inactiveitems, () {
-                                _showInactiveDaysDialog(context); // 👈 open modern dialog instead of direct fetch
-                              }),
+                              _buildTab(
+                                "Inactive",
+                                Icons.block,
+                                isClicked_inactiveitems,
+                                () {
+                                  _showInactiveDaysDialog(
+                                    context,
+                                  ); // 👈 open modern dialog instead of direct fetch
+                                },
+                              ),
                           ],
                         ),
                       ),
 
                       if (_isSearchViewVisible)
                         Padding(
-                          padding: const EdgeInsets.only(left: 0, right: 0, top: 15, bottom: 0  ),
+                          padding: const EdgeInsets.only(
+                            left: 0,
+                            right: 0,
+                            top: 15,
+                            bottom: 0,
+                          ),
                           child: Material(
                             elevation: 2,
                             borderRadius: BorderRadius.circular(20),
@@ -1518,24 +1612,44 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                             child: TextField(
                               controller: searchController,
                               onChanged: _onSearchChanged,
-                              style: GoogleFonts.poppins(fontSize: 14),
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                               decoration: InputDecoration(
                                 hintText: "Search items...",
                                 hintStyle: GoogleFonts.poppins(fontSize: 13),
-                                prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
-
-
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
 
                                 filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                                fillColor:
+                                    Theme.of(
+                                      context,
+                                    ).inputDecorationTheme.fillColor ??
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                  horizontal: 16,
+                                ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(20),
-                                  borderSide: BorderSide(color: Colors.grey.shade400),
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context).dividerColor,
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(20),
-                                  borderSide: const BorderSide(color: app_color, width: 1.5),
+                                  borderSide: const BorderSide(
+                                    color: app_color,
+                                    width: 1.5,
+                                  ),
                                 ),
                                 border: InputBorder.none,
                               ),
@@ -1546,32 +1660,27 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                   ),
                 ),
 
-
-
-
-
               // 🔹 List / Empty State
               Expanded(
                 child: isVisibleNoDataFound
                     ? _buildEmptyState()
                     : ListView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                  itemCount: _getVisibleList().length,
-                  itemBuilder: (context, index) {
-                    final card = _getVisibleList()[index];
-                    return _buildItemCard(card);
-                  },
-                ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 0,
+                        ),
+                        itemCount: _getVisibleList().length,
+                        itemBuilder: (context, index) {
+                          final card = _getVisibleList()[index];
+                          return _buildItemCard(card);
+                        },
+                      ),
               ),
             ],
           ),
 
           // 🔹 Loader Overlay
-          if (_isLoading)
-            Container(
-              child: Center(
-                  child: AppLogoLoader()),
-            ),
+          if (_isLoading) Container(child: Center(child: AppLogoLoader())),
         ],
       ),
     );
@@ -1583,34 +1692,33 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: Theme.of(context).dividerColor),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          )
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
         ],
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: _selecteditem,
           isExpanded: true,
-          icon: Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black54),
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
 
           hint: Text(
             "Select Item",
             style: GoogleFonts.poppins(
               fontSize: 14,
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
 
           style: GoogleFonts.poppins(
             fontSize: 15,
-            color: Colors.black,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w500,
           ),
 
@@ -1621,10 +1729,13 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                 width: double.infinity, // 🔥 important
                 child: Text(
                   value,
-                  softWrap: true,        // 🔥 allow wrap
-                  maxLines: 2,           // 👈 adjust (2–3 recommended)
+                  softWrap: true, // 🔥 allow wrap
+                  maxLines: 2, // 👈 adjust (2–3 recommended)
                   overflow: TextOverflow.visible, // 🔥 no ellipsis
-                  style: GoogleFonts.poppins(fontSize: 14),
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
             );
@@ -1657,7 +1768,12 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     );
   }
 
-  Widget _buildTab(String label, IconData icon, bool isSelected, VoidCallback onTap) {
+  Widget _buildTab(
+    String label,
+    IconData icon,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -1666,23 +1782,32 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
         padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
           gradient: isSelected
-              ? LinearGradient(colors: [app_color.withOpacity(0.9), app_color.withOpacity(0.7)])
+              ? LinearGradient(
+                  colors: [
+                    app_color.withOpacity(0.9),
+                    app_color.withOpacity(0.7),
+                  ],
+                )
               : null,
-          color: isSelected ? null : Colors.white,
+          color: isSelected ? null : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: isSelected ? app_color : Colors.grey.shade300),
+          border: Border.all(
+            color: isSelected ? app_color : Theme.of(context).dividerColor,
+          ),
           boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
         ),
         child: Row(
           children: [
             Icon(icon, size: 18, color: isSelected ? Colors.white : app_color),
             SizedBox(width: 6),
-            Text(label,
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : app_color,
-                )),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : app_color,
+              ),
+            ),
           ],
         ),
       ),
@@ -1718,8 +1843,14 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
             borderRadius: BorderRadius.circular(24),
             gradient: LinearGradient(
               colors: [
-                Colors.white.withOpacity(0.85),
-                Colors.white.withOpacity(0.65),
+                Theme.of(context).cardColor.withOpacity(
+                  Theme.of(context).brightness == Brightness.dark ? 0.96 : 0.9,
+                ),
+                Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest.withOpacity(
+                  Theme.of(context).brightness == Brightness.dark ? 0.82 : 0.45,
+                ),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -1732,7 +1863,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
               ),
             ],
             border: Border.all(
-              color: Colors.grey.shade200.withOpacity(0.6),
+              color: Theme.of(context).dividerColor.withOpacity(0.55),
               width: 1,
             ),
           ),
@@ -1760,7 +1891,9 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                                 style: GoogleFonts.poppins(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.black87,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -1768,7 +1901,10 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                               Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 14),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 5,
+                                      horizontal: 14,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.teal,
                                       borderRadius: BorderRadius.circular(30),
@@ -1783,14 +1919,19 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                                     ),
                                   ),
 
-                                  const SizedBox(width:8),
+                                  const SizedBox(width: 8),
 
                                   Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 14),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 5,
+                                      horizontal: 14,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.orange.withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: Colors.orange.shade300)
+                                      border: Border.all(
+                                        color: Colors.orange.shade300,
+                                      ),
                                     ),
                                     child: Text(
                                       "Unit: ${card.unit}",
@@ -1802,18 +1943,26 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                                     ),
                                   ),
                                 ],
-                              )
-
+                              ),
                             ],
                           ),
                         ),
 
-
-                         SizedBox(width: 6),
+                        SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest
+                                : Theme.of(context).dividerColor.withOpacity(
+                                    Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? 0.35
+                                        : 0.75,
+                                  ),
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
@@ -1823,12 +1972,16 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                               ),
                             ],
                           ),
-                          child: Icon(Icons.chevron_right_rounded,
-                              size: 20, color: Colors.grey.shade600),
+                          child: Icon(
+                            Icons.chevron_right_rounded,
+                            size: 20,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ],
                     ),
-
 
                     // 🔹 Alternate Unit
                     if (card.alternate_unit != 'null') ...[
@@ -1842,74 +1995,104 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                         ),
                         style: GoogleFonts.poppins(
                           fontSize: 12,
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontStyle: FontStyle.italic,
                         ),
                       ),
                     ],
 
                     const SizedBox(height: 16),
-                    Divider(height: 1, color: Colors.grey.shade300),
+                    Divider(height: 1, color: Theme.of(context).dividerColor),
                     const SizedBox(height: 12),
 
                     // 🔹 Detail rows
-                    _modernDetailRow(Icons.sell_outlined, "Last Sale Price",
-                        card.saleprice != "null"
-                            ? '$currencysymbol ${formatAmountinDecimals(double.parse(removeUnit(card.saleprice).toString()), decimal!)}'
-                            : "-"),
+                    _modernDetailRow(
+                      Icons.sell_outlined,
+                      "Last Sale Price",
+                      card.saleprice != "null"
+                          ? '$currencysymbol ${formatAmountinDecimals(double.parse(removeUnit(card.saleprice).toString()), decimal!)}'
+                          : "-",
+                    ),
 
-                    _modernDetailRow(Icons.local_offer_outlined, "Standard Price",
-                        card.standardprice != "null"
-                            ? '$currencysymbol ${formatAmountinDecimals(double.parse(removeUnit(card.standardprice).toString()), decimal!)}'
-                            : "-"),
+                    _modernDetailRow(
+                      Icons.local_offer_outlined,
+                      "Standard Price",
+                      card.standardprice != "null"
+                          ? '$currencysymbol ${formatAmountinDecimals(double.parse(removeUnit(card.standardprice).toString()), decimal!)}'
+                          : "-",
+                    ),
 
                     if (rate_visibility && card.c_rate != "null")
-                      _modernDetailRow(Icons.attach_money, "Rate",
-                          '$currencysymbol ${formatAmountinDecimals(double.parse(removeUnit(card.c_rate).toString()), decimal!)}'),
+                      _modernDetailRow(
+                        Icons.attach_money,
+                        "Rate",
+                        '$currencysymbol ${formatAmountinDecimals(double.parse(removeUnit(card.c_rate).toString()), decimal!)}',
+                      ),
 
                     if (amount_visibility)
-                      _modernDetailRow(Icons.payments, "Amount",
-                          card.c_amount != "null"
-                              ? formatAmountWithDRCR(card.c_amount.toString())
-                              : "-"),
+                      _modernDetailRow(
+                        Icons.payments,
+                        "Amount",
+                        card.c_amount != "null"
+                            ? formatAmountWithDRCR(card.c_amount.toString())
+                            : "-",
+                      ),
 
                     if (_isInactiveList)
-                      _modernDetailRow(Icons.calendar_today, "Inactive Since",
-                          formatlastsaledate(card.lastsale)),
+                      _modernDetailRow(
+                        Icons.calendar_today,
+                        "Inactive Since",
+                        formatlastsaledate(card.lastsale),
+                      ),
                   ],
                 ),
               ),
-
-                         ],
+            ],
           ),
         ),
       ),
     );
   }
 
-// 🔹 Modern detail row with icon pill
+  // 🔹 Modern detail row with icon pill
   Widget _modernDetailRow(IconData icon, String title, String value) {
     // Gradient selection based on title
     LinearGradient getGradient(String title) {
       if (title.contains("Sale")) {
-        return LinearGradient(colors: [Colors.blue.shade400, Colors.blue.shade700]);
+        return LinearGradient(
+          colors: [Colors.blue.shade400, Colors.blue.shade700],
+        );
       } else if (title.contains("Standard")) {
-        return LinearGradient(colors: [Colors.purple.shade400, Colors.purple.shade700]);
+        return LinearGradient(
+          colors: [Colors.purple.shade400, Colors.purple.shade700],
+        );
       } else if (title.contains("Rate")) {
-        return LinearGradient(colors: [Colors.green.shade400, Colors.green.shade700]);
+        return LinearGradient(
+          colors: [Colors.green.shade400, Colors.green.shade700],
+        );
       } else if (title.contains("Amount")) {
-        return LinearGradient(colors: [Colors.orange.shade400, Colors.deepOrange.shade600]);
+        return LinearGradient(
+          colors: [Colors.orange.shade400, Colors.deepOrange.shade600],
+        );
       } else if (title.contains("Inactive")) {
-        return LinearGradient(colors: [Colors.grey.shade400, Colors.grey.shade600]);
+        return LinearGradient(
+          colors: [Colors.grey.shade400, Colors.grey.shade600],
+        );
       }
-      return LinearGradient(colors: [app_color.withOpacity(0.4), app_color.withOpacity(0.7)]);
+      return LinearGradient(
+        colors: [app_color.withOpacity(0.4), app_color.withOpacity(0.7)],
+      );
     }
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50.withOpacity(0.6),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withOpacity(0.6)
+            : Colors.grey.shade50.withOpacity(0.6),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -1940,11 +2123,10 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey.shade700,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
-
 
           // 🔹 Value
           Expanded(
@@ -1957,7 +2139,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
                 overflow: TextOverflow.visible,
                 softWrap: true,
@@ -1977,7 +2159,11 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
         children: [
           Row(
             children: [
-              Icon(icon, size: 16, color: Colors.grey[600]),
+              Icon(
+                icon,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
               SizedBox(width: 6),
               Text(
                 label,
@@ -2000,16 +2186,25 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     );
   }
 
-
   Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search_off_rounded, size: 80, color: Colors.grey[400]),
+          Icon(
+            Icons.search_off_rounded,
+            size: 80,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
           SizedBox(height: 12),
-          Text("No items found",
-              style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey[600])),
+          Text(
+            "No items found",
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
         ],
       ),
     );
@@ -2018,14 +2213,22 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
   void _showFilterBottomSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(height: 12),
-          Text("Filter By",
-              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87)),
+          Text(
+            "Filter By",
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
           Divider(),
           RadioListTile<String>(
             value: "qty",
@@ -2033,8 +2236,10 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
             onChanged: (v) {
               setState(() => _selectedFilter = v);
               Navigator.pop(context);
-              if (isClicked_fastmoving) fetchItemData('FastMovingItems', _selecteditem);
-              if (isClicked_slowmoving) fetchItemData('SlowMovingItems', _selecteditem);
+              if (isClicked_fastmoving)
+                fetchItemData('FastMovingItems', _selecteditem);
+              if (isClicked_slowmoving)
+                fetchItemData('SlowMovingItems', _selecteditem);
             },
             title: Text("Quantity"),
           ),
@@ -2044,8 +2249,10 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
             onChanged: (v) {
               setState(() => _selectedFilter = v);
               Navigator.pop(context);
-              if (isClicked_fastmoving) fetchItemData('FastMovingItems', _selecteditem);
-              if (isClicked_slowmoving) fetchItemData('SlowMovingItems', _selecteditem);
+              if (isClicked_fastmoving)
+                fetchItemData('FastMovingItems', _selecteditem);
+              if (isClicked_slowmoving)
+                fetchItemData('SlowMovingItems', _selecteditem);
             },
             title: Text("Sale Price"),
           ),
@@ -2065,16 +2272,20 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
     final query = value.toLowerCase();
     setState(() {
       if (_isAllList) {
-        filteredItems_all_items = all_items_list.where((e) => e.itemname.toLowerCase().contains(query)).toList();
+        filteredItems_all_items = all_items_list
+            .where((e) => e.itemname.toLowerCase().contains(query))
+            .toList();
       } else if (_isActiveList) {
-        filteredItems_active_items = active_items_list.where((e) => e.itemname.toLowerCase().contains(query)).toList();
+        filteredItems_active_items = active_items_list
+            .where((e) => e.itemname.toLowerCase().contains(query))
+            .toList();
       } else if (_isInactiveList) {
-        filteredItems_inactive_items =
-            inactive_items_list.where((e) => e.itemname.toLowerCase().contains(query)).toList();
+        filteredItems_inactive_items = inactive_items_list
+            .where((e) => e.itemname.toLowerCase().contains(query))
+            .toList();
       }
     });
   }
-
 
   Widget buildNeumorphicTab({
     required IconData icon,
@@ -2089,22 +2300,42 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
         borderRadius: BorderRadius.circular(28),
         gradient: isSelected
             ? LinearGradient(
-          colors: [
-           Colors.white.withOpacity(0.25),
-            Colors.white.withOpacity(0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        )
+                colors: [
+                  app_color.withOpacity(
+                    Theme.of(context).brightness == Brightness.dark
+                        ? 0.24
+                        : 0.18,
+                  ),
+                  Theme.of(context).cardColor.withOpacity(
+                    Theme.of(context).brightness == Brightness.dark
+                        ? 0.92
+                        : 0.72,
+                  ),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
             : null,
-        color: isSelected ? Colors.white.withOpacity(0.6) : Colors.white,
+        color: isSelected
+            ? Theme.of(context).cardColor.withOpacity(0.6)
+            : Theme.of(context).cardColor,
         border: Border.all(
-          color: isSelected ? app_color : Colors.grey.shade300,
+          color: isSelected ? app_color : Theme.of(context).dividerColor,
           width: isSelected ? 2 : 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: isSelected ? Colors.white.withOpacity(0.3) : Colors.grey.shade200,
+            color: isSelected
+                ? app_color.withOpacity(
+                    Theme.of(context).brightness == Brightness.dark
+                        ? 0.24
+                        : 0.18,
+                  )
+                : Theme.of(context).dividerColor.withOpacity(
+                    Theme.of(context).brightness == Brightness.dark
+                        ? 0.35
+                        : 0.75,
+                  ),
             blurRadius: 10,
             offset: Offset(0, 4),
           ),
@@ -2120,16 +2351,22 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(
               children: [
-                Icon(icon,
-                    size: 18,
-                    color: isSelected ? app_color : Colors.grey[700]),
+                Icon(
+                  icon,
+                  size: 18,
+                  color: isSelected
+                      ? app_color
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 SizedBox(width: 6),
                 Text(
                   label,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: isSelected ? app_color : Colors.grey[800],
+                    color: isSelected
+                        ? app_color
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -2139,19 +2376,24 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
       ),
     );
   }
+
   Widget _buildIconRow(IconData icon, String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
-            Icon(icon, size: 16, color: Colors.grey[600]),
+            Icon(
+              icon,
+              size: 16,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             SizedBox(width: 6),
             Text(
               label,
               style: GoogleFonts.poppins(
                 fontSize: 13.5,
-                color: Colors.grey[800],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -2163,12 +2405,13 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
           style: GoogleFonts.poppins(
             fontSize: 13.5,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ],
     );
   }
+
   void _showInactiveDaysDialog(BuildContext context) {
     final TextEditingController daysController = TextEditingController();
     daysController.text = inactivedays.toString();
@@ -2177,7 +2420,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
       barrierDismissible: false,
       builder: (ctx) {
         return Dialog(
-          backgroundColor: Colors.white.withOpacity(0.85),
+          backgroundColor: Theme.of(context).cardColor.withOpacity(0.85),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -2185,7 +2428,10 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.white.withOpacity(0.9), Colors.grey[100]!],
+                colors: [
+                  Theme.of(context).cardColor.withOpacity(0.9),
+                  Theme.of(context).colorScheme.surfaceContainerHighest,
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -2208,14 +2454,17 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   "Enter number of days to filter inactive items:",
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
                 const SizedBox(height: 16),
 
@@ -2225,17 +2474,29 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     hintText: "e.g. 30",
-                    prefixIcon: Icon(Icons.calendar_today, color: Colors.grey),
+                    prefixIcon: Icon(
+                      Icons.calendar_today,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                     filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    fillColor:
+                        Theme.of(context).inputDecorationTheme.fillColor ??
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).dividerColor,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).dividerColor,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -2261,14 +2522,16 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                       child: const Text("Cancel"),
                     ),
                     ElevatedButton(
-
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal,
 
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
                       ),
                       onPressed: () {
                         final input = daysController.text.trim();
@@ -2282,8 +2545,11 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin{
                       },
                       child: Text(
                         "Apply",
-                        style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500,
-                        color: Colors.white),
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],

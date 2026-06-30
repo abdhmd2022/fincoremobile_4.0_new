@@ -11,43 +11,43 @@ import 'constants.dart';
 import 'package:http/http.dart' as http;
 
 class ModifyUser extends StatefulWidget {
+  final String user_name, email_address, rolename;
 
-  final String user_name, email_address,rolename;
-
-  const ModifyUser(
-  {
-        required this.user_name,
-        required this.email_address,
-        required this.rolename,
-  }
-  );
+  const ModifyUser({
+    required this.user_name,
+    required this.email_address,
+    required this.rolename,
+  });
 
   @override
-  _ModifyUserPageState createState() => _ModifyUserPageState(user_name: user_name,email_address: email_address,rolename: rolename);
+  _ModifyUserPageState createState() => _ModifyUserPageState(
+    user_name: user_name,
+    email_address: email_address,
+    rolename: rolename,
+  );
 }
 
-class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMixin {
-  final String user_name, email_address,rolename;
+class _ModifyUserPageState extends State<ModifyUser>
+    with TickerProviderStateMixin {
+  final String user_name, email_address, rolename;
 
-  _ModifyUserPageState(
-      {
-        required this.user_name,
-        required this.email_address,
-        required this.rolename
-      }
-      );
+  _ModifyUserPageState({
+    required this.user_name,
+    required this.email_address,
+    required this.rolename,
+  });
 
-  String? fetched_email,fetched_password,fetched_role,fetched_name;
+  String? fetched_email, fetched_password, fetched_role, fetched_name;
 
   bool isDashEnable = true,
-       isRolesVisible = true,
-       isUserEnable = true,
-       isUserVisible = true,
-       isRolesEnable = true,
-       _isLoading = false,
-       isVisibleNoUserFound = false,
-       _isFocused_email = false,
-       _isFocus_name = false;
+      isRolesVisible = true,
+      isUserEnable = true,
+      isUserVisible = true,
+      isRolesEnable = true,
+      _isLoading = false,
+      isVisibleNoUserFound = false,
+      _isFocused_email = false,
+      _isFocus_name = false;
 
   List<dynamic> myData_roles = [];
 
@@ -58,13 +58,14 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
   String user_email_fetched = "";
 
   late final TextEditingController controller_email = TextEditingController();
-  late final TextEditingController controller_password = TextEditingController();
+  late final TextEditingController controller_password =
+      TextEditingController();
   late final TextEditingController controller_name = TextEditingController();
 
   bool _isFocused_password = false;
   bool _obscureText = true;
 
-  String name = "",email = "";
+  String name = "", email = "";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -72,19 +73,23 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
 
   late SharedPreferences prefs;
 
-  String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";
+  String? hostname = "",
+      company = "",
+      company_lowercase = "",
+      serial_no = "",
+      username = "",
+      HttpURL = "",
+      SecuritybtnAcessHolder = "";
 
   List<String> _selectedCompanies = [];
   List<String> myDataCompanies = [];
 
-  Future<void> _initSharedPreferences() async
-  {
+  Future<void> _initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
 
-    setState(()
-    {
+    setState(() {
       hostname = prefs.getString('hostname');
-      company  = prefs.getString('company_name');
+      company = prefs.getString('company_name');
       company_lowercase = company!.replaceAll(' ', '').toLowerCase();
       serial_no = prefs.getString('serial_no');
       username = prefs.getString('username');
@@ -93,25 +98,21 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
       String? email_nav = prefs.getString('email_nav');
       String? name_nav = prefs.getString('name_nav');
 
-      if (email_nav!=null && name_nav!= null)
-      {
+      if (email_nav != null && name_nav != null) {
         name = name_nav;
         email = email_nav;
       }
-      if(SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         isRolesVisible = true;
         isUserVisible = true;
-      }
-      else
-      {
+      } else {
         isRolesVisible = false;
         isUserVisible = false;
       }
       controller_email.text = email_address;
       controller_name.text = user_name;
 
-      fetchUsers(serial_no!,email_address);
+      fetchUsers(serial_no!, email_address);
       fetchRoles(serial_no!);
       fetchCompany(serial_no!);
     });
@@ -125,7 +126,8 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
           title: const Text('Companies'),
           content: StatefulBuilder(
             builder: (context, setState) {
-              bool isAllSelected = _selectedCompanies.length == myDataCompanies.length;
+              bool isAllSelected =
+                  _selectedCompanies.length == myDataCompanies.length;
 
               return SingleChildScrollView(
                 child: Column(
@@ -163,7 +165,8 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
                             }
                           });
                         },
-                        activeColor: Colors.teal, // Customize the checkbox color
+                        activeColor:
+                            Colors.teal, // Customize the checkbox color
                       );
                     }).toList(),
                   ],
@@ -176,19 +179,23 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
               onPressed: () {
                 Navigator.pop(context, null); // Cancel
               },
-              child: const Text('Cancel',
-                  style: TextStyle(
-                      color: Colors.black
-                  )),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context, _selectedCompanies); // Confirm
               },
-              child: const Text('OK',
-                  style: TextStyle(
-                      color: Colors.black
-                  )),
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
             ),
           ],
         );
@@ -203,37 +210,34 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
     }
   }
 
-  Future<void> modifyAllowedCompanies(String email, String serialno, List<String> companies_list) async {
+  Future<void> modifyAllowedCompanies(
+    String email,
+    String serialno,
+    List<String> companies_list,
+  ) async {
     final url = Uri.parse('$BASE_URL_config/api/roles/allowed_companies');
 
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $authTokenBase',
-      "Content-Type": "application/json"
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $authTokenBase',
+      "Content-Type": "application/json",
     };
 
     print('$serialno, $email, $companies_list');
 
     var body = jsonEncode({
       'serial_no': serialno,
-      'user_name' : email,
-      'companies' : companies_list
+      'user_name': email,
+      'companies': companies_list,
     });
 
-    final response = await http.put(
-        url,
-        body : body,
-        headers : headers
-    );
+    final response = await http.put(url, body: body, headers: headers);
 
-    if (response.statusCode == 200)
-    {
+    if (response.statusCode == 200) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => UserView()),
       );
-    }
-    else
-    {
+    } else {
       Map<String, dynamic> data = json.decode(response.body);
       String error = '';
 
@@ -241,14 +245,12 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
         setState(() {
           error = data['error'];
         });
-      }
-      else
-      {
+      } else {
         error = 'Something went wrong!!!';
       }
       Fluttertoast.showToast(msg: error);
 
-     /* setState(() {
+      /* setState(() {
         _isLoading = false;
       });*/
     }
@@ -262,23 +264,16 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
     myDataCompanies.clear();
     final url = Uri.parse('$BASE_URL_config/api/admin/getCompany');
 
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $authTokenBase',
-      "Content-Type": "application/json"
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $authTokenBase',
+      "Content-Type": "application/json",
     };
 
-    var body = jsonEncode({
-      'serialno': selectedserial
-    });
+    var body = jsonEncode({'serialno': selectedserial});
 
-    final response = await http.post(
-        url,
-        body : body,
-        headers : headers
-    );
+    final response = await http.post(url, body: body, headers: headers);
 
-    if (response.statusCode == 200)
-    {
+    if (response.statusCode == 200) {
       final List<dynamic> responseData = jsonDecode(response.body);
       if (responseData != null) {
         setState(() {
@@ -286,18 +281,12 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
             return item['company_name'] as String;
           }).toList();
 
-          fetchAllowedCompany (selectedserial,email_address);
+          fetchAllowedCompany(selectedserial, email_address);
         });
-      }
-      else
-      {
-
+      } else {
         throw Exception('Failed to fetch data');
       }
-
-    }
-    else
-    {
+    } else {
       Map<String, dynamic> data = json.decode(response.body);
       String error = '';
 
@@ -305,9 +294,7 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
         setState(() {
           error = data['error'];
         });
-      }
-      else
-      {
+      } else {
         error = 'Something went wrong!!!';
       }
       Fluttertoast.showToast(msg: error);
@@ -324,55 +311,40 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
       _isLoading = true;
     });*/
 
-    final url = Uri.parse('$BASE_URL_config/api/roles/allowed_companies?user_name=$email&serial_no=$selectedserial');
-
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $authTokenBase',
-      "Content-Type": "application/json"
-    };
-
-
-
-    final response = await http.get(
-        url,
-        headers : headers
+    final url = Uri.parse(
+      '$BASE_URL_config/api/roles/allowed_companies?user_name=$email&serial_no=$selectedserial',
     );
 
-    if (response.statusCode == 200)
-    {
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $authTokenBase',
+      "Content-Type": "application/json",
+    };
 
+    final response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
       print(response.body);
       final company_data = jsonDecode(response.body);
       if (company_data != null) {
-
-
         final List<String> allowedCompanies = company_data.map<String>((item) {
           return item['company_name'] as String;
         }).toList();
 
         setState(() {
-
-          final normalizedAllowedCompanies =
-          allowedCompanies
+          final normalizedAllowedCompanies = allowedCompanies
               .map((e) => e.toString().trim().toLowerCase())
               .toList();
 
           _selectedCompanies = myDataCompanies.where((company) {
-
             return normalizedAllowedCompanies.contains(
               company.toString().trim().toLowerCase(),
             );
-
           }).toList();
-
         });
 
         print('Allowed Companies: $allowedCompanies');
         print('Selected Companies: $_selectedCompanies');
-
-      }
-      else
-      {
+      } else {
         /*setState(() {
           _isLoading = false;
 
@@ -380,14 +352,11 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
 
         throw Exception('Failed to fetch data');
       }
-     /* setState(()
+      /* setState(()
       {
         _isLoading = false;
       });*/
-
-    }
-    else
-    {
+    } else {
       Map<String, dynamic> data = json.decode(response.body);
       String error = '';
 
@@ -396,20 +365,15 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
           error = data['error'];
           /*_isLoading = false;*/
         });
-      }
-      else
-      {
+      } else {
         error = 'Something went wrong!!!';
         setState(() {
           /*_isLoading = false;*/
         });
       }
       Fluttertoast.showToast(msg: error);
-
-
     }
   }
-
 
   Future<void> _showConfirmationDialogAndNavigate(BuildContext context) async {
     final AnimationController controller = AnimationController(
@@ -425,11 +389,19 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
       pageBuilder: (context, anim1, anim2) => const SizedBox.shrink(),
       transitionBuilder: (context, anim1, anim2, child) {
         return ScaleTransition(
-          scale: CurvedAnimation(parent: controller..forward(), curve: Curves.easeOutBack),
+          scale: CurvedAnimation(
+            parent: controller..forward(),
+            curve: Curves.easeOutBack,
+          ),
           child: Dialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            backgroundColor: Colors.white,
-            insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 32,
+              vertical: 24,
+            ),
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
@@ -457,7 +429,7 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -467,10 +439,10 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
                   // 💬 Description
                   Text(
                     'Are you sure you want to modify this user\'s details?\n'
-                        'The updated information will be saved permanently.',
+                    'The updated information will be saved permanently.',
                     style: GoogleFonts.poppins(
                       fontSize: 14.5,
-                      color: Colors.black54,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -509,7 +481,12 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
                         child: ElevatedButton(
                           onPressed: () async {
                             Navigator.of(context).pop();
-                            modifyUser(serial_no!, fetched_email!, fetched_role!, fetched_name!,  controller_password.text.trim(),
+                            modifyUser(
+                              serial_no!,
+                              fetched_email!,
+                              fetched_role!,
+                              fetched_name!,
+                              controller_password.text.trim(),
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -541,22 +518,26 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
   }
 
   bool isEmail(String value) {
-    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-        .hasMatch(value.trim());
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value.trim());
   }
 
-  Future<void> modifyUser(String selectedserial,String email,String rolename, String name, String? password,) async {
+  Future<void> modifyUser(
+    String selectedserial,
+    String email,
+    String rolename,
+    String name,
+    String? password,
+  ) async {
     setState(() {
       _isLoading = true;
     });
 
-    try
-    {
+    try {
       final url = Uri.parse('$BASE_URL_config/api/login/modifyUser');
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $authTokenBase',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $authTokenBase',
+        "Content-Type": "application/json",
       };
 
       Map<String, dynamic> requestBody = {
@@ -572,66 +553,44 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
 
       var body = jsonEncode(requestBody);
 
+      final response = await http.post(url, body: body, headers: headers);
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
-
-      if (response.statusCode == 200)
-      {
+      if (response.statusCode == 200) {
         String responsee = response.body;
 
-        if(responsee == "Kindly Modify Atleast 1 Detail Against Selected User")
-        {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(responsee),
-            ),
-          );
-        }
-        else
-        {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(responsee),
-            ),
-          );
+        if (responsee ==
+            "Kindly Modify Atleast 1 Detail Against Selected User") {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(responsee)));
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(responsee)));
 
-          modifyAllowedCompanies(email,serial_no!,_selectedCompanies);
+          modifyAllowedCompanies(email, serial_no!, _selectedCompanies);
         }
-     }
-      else
-      {
+      } else {
         Map<String, dynamic> data = json.decode(response.body);
         String error = '';
 
-        if (data.containsKey('error'))
-        {
-          setState(()
-          {
+        if (data.containsKey('error')) {
+          setState(() {
             error = data['error'];
           });
-        }
-        else
-        {
+        } else {
           error = 'Something went wrong!!!';
         }
         Fluttertoast.showToast(msg: error);
       }
-      setState(()
-      {
+      setState(() {
         _isLoading = false;
       });
-    }
-    catch (e)
-    {
-    print(e);
-    setState(()
-    {
-      _isLoading = false;
-    });
+    } catch (e) {
+      print(e);
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -641,32 +600,22 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
       _isLoading = true;
     });*/
 
-    try
-    {
+    try {
       final url = Uri.parse('$BASE_URL_config/api/roles/get');
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $authTokenBase',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $authTokenBase',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
-        'serialno': selectedserial,
+      var body = jsonEncode({'serialno': selectedserial});
 
-      });
+      final response = await http.post(url, body: body, headers: headers);
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
-
-      if (response.statusCode == 200)
-      {
+      if (response.statusCode == 200) {
         myData_roles = jsonDecode(response.body);
         if (myData_roles != null) {
           setState(() {
-
             dropdownRoles = myData_roles.map((role) {
               return DropdownMenuItem<String>(
                 value: role['role_name'],
@@ -676,67 +625,48 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
 
             _selectedrole = rolename;
           });
-        }
-        else
-        {
+        } else {
           throw Exception('Failed to fetch data');
         }
-
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       print(e);
-   /* setState(() {
+      /* setState(() {
       _isLoading = false;
     });*/
     }
   }
 
-  Future<void> fetchUsers(String selectedserial,String username) async {
-  /*  setState(()
+  Future<void> fetchUsers(String selectedserial, String username) async {
+    /*  setState(()
     {
       _isLoading = true;
     });*/
 
-    try
-    {
+    try {
       final url = Uri.parse('$BASE_URL_config/api/login/get');
 
-      Map<String,String> headers =
-      {
-        'Authorization' : 'Bearer $authTokenBase',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $authTokenBase',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode(
-      {
-        'serialno': selectedserial,
-        'username': username
-      });
+      var body = jsonEncode({'serialno': selectedserial, 'username': username});
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-      if (response.statusCode == 200)
-      {
+      if (response.statusCode == 200) {
         List<dynamic> parsedResponse = jsonDecode(response.body);
 
         if (!isEmail(controller_email.text)) {
-          String userPassword =
-              parsedResponse[0]['user_password'] ?? '';
+          String userPassword = parsedResponse[0]['user_password'] ?? '';
 
           controller_password.text = userPassword;
         }
       }
-    }
-    catch (e)
-    {
-    print(e);
-   /* setState(()
+    } catch (e) {
+      print(e);
+      /* setState(()
     {
       _isLoading = false;
     });*/
@@ -752,15 +682,16 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
 
   bool isValidEmail(String email) {
     // Simple email validation pattern
-    final RegExp emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,})$');
+    final RegExp emailRegex = RegExp(
+      r'^[\w-]+(\.[\w-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,})$',
+    );
     return emailRegex.hasMatch(email);
   }
 
   @override
   Widget build(BuildContext context) {
     final bool isUsernameUser =
-        controller_email.text.isNotEmpty &&
-            !isEmail(controller_email.text);
+        controller_email.text.isNotEmpty && !isEmail(controller_email.text);
     return WillPopScope(
       onWillPop: () async {
         Navigator.pushReplacement(
@@ -769,67 +700,73 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
         );
         return true;
       },
-      child:Scaffold(
+      child: Scaffold(
         key: _scaffoldKey,
-          backgroundColor: Colors.white,
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(50),
-            child: AppBar(
-              backgroundColor:  app_color,
-              elevation: 6,
-              automaticallyImplyLeading: false,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(20),
-                ),
-              ),
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => UserView()));
-                },
-              ),
-              title: GestureDetector(
-                onTap: () {
-
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        "User Modification",
-                        style: GoogleFonts.poppins(color: Colors.white, fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              centerTitle: true,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: AppBar(
+            backgroundColor: app_color,
+            elevation: 6,
+            automaticallyImplyLeading: false,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
             ),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => UserView()),
+                );
+              },
+            ),
+            title: GestureDetector(
+              onTap: () {},
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      "User Modification",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            centerTitle: true,
           ),
-
+        ),
 
         body: Stack(
           children: [
-            if (_isLoading)
-              const Center(
-                  child: AppLogoLoader()),
+            if (_isLoading) const Center(child: AppLogoLoader()),
 
             LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: constraints.maxHeight - 50),
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight - 50,
+                    ),
                     child: IntrinsicHeight(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 20,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
@@ -848,21 +785,32 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
                               leading: CircleAvatar(
                                 backgroundColor: app_color.withOpacity(0.1),
                                 radius: 22,
-                                child: Icon(Icons.person, size: 24, color: app_color),
+                                child: Icon(
+                                  Icons.person,
+                                  size: 24,
+                                  color: app_color,
+                                ),
                               ),
                               title: Text(
                                 'Modify User',
                                 style: GoogleFonts.poppins(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                               ),
                               subtitle: Padding(
                                 padding: const EdgeInsets.only(top: 4),
                                 child: Text(
                                   'Update the information of this user.',
-                                  style: GoogleFonts.poppins(fontSize: 13, color: Colors.black54),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
                                 ),
                               ),
                             ),
@@ -912,43 +860,70 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
                             ],
                             const SizedBox(height: 10),
 
-
                             // Role Dropdown
-                            Text("Select Role", style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+                            Text(
+                              "Select Role",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<dynamic>(
                               value: _selectedrole,
-                              dropdownColor: Colors.white, // 👈 Set dropdown menu background to white
-                              borderRadius: BorderRadius.circular(14), // 👈 Rounded corners for menu
+                              dropdownColor: Theme.of(context)
+                                  .colorScheme
+                                  .surface, // 👈 Set dropdown menu background to white
+                              borderRadius: BorderRadius.circular(
+                                14,
+                              ), // 👈 Rounded corners for menu
 
                               isExpanded: true,
-                              style: GoogleFonts.poppins(fontSize: 15, color: Colors.black87),
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
 
                               decoration: _modernDropdownDecoration(),
-                                items: dropdownRoles,
+                              items: dropdownRoles,
 
-                              onChanged: (value) => setState(() => _selectedrole = value),
+                              onChanged: (value) =>
+                                  setState(() => _selectedrole = value),
                               onTap: () => _updateFocus(),
-                              hint: Text('Choose a role', style: GoogleFonts.poppins( // 👈 Apply Poppins style to menu items
-                                fontSize: 15,
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w500,
-                              )
+                              hint: Text(
+                                'Choose a role',
+                                style: GoogleFonts.poppins(
+                                  // 👈 Apply Poppins style to menu items
+                                  fontSize: 15,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
 
                             const SizedBox(height: 20),
 
                             // Company Multi-select
-                            Text("Allowed Companies", style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+                            Text(
+                              "Allowed Companies",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                             const SizedBox(height: 8),
                             GestureDetector(
                               onTap: _openMultiSelectDialog,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 12,
+                                ),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: Colors.black),
+                                  border: Border.all(
+                                    color: Theme.of(context).dividerColor,
+                                  ),
                                 ),
                                 child: Text(
                                   _selectedCompanies.isNotEmpty
@@ -961,13 +936,14 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
 
                             SizedBox(height: 70),
 
-
                             // Submit Button
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: app_color,
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -978,55 +954,58 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
 
                               child: _isLoading
                                   ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child:
+                                              Theme.of(context).platform ==
+                                                  TargetPlatform.iOS
+                                              ? const CupertinoActivityIndicator(
+                                                  radius: 10,
+                                                  color: Colors.white,
+                                                )
+                                              : const CircularProgressIndicator(
+                                                  strokeWidth: 2.5,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                        Color
+                                                      >(Colors.white),
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                ),
+                                        ),
 
-                                  SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: Theme.of(context).platform == TargetPlatform.iOS
-                                        ? const CupertinoActivityIndicator(
-                                      radius: 10,
-                                      color: Colors.white,
+                                        const SizedBox(width: 12),
+
+                                        Text(
+                                          'Saving...',
+                                          style: GoogleFonts.poppins(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
                                     )
-                                        : const CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
-                                      backgroundColor: Colors.transparent,
-                                    ),
-                                  ),
-
-                                  const SizedBox(width: 12),
-
-                                  Text(
-                                    'Saving...',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              )
-
                                   : Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.save_alt),
 
-                                  const Icon(Icons.save_alt),
+                                        const SizedBox(width: 10),
 
-                                  const SizedBox(width: 10),
-
-                                  Text(
-                                    'MODIFY',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w600,
+                                        Text(
+                                          'MODIFY',
+                                          style: GoogleFonts.poppins(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                            )
+                            ),
                           ],
                         ),
                       ),
@@ -1037,15 +1016,14 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
             ),
           ],
         ),
-
-      ));
+      ),
+    );
     // TODO: implement build
   }
 
-
   InputDecoration _modernDropdownDecoration() => InputDecoration(
     filled: true,
-    fillColor: Colors.grey[50],
+    fillColor: Theme.of(context).inputDecorationTheme.fillColor,
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
     focusedBorder: OutlineInputBorder(
       borderSide: BorderSide(color: app_color),
@@ -1061,34 +1039,28 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
       fetched_role = _selectedrole;
 
       if (fetched_name!.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Enter Name")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Enter Name")));
       } else if (fetched_email!.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Enter Username or Email")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Enter Username or Email")));
       } else {
-
         _isFocused_email = false;
         _isFocus_name = false;
         if (!isEmail(fetched_email!)) {
-
           if (controller_password.text.trim().isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Enter password"),
-              ),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text("Enter password")));
             return;
           }
 
           if (controller_password.text.trim().length < 4) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Password too short"),
-              ),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text("Password too short")));
             return;
           }
         }
@@ -1119,19 +1091,28 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
       decoration: InputDecoration(
         labelText: label,
         labelStyle: GoogleFonts.poppins(
-          color: isFocused ? app_color : Colors.black87,
+          color: isFocused
+              ? app_color
+              : Theme.of(context).colorScheme.onSurface,
         ),
         filled: true,
-        fillColor: Colors.grey[50],
-        prefixIcon: Icon(icon, color: isFocused ? app_color : Colors.black),
+        fillColor: Theme.of(context).inputDecorationTheme.fillColor,
+        prefixIcon: Icon(
+          icon,
+          color: isFocused
+              ? app_color
+              : Theme.of(context).colorScheme.onSurface,
+        ),
         suffixIcon: isPassword
             ? IconButton(
-          icon: Icon(
-            obscureText ? Icons.visibility_off : Icons.visibility,
-            color: isFocused ? app_color : Colors.black,
-          ),
-          onPressed: toggleObscure,
-        )
+                icon: Icon(
+                  obscureText ? Icons.visibility_off : Icons.visibility,
+                  color: isFocused
+                      ? app_color
+                      : Theme.of(context).colorScheme.onSurface,
+                ),
+                onPressed: toggleObscure,
+              )
             : null,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         focusedBorder: OutlineInputBorder(
@@ -1142,7 +1123,11 @@ class _ModifyUserPageState extends State<ModifyUser> with TickerProviderStateMix
     );
   }
 
-  void _updateFocus({bool name = false, bool email = false, bool password = false}) {
+  void _updateFocus({
+    bool name = false,
+    bool email = false,
+    bool password = false,
+  }) {
     setState(() {
       _isFocus_name = name;
       _isFocused_email = email;

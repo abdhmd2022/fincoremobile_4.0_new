@@ -12,7 +12,7 @@ const String prodServer = "https://fincorego.duckdns.org";
 const String devServer = "http://192.168.2.185";
 
 // Production Environment
-const String  BASE_URL_config = "$prodServer/main";
+const String BASE_URL_config = "$prodServer/main";
 
 // uni gas serial number
 const String uniGasSerialNumber = '772976358';
@@ -33,11 +33,9 @@ const String serialNumbersConfigUrl =
 /// Default/fallback serial numbers.
 /// If internet/API fails, app will still use these values.
 Set<String> vanSalesSerialNo = {
- /* '725463756',
+  /* '725463756',
   '767060064',*/
 };
-
-
 
 Future<void> fetchvanSalesSerialNumbers() async {
   try {
@@ -56,8 +54,7 @@ Future<void> fetchvanSalesSerialNumbers() async {
     if (response.statusCode == 200) {
       final decodedData = jsonDecode(response.body);
 
-      final dynamic rawSerialList =
-      decodedData['serial_no_van_deliverynote'];
+      final dynamic rawSerialList = decodedData['serial_no_van_deliverynote'];
 
       if (rawSerialList is List) {
         final Set<String> fetchedSerialNos = rawSerialList
@@ -68,9 +65,7 @@ Future<void> fetchvanSalesSerialNumbers() async {
         if (fetchedSerialNos.isNotEmpty) {
           vanSalesSerialNo = fetchedSerialNos;
 
-          debugPrint(
-            'Updated vanSalesSerialNo -> $vanSalesSerialNo',
-          );
+          debugPrint('Updated vanSalesSerialNo -> $vanSalesSerialNo');
         }
       }
     }
@@ -86,6 +81,7 @@ bool isVanSalesAccess(String? serialNo) {
 void closeKeyboard(BuildContext context) {
   FocusScope.of(context).unfocus();
 }
+
 const Color app_color = Colors.teal;
 
 String formatAmount(String amount) {
@@ -211,7 +207,7 @@ class _AppLogoLoaderState extends State<AppLogoLoader>
               scale: _scale,
               child: ClipOval(
                 child: DecoratedBox(
-                  decoration: const BoxDecoration(color: Colors.white),
+                  decoration: BoxDecoration(color: Theme.of(context).cardColor),
                   child: Padding(
                     padding: EdgeInsets.all(widget.size * 0.02),
                     child: Image.asset(
@@ -246,24 +242,14 @@ class _LogoLoaderRingPainter extends CustomPainter {
 
     final progressPaint = Paint()
       ..shader = const SweepGradient(
-        colors: [
-          Color(0xFF27B58B),
-          Color(0xFFF9A21A),
-          Color(0xFF27B58B),
-        ],
+        colors: [Color(0xFF27B58B), Color(0xFFF9A21A), Color(0xFF27B58B)],
       ).createShader(rect)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 4.5
       ..strokeCap = StrokeCap.round;
 
     canvas.drawCircle(center, radius, trackPaint);
-    canvas.drawArc(
-      rect,
-      -math.pi / 2,
-      math.pi * 0.7,
-      false,
-      progressPaint,
-    );
+    canvas.drawArc(rect, -math.pi / 2, math.pi * 0.7, false, progressPaint);
   }
 
   @override

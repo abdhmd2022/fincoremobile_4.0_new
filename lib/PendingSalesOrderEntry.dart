@@ -39,13 +39,14 @@ class SalesOrderModel {
 }
 
 class PendingSalesOrderEntry extends StatefulWidget {
-
   const PendingSalesOrderEntry({Key? key}) : super(key: key);
   @override
-  _PendingSalesOrderEntryPageState createState() => _PendingSalesOrderEntryPageState();
+  _PendingSalesOrderEntryPageState createState() =>
+      _PendingSalesOrderEntryPageState();
 }
 
-class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> with TickerProviderStateMixin {
+class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry>
+    with TickerProviderStateMixin {
   bool isDashEnable = true,
       isRolesVisible = true,
       isUserEnable = true,
@@ -54,13 +55,13 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
       _isLoading = false,
       isVisibleNoSalesOrderEntryFound = false;
 
-  String? HttpURL_loadData,HttpURL_deleteEntry,token = '';
+  String? HttpURL_loadData, HttpURL_deleteEntry, token = '';
 
   String rolename_fetched = "";
 
   final List<SalesOrderModel> salesorderentries = [];
 
-  String name = "",email = "";
+  String name = "", email = "";
 
   TextEditingController _searchController = TextEditingController();
 
@@ -72,7 +73,13 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
 
   late SharedPreferences prefs;
 
-  String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";
+  String? hostname = "",
+      company = "",
+      company_lowercase = "",
+      serial_no = "",
+      username = "",
+      HttpURL = "",
+      SecuritybtnAcessHolder = "";
 
   final Set<int> expandedCards = {};
 
@@ -83,30 +90,23 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
       return false;
     }
 
-    return vanSalesSerialNo.any(
-          (s) => s.trim().toLowerCase() == currentSerial,
-    );
+    return vanSalesSerialNo.any((s) => s.trim().toLowerCase() == currentSerial);
   }
 
   String formatAmount(String amount) {
     String amount_string = "";
-    if(amount.contains("-"))
-    {
+    if (amount.contains("-")) {
       amount = amount.replaceAll("-", "");
       double amount_double = double.parse(amount);
       amount_string = CurrencyFormatter.formatCurrency_double(amount_double);
       amount_string = amount_string;
-    }
-    else
-    {
-      if(amount == "null")
-      {
+    } else {
+      if (amount == "null") {
         amount = "0";
       }
       double amount_double = double.parse(amount);
       amount_string = CurrencyFormatter.formatCurrency_double(amount_double);
       amount_string = amount_string;
-
     }
     // Apply any transformations or formatting to the 'amount' variable here
     return amount_string;
@@ -116,35 +116,31 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
     prefs = await SharedPreferences.getInstance();
 
     setState(() {
-
       hostname = prefs.getString('hostname');
-      company  = prefs.getString('company_name');
+      company = prefs.getString('company_name');
       company_lowercase = company!.replaceAll(' ', '').toLowerCase();
       serial_no = prefs.getString('serial_no');
       username = prefs.getString('username');
       token = prefs.getString('token')!;
-
 
       SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
 
       String? email_nav = prefs.getString('email_nav');
       String? name_nav = prefs.getString('name_nav');
 
-      HttpURL_loadData = '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales order';
-      HttpURL_deleteEntry = '$hostname/api/entry/deleteEntry/$company_lowercase/$serial_no';
-      if (email_nav!=null && name_nav!= null)
-      {
+      HttpURL_loadData =
+          '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales order';
+      HttpURL_deleteEntry =
+          '$hostname/api/entry/deleteEntry/$company_lowercase/$serial_no';
+      if (email_nav != null && name_nav != null) {
         name = name_nav;
         email = email_nav;
       }
 
-      if(SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         isRolesVisible = true;
         isUserVisible = true;
-      }
-      else
-      {
+      } else {
         isRolesVisible = false;
         isUserVisible = false;
       }
@@ -174,7 +170,6 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(colors: colors),
         boxShadow: [
@@ -203,8 +198,10 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
     );
   }
 
-
-  Future<void> _showConfirmationDialogAndNavigate(BuildContext context, int id) async {
+  Future<void> _showConfirmationDialogAndNavigate(
+    BuildContext context,
+    int id,
+  ) async {
     await showGeneralDialog(
       context: context,
       barrierDismissible: false,
@@ -222,7 +219,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(22),
             ),
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             elevation: 8,
             titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
             contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
@@ -246,7 +243,11 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.delete_outline, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -254,7 +255,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -264,7 +265,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
               "Do you really want to delete this entry?",
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
 
@@ -272,7 +273,10 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
               // ❌ Cancel Button
               TextButton(
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                 ),
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
@@ -280,7 +284,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -288,7 +292,10 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
               // ✅ Confirm Button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -321,47 +328,30 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
     });
     final url = Uri.parse(HttpURL_deleteEntry!);
 
-
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $token',
-      "Content-Type": "application/json"
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      "Content-Type": "application/json",
     };
 
-    var body = jsonEncode( {
-      'id': id.toString(),
+    var body = jsonEncode({'id': id.toString()});
 
-    });
+    final response = await http.post(url, body: body, headers: headers);
 
-    final response = await http.post(
-        url,
-        body: body,
-        headers:headers
-    );
-
-    if (response.statusCode == 200)
-    {
+    if (response.statusCode == 200) {
       final responsee = response.body;
-      if (responsee != null){
-
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(responsee),
-          ),
-        );
-        if (responsee == "Entry deleted successfully")
-        {
+      if (responsee != null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(responsee)));
+        if (responsee == "Entry deleted successfully") {
           setState(() {
             _isLoading = true;
             fetchSalesOrderEntries();
           });
-        }
-        else
-        {
+        } else {
           setState(() {
             _isLoading = false;
           });
-
         }
       } else {
         setState(() {
@@ -369,9 +359,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
         });
         throw Exception('Failed to fetch data');
       }
-    }
-    else
-    {
+    } else {
       Map<String, dynamic> data = json.decode(response.body);
       String error = '';
 
@@ -379,9 +367,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
         setState(() {
           error = data['error'];
         });
-      }
-      else
-      {
+      } else {
         error = 'Something went wrong!!!';
       }
 
@@ -400,10 +386,15 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
 
     String? voucherTypeName;
 
-    final String? spectraAllocationsString = prefs.getString('spectra_allocations');
+    final String? spectraAllocationsString = prefs.getString(
+      'spectra_allocations',
+    );
 
-    if (spectraAllocationsString != null && spectraAllocationsString.isNotEmpty) {
-      final List<dynamic> spectraAllocations = jsonDecode(spectraAllocationsString);
+    if (spectraAllocationsString != null &&
+        spectraAllocationsString.isNotEmpty) {
+      final List<dynamic> spectraAllocations = jsonDecode(
+        spectraAllocationsString,
+      );
 
       if (spectraAllocations.isNotEmpty) {
         voucherTypeName = spectraAllocations.first['salesorder_voucher_type'];
@@ -411,39 +402,36 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
     }
     dynamic url;
     if (voucherTypeName != null && voucherTypeName.trim().isNotEmpty) {
-      url = Uri.parse('$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales order&vchName=$voucherTypeName');
-    }
-    else
-    {
-      url = Uri.parse('$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales order');
+      url = Uri.parse(
+        '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales order&vchName=$voucherTypeName',
+      );
+    } else {
+      url = Uri.parse(
+        '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales order',
+      );
     }
     print('sales order voucher type -> $voucherTypeName');
     print('getting sales order from url -> $url');
 
-
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $token',
-      "Content-Type": "application/json"
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      "Content-Type": "application/json",
     };
 
-    final response = await http.post(
-        url,
-        headers:headers
-    );
+    final response = await http.post(url, headers: headers);
 
-    if (response.statusCode == 200)
-    {
+    if (response.statusCode == 200) {
       salesorderentries.clear();
       filteredSalesOrderEntries.clear();
       /*print(response.body);*/
-      try
-      {
-        final List<dynamic> jsonList = json.decode(response.body) ;
+      try {
+        final List<dynamic> jsonList = json.decode(response.body);
 
         if (jsonList != null) {
-
           isVisibleNoSalesOrderEntryFound = false;
-          salesorderentries.addAll(jsonList.map((json) => SalesOrderModel.fromJson(json)).toList());
+          salesorderentries.addAll(
+            jsonList.map((json) => SalesOrderModel.fromJson(json)).toList(),
+          );
           salesorderentries.sort((a, b) {
             DateTime dateA = DateTime.parse(a.data['DATE']);
             DateTime dateB = DateTime.parse(b.data['DATE']);
@@ -454,26 +442,19 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
             FocusManager.instance.primaryFocus?.unfocus();
             _searchController.clear();
           });
-        }
-        else
-        {
+        } else {
           throw Exception('Failed to fetch data');
         }
         setState(() {
-          if(filteredSalesOrderEntries.isEmpty)
-          {
+          if (filteredSalesOrderEntries.isEmpty) {
             isVisibleNoSalesOrderEntryFound = true;
           }
           _isLoading = false;
         });
-      }
-      catch (e)
-      {
+      } catch (e) {
         print(e);
       }
-    }
-    else
-    {
+    } else {
       Map<String, dynamic> data = json.decode(response.body);
       String error = '';
 
@@ -481,17 +462,14 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
         setState(() {
           error = data['error'];
         });
-      }
-      else
-      {
+      } else {
         error = 'Something went wrong!!!';
       }
       Fluttertoast.showToast(msg: error);
     }
 
     setState(() {
-      if(filteredSalesOrderEntries.isEmpty)
-      {
+      if (filteredSalesOrderEntries.isEmpty) {
         isVisibleNoSalesOrderEntryFound = true;
       }
       _isLoading = false;
@@ -514,7 +492,9 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
 
         final party = (data['PARTYLEDGERNAME'] ?? '').toString().toLowerCase();
         final vchno = (data['VOUCHERNUMBER'] ?? '').toString().toLowerCase();
-        final vchtype = (data['VOUCHERTYPENAME'] ?? '').toString().toLowerCase();
+        final vchtype = (data['VOUCHERTYPENAME'] ?? '')
+            .toString()
+            .toLowerCase();
         final amount = (data['totalAmount'] ?? '').toString().toLowerCase();
 
         return party.contains(lowerQuery) ||
@@ -533,8 +513,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
   }
 
   Future<void> _refresh() async {
-    setState(()
-    {
+    setState(() {
       fetchSalesOrderEntries();
     });
   }
@@ -542,83 +521,84 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () async {
-          Navigator.pushReplacement(
-            context,
+      onWillPop: () async {
+        Navigator.pushReplacement(
+          context,
 
-            MaterialPageRoute(builder: (context) => Dashboard()),
-          );
-          return true;
-        },
-        child: Scaffold(
-            key: _scaffoldKey,
-            backgroundColor: Colors.white,
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(50),
-            child: AppBar(
-              backgroundColor:  app_color,
-              elevation: 6,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(20),
-                ),
-              ),
-              automaticallyImplyLeading: false,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              centerTitle: true,
-              title: GestureDetector(
-                onTap: () {
-
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        "Sales Order Entries" ?? '',
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+          MaterialPageRoute(builder: (context) => Dashboard()),
+        );
+        return true;
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: AppBar(
+            backgroundColor: app_color,
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+            ),
+            automaticallyImplyLeading: false,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            centerTitle: true,
+            title: GestureDetector(
+              onTap: () {},
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      "Sales Order Entries" ?? '',
+                      style: GoogleFonts.poppins(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
+        ),
 
-            drawer: Sidebar(
-                isDashEnable: isDashEnable,
-                isRolesVisible: isRolesVisible,
-                isRolesEnable: isRolesEnable,
-                isUserEnable: isUserEnable,
-                isUserVisible: isUserVisible,
-                Username: name,
-                Email: email,
-                tickerProvider: this
-            ),
-          body: RefreshIndicator(
-            onRefresh: _refresh,
-            child: Column(
-              children: [
-
-                // 🔍 PREMIUM SEARCH BAR (same as previous screen)
-                if(salesorderentries.isNotEmpty)
+        drawer: Sidebar(
+          isDashEnable: isDashEnable,
+          isRolesVisible: isRolesVisible,
+          isRolesEnable: isRolesEnable,
+          isUserEnable: isUserEnable,
+          isUserVisible: isUserVisible,
+          Username: name,
+          Email: email,
+          tickerProvider: this,
+        ),
+        body: RefreshIndicator(
+          onRefresh: _refresh,
+          child: Column(
+            children: [
+              // 🔍 PREMIUM SEARCH BAR (same as previous screen)
+              if (salesorderentries.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(18),
                       gradient: LinearGradient(
-                        colors: [Colors.white, Colors.white.withOpacity(0.95)],
+                        colors: [
+                          Theme.of(context).cardColor,
+                          Theme.of(context).cardColor.withOpacity(0.95),
+                        ],
                       ),
                       boxShadow: [
                         BoxShadow(
@@ -632,11 +612,10 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                           offset: const Offset(0, 2),
                         ),
                       ],
-                      border: Border.all(color: Colors.grey.shade200),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: Row(
                       children: [
-
                         // 🔍 ICON
                         Container(
                           padding: const EdgeInsets.all(8),
@@ -646,7 +625,11 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(Icons.search, color: Colors.white, size: 18),
+                          child: const Icon(
+                            Icons.search,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
 
                         const SizedBox(width: 12),
@@ -662,13 +645,15 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Colors.black87,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                             decoration: InputDecoration(
                               hintText: "Search sales orders...",
                               hintStyle: GoogleFonts.poppins(
                                 fontSize: 13,
-                                color: Colors.grey.shade500,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                               ),
 
                               // ❌ REMOVE ALL BORDERS
@@ -692,7 +677,13 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                             child: Container(
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade200,
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainerHighest
+                                    : Colors.grey.shade200,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(Icons.close, size: 16),
@@ -703,8 +694,8 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                   ),
                 ),
 
-
-                Expanded(child:  Stack(
+              Expanded(
+                child: Stack(
                   children: [
                     Visibility(
                       visible: isVisibleNoSalesOrderEntryFound,
@@ -714,7 +705,13 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.receipt_long, size: 64, color: Colors.grey[300]),
+                              Icon(
+                                Icons.receipt_long,
+                                size: 64,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
                               const SizedBox(height: 16),
                               Text(
                                 'No Sales Order Entry Found',
@@ -722,7 +719,9 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                                 style: GoogleFonts.poppins(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.grey[600],
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ],
@@ -744,8 +743,9 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                         final bool isExpanded = expandedCards.contains(card.id);
 
                         DateTime date = DateTime.parse(dateStr);
-                        String formattedDate = DateFormat("dd-MMM-yyyy").format(date);
-
+                        String formattedDate = DateFormat(
+                          "dd-MMM-yyyy",
+                        ).format(date);
 
                         return GestureDetector(
                           onTap: () {
@@ -779,53 +779,76 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                                 children: [
                                   // 🔹 Top Row: Order + Action Icons
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Expanded(child:   Row(
-                                          children: [
-                                            // Gradient Icon
-                                            Container(
-                                              width: 32,
-                                              height: 32,
-                                              decoration: BoxDecoration(
-                                                gradient: const LinearGradient(
-                                                  colors: [Color(0xFF66BB6A), Color(0xFF388E3C)],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              // Gradient Icon
+                                              Container(
+                                                width: 32,
+                                                height: 32,
+                                                decoration: BoxDecoration(
+                                                  gradient:
+                                                      const LinearGradient(
+                                                        colors: [
+                                                          Color(0xFF66BB6A),
+                                                          Color(0xFF388E3C),
+                                                        ],
+                                                        begin:
+                                                            Alignment.topLeft,
+                                                        end: Alignment
+                                                            .bottomRight,
+                                                      ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.green
+                                                          .withOpacity(0.25),
+                                                      blurRadius: 6,
+                                                      offset: const Offset(
+                                                        0,
+                                                        3,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                borderRadius: BorderRadius.circular(10),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.green.withOpacity(0.25),
-                                                    blurRadius: 6,
-                                                    offset: const Offset(0, 3),
+                                                child: const Icon(
+                                                  Icons.shopping_cart_outlined,
+                                                  size: 18,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+
+                                              // Order Text
+                                              Expanded(
+                                                child: Text(
+                                                  "$vchno",
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).colorScheme.onSurface,
                                                   ),
-                                                ],
-                                              ),
-                                              child: const Icon(Icons.shopping_cart_outlined, size: 18, color: Colors.white),
-                                            ),
-                                            const SizedBox(width: 10),
-
-                                            // Order Text
-                                            Expanded(
-                                              child: Text(
-                                                "$vchno",
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: Colors.black87,
+                                                  softWrap: true,
                                                 ),
-                                                softWrap: true,
                                               ),
-                                            )
-                                          ],
-                                        ),),
-
+                                            ],
+                                          ),
+                                        ),
 
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 0),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 0,
+                                          ),
                                           child: Row(
                                             children: [
                                               _buildSyncChip(card.isSynced),
@@ -836,19 +859,32 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                                     ),
                                   ),
 
-                                  if (card.isSynced == 2 && card.message != null)
+                                  if (card.isSynced == 2 &&
+                                      card.message != null)
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 16,right:16, top:16 ),
+                                      padding: const EdgeInsets.only(
+                                        left: 16,
+                                        right: 16,
+                                        top: 16,
+                                      ),
                                       child: Container(
                                         padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
                                           color: Colors.red.shade50,
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(color: Colors.red.shade200),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.red.shade200,
+                                          ),
                                         ),
                                         child: Row(
                                           children: [
-                                            Icon(Icons.error_outline, color: Colors.red.shade700, size: 18),
+                                            Icon(
+                                              Icons.error_outline,
+                                              color: Colors.red.shade700,
+                                              size: 18,
+                                            ),
                                             const SizedBox(width: 8),
                                             Expanded(
                                               child: Text(
@@ -883,52 +919,98 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                                     alignment: Alignment.topCenter,
                                     child: isExpanded
                                         ? Column(
-                                      children: [
-                                        DetailRowTile(
-                                          label: "Voucher Type",
-                                          value: vchtype,
-                                        ),
-                                        DetailRowTile(
-                                          label: "Total Amount",
-                                          value: formatAmount(totalAmount.toString()),
-                                        ),
-                                      ],
-                                    )
+                                            children: [
+                                              DetailRowTile(
+                                                label: "Voucher Type",
+                                                value: vchtype,
+                                              ),
+                                              DetailRowTile(
+                                                label: "Total Amount",
+                                                value: formatAmount(
+                                                  totalAmount.toString(),
+                                                ),
+                                              ),
+                                            ],
+                                          )
                                         : const SizedBox.shrink(),
                                   ),
 
                                   Align(
                                     alignment: Alignment.centerRight,
                                     child: Padding(
-                                      padding: const EdgeInsets.only(right: 14, top: 6),
+                                      padding: const EdgeInsets.only(
+                                        right: 14,
+                                        top: 6,
+                                      ),
                                       child: AnimatedContainer(
-                                        duration: const Duration(milliseconds: 250),
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                        duration: const Duration(
+                                          milliseconds: 250,
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 6,
+                                        ),
                                         decoration: BoxDecoration(
-                                          color: isExpanded ? Colors.grey.shade100 : app_color.withOpacity(0.08),
-                                          borderRadius: BorderRadius.circular(30),
+                                          color: isExpanded
+                                              ? (Theme.of(context).brightness ==
+                                                        Brightness.dark
+                                                    ? Theme.of(context)
+                                                          .colorScheme
+                                                          .surfaceContainerHighest
+                                                    : Colors.grey.shade100)
+                                              : app_color.withOpacity(0.08),
+                                          borderRadius: BorderRadius.circular(
+                                            30,
+                                          ),
                                           border: Border.all(
-                                            color: isExpanded ? Colors.grey.shade300 : app_color.withOpacity(0.18),
+                                            color: isExpanded
+                                                ? Colors.grey.shade300
+                                                : app_color.withOpacity(0.18),
                                           ),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Icon(Icons.touch_app_rounded, size: 15, color: isExpanded ? Colors.grey.shade700 : app_color),
+                                            Icon(
+                                              Icons.touch_app_rounded,
+                                              size: 15,
+                                              color: isExpanded
+                                                  ? Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant
+                                                  : app_color,
+                                            ),
                                             const SizedBox(width: 5),
                                             Text(
-                                              isExpanded ? "Show less" : "Tap to show more",
+                                              isExpanded
+                                                  ? "Show less"
+                                                  : "Tap to show more",
                                               style: GoogleFonts.poppins(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w600,
-                                                color: isExpanded ? Colors.grey.shade700 : app_color,
+                                                color: isExpanded
+                                                    ? Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurfaceVariant
+                                                    : app_color,
                                               ),
                                             ),
                                             const SizedBox(width: 3),
                                             AnimatedRotation(
                                               turns: isExpanded ? 0.5 : 0,
-                                              duration: const Duration(milliseconds: 250),
-                                              child: Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: isExpanded ? Colors.grey.shade700 : app_color),
+                                              duration: const Duration(
+                                                milliseconds: 250,
+                                              ),
+                                              child: Icon(
+                                                Icons
+                                                    .keyboard_arrow_down_rounded,
+                                                size: 16,
+                                                color: isExpanded
+                                                    ? Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurfaceVariant
+                                                    : app_color,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -936,28 +1018,33 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                                     ),
                                   ),
 
-                                  if(card.isSynced != 1 && (serial_no != uniGasSerialNumber))
-                                    ...[
-                                    Padding(padding: EdgeInsets.only(top: 16),
-                                      child:  Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                  if (card.isSynced != 1 &&
+                                      (serial_no != uniGasSerialNumber)) ...[
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 16),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-
                                           _buildGradientAction(
                                             icon: Icons.edit,
                                             text: "Modify",
 
-                                            colors: [const Color(0xFF42A5F5), const Color(0xFF1E88E5)],
+                                            colors: [
+                                              const Color(0xFF42A5F5),
+                                              const Color(0xFF1E88E5),
+                                            ],
                                             onTap: () {
                                               Navigator.pushReplacement(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) => ModifySalesOrderEntry(
-                                                    type: card.type,
-                                                    id: card.id,
-                                                    isSynced: card.isSynced,
-                                                    data: card.data,
-                                                  ),
+                                                  builder: (context) =>
+                                                      ModifySalesOrderEntry(
+                                                        type: card.type,
+                                                        id: card.id,
+                                                        isSynced: card.isSynced,
+                                                        data: card.data,
+                                                      ),
                                                 ),
                                               );
                                             },
@@ -967,31 +1054,33 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                                             icon: Icons.delete_outline,
                                             text: "Delete",
 
-                                            colors: [const Color(0xFFEF5350), const Color(0xFFD32F2F)],
+                                            colors: [
+                                              const Color(0xFFEF5350),
+                                              const Color(0xFFD32F2F),
+                                            ],
                                             onTap: () {
-                                              _showConfirmationDialogAndNavigate(context, card.id);
+                                              _showConfirmationDialogAndNavigate(
+                                                context,
+                                                card.id,
+                                              );
                                             },
                                           ),
-
                                         ],
-                                      ),)
-                                  ]
-
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
-
-                          ));
+                          ),
+                        );
                       },
                     ),
 
-
                     Visibility(
                       visible: _isLoading,
-                      child: Center(
-                          child: AppLogoLoader())
+                      child: Center(child: AppLogoLoader()),
                     ),
-
 
                     Positioned(
                       bottom: 40,
@@ -1000,11 +1089,16 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                         onTap: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => SalesOrderRegistration()),
+                            MaterialPageRoute(
+                              builder: (context) => SalesOrderRegistration(),
+                            ),
                           );
                         },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 22,
+                            vertical: 14,
+                          ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(50),
                             gradient: LinearGradient(
@@ -1023,7 +1117,11 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.add_rounded, color: Colors.white, size: 26),
+                              Icon(
+                                Icons.add_rounded,
+                                color: Colors.white,
+                                size: 26,
+                              ),
                               const SizedBox(width: 10),
                               Text(
                                 "Create Entry",
@@ -1039,23 +1137,17 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry> wit
                         ),
                       ),
                     ),
-
-
-
                   ],
                 ),
-                )
-
-
-              ],
-            ),
-
+              ),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
     // TODO: implement build
   }
 }
-
 
 class DetailRowTile extends StatelessWidget {
   final String label;
@@ -1073,13 +1165,21 @@ class DetailRowTile extends StatelessWidget {
   LinearGradient _getGradient(String label) {
     final lower = label.toLowerCase();
     if (lower.contains('date')) {
-      return LinearGradient(colors: [Colors.indigo.shade400, Colors.indigo.shade700]);
+      return LinearGradient(
+        colors: [Colors.indigo.shade400, Colors.indigo.shade700],
+      );
     } else if (lower.contains('voucher')) {
-      return LinearGradient(colors: [Colors.orange.shade400, Colors.deepOrange.shade600]);
+      return LinearGradient(
+        colors: [Colors.orange.shade400, Colors.deepOrange.shade600],
+      );
     } else if (lower.contains('amount')) {
-      return LinearGradient(colors: [Colors.green.shade400, Colors.green.shade700]);
+      return LinearGradient(
+        colors: [Colors.green.shade400, Colors.green.shade700],
+      );
     } else if (lower.contains('party')) {
-      return LinearGradient(colors: [Colors.blue.shade400, Colors.blue.shade700]);
+      return LinearGradient(
+        colors: [Colors.blue.shade400, Colors.blue.shade700],
+      );
     }
     return LinearGradient(colors: [Colors.grey.shade400, Colors.grey.shade600]);
   }
@@ -1100,7 +1200,7 @@ class DetailRowTile extends StatelessWidget {
   }
 
   // Amount color logic
-  Color _getValueColor() {
+  Color _getValueColor(BuildContext context) {
     if (label.toLowerCase().contains('amount')) {
       if (value.toLowerCase().contains("dr") || value.startsWith("-")) {
         return Colors.red.shade700; // Debit
@@ -1108,7 +1208,7 @@ class DetailRowTile extends StatelessWidget {
         return Colors.green.shade700; // Credit
       }
     }
-    return Colors.black87; // Normal
+    return Theme.of(context).colorScheme.onSurface; // Normal
   }
 
   @override
@@ -1117,71 +1217,76 @@ class DetailRowTile extends StatelessWidget {
     final icon = _getIcon(label);
 
     final row = Container(
-        margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // 🔹 Gradient Icon
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                gradient: gradient,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: gradient.colors.last.withOpacity(0.25),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Icon(icon, size: 16, color: Colors.white),
-            ),
-            const SizedBox(width: 12),
-
-            // 🔹 Label (Left Half)
-            Expanded(
-              flex: 1,
-              child: Text(
-                label,
-                style: GoogleFonts.poppins(fontSize: 13.5, color: Colors.black87),
-                softWrap: true,
-                overflow: TextOverflow.visible,
-              ),
-            ),
-
-            // 🔹 Value (Right Half)
-            Expanded(
-              flex: 1,
-              child: Text(
-                value,
-                style: GoogleFonts.poppins(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w600,
-                  color: _getValueColor(),
+      margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surfaceContainerHighest
+            : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // 🔹 Gradient Icon
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              gradient: gradient,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: gradient.colors.last.withOpacity(0.25),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
                 ),
-                textAlign: TextAlign.right,
-                softWrap: true,
-                overflow: TextOverflow.visible,
-              ),
+              ],
             ),
-          ],
-        )
+            child: Icon(icon, size: 16, color: Colors.white),
+          ),
+          const SizedBox(width: 12),
 
+          // 🔹 Label (Left Half)
+          Expanded(
+            flex: 1,
+            child: Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 13.5,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+          ),
+
+          // 🔹 Value (Right Half)
+          Expanded(
+            flex: 1,
+            child: Text(
+              value,
+              style: GoogleFonts.poppins(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+                color: _getValueColor(context),
+              ),
+              textAlign: TextAlign.right,
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+          ),
+        ],
+      ),
     );
 
     return onTap != null ? GestureDetector(onTap: onTap, child: row) : row;
   }
 }
+
 Widget _buildGradientAction({
   required IconData icon,
-  required String text,   // ✅ ADD TEXT
+  required String text, // ✅ ADD TEXT
   required List<Color> colors,
   required VoidCallback onTap,
 }) {

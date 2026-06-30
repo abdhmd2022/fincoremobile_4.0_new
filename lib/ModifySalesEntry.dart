@@ -18,30 +18,35 @@ import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-class ModifySalesEntry extends StatefulWidget
-{
-  final int id,isSynced;
+class ModifySalesEntry extends StatefulWidget {
+  final int id, isSynced;
   final String type;
   final Map<String, dynamic> data;
-  const ModifySalesEntry(
-      {required this.id,
-        required this.isSynced,
-        required this.type,
-        required this.data,}
-      );  @override
-  _ModifySalesEntryPageState createState() => _ModifySalesEntryPageState(id: id,isSynced:isSynced,type:type,data:data);
+  const ModifySalesEntry({
+    required this.id,
+    required this.isSynced,
+    required this.type,
+    required this.data,
+  });
+  @override
+  _ModifySalesEntryPageState createState() => _ModifySalesEntryPageState(
+    id: id,
+    isSynced: isSynced,
+    type: type,
+    data: data,
+  );
 }
 
 class SaleItem {
   final String itemName;
-   String itemQuantity;
-   double itemPrice;
+  String itemQuantity;
+  double itemPrice;
   final double itemAmount;
   final String itemLocation;
   final String itemUnit;
   late Map<String, dynamic> accountingAllocationList;
   late Map<String, dynamic> batchAllocationList;
-  
+
   SaleItem({
     required this.itemName,
     required this.itemQuantity,
@@ -103,9 +108,8 @@ class LedgerEntry {
     required this.ledgerName,
     required this.ledgerAmount,
     required this.vatApp,
-
   });
-  LedgerEntry updateAmount(double newAmount,bool vatApp) {
+  LedgerEntry updateAmount(double newAmount, bool vatApp) {
     return LedgerEntry(
       ledgerName: this.ledgerName,
       ledgerAmount: newAmount,
@@ -114,21 +118,17 @@ class LedgerEntry {
   }
 }
 
-class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProviderStateMixin {
-
-  int id,isSynced;
+class _ModifySalesEntryPageState extends State<ModifySalesEntry>
+    with TickerProviderStateMixin {
+  int id, isSynced;
   String type;
   Map<String, dynamic> data;
-  _ModifySalesEntryPageState(
-      {
-
-        required this.id,
-        required this.isSynced,
-        required this.type,
-        required this.data,
-
-      }
-      );
+  _ModifySalesEntryPageState({
+    required this.id,
+    required this.isSynced,
+    required this.type,
+    required this.data,
+  });
 
   bool isDashEnable = true,
       isRolesVisible = true,
@@ -136,7 +136,6 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
       isUserVisible = true,
       isRolesEnable = true,
       _isLoading = false,
-
       isVisibleNoUserFound = false;
   TextEditingController _itemController = TextEditingController();
   TextEditingController _partyLedgerController = TextEditingController();
@@ -163,7 +162,11 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
   late AnimationController _animationController;
   late Animation<double> _animation;
 
-  void _confirmLedgerDeletion(BuildContext context, int index,String ledgername) {
+  void _confirmLedgerDeletion(
+    BuildContext context,
+    int index,
+    String ledgername,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -175,20 +178,26 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
               onPressed: () {
                 Navigator.of(context).pop(); // Dismiss the dialog
               },
-              child: Text('No',
+              child: Text(
+                'No',
                 style: GoogleFonts.poppins(
-                  color: Colors.grey, // Change the text color here
-                ),),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant, // Change the text color here
+                ),
+              ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Dismiss the dialog
                 _deleteLedger(index);
               },
-              child: Text('Yes',
+              child: Text(
+                'Yes',
                 style: GoogleFonts.poppins(
                   color: app_color, // Change the text color here
-                ),),
+                ),
+              ),
             ),
           ],
         );
@@ -200,84 +209,70 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
     setState(() {
       ledgerEntries.removeAt(index);
 
-      totalPriceOfItems = saleItems
-          .fold(
-          0.0, (double previousAmount,
-          SaleItem item) {
+      totalPriceOfItems = saleItems.fold(0.0, (
+        double previousAmount,
+        SaleItem item,
+      ) {
         return previousAmount +
-            (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity));
+            (double.parse(item.itemPrice.toStringAsFixed(decimal!)) *
+                double.parse(item.itemQuantity));
       });
 
       totalAmountForVatAppEntries = ledgerEntries
-          .where((entry) =>
-      entry.vatApp)
-          .fold(
-          0.0, (double previousAmount,
-          LedgerEntry entry) {
-        return previousAmount +
-            double.parse(entry.ledgerAmount.toStringAsFixed(decimal!));
-      });
-
-      totalAmountOfLedgers = ledgerEntries
+          .where((entry) => entry.vatApp)
           .fold(0.0, (double previousAmount, LedgerEntry entry) {
+            return previousAmount +
+                double.parse(entry.ledgerAmount.toStringAsFixed(decimal!));
+          });
+
+      totalAmountOfLedgers = ledgerEntries.fold(0.0, (
+        double previousAmount,
+        LedgerEntry entry,
+      ) {
         return previousAmount + entry.ledgerAmount;
       });
 
-      if (_selectedvatledger !=
-          'Not Applicable') {
+      if (_selectedvatledger != 'Not Applicable') {
         double vat_perc = vatperc / 100;
-        ledgerVatAmount =
-            totalAmountForVatAppEntries *
-                vat_perc;
+        ledgerVatAmount = totalAmountForVatAppEntries * vat_perc;
 
         itemsVatAmount = double.parse(
-            (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
+          (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!),
+        );
 
-        totalVatAmount =
-            itemsVatAmount +
-                ledgerVatAmount;
+        totalVatAmount = itemsVatAmount + ledgerVatAmount;
 
-        roundedtotalVatAmount =
-            double.parse(
-                totalVatAmount
-                    .toStringAsFixed(
-                    decimal!));
+        roundedtotalVatAmount = double.parse(
+          totalVatAmount.toStringAsFixed(decimal!),
+        );
         NumberFormat formatter = NumberFormat(
-            '#,##0.${'0' * decimal!}',
-            'en_US');
-        String formattedVat = formatter
-            .format(
-            roundedtotalVatAmount);
-        controller_vatamt.text =
-            formattedVat.toString();
-      }
-      else {
+          '#,##0.${'0' * decimal!}',
+          'en_US',
+        );
+        String formattedVat = formatter.format(roundedtotalVatAmount);
+        controller_vatamt.text = formattedVat.toString();
+      } else {
         totalVatAmount = 0;
 
-        roundedtotalVatAmount =
-            double.parse(
-                totalVatAmount
-                    .toStringAsFixed(
-                    decimal!));
+        roundedtotalVatAmount = double.parse(
+          totalVatAmount.toStringAsFixed(decimal!),
+        );
         NumberFormat formatter = NumberFormat(
-            '#,##0.${'0' * decimal!}',
-            'en_US');
-        String formattedVat = formatter
-            .format(
-            roundedtotalVatAmount);
-        controller_vatamt.text =
-            formattedVat.toString();
+          '#,##0.${'0' * decimal!}',
+          'en_US',
+        );
+        String formattedVat = formatter.format(roundedtotalVatAmount);
+        controller_vatamt.text = formattedVat.toString();
       }
 
-      totalAmount = totalPriceOfItems +  totalAmountOfLedgers + totalVatAmount ;
+      totalAmount = totalPriceOfItems + totalAmountOfLedgers + totalVatAmount;
       roundedtotalAmount = double.parse(totalAmount.toStringAsFixed(decimal!));
       NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
       String formattedtotal = formatter.format(roundedtotalAmount);
       controller_totalamt.text = formattedtotal.toString();
       if (ledgerEntries.isEmpty) {
         isVisibleLedgerHeading = false;
-      }
-      else {
+      } else {
         isVisibleLedgerHeading = true;
       }
     });
@@ -295,17 +290,22 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
               onPressed: () {
                 Navigator.of(context).pop(); // Dismiss the dialog
               },
-              child: Text('No',
+              child: Text(
+                'No',
                 style: GoogleFonts.poppins(
-                  color: Colors.grey, // Change the text color here
-                ),),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant, // Change the text color here
+                ),
+              ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Dismiss the dialog
                 _deleteSaleItem(index);
               },
-              child: Text('Yes',
+              child: Text(
+                'Yes',
                 style: GoogleFonts.poppins(
                   color: app_color, // Change the text color here
                 ),
@@ -321,74 +321,84 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
     setState(() {
       saleItems.removeAt(index);
       // Calculate the total price of items
-      totalPriceOfItems = saleItems
-          .fold(
-          0.0, (double previousAmount,
-          SaleItem item) {
+      totalPriceOfItems = saleItems.fold(0.0, (
+        double previousAmount,
+        SaleItem item,
+      ) {
         return previousAmount +
-            (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity));
+            (double.parse(item.itemPrice.toStringAsFixed(decimal!)) *
+                double.parse(item.itemQuantity));
       });
 
       totalAmountForVatAppEntries = ledgerEntries
-          .where((entry) =>
-      entry.vatApp)
-          .fold(
-          0.0, (double previousAmount,
-          LedgerEntry entry) {
-        return previousAmount +
-            entry.ledgerAmount;
-      });
-
-      totalAmountOfLedgers = ledgerEntries
+          .where((entry) => entry.vatApp)
           .fold(0.0, (double previousAmount, LedgerEntry entry) {
+            return previousAmount + entry.ledgerAmount;
+          });
+
+      totalAmountOfLedgers = ledgerEntries.fold(0.0, (
+        double previousAmount,
+        LedgerEntry entry,
+      ) {
         return previousAmount + entry.ledgerAmount;
       });
 
       if (_selectedvatledger != 'Not Applicable') {
         double vat_perc = vatperc / 100;
         itemsVatAmount = double.parse(
-            (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
+          (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!),
+        );
         ledgerVatAmount = totalAmountForVatAppEntries * vat_perc;
 
         totalVatAmount = itemsVatAmount + ledgerVatAmount;
 
-        roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
-        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+        roundedtotalVatAmount = double.parse(
+          totalVatAmount.toStringAsFixed(decimal!),
+        );
+        NumberFormat formatter = NumberFormat(
+          '#,##0.${'0' * decimal!}',
+          'en_US',
+        );
         String formattedVat = formatter.format(roundedtotalVatAmount);
         controller_vatamt.text = formattedVat.toString();
-      }
-      else
-      {
+      } else {
         totalVatAmount = 0;
 
-        roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
-        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+        roundedtotalVatAmount = double.parse(
+          totalVatAmount.toStringAsFixed(decimal!),
+        );
+        NumberFormat formatter = NumberFormat(
+          '#,##0.${'0' * decimal!}',
+          'en_US',
+        );
         String formattedVat = formatter.format(roundedtotalVatAmount);
         controller_vatamt.text = formattedVat.toString();
       }
 
-      totalAmountOfLedgers = ledgerEntries
-          .fold(0.0, (double previousAmount, LedgerEntry entry) {
+      totalAmountOfLedgers = ledgerEntries.fold(0.0, (
+        double previousAmount,
+        LedgerEntry entry,
+      ) {
         return previousAmount + entry.ledgerAmount;
       });
-      totalAmount = totalPriceOfItems +  totalAmountOfLedgers + totalVatAmount;
+      totalAmount = totalPriceOfItems + totalAmountOfLedgers + totalVatAmount;
       roundedtotalAmount = double.parse(totalAmount.toStringAsFixed(decimal!));
       NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
       String formattedtotal = formatter.format(roundedtotalAmount);
       controller_totalamt.text = formattedtotal.toString();
       if (saleItems.isEmpty) {
         isVisibleItemHeading = false;
-      }
-      else
-      {
+      } else {
         isVisibleItemHeading = true;
       }
     });
   }
 
   Future<void> _selectDateRangeVchNo(BuildContext context) async {
-
-    final initialDateRange = DateTimeRange(start: yearStartDate, end: yearEndDate);
+    final initialDateRange = DateTimeRange(
+      start: yearStartDate,
+      end: yearEndDate,
+    );
 
     DateTimeRange? selectedDateRange = await showDateRangePicker(
       context: context,
@@ -396,18 +406,21 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
       builder: (BuildContext context, Widget? child) {
-        return  Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: ColorScheme.light().copyWith(
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
               primary: app_color, // main accent color
               onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black87,
+              surface: Theme.of(context).colorScheme.surface,
+              onSurface: Theme.of(context).colorScheme.onSurface,
             ),
             datePickerTheme: DatePickerThemeData(
-              rangeSelectionBackgroundColor: app_color.withOpacity(0.15), // 🔹 light shade of your app_color
-              rangeSelectionOverlayColor:
-              MaterialStatePropertyAll(app_color.withOpacity(0.15)),
+              rangeSelectionBackgroundColor: app_color.withOpacity(
+                0.15,
+              ), // 🔹 light shade of your app_color
+              rangeSelectionOverlayColor: MaterialStatePropertyAll(
+                app_color.withOpacity(0.15),
+              ),
             ),
           ),
           child: child!,
@@ -415,8 +428,7 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
       },
     );
 
-    if (selectedDateRange != null &&
-        selectedDateRange != initialDateRange) {
+    if (selectedDateRange != null && selectedDateRange != initialDateRange) {
       setState(() {
         yearStartDate = selectedDateRange.start;
         yearEndDate = selectedDateRange.end;
@@ -427,9 +439,10 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
   }
 
   Future<void> fetchvchnos(String vchname) async {
-
     // Format the dates as yyyyMMdd
-    String formattedStartDateVchNo = DateFormat('yyyyMMdd').format(yearStartDate);
+    String formattedStartDateVchNo = DateFormat(
+      'yyyyMMdd',
+    ).format(yearStartDate);
     String formattedEndDateVchNo = DateFormat('yyyyMMdd').format(yearEndDate);
 
     vchnos.clear();
@@ -440,31 +453,23 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
     // vchnos fetching
     try {
       final url = Uri.parse(HttpURL_fetchvchnos!);
-      Map<String,String> headers =
-      {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
       Map<String, dynamic> jsonDatabody = {
         "to": formattedEndDateVchNo,
         "from": formattedStartDateVchNo,
-        "vchname" : vchname
+        "vchname": vchname,
       };
 
       String jsonDatabodyString = jsonEncode(jsonDatabody);
 
-      var body =jsonDatabodyString;
-      final response = await http.post
-        (
-          url,
-          headers:headers,
-          body:body
-      );
+      var body = jsonDatabodyString;
+      final response = await http.post(url, headers: headers, body: body);
 
-      if (response.statusCode == 200)
-      {
-
+      if (response.statusCode == 200) {
         /*print(response.body);*/
         setState(() {
           final Map<String, dynamic> jsonResponse = json.decode(response.body);
@@ -477,30 +482,21 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
           if (isVchEditable) {
             checkVchNoExistence(_vchnoController.text);
           }
-
         });
-      }
-      else
-      {
+      } else {
         vchnos.clear();
         Map<String, dynamic> data = json.decode(response.body);
         String error = '';
-        if (data.containsKey('error'))
-        {
+        if (data.containsKey('error')) {
           setState(() {
             error = data['error'];
           });
-
-        }
-        else
-        {
+        } else {
           error = 'Something went wrong!!!';
         }
         Fluttertoast.showToast(msg: error);
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       vchnos.clear();
       print(e);
     }
@@ -511,19 +507,15 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
   }
 
   void checkVchNoExistence(String vchNo) {
-
-    if(vchNo.isEmpty || vchNo == '')
-    {
+    if (vchNo.isEmpty || vchNo == '') {
       setState(() {
         errorMessageVchNo = 'Voucher No. cannot be empty';
       });
-    }
-    else
-    {
+    } else {
       if (vchnos.contains(vchNo)) {
         setState(() {
-
-          errorMessageVchNo = 'Voucher no: $vchNo against $_selectedvchtypename already exists';
+          errorMessageVchNo =
+              'Voucher no: $vchNo against $_selectedvchtypename already exists';
         });
       } else {
         setState(() {
@@ -531,8 +523,6 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
         });
       }
     }
-
-
   }
 
   double ledgerVatAmount = 0,
@@ -542,7 +532,9 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
 
   late ProgressDialog progressDialog;
 
-  double totalPriceOfItems = 0, totalAmountForVatAppEntries = 0,totalAmountOfLedgers = 0;
+  double totalPriceOfItems = 0,
+      totalAmountForVatAppEntries = 0,
+      totalAmountOfLedgers = 0;
   final FocusNode _textFieldFocusNodeNarration = FocusNode();
 
   Map<String, dynamic> jsonEntryData = {
@@ -550,15 +542,14 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
     "VOUCHERTYPENAME": "",
     "PARTYLEDGERNAME": "",
     "NARRATION": "",
-    "VOUCHERNUMBER" : "",
+    "VOUCHERNUMBER": "",
     "REFERENCE": "",
     "REFERENCEDATE": "",
     "INVENTORYENTRIES.LIST": [],
     "LEDGERENTRIES.LIST": [],
   };
 
-  bool isVisibleItemHeading = false,
-      isVisibleLedgerHeading = false;
+  bool isVisibleItemHeading = false, isVisibleLedgerHeading = false;
 
   bool isVisibleUnit = true;
 
@@ -595,7 +586,9 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
   String name = "",
       email = "",
       saledatestring = '',
-      saledatetxt = '',refdatestring = '', refdatetxt = '';
+      saledatetxt = '',
+      refdatestring = '',
+      refdatetxt = '';
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -603,13 +596,20 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
 
   late SharedPreferences prefs;
 
-  dynamic _selectedledger, _selecteditem, _selectedunit, _selectedsalesledger,
-      _selectedvchtypename, _selectedpartyledger, _selectedvatledger;
+  dynamic _selectedledger,
+      _selecteditem,
+      _selectedunit,
+      _selectedsalesledger,
+      _selectedvchtypename,
+      _selectedpartyledger,
+      _selectedvatledger;
 
   late final TextEditingController controller_vchno = TextEditingController();
-  late final TextEditingController controller_narration = TextEditingController();
+  late final TextEditingController controller_narration =
+      TextEditingController();
   late final TextEditingController controller_vatamt = TextEditingController();
-  late final TextEditingController controller_totalamt = TextEditingController();
+  late final TextEditingController controller_totalamt =
+      TextEditingController();
   late final TextEditingController controller_refno = TextEditingController();
 
   bool _isFocused_vchno = false,
@@ -630,8 +630,11 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
       HttpURL = "",
       SecuritybtnAcessHolder = "";
 
-  late DateTime saledate,refdate;
-  String? HttpURL_loadData,HttpURL_modifysalesEntry,HttpURL_fetchvchnos,HttpURL_loadLedgerData;
+  late DateTime saledate, refdate;
+  String? HttpURL_loadData,
+      HttpURL_modifysalesEntry,
+      HttpURL_fetchvchnos,
+      HttpURL_loadLedgerData;
 
   double selectedMultiplier = 0.0;
 
@@ -647,8 +650,7 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
 
   String currencycode = '';
 
-  String formatitemKey(int key)
-  {
+  String formatitemKey(int key) {
     key++;
     String keyy = key.toString();
     return keyy;
@@ -657,14 +659,46 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
   String convertAmountToWords(num amount) {
     if (amount == null) return "Invalid input";
 
-    List<String> units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-    List<String> teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-    List<String> tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-
+    List<String> units = [
+      '',
+      'One',
+      'Two',
+      'Three',
+      'Four',
+      'Five',
+      'Six',
+      'Seven',
+      'Eight',
+      'Nine',
+    ];
+    List<String> teens = [
+      'Ten',
+      'Eleven',
+      'Twelve',
+      'Thirteen',
+      'Fourteen',
+      'Fifteen',
+      'Sixteen',
+      'Seventeen',
+      'Eighteen',
+      'Nineteen',
+    ];
+    List<String> tens = [
+      '',
+      '',
+      'Twenty',
+      'Thirty',
+      'Forty',
+      'Fifty',
+      'Sixty',
+      'Seventy',
+      'Eighty',
+      'Ninety',
+    ];
 
     NumberFormat formatter = NumberFormat.decimalPatternDigits(
       locale: 'en_us',
-      decimalDigits:decimal,
+      decimalDigits: decimal,
     );
     String formattedAmount = formatter.format(amount);
 
@@ -675,11 +709,21 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
     String currencyWords = getCurrencyWords(currencycode);
     String fractionalUnit = getFractionalUnit(currencycode);
 
-    String integerWords = convertIntegerToWords(units, teens, tens, integerPart);
+    String integerWords = convertIntegerToWords(
+      units,
+      teens,
+      tens,
+      integerPart,
+    );
     String result = '$currencyWords $integerWords';
 
     if (decimalPart > 0) {
-      String decimalWords = convertIntegerToWords(units, teens, tens, decimalPart);
+      String decimalWords = convertIntegerToWords(
+        units,
+        teens,
+        tens,
+        decimalPart,
+      );
       result += ' and $decimalWords $fractionalUnit Only';
     } else {
       result += ' Only';
@@ -689,38 +733,64 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
   }
 
   String getCurrencyWords(String currencyCode) {
-    switch(currencyCode.toLowerCase()) {
-      case 'aed': return 'UAE dirham';
-      case 'usd': return 'US dollar';
-      case 'inr': return 'Indian rupee';
-      case 'pkr': return 'Pakistani rupee';
-      case 'eur': return 'Euro';
-      case 'lkr': return 'Sri Lankan rupee';
-      case 'sar': return 'Saudi riyal';
-      case 'omr': return 'Omani rial';
-      case 'bhd': return 'Bahraini dinar';
-      case 'qar': return 'Qatari riyal';
-      case 'kwd': return 'Kuwaiti dinar';
-      case 'sle': return 'Sierra Leonean leone';
-      default: return '';
+    switch (currencyCode.toLowerCase()) {
+      case 'aed':
+        return 'UAE dirham';
+      case 'usd':
+        return 'US dollar';
+      case 'inr':
+        return 'Indian rupee';
+      case 'pkr':
+        return 'Pakistani rupee';
+      case 'eur':
+        return 'Euro';
+      case 'lkr':
+        return 'Sri Lankan rupee';
+      case 'sar':
+        return 'Saudi riyal';
+      case 'omr':
+        return 'Omani rial';
+      case 'bhd':
+        return 'Bahraini dinar';
+      case 'qar':
+        return 'Qatari riyal';
+      case 'kwd':
+        return 'Kuwaiti dinar';
+      case 'sle':
+        return 'Sierra Leonean leone';
+      default:
+        return '';
     }
   }
 
   String getFractionalUnit(String currencyCode) {
-    switch(currencyCode.toLowerCase()) {
-      case 'aed': return 'fils';
-      case 'usd': return 'cents';
-      case 'inr': return 'paise';
-      case 'pkr': return 'paisa';
-      case 'eur': return 'cents';
-      case 'lkr': return 'cents';
-      case 'sar': return 'halala';
-      case 'omr': return 'baisa';
-      case 'bhd': return 'fils';
-      case 'qar': return 'dirham';
-      case 'kwd': return 'fils';
-      case 'sle': return 'cents';
-      default: return '';
+    switch (currencyCode.toLowerCase()) {
+      case 'aed':
+        return 'fils';
+      case 'usd':
+        return 'cents';
+      case 'inr':
+        return 'paise';
+      case 'pkr':
+        return 'paisa';
+      case 'eur':
+        return 'cents';
+      case 'lkr':
+        return 'cents';
+      case 'sar':
+        return 'halala';
+      case 'omr':
+        return 'baisa';
+      case 'bhd':
+        return 'fils';
+      case 'qar':
+        return 'dirham';
+      case 'kwd':
+        return 'fils';
+      case 'sle':
+        return 'cents';
+      default:
+        return '';
     }
   }
 
@@ -729,12 +799,14 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
     isVisibleItemHeading = saleItems.isNotEmpty;
 
     // Total items ka price
-    totalPriceOfItems = saleItems.fold(
-      0.0,
-          (double previousAmount, SaleItem item) {
-        return previousAmount + (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity));
-      },
-    );
+    totalPriceOfItems = saleItems.fold(0.0, (
+      double previousAmount,
+      SaleItem item,
+    ) {
+      return previousAmount +
+          (double.parse(item.itemPrice.toStringAsFixed(decimal!)) *
+              double.parse(item.itemQuantity));
+    });
 
     // VAT calculation
     if (_selectedvatledger != 'Not Applicable') {
@@ -743,60 +815,72 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
       totalAmountForVatAppEntries = ledgerEntries
           .where((entry) => entry.vatApp)
           .fold(0.0, (double prev, LedgerEntry entry) {
-        return prev + double.parse(entry.ledgerAmount.toStringAsFixed(decimal!));
-      });
+            return prev +
+                double.parse(entry.ledgerAmount.toStringAsFixed(decimal!));
+          });
 
       ledgerVatAmount = totalAmountForVatAppEntries * vatPerc;
       itemsVatAmount = double.parse(
-          (totalPriceOfItems * vatPerc).toStringAsFixed(decimal!));
+        (totalPriceOfItems * vatPerc).toStringAsFixed(decimal!),
+      );
       totalVatAmount = itemsVatAmount + ledgerVatAmount;
 
-      roundedtotalVatAmount =
-          double.parse(totalVatAmount.toStringAsFixed(decimal!));
+      roundedtotalVatAmount = double.parse(
+        totalVatAmount.toStringAsFixed(decimal!),
+      );
 
-      NumberFormat formatter =
-      NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
-      controller_vatamt.text =
-          formatter.format(roundedtotalVatAmount).toString();
+      NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+      controller_vatamt.text = formatter
+          .format(roundedtotalVatAmount)
+          .toString();
     } else {
       totalVatAmount = 0;
-      roundedtotalVatAmount =
-          double.parse(totalVatAmount.toStringAsFixed(decimal!));
-      NumberFormat formatter =
-      NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+      roundedtotalVatAmount = double.parse(
+        totalVatAmount.toStringAsFixed(decimal!),
+      );
+      NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
       controller_vatamt.text = formatter.format(0).toString();
     }
 
     // Ledger totals
-    totalAmountOfLedgers =
-        ledgerEntries.fold(0.0, (double prev, entry) => prev + entry.ledgerAmount);
+    totalAmountOfLedgers = ledgerEntries.fold(
+      0.0,
+      (double prev, entry) => prev + entry.ledgerAmount,
+    );
 
     // Final total
     totalAmount = totalPriceOfItems + totalAmountOfLedgers + totalVatAmount;
     roundedtotalAmount = double.parse(totalAmount.toStringAsFixed(decimal!));
 
-    NumberFormat formatter =
-    NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+    NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
     controller_totalamt.text = formatter.format(roundedtotalAmount).toString();
   }
 
-  String convertIntegerToWords(List<String> units, List<String> teens, List<String> tens, int amount) {
+  String convertIntegerToWords(
+    List<String> units,
+    List<String> teens,
+    List<String> tens,
+    int amount,
+  ) {
     if (amount == 0) return 'zero';
 
     String words = '';
 
     if (amount >= 1000000000) {
-      words += '${convertIntegerToWords(units, teens, tens, amount ~/ 1000000000)} billion ';
+      words +=
+          '${convertIntegerToWords(units, teens, tens, amount ~/ 1000000000)} billion ';
       amount %= 1000000000;
     }
 
     if (amount >= 1000000) {
-      words += '${convertIntegerToWords(units, teens, tens, amount ~/ 1000000)} million ';
+      words +=
+          '${convertIntegerToWords(units, teens, tens, amount ~/ 1000000)} million ';
       amount %= 1000000;
     }
 
     if (amount >= 1000) {
-      words += '${convertIntegerToWords(units, teens, tens, amount ~/ 1000)} thousand ';
+      words +=
+          '${convertIntegerToWords(units, teens, tens, amount ~/ 1000)} thousand ';
       amount %= 1000;
     }
 
@@ -819,20 +903,18 @@ class _ModifySalesEntryPageState extends State<ModifySalesEntry> with TickerProv
     return words.trim();
   }
 
-  String formatAmountInvoice(String amount)
-  {
+  String formatAmountInvoice(String amount) {
     int? decimal = prefs?.getInt('decimalplace') ?? 2;
 
     String amount_string = "";
-    if(amount == "null" || amount.isEmpty)
-    {
+    if (amount == "null" || amount.isEmpty) {
       amount = "0";
     }
     double amount_double = double.parse(amount);
 
     NumberFormat formatter = NumberFormat.decimalPatternDigits(
       locale: 'en_us',
-      decimalDigits:decimal,
+      decimalDigits: decimal,
     );
     String formattedAmount = formatter.format(amount_double);
 
@@ -1258,312 +1340,345 @@ _itemController.text = _selecteditem;
     });
   }*/
 
-
-  Future<void> generateInvoicePDF(String trn, String address,String emirate, String country) async {
+  Future<void> generateInvoicePDF(
+    String trn,
+    String address,
+    String emirate,
+    String country,
+  ) async {
     final pdf = pw.Document();
 
     int totalQuantity = 0;
     double totalitemAmount = 0;
     for (var item in saleItems) {
-
       String qty = item.itemQuantity;
       int qty_int = int.parse(qty);
       totalQuantity += qty_int;
 
-      totalitemAmount += double.parse(item.itemAmount.toStringAsFixed(decimal!));
+      totalitemAmount += double.parse(
+        item.itemAmount.toStringAsFixed(decimal!),
+      );
     }
 
     pdf.addPage(
       pw.Page(
         build: (pw.Context context) {
           return pw.Stack(
-              children:[
-
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.center,
-                  children: [
-                    // Tax Invoice Heading
-                    pw.Header(
-                        level: 0,
-                        decoration: pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide.none)),
-
-                        child: pw.Center(child:pw.Text('Tax Invoice', textAlign: pw.TextAlign.center,
-                            style: pw.TextStyle(
-                                fontSize: 18
-                            )), )
+            children: [
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  // Tax Invoice Heading
+                  pw.Header(
+                    level: 0,
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border(bottom: pw.BorderSide.none),
                     ),
-                    pw.SizedBox(height: 5),
 
-                    pw.Container(
-                      decoration: pw.BoxDecoration(
-                        border: pw.Border(
-                            right: pw.BorderSide(
-                                width: 1.0
-                            ),
-                            top: pw.BorderSide(
-                                width: 1.0
-                            ),
-                            left: pw.BorderSide(
-                                width: 1.0
-                            ),
-                            bottom: pw.BorderSide(
-                                width: 1.0
-                            )),
+                    child: pw.Center(
+                      child: pw.Text(
+                        'Tax Invoice',
+                        textAlign: pw.TextAlign.center,
+                        style: pw.TextStyle(fontSize: 18),
                       ),
-                      child: pw.Row(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        mainAxisAlignment: pw.MainAxisAlignment.start,
-                        children: [
-                          // Left column
-                          pw.Expanded(
-                              flex: 1,
-                              child: pw.Container(
-                                padding: pw.EdgeInsets.only(left: 5,top: 2,bottom: 2,right: 5),
-                                child: pw.Column(
-                                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                    mainAxisAlignment: pw.MainAxisAlignment.start,
+                    ),
+                  ),
+                  pw.SizedBox(height: 5),
+
+                  pw.Container(
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border(
+                        right: pw.BorderSide(width: 1.0),
+                        top: pw.BorderSide(width: 1.0),
+                        left: pw.BorderSide(width: 1.0),
+                        bottom: pw.BorderSide(width: 1.0),
+                      ),
+                    ),
+                    child: pw.Row(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      mainAxisAlignment: pw.MainAxisAlignment.start,
+                      children: [
+                        // Left column
+                        pw.Expanded(
+                          flex: 1,
+                          child: pw.Container(
+                            padding: pw.EdgeInsets.only(
+                              left: 5,
+                              top: 2,
+                              bottom: 2,
+                              right: 5,
+                            ),
+                            child: pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.start,
+                              mainAxisAlignment: pw.MainAxisAlignment.start,
+                              children: [
+                                pw.Text(company!),
+
+                                if (company_address != "null" ||
+                                    company_address != "Not Available")
+                                  pw.Column(
                                     children: [
+                                      pw.SizedBox(height: 2),
 
-                                      pw.Text(company!),
+                                      pw.Text(company_address),
+                                    ],
+                                  ),
 
+                                if (company_emirate != "null" ||
+                                    company_emirate != "Not Available")
+                                  pw.Column(
+                                    children: [
+                                      pw.SizedBox(height: 2),
 
-                                      if(company_address!="null" || company_address!="Not Available")
-                                        pw.Column(children: [
-                                          pw.SizedBox(height: 2),
+                                      pw.Row(
+                                        children: [
+                                          pw.Text("Emirate "),
 
-                                          pw.Text(company_address),
+                                          pw.SizedBox(width: 20),
+                                          pw.Text(company_emirate),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
 
-                                        ],),
+                                if (company_country != "null" ||
+                                    company_country != "Not Available")
+                                  pw.Column(
+                                    children: [
+                                      pw.SizedBox(height: 2),
 
-                                      if(company_emirate!="null"  || company_emirate!="Not Available")
-                                        pw.Column(children: [
-                                          pw.SizedBox(height: 2),
+                                      pw.Row(
+                                        children: [
+                                          pw.Text("Country "),
 
-                                          pw.Row(children: [
-                                            pw.Text("Emirate "),
+                                          pw.SizedBox(width: 20),
+                                          pw.Text(company_country),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
 
-                                            pw.SizedBox(width: 20),
-                                            pw.Text(company_emirate),
+                                if (company_trn != "null" ||
+                                    company_trn != "Not Available")
+                                  pw.Column(
+                                    children: [
+                                      pw.SizedBox(height: 2),
 
-                                          ],)
+                                      pw.Row(
+                                        children: [
+                                          pw.Text("TRN "),
 
-                                        ],),
+                                          pw.SizedBox(width: 35),
+                                          pw.Text(company_trn),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
 
-                                      if(company_country!="null" || company_country!="Not Available")
-                                        pw.Column(children: [
-                                          pw.SizedBox(height: 2),
+                                pw.SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                        ),
 
-                                          pw.Row(children: [
-                                            pw.Text("Country "),
+                        // Right column
+                        pw.Expanded(
+                          flex: 1,
+                          child: pw.Container(
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border(
+                                right: pw.BorderSide(width: 1.0),
+                                top: pw.BorderSide(width: 1.0),
 
-                                            pw.SizedBox(width: 20),
-                                            pw.Text(company_country),
+                                bottom: pw.BorderSide(width: 1.0),
+                                left: pw.BorderSide(width: 1.0),
+                              ),
+                            ),
 
-                                          ],)
-                                        ],),
+                            child: pw.Column(
+                              children: [
+                                // first row right column
+                                pw.Container(
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(width: 1),
+                                  ),
+                                  child: pw.Row(
+                                    crossAxisAlignment:
+                                        pw.CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        pw.MainAxisAlignment.start,
+                                    children: [
+                                      // invoice no
+                                      pw.Expanded(
+                                        child: pw.Container(
+                                          decoration: pw.BoxDecoration(
+                                            border: pw.Border(
+                                              right: pw.BorderSide(width: 1),
+                                            ),
+                                          ),
+                                          padding: pw.EdgeInsets.only(
+                                            left: 5,
+                                            top: 5,
+                                            bottom: 5,
+                                            right: 5,
+                                          ),
 
-                                      if(company_trn!="null" || company_trn!="Not Available")
-                                        pw.Column(children: [
-                                          pw.SizedBox(height: 2),
+                                          child: pw.Column(
+                                            crossAxisAlignment:
+                                                pw.CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                pw.MainAxisAlignment.start,
+                                            children: [
+                                              pw.Text('Invoice No:'),
+                                              pw.SizedBox(height: 2),
+                                              pw.Text(_vchnoController.text),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
 
-                                          pw.Row(children: [
-                                            pw.Text("TRN "),
-
-                                            pw.SizedBox(width: 35),
-                                            pw.Text(company_trn),
-
-                                          ],)
-
-                                        ],),
-
-                                      pw.SizedBox(height: 20),
-
-                                    ]
-                                ),)),
-
-
-
-                          // Right column
-                          pw.Expanded(
-                            flex: 1,
-                            child: pw.Container(
-                                decoration: pw.BoxDecoration(
-                                  border: pw.Border(
-                                    right: pw.BorderSide(
-                                        width: 1.0
-                                    ),
-                                    top: pw.BorderSide(
-                                        width: 1.0
-                                    ),
-
-                                    bottom: pw.BorderSide(
-                                        width: 1.0
-                                    ),
-                                    left:pw.BorderSide(
-                                        width: 1.0
-                                    ), ),
+                                      pw.Expanded(
+                                        child: pw.Container(
+                                          decoration: pw.BoxDecoration(
+                                            border: pw.Border(
+                                              left: pw.BorderSide(width: 1),
+                                            ),
+                                          ),
+                                          padding: pw.EdgeInsets.only(
+                                            left: 5,
+                                            top: 5,
+                                            bottom: 5,
+                                            right: 5,
+                                          ),
+                                          child: pw.Column(
+                                            crossAxisAlignment:
+                                                pw.CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                pw.MainAxisAlignment.start,
+                                            children: [
+                                              pw.Text('Dated:'),
+                                              pw.SizedBox(height: 2),
+                                              pw.Text(
+                                                formatlastsaledate(
+                                                  saledatestring,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
 
-                                child: pw.Column(
+                                //second row right column
+                                pw.Container(
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(width: 1),
+                                  ),
+                                  child: pw.Row(
+                                    crossAxisAlignment:
+                                        pw.CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        pw.MainAxisAlignment.start,
                                     children: [
-                                      // first row right column
-
-                                      pw.Container(
-                                        decoration: pw.BoxDecoration(
-                                          border: pw.Border.all(width: 1
-
+                                      pw.Expanded(
+                                        child: pw.Container(
+                                          decoration: pw.BoxDecoration(
+                                            border: pw.Border(
+                                              right: pw.BorderSide(width: 1),
+                                            ),
                                           ),
-                                        ),
-                                        child: pw.Row(
-                                            crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                            mainAxisAlignment: pw.MainAxisAlignment.start,
+                                          padding: pw.EdgeInsets.only(
+                                            left: 5,
+                                            top: 5,
+                                            bottom: 5,
+                                            right: 5,
+                                          ),
+
+                                          child: pw.Column(
+                                            crossAxisAlignment:
+                                                pw.CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                pw.MainAxisAlignment.start,
+
                                             children: [
-
-
-                                              // invoice no
-                                              pw.Expanded(child: pw.Container(
-                                                  decoration: pw.BoxDecoration(
-                                                    border: pw.Border(right: pw.BorderSide(width: 1)
-                                                    ),
-                                                  ),
-                                                  padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
-
-                                                  child: pw.Column(
-                                                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                                      mainAxisAlignment: pw.MainAxisAlignment.start,
-                                                      children: [
-
-                                                        pw.Text('Invoice No:'),
-                                                        pw.SizedBox(height: 2),
-                                                        pw.Text(_vchnoController.text),
-                                                      ]
-
-
-                                                  ))
-                                              ),
-
-
-
-                                              pw.Expanded(child: pw.Container(
-                                                  decoration: pw.BoxDecoration(
-                                                    border: pw.Border(left: pw.BorderSide(width: 1)
-                                                    ),
-                                                  ),
-                                                  padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
-                                                  child: pw.Column(
-                                                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                                      mainAxisAlignment: pw.MainAxisAlignment.start,
-                                                      children: [
-
-                                                        pw.Text('Dated:'),
-                                                        pw.SizedBox(height: 2),
-                                                        pw.Text(formatlastsaledate(saledatestring)),
-                                                      ]
-
-
-                                                  )
-                                              ),)
-
-                                            ]
+                                              pw.Text('Reference No:'),
+                                              pw.SizedBox(height: 2),
+                                              pw.Text(controller_refno.text),
+                                            ],
+                                          ),
                                         ),
                                       ),
 
-
-                                      //second row right column
-                                      pw.Container(
-                                        decoration: pw.BoxDecoration(
-                                          border: pw.Border.all(width: 1
-
+                                      pw.Expanded(
+                                        child: pw.Container(
+                                          decoration: pw.BoxDecoration(
+                                            border: pw.Border(
+                                              left: pw.BorderSide(width: 1),
+                                            ),
+                                          ),
+                                          padding: pw.EdgeInsets.only(
+                                            left: 5,
+                                            top: 5,
+                                            bottom: 5,
+                                            right: 5,
+                                          ),
+                                          child: pw.Column(
+                                            crossAxisAlignment:
+                                                pw.CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                pw.MainAxisAlignment.start,
+                                            children: [
+                                              pw.Text('Reference Date:'),
+                                              pw.SizedBox(height: 2),
+                                              pw.Text(
+                                                formatlastsaledate(
+                                                  refdatestring,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        child: pw.Row(
-                                            crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                            mainAxisAlignment: pw.MainAxisAlignment.start,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                // third row right column
+                                pw.Container(
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border(
+                                      top: pw.BorderSide(width: 1),
+                                      left: pw.BorderSide(width: 1),
+                                    ),
+                                  ),
+                                  child: pw.Row(
+                                    children: [
+                                      pw.Expanded(
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.only(
+                                            left: 5,
+                                            top: 5,
+                                            bottom: 5,
+                                            right: 5,
+                                          ),
+
+                                          child: pw.Column(
+                                            crossAxisAlignment:
+                                                pw.CrossAxisAlignment.start,
                                             children: [
-
-                                              pw.Expanded(child: pw.Container(
-                                                  decoration: pw.BoxDecoration(
-                                                    border: pw.Border(right: pw.BorderSide(width: 1)
-                                                    ),
-                                                  ),
-                                                  padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
-
-                                                  child: pw.Column(
-                                                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                                      mainAxisAlignment: pw.MainAxisAlignment.start,
-
-                                                      children: [
-
-                                                        pw.Text('Reference No:'),
-                                                        pw.SizedBox(height:2),
-                                                        pw.Text(controller_refno.text),
-                                                      ]
-
-
-                                                  ))
+                                              pw.Text('Remarks:'),
+                                              pw.SizedBox(height: 2),
+                                              pw.Text(
+                                                controller_narration.text,
                                               ),
-
-
-
-                                              pw.Expanded(child: pw.Container(
-                                                  decoration: pw.BoxDecoration(
-                                                    border: pw.Border(left: pw.BorderSide(width: 1)
-                                                    ),
-                                                  ),
-                                                  padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
-                                                  child: pw.Column(
-                                                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                                      mainAxisAlignment: pw.MainAxisAlignment.start,
-                                                      children: [
-
-                                                        pw.Text('Reference Date:'),
-                                                        pw.SizedBox(height:2),
-                                                        pw.Text(formatlastsaledate(refdatestring)),
-                                                      ]
-
-
-                                                  )
-                                              ),)
-
-                                            ]
+                                            ],
+                                          ),
                                         ),
                                       ),
 
-                                      // third row right column
-
-                                      pw.Container(
-                                        decoration: pw.BoxDecoration(
-                                          border: pw.Border(top: pw.BorderSide(width: 1),
-                                              left: pw.BorderSide(width: 1)
-                                          ),
-                                        ),
-                                        child: pw.Row(
-
-                                            children: [
-
-
-                                              pw.Expanded(child: pw.Container(
-
-                                                  padding: pw.EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 5),
-
-                                                  child: pw.Column(
-                                                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                                      children: [
-
-                                                        pw.Text('Remarks:'),
-                                                        pw.SizedBox(height: 2),
-                                                        pw.Text(controller_narration.text),
-
-                                                      ]
-
-
-
-                                                  ))
-                                              ),
-
-
-
-                                              /* pw.Expanded(child: pw.Container(
+                                      /* pw.Expanded(child: pw.Container(
                                             decoration: pw.BoxDecoration(
                                               border: pw.Border(left: pw.BorderSide(width: 1)
                                               ),
@@ -1580,113 +1695,123 @@ _itemController.text = _selecteditem;
 
                                             )
                                         ),)*/
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
-                                            ]
-                                        ),
-                                      ),
-                                    ]
-                                )
-                            ),),
+                  pw.Container(
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border(
+                        right: pw.BorderSide(width: 1.0),
 
-                        ],
+                        left: pw.BorderSide(width: 1.0),
+                        bottom: pw.BorderSide(width: 1.0),
                       ),
                     ),
-
-                    pw.Container(
-                      decoration: pw.BoxDecoration(
-                        border: pw.Border(
-                            right: pw.BorderSide(
-                                width: 1.0
+                    child: pw.Row(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      mainAxisAlignment: pw.MainAxisAlignment.start,
+                      children: [
+                        // Left column
+                        pw.Expanded(
+                          flex: 1,
+                          child: pw.Container(
+                            padding: pw.EdgeInsets.only(
+                              left: 5,
+                              top: 2,
+                              bottom: 2,
+                              right: 5,
                             ),
+                            child: pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.start,
+                              mainAxisAlignment: pw.MainAxisAlignment.start,
+                              children: [
+                                pw.Text("Buyer's Name"),
 
-                            left: pw.BorderSide(
-                                width: 1.0
-                            ),
-                            bottom: pw.BorderSide(
-                                width: 1.0
-                            )),
-                      ),
-                      child: pw.Row(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        mainAxisAlignment: pw.MainAxisAlignment.start,
-                        children: [
-                          // Left column
-                          pw.Expanded(
-                              flex: 1,
-                              child: pw.Container(
-                                padding: pw.EdgeInsets.only(left: 5,top: 2,bottom: 2,right: 5),
-                                child: pw.Column(
-                                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                    mainAxisAlignment: pw.MainAxisAlignment.start,
+                                pw.Column(
+                                  children: [
+                                    pw.SizedBox(height: 2),
+
+                                    pw.Text(
+                                      _selectedpartyledger!,
+                                      style: pw.TextStyle(
+                                        fontWeight: pw.FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                if (address != "null")
+                                  pw.Column(
                                     children: [
-                                      pw.Text("Buyer's Name"),
+                                      pw.SizedBox(height: 2),
 
-                                      pw.Column(children: [
-                                        pw.SizedBox(height: 2),
+                                      pw.Text(address),
+                                    ],
+                                  ),
 
-                                        pw.Text(
-                                          _selectedpartyledger!,
-                                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                                        ),
+                                if (emirate != "null")
+                                  pw.Column(
+                                    children: [
+                                      pw.SizedBox(height: 2),
 
-                                      ],),
+                                      pw.Row(
+                                        children: [
+                                          pw.Text("Emirate "),
 
-                                      if(address!="null")
-                                        pw.Column(children: [
-                                          pw.SizedBox(height: 2),
+                                          pw.SizedBox(width: 20),
+                                          pw.Text(emirate),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
 
-                                          pw.Text(address),
+                                if (country != "null")
+                                  pw.Column(
+                                    children: [
+                                      pw.SizedBox(height: 2),
 
-                                        ],),
+                                      pw.Row(
+                                        children: [
+                                          pw.Text("Country "),
 
-                                      if(emirate!="null")
-                                        pw.Column(children: [
-                                          pw.SizedBox(height: 2),
+                                          pw.SizedBox(width: 20),
+                                          pw.Text(country),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
 
-                                          pw.Row(children: [
-                                            pw.Text("Emirate "),
+                                if (trn != "null")
+                                  pw.Column(
+                                    children: [
+                                      pw.SizedBox(height: 2),
 
-                                            pw.SizedBox(width: 20),
-                                            pw.Text(emirate),
+                                      pw.Row(
+                                        children: [
+                                          pw.Text("TRN "),
 
-                                          ],)
+                                          pw.SizedBox(width: 35),
+                                          pw.Text(trn),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
 
-                                        ],),
-
-                                      if(country!="null")
-                                        pw.Column(children: [
-                                          pw.SizedBox(height: 2),
-
-                                          pw.Row(children: [
-                                            pw.Text("Country "),
-
-                                            pw.SizedBox(width: 20),
-                                            pw.Text(country),
-
-                                          ],)
-                                        ],),
-
-                                      if(trn!="null")
-                                        pw.Column(children: [
-                                          pw.SizedBox(height: 2),
-
-                                          pw.Row(children: [
-                                            pw.Text("TRN "),
-
-                                            pw.SizedBox(width: 35),
-                                            pw.Text(trn),
-
-                                          ],)
-
-                                        ],),
-
-
-                                      pw.SizedBox(height: 20)
-
-                                    ]
-                                ),)),
-                          // Right column
-                          /*pw.Expanded(
+                                pw.SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                        ),
+                        // Right column
+                        /*pw.Expanded(
                       flex: 1,
                       child: pw.Container(
                           decoration: pw.BoxDecoration(
@@ -1855,11 +1980,11 @@ _itemController.text = _selecteditem;
                               ]
                           )
                       ),),*/
-                        ],
-                      ),
+                      ],
                     ),
+                  ),
 
-                    /*pw.Container(
+                  /*pw.Container(
                 decoration: pw.BoxDecoration(
                   border: pw.Border(
                       right: pw.BorderSide(
@@ -1919,868 +2044,988 @@ _itemController.text = _selecteditem;
                   ],
                 ),
               ),*/
-
-                    pw.Container(
-                      decoration: pw.BoxDecoration(
-                        border: pw.Border(
-                          right: pw.BorderSide(
-                              width: 1.0
-                          ),
-                          left: pw.BorderSide(
-                              width: 1.0
-                          ),
-                          bottom: pw.BorderSide(
-                              width: 1.0
-                          ),
-                        ),
-                      ),
-                      child: pw.Expanded(
-                        child: pw.Column(
-                          crossAxisAlignment: pw.CrossAxisAlignment.center,
-                          mainAxisAlignment: pw.MainAxisAlignment.start,
-                          children: [
-                            pw.Row(
-                              children: [
-                                pw.Expanded(
-                                  flex: 1,
-                                  child: pw.Container(
-                                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
-                                    alignment: pw.Alignment.center,
-                                    decoration: pw.BoxDecoration(
-                                      border: pw.Border(
-                                        right: pw.BorderSide(
-                                            width: 1.0
-                                        ),
-                                        bottom: pw.BorderSide(
-                                            width: 1.0
-                                        ),
-                                      ),
-                                    ),
-                                    child: pw.Text(
-                                      'Sr No.',
-                                      style: pw.TextStyle(
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                pw.Expanded(
-                                  flex: 3,
-                                  child: pw.Container(
-                                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                    alignment: pw.Alignment.center,
-                                    decoration: pw.BoxDecoration(
-                                      border: pw.Border(
-                                        right: pw.BorderSide(
-                                            width: 1.0
-                                        ),
-                                        bottom: pw.BorderSide(
-                                            width: 1.0
-                                        ),
-                                      ),
-                                    ),
-                                    child: pw.Text(
-                                      'Description of Goods/Services',
-                                      style: pw.TextStyle(
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                pw.Expanded(
-                                  flex: 1,
-                                  child: pw.Container(
-                                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                    alignment: pw.Alignment.center,
-                                    decoration: pw.BoxDecoration(
-                                      border: pw.Border(
-                                        right: pw.BorderSide(
-                                            width: 1.0
-                                        ),
-                                        bottom: pw.BorderSide(
-                                            width: 1.0
-                                        ),
-                                      ),
-                                    ),
-                                    child: pw.Text(
-                                      'Quantity',
-                                      style: pw.TextStyle(
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                pw.Expanded(
-                                  flex: 1,
-                                  child: pw.Container(
-                                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                    alignment: pw.Alignment.center,
-                                    decoration: pw.BoxDecoration(
-                                      border: pw.Border(
-                                        right: pw.BorderSide(
-                                            width: 1.0
-                                        ),
-                                        bottom: pw.BorderSide(
-                                            width: 1.0
-                                        ),
-                                      ),
-                                    ),
-                                    child: pw.Text(
-                                      'Rate',
-                                      style: pw.TextStyle(
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                pw.Expanded(
-                                  flex: 1,
-                                  child: pw.Container(
-                                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                    alignment: pw.Alignment.center,
-                                    decoration: pw.BoxDecoration(
-                                      border: pw.Border(
-                                        right: pw.BorderSide(
-                                            width: 1.0
-                                        ),
-                                        bottom: pw.BorderSide(
-                                            width: 1.0
-                                        ),
-                                      ),
-                                    ),
-                                    child: pw.Text(
-                                      'per',
-                                      style: pw.TextStyle(
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                pw.Expanded(
-                                  flex: 1,
-                                  child: pw.Container(
-                                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                    alignment: pw.Alignment.center,
-                                    decoration: pw.BoxDecoration(
-                                      border: pw.Border(
-                                        right: pw.BorderSide(
-                                            width: 1.0
-                                        ),
-                                        bottom: pw.BorderSide(
-                                            width: 1.0
-                                        ),
-                                      ),
-                                    ),
-                                    child: pw.Text(
-                                      'Disc. %',
-                                      style: pw.TextStyle(
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                pw.Expanded(
-                                  flex: 2,
-                                  child: pw.Container(
-                                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                    alignment: pw.Alignment.center,
-                                    decoration: pw.BoxDecoration(
-                                      border: pw.Border(
-                                        bottom: pw.BorderSide(
-                                            width: 1.0
-                                        ),
-                                      ),
-                                    ),
-                                    child: pw.Text(
-                                      'Amount',
-                                      style: pw.TextStyle(
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                  pw.Container(
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border(
+                        right: pw.BorderSide(width: 1.0),
+                        left: pw.BorderSide(width: 1.0),
+                        bottom: pw.BorderSide(width: 1.0),
                       ),
                     ),
-
-                    pw.Container(
-                      decoration: pw.BoxDecoration(
-                        border: pw.Border(
-                          right: pw.BorderSide(
-                              width: 1.0
-                          ),
-                          left: pw.BorderSide(
-                              width: 1.0
-                          ),
-                          bottom: pw.BorderSide(
-                              width: 1.0
-                          ),
-                        ),
-                      ),
-                      child: pw.Expanded(
-                        child: pw.Column(
-                          crossAxisAlignment: pw.CrossAxisAlignment.center,
-                          mainAxisAlignment: pw.MainAxisAlignment.start,
-                          children: [
-                            pw.Table(
-                                border: pw.TableBorder(
-                                  horizontalInside: pw.BorderSide.none,
-                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                  bottom: pw.BorderSide.none,
-                                  top: pw.BorderSide.none,),
-                                children:[
-                                  for(var item in saleItems.asMap().entries)
-                                    pw.TableRow(children: [
-                                      pw.Expanded(
-                                        flex: 1,
-                                        child: pw.Container(
-                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
-                                          alignment: pw.Alignment.center,
-
-                                          child: pw.Text(
-                                            formatitemKey(item.key),
-                                            style: pw.TextStyle(
-                                              fontSize: 10,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-
-                                      pw.Expanded(
-                                        flex: 3,
-                                        child: pw.Container(
-                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                          alignment: pw.Alignment.center,
-
-                                          child: pw.Text(
-                                            item.value.itemName,
-                                            style: pw.TextStyle(
-                                              fontSize: 10,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      pw.Expanded(
-                                        flex: 1,
-                                        child: pw.Container(
-                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                            alignment: pw.Alignment.centerRight,
-
-                                            child: pw.Row(
-                                              mainAxisAlignment: pw.MainAxisAlignment.center,
-                                              crossAxisAlignment: pw.CrossAxisAlignment.center,
-                                              children: [
-
-                                                pw.Text(
-                                                  item.value.itemQuantity,
-                                                  textAlign: pw.TextAlign.right,
-                                                  style: pw.TextStyle(
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-
-                                              ],)
-
-
-                                        ),
-                                      ),
-                                      pw.Expanded(
-                                        flex: 1,
-                                        child: pw.Container(
-                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                          alignment: pw.Alignment.center,
-
-                                          child: pw.Text(
-                                            formatAmountInvoice(item.value.itemPrice.toString()),
-                                            textAlign: pw.TextAlign.center,
-                                            style: pw.TextStyle(
-                                              fontSize: 10,
-
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      pw.Expanded(
-                                        flex: 1,
-                                        child: pw.Container(
-                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                          alignment: pw.Alignment.center,
-                                          child: pw.Text(
-                                            item.value.itemUnit,
-                                            textAlign: pw.TextAlign.center,
-                                            style: pw.TextStyle(
-                                              fontSize: 10,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      pw.Expanded(
-                                        flex: 1,
-                                        child: pw.Container(
-                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                          alignment: pw.Alignment.center,
-                                          child: pw.Text(
-                                            '',
-                                            style: pw.TextStyle(
-                                              fontSize: 10,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      pw.Expanded(
-                                        flex: 2,
-                                        child: pw.Container(
-                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                          alignment: pw.Alignment.centerRight,
-                                          child: pw.Text(
-                                            formatAmountInvoice(item.value.itemAmount.toString()),
-                                            textAlign: pw.TextAlign.right,
-                                            style: pw.TextStyle(
-                                              fontSize: 10,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ]),
-                                ]
-                            ),
-
-                            pw.Table(
-                                border: pw.TableBorder(
-                                  horizontalInside: pw.BorderSide.none,
-                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                  top: pw.BorderSide.none,
-                                  bottom: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                ),
-                                children:[
-                                  pw.TableRow(children: [
-                                    pw.Expanded(
-                                      flex: 1,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
-                                        alignment: pw.Alignment.center,
-
-                                      ),
+                    child: pw.Expanded(
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.center,
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
+                        children: [
+                          pw.Row(
+                            children: [
+                              pw.Expanded(
+                                flex: 1,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(
+                                    5,
+                                    5,
+                                    5,
+                                    5,
+                                  ), // Left, Top, Right, Bottom
+                                  alignment: pw.Alignment.center,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border(
+                                      right: pw.BorderSide(width: 1.0),
+                                      bottom: pw.BorderSide(width: 1.0),
                                     ),
-
-                                    pw.Expanded(
-                                      flex: 3,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                        alignment: pw.Alignment.centerRight,
-                                        child: pw.Text(
-                                          '',
-                                          style: pw.TextStyle(
-                                            fontSize: 10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    pw.Expanded(
-                                      flex: 1,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                        alignment: pw.Alignment.center,
-                                        child: pw.Text(
-                                          '',
-                                          style: pw.TextStyle(
-                                            fontSize: 10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    pw.Expanded(
-                                      flex: 1,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                        alignment: pw.Alignment.centerRight,
-                                      ),
-                                    ),
-                                    pw.Expanded(
-                                      flex: 1,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                        alignment: pw.Alignment.centerRight,
-                                      ),
-                                    ),
-                                    pw.Expanded(
-                                      flex: 1,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                        alignment: pw.Alignment.centerRight,
-                                      ),
-                                    ),
-                                    pw.Expanded(
-                                      flex: 2,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 50, 5, 5),
-                                        alignment: pw.Alignment.centerRight,
-                                        child: pw.Text(
-                                          formatAmountInvoice(totalitemAmount.toString()),
-                                          textAlign: pw.TextAlign.right,
-                                          style: pw.TextStyle(
-                                            fontSize: 10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ])
-                                ]
-                            ),
-
-                            if(ledgerEntries.isNotEmpty)
-                              for(var ledger  in ledgerEntries.asMap().entries)
-                                pw.Table(
-                                    border: pw.TableBorder(
-                                        horizontalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                        verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                        bottom: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                        top: pw.BorderSide.none
-                                    ),
-                                    children:[
-                                      pw.TableRow(children: [
-                                        pw.Expanded(
-                                          flex: 1,
-                                          child: pw.Container(
-                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
-                                            alignment: pw.Alignment.center,
-                                          ),
-                                        ),
-
-                                        pw.Expanded(
-                                          flex: 3,
-                                          child: pw.Container(
-                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                            alignment: pw.Alignment.centerRight,
-
-                                            child: pw.Text(
-                                              ledger.value.ledgerName,
-                                              style: pw.TextStyle(
-                                                fontSize: 10,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        pw.Expanded(
-                                          flex: 1,
-                                          child: pw.Container(
-                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                            alignment: pw.Alignment.centerRight,
-                                          ),
-                                        ),
-                                        pw.Expanded(
-                                          flex: 1,
-                                          child: pw.Container(
-                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                            alignment: pw.Alignment.centerRight,
-                                          ),
-                                        ),
-                                        pw.Expanded(
-                                          flex: 1,
-                                          child: pw.Container(
-                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                            alignment: pw.Alignment.centerRight,
-                                          ),
-                                        ),
-                                        pw.Expanded(
-                                          flex: 1,
-                                          child: pw.Container(
-                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                            alignment: pw.Alignment.centerRight,
-                                          ),
-                                        ),
-                                        pw.Expanded(
-                                          flex: 2,
-                                          child: pw.Container(
-                                            padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                            alignment: pw.Alignment.centerRight,
-                                            child: pw.Text(
-                                              formatAmountInvoice(ledger.value.ledgerAmount.toString()),
-                                              textAlign: pw.TextAlign.right,
-                                              style: pw.TextStyle(
-                                                fontSize: 10,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ])
-                                    ]
-                                ),
-
-
-                            if(vatledgerdata.isNotEmpty && _selectedvatledger!='Not Applicable')
-                              pw.Table(
-                                  border: pw.TableBorder(
-                                      horizontalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                      verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                      bottom: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                      top: pw.BorderSide.none
                                   ),
-                                  children:[
-                                    pw.TableRow(children: [
-                                      pw.Expanded(
-                                        flex: 1,
-                                        child: pw.Container(
-                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
-                                          alignment: pw.Alignment.center,
-                                        ),
-                                      ),
-
-                                      pw.Expanded(
-                                        flex: 3,
-                                        child: pw.Container(
-                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                          alignment: pw.Alignment.centerRight,
-
-                                          child: pw.Text(
-                                            _selectedvatledger,
-                                            style: pw.TextStyle(
-                                              fontSize: 10,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      pw.Expanded(
-                                        flex: 1,
-                                        child: pw.Container(
-                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                          alignment: pw.Alignment.centerRight,
-                                        ),
-                                      ),
-                                      pw.Expanded(
-                                        flex: 1,
-                                        child: pw.Container(
-                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                          alignment: pw.Alignment.centerRight,
-
-
-                                        ),
-                                      ),
-                                      pw.Expanded(
-                                        flex: 1,
-                                        child: pw.Container(
-                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                          alignment: pw.Alignment.centerRight,
-
-
-                                        ),
-                                      ),
-                                      pw.Expanded(
-                                        flex: 1,
-                                        child: pw.Container(
-                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                          alignment: pw.Alignment.centerRight,
-
-
-                                        ),
-                                      ),
-                                      pw.Expanded(
-                                        flex: 2,
-                                        child: pw.Container(
-                                          padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                          alignment: pw.Alignment.centerRight,
-
-                                          child: pw.Text(
-                                            formatAmountInvoice(totalVatAmount.toString()),
-                                            textAlign: pw.TextAlign.right,
-                                            style: pw.TextStyle(
-                                              fontSize: 10,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ])
-                                  ]
+                                  child: pw.Text(
+                                    'Sr No.',
+                                    style: pw.TextStyle(fontSize: 10),
+                                  ),
+                                ),
                               ),
-
-                            pw.Table(
-                                border: pw.TableBorder(
-                                    horizontalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                    verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                    bottom: pw.BorderSide.none
+                              pw.Expanded(
+                                flex: 3,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                  alignment: pw.Alignment.center,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border(
+                                      right: pw.BorderSide(width: 1.0),
+                                      bottom: pw.BorderSide(width: 1.0),
+                                    ),
+                                  ),
+                                  child: pw.Text(
+                                    'Description of Goods/Services',
+                                    style: pw.TextStyle(fontSize: 10),
+                                  ),
                                 ),
-                                children:[
-
-                                  pw.TableRow(children: [
-
-                                    pw.Expanded(
-                                      flex: 1,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
-                                        alignment: pw.Alignment.center,
-
-                                      ),
+                              ),
+                              pw.Expanded(
+                                flex: 1,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                  alignment: pw.Alignment.center,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border(
+                                      right: pw.BorderSide(width: 1.0),
+                                      bottom: pw.BorderSide(width: 1.0),
                                     ),
-
-
-
-
-                                    pw.Expanded(
-                                      flex: 3,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                        alignment: pw.Alignment.centerRight,
-
-                                        child: pw.Text(
-                                          'Total',
-                                          style: pw.TextStyle(
-                                            fontSize: 10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-
-
-                                    pw.Expanded(
-                                      flex: 1,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                        alignment: pw.Alignment.center,
-                                        child: pw.Text(
-                                          totalQuantity.toString(),
-                                          style: pw.TextStyle(
-                                            fontSize: 10,
-                                          ),
-                                        ),
-
-                                      ),
-                                    ),
-                                    pw.Expanded(
-                                      flex: 1,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                        alignment: pw.Alignment.centerRight,
-
-
-                                      ),
-                                    ),
-                                    pw.Expanded(
-                                      flex: 1,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                        alignment: pw.Alignment.centerRight,
-
-
-                                      ),
-                                    ),
-                                    pw.Expanded(
-                                      flex: 1,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                        alignment: pw.Alignment.centerRight,
-
-
-                                      ),
-                                    ),
-                                    pw.Expanded(
-                                      flex: 2,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                        alignment: pw.Alignment.centerRight,
-
-                                        child: pw.Text(
-                                          formatAmountInvoice(roundedtotalAmount.toString()),
-                                          textAlign: pw.TextAlign.right,
-                                          style: pw.TextStyle(
-                                            fontSize: 10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ])
-                                ]
-                            ),
-
-                            pw.Table(
-                                border: pw.TableBorder(
-                                  horizontalInside: pw.BorderSide.none,
-                                  verticalInside: pw.BorderSide.none,
-                                  bottom: pw.BorderSide.none,
-                                  top: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-
+                                  ),
+                                  child: pw.Text(
+                                    'Quantity',
+                                    style: pw.TextStyle(fontSize: 10),
+                                  ),
                                 ),
-                                children:[
-                                  pw.TableRow(
-                                      children: [
-                                        pw.Expanded(
-                                          flex: 1,
-                                          child: pw.Container(
-                                              padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
-                                              alignment: pw.Alignment.centerLeft,
-
-                                              child: pw.Column(
-                                                mainAxisAlignment: pw.MainAxisAlignment.start,
-                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                                children: [
-
-                                                  pw.Text(
-                                                    'Amount Chargeable (in words)',
-                                                    textAlign: pw.TextAlign.left,
-                                                    style: pw.TextStyle(
-                                                      fontSize: 10,
-                                                    ),
-                                                  ),
-
-                                                  pw.Text(
-                                                    convertAmountToWords(totalAmount),
-                                                    textAlign: pw.TextAlign.left,
-                                                    style: pw.TextStyle(
-                                                      fontSize: 10,
-                                                    ),
-                                                  ),
-
-                                                  pw.SizedBox(height: 10)
-                                                ],)
-                                          ),
-                                        ),
-
-
-                                      ])
-                                ]
-                            ),
-
-                            // declaration table
-                            pw.Table(
-                                border: pw.TableBorder(
-                                  horizontalInside: pw.BorderSide.none,
-                                  verticalInside: pw.BorderSide.none,
-                                  bottom: pw.BorderSide.none,
-                                  top: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-
+                              ),
+                              pw.Expanded(
+                                flex: 1,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                  alignment: pw.Alignment.center,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border(
+                                      right: pw.BorderSide(width: 1.0),
+                                      bottom: pw.BorderSide(width: 1.0),
+                                    ),
+                                  ),
+                                  child: pw.Text(
+                                    'Rate',
+                                    style: pw.TextStyle(fontSize: 10),
+                                  ),
                                 ),
-                                children:[
-                                  pw.TableRow(
-                                      children: [
-                                        pw.Expanded(
-                                          flex: 1,
-                                          child: pw.Container(
-                                              padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
-                                              alignment: pw.Alignment.centerLeft,
-
-                                              child: pw.Column(
-                                                mainAxisAlignment: pw.MainAxisAlignment.start,
-                                                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                                children: [
-
-                                                  pw.SizedBox(height:10),
-
-                                                  pw.Text(
-                                                    'Declaration',
-                                                    textAlign: pw.TextAlign.left,
-                                                    style: pw.TextStyle(
-                                                      fontSize: 10,
-                                                    ),
-                                                  ),
-
-                                                  pw.Text(
-                                                    'We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct',
-                                                    textAlign: pw.TextAlign.left,
-                                                    style: pw.TextStyle(
-                                                      fontSize: 10,
-                                                    ),
-                                                  ),
-
-                                                  pw.SizedBox(height: 10)
-
-                                                ],)
-
-                                          ),
-                                        ),
-
-                                        pw.Expanded(
-                                          flex: 1,
-                                          child: pw.Container(
-                                              margin: pw.EdgeInsets.only(top:30),
-                                              padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                              decoration: pw.BoxDecoration(
-                                                border: pw.Border(
-                                                  top: pw.BorderSide(
-                                                      width: 1.0
-                                                  ),
-                                                  left: pw.BorderSide(
-                                                      width: 1.0
-                                                  ),
-                                                ),
-                                              ),
-
-                                              // Left, Top, Right, Bottom
-                                              alignment: pw.Alignment.center,
-
-                                              child: pw.Column(
-                                                mainAxisAlignment: pw.MainAxisAlignment.center,
-                                                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                                                children: [
-
-                                                  pw.Text(
-                                                    'for $company',
-                                                    textAlign: pw.TextAlign.center,
-                                                    style: pw.TextStyle(
-                                                      fontSize: 10,
-                                                    ),
-                                                  ),
-
-                                                  pw.SizedBox(height:30),
-
-                                                  pw.Text(
-                                                    'Authorised Signatory',
-                                                    textAlign: pw.TextAlign.left,
-                                                    style: pw.TextStyle(
-                                                      fontSize: 10,
-                                                    ),
-                                                  ),
-
-                                                  pw.SizedBox(height: 5)
-                                                ],)
-                                          ),
-                                        ),
-                                      ])
-                                ]
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    pw.Container(
-
-                      padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5), // Left, Top, Right, Bottom
-                      alignment: pw.Alignment.center,
-
-                      child: pw.Text(
-                        'This is a System Generated Document',
-                        textAlign: pw.TextAlign.left,
-                        style: pw.TextStyle(
-                          fontSize: 10,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                pw.Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: pw.Container(
-                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                    alignment: pw.Alignment.center,
-                    child: pw.Text(
-                      'Created in Fincore Go',
-                      textAlign: pw.TextAlign.center,
-                      style: pw.TextStyle(
-                          fontSize: 10,
-                          color: PdfColor.fromInt(0xFFCCCCCC)
+                              ),
+                              pw.Expanded(
+                                flex: 1,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                  alignment: pw.Alignment.center,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border(
+                                      right: pw.BorderSide(width: 1.0),
+                                      bottom: pw.BorderSide(width: 1.0),
+                                    ),
+                                  ),
+                                  child: pw.Text(
+                                    'per',
+                                    style: pw.TextStyle(fontSize: 10),
+                                  ),
+                                ),
+                              ),
+                              pw.Expanded(
+                                flex: 1,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                  alignment: pw.Alignment.center,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border(
+                                      right: pw.BorderSide(width: 1.0),
+                                      bottom: pw.BorderSide(width: 1.0),
+                                    ),
+                                  ),
+                                  child: pw.Text(
+                                    'Disc. %',
+                                    style: pw.TextStyle(fontSize: 10),
+                                  ),
+                                ),
+                              ),
+                              pw.Expanded(
+                                flex: 2,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                  alignment: pw.Alignment.center,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border(
+                                      bottom: pw.BorderSide(width: 1.0),
+                                    ),
+                                  ),
+                                  child: pw.Text(
+                                    'Amount',
+                                    style: pw.TextStyle(fontSize: 10),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
+
+                  pw.Container(
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border(
+                        right: pw.BorderSide(width: 1.0),
+                        left: pw.BorderSide(width: 1.0),
+                        bottom: pw.BorderSide(width: 1.0),
+                      ),
+                    ),
+                    child: pw.Expanded(
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.center,
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
+                        children: [
+                          pw.Table(
+                            border: pw.TableBorder(
+                              horizontalInside: pw.BorderSide.none,
+                              verticalInside: pw.BorderSide(
+                                color: PdfColor.fromHex('#050400'),
+                              ),
+                              bottom: pw.BorderSide.none,
+                              top: pw.BorderSide.none,
+                            ),
+                            children: [
+                              for (var item in saleItems.asMap().entries)
+                                pw.TableRow(
+                                  children: [
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(
+                                          5,
+                                          5,
+                                          5,
+                                          5,
+                                        ), // Left, Top, Right, Bottom
+                                        alignment: pw.Alignment.center,
+
+                                        child: pw.Text(
+                                          formatitemKey(item.key),
+                                          style: pw.TextStyle(fontSize: 10),
+                                        ),
+                                      ),
+                                    ),
+
+                                    pw.Expanded(
+                                      flex: 3,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(
+                                          5,
+                                          5,
+                                          5,
+                                          5,
+                                        ),
+                                        alignment: pw.Alignment.center,
+
+                                        child: pw.Text(
+                                          item.value.itemName,
+                                          style: pw.TextStyle(fontSize: 10),
+                                        ),
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(
+                                          5,
+                                          5,
+                                          5,
+                                          5,
+                                        ),
+                                        alignment: pw.Alignment.centerRight,
+
+                                        child: pw.Row(
+                                          mainAxisAlignment:
+                                              pw.MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              pw.CrossAxisAlignment.center,
+                                          children: [
+                                            pw.Text(
+                                              item.value.itemQuantity,
+                                              textAlign: pw.TextAlign.right,
+                                              style: pw.TextStyle(fontSize: 10),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(
+                                          5,
+                                          5,
+                                          5,
+                                          5,
+                                        ),
+                                        alignment: pw.Alignment.center,
+
+                                        child: pw.Text(
+                                          formatAmountInvoice(
+                                            item.value.itemPrice.toString(),
+                                          ),
+                                          textAlign: pw.TextAlign.center,
+                                          style: pw.TextStyle(fontSize: 10),
+                                        ),
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(
+                                          5,
+                                          5,
+                                          5,
+                                          5,
+                                        ),
+                                        alignment: pw.Alignment.center,
+                                        child: pw.Text(
+                                          item.value.itemUnit,
+                                          textAlign: pw.TextAlign.center,
+                                          style: pw.TextStyle(fontSize: 10),
+                                        ),
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(
+                                          5,
+                                          5,
+                                          5,
+                                          5,
+                                        ),
+                                        alignment: pw.Alignment.center,
+                                        child: pw.Text(
+                                          '',
+                                          style: pw.TextStyle(fontSize: 10),
+                                        ),
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 2,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(
+                                          5,
+                                          5,
+                                          5,
+                                          5,
+                                        ),
+                                        alignment: pw.Alignment.centerRight,
+                                        child: pw.Text(
+                                          formatAmountInvoice(
+                                            item.value.itemAmount.toString(),
+                                          ),
+                                          textAlign: pw.TextAlign.right,
+                                          style: pw.TextStyle(fontSize: 10),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+
+                          pw.Table(
+                            border: pw.TableBorder(
+                              horizontalInside: pw.BorderSide.none,
+                              verticalInside: pw.BorderSide(
+                                color: PdfColor.fromHex('#050400'),
+                              ),
+                              top: pw.BorderSide.none,
+                              bottom: pw.BorderSide(
+                                color: PdfColor.fromHex('#050400'),
+                              ),
+                            ),
+                            children: [
+                              pw.TableRow(
+                                children: [
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ), // Left, Top, Right, Bottom
+                                      alignment: pw.Alignment.center,
+                                    ),
+                                  ),
+
+                                  pw.Expanded(
+                                    flex: 3,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ),
+                                      alignment: pw.Alignment.centerRight,
+                                      child: pw.Text(
+                                        '',
+                                        style: pw.TextStyle(fontSize: 10),
+                                      ),
+                                    ),
+                                  ),
+
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ),
+                                      alignment: pw.Alignment.center,
+                                      child: pw.Text(
+                                        '',
+                                        style: pw.TextStyle(fontSize: 10),
+                                      ),
+                                    ),
+                                  ),
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ),
+                                      alignment: pw.Alignment.centerRight,
+                                    ),
+                                  ),
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ),
+                                      alignment: pw.Alignment.centerRight,
+                                    ),
+                                  ),
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ),
+                                      alignment: pw.Alignment.centerRight,
+                                    ),
+                                  ),
+                                  pw.Expanded(
+                                    flex: 2,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        50,
+                                        5,
+                                        5,
+                                      ),
+                                      alignment: pw.Alignment.centerRight,
+                                      child: pw.Text(
+                                        formatAmountInvoice(
+                                          totalitemAmount.toString(),
+                                        ),
+                                        textAlign: pw.TextAlign.right,
+                                        style: pw.TextStyle(fontSize: 10),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+
+                          if (ledgerEntries.isNotEmpty)
+                            for (var ledger in ledgerEntries.asMap().entries)
+                              pw.Table(
+                                border: pw.TableBorder(
+                                  horizontalInside: pw.BorderSide(
+                                    color: PdfColor.fromHex('#050400'),
+                                  ),
+                                  verticalInside: pw.BorderSide(
+                                    color: PdfColor.fromHex('#050400'),
+                                  ),
+                                  bottom: pw.BorderSide(
+                                    color: PdfColor.fromHex('#050400'),
+                                  ),
+                                  top: pw.BorderSide.none,
+                                ),
+                                children: [
+                                  pw.TableRow(
+                                    children: [
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(
+                                            5,
+                                            5,
+                                            5,
+                                            5,
+                                          ), // Left, Top, Right, Bottom
+                                          alignment: pw.Alignment.center,
+                                        ),
+                                      ),
+
+                                      pw.Expanded(
+                                        flex: 3,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(
+                                            5,
+                                            5,
+                                            5,
+                                            5,
+                                          ),
+                                          alignment: pw.Alignment.centerRight,
+
+                                          child: pw.Text(
+                                            ledger.value.ledgerName,
+                                            style: pw.TextStyle(fontSize: 10),
+                                          ),
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(
+                                            5,
+                                            5,
+                                            5,
+                                            5,
+                                          ),
+                                          alignment: pw.Alignment.centerRight,
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(
+                                            5,
+                                            5,
+                                            5,
+                                            5,
+                                          ),
+                                          alignment: pw.Alignment.centerRight,
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(
+                                            5,
+                                            5,
+                                            5,
+                                            5,
+                                          ),
+                                          alignment: pw.Alignment.centerRight,
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(
+                                            5,
+                                            5,
+                                            5,
+                                            5,
+                                          ),
+                                          alignment: pw.Alignment.centerRight,
+                                        ),
+                                      ),
+                                      pw.Expanded(
+                                        flex: 2,
+                                        child: pw.Container(
+                                          padding: pw.EdgeInsets.fromLTRB(
+                                            5,
+                                            5,
+                                            5,
+                                            5,
+                                          ),
+                                          alignment: pw.Alignment.centerRight,
+                                          child: pw.Text(
+                                            formatAmountInvoice(
+                                              ledger.value.ledgerAmount
+                                                  .toString(),
+                                            ),
+                                            textAlign: pw.TextAlign.right,
+                                            style: pw.TextStyle(fontSize: 10),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+
+                          if (vatledgerdata.isNotEmpty &&
+                              _selectedvatledger != 'Not Applicable')
+                            pw.Table(
+                              border: pw.TableBorder(
+                                horizontalInside: pw.BorderSide(
+                                  color: PdfColor.fromHex('#050400'),
+                                ),
+                                verticalInside: pw.BorderSide(
+                                  color: PdfColor.fromHex('#050400'),
+                                ),
+                                bottom: pw.BorderSide(
+                                  color: PdfColor.fromHex('#050400'),
+                                ),
+                                top: pw.BorderSide.none,
+                              ),
+                              children: [
+                                pw.TableRow(
+                                  children: [
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(
+                                          5,
+                                          5,
+                                          5,
+                                          5,
+                                        ), // Left, Top, Right, Bottom
+                                        alignment: pw.Alignment.center,
+                                      ),
+                                    ),
+
+                                    pw.Expanded(
+                                      flex: 3,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(
+                                          5,
+                                          5,
+                                          5,
+                                          5,
+                                        ),
+                                        alignment: pw.Alignment.centerRight,
+
+                                        child: pw.Text(
+                                          _selectedvatledger,
+                                          style: pw.TextStyle(fontSize: 10),
+                                        ),
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(
+                                          5,
+                                          5,
+                                          5,
+                                          5,
+                                        ),
+                                        alignment: pw.Alignment.centerRight,
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(
+                                          5,
+                                          5,
+                                          5,
+                                          5,
+                                        ),
+                                        alignment: pw.Alignment.centerRight,
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(
+                                          5,
+                                          5,
+                                          5,
+                                          5,
+                                        ),
+                                        alignment: pw.Alignment.centerRight,
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 1,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(
+                                          5,
+                                          5,
+                                          5,
+                                          5,
+                                        ),
+                                        alignment: pw.Alignment.centerRight,
+                                      ),
+                                    ),
+                                    pw.Expanded(
+                                      flex: 2,
+                                      child: pw.Container(
+                                        padding: pw.EdgeInsets.fromLTRB(
+                                          5,
+                                          5,
+                                          5,
+                                          5,
+                                        ),
+                                        alignment: pw.Alignment.centerRight,
+
+                                        child: pw.Text(
+                                          formatAmountInvoice(
+                                            totalVatAmount.toString(),
+                                          ),
+                                          textAlign: pw.TextAlign.right,
+                                          style: pw.TextStyle(fontSize: 10),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+
+                          pw.Table(
+                            border: pw.TableBorder(
+                              horizontalInside: pw.BorderSide(
+                                color: PdfColor.fromHex('#050400'),
+                              ),
+                              verticalInside: pw.BorderSide(
+                                color: PdfColor.fromHex('#050400'),
+                              ),
+                              bottom: pw.BorderSide.none,
+                            ),
+                            children: [
+                              pw.TableRow(
+                                children: [
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ), // Left, Top, Right, Bottom
+                                      alignment: pw.Alignment.center,
+                                    ),
+                                  ),
+
+                                  pw.Expanded(
+                                    flex: 3,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ),
+                                      alignment: pw.Alignment.centerRight,
+
+                                      child: pw.Text(
+                                        'Total',
+                                        style: pw.TextStyle(fontSize: 10),
+                                      ),
+                                    ),
+                                  ),
+
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ),
+                                      alignment: pw.Alignment.center,
+                                      child: pw.Text(
+                                        totalQuantity.toString(),
+                                        style: pw.TextStyle(fontSize: 10),
+                                      ),
+                                    ),
+                                  ),
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ),
+                                      alignment: pw.Alignment.centerRight,
+                                    ),
+                                  ),
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ),
+                                      alignment: pw.Alignment.centerRight,
+                                    ),
+                                  ),
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ),
+                                      alignment: pw.Alignment.centerRight,
+                                    ),
+                                  ),
+                                  pw.Expanded(
+                                    flex: 2,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ),
+                                      alignment: pw.Alignment.centerRight,
+
+                                      child: pw.Text(
+                                        formatAmountInvoice(
+                                          roundedtotalAmount.toString(),
+                                        ),
+                                        textAlign: pw.TextAlign.right,
+                                        style: pw.TextStyle(fontSize: 10),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+
+                          pw.Table(
+                            border: pw.TableBorder(
+                              horizontalInside: pw.BorderSide.none,
+                              verticalInside: pw.BorderSide.none,
+                              bottom: pw.BorderSide.none,
+                              top: pw.BorderSide(
+                                color: PdfColor.fromHex('#050400'),
+                              ),
+                            ),
+                            children: [
+                              pw.TableRow(
+                                children: [
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ), // Left, Top, Right, Bottom
+                                      alignment: pw.Alignment.centerLeft,
+
+                                      child: pw.Column(
+                                        mainAxisAlignment:
+                                            pw.MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            pw.CrossAxisAlignment.start,
+                                        children: [
+                                          pw.Text(
+                                            'Amount Chargeable (in words)',
+                                            textAlign: pw.TextAlign.left,
+                                            style: pw.TextStyle(fontSize: 10),
+                                          ),
+
+                                          pw.Text(
+                                            convertAmountToWords(totalAmount),
+                                            textAlign: pw.TextAlign.left,
+                                            style: pw.TextStyle(fontSize: 10),
+                                          ),
+
+                                          pw.SizedBox(height: 10),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+
+                          // declaration table
+                          pw.Table(
+                            border: pw.TableBorder(
+                              horizontalInside: pw.BorderSide.none,
+                              verticalInside: pw.BorderSide.none,
+                              bottom: pw.BorderSide.none,
+                              top: pw.BorderSide(
+                                color: PdfColor.fromHex('#050400'),
+                              ),
+                            ),
+                            children: [
+                              pw.TableRow(
+                                children: [
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ), // Left, Top, Right, Bottom
+                                      alignment: pw.Alignment.centerLeft,
+
+                                      child: pw.Column(
+                                        mainAxisAlignment:
+                                            pw.MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            pw.CrossAxisAlignment.start,
+                                        children: [
+                                          pw.SizedBox(height: 10),
+
+                                          pw.Text(
+                                            'Declaration',
+                                            textAlign: pw.TextAlign.left,
+                                            style: pw.TextStyle(fontSize: 10),
+                                          ),
+
+                                          pw.Text(
+                                            'We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct',
+                                            textAlign: pw.TextAlign.left,
+                                            style: pw.TextStyle(fontSize: 10),
+                                          ),
+
+                                          pw.SizedBox(height: 10),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Container(
+                                      margin: pw.EdgeInsets.only(top: 30),
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        5,
+                                        5,
+                                        5,
+                                      ),
+                                      decoration: pw.BoxDecoration(
+                                        border: pw.Border(
+                                          top: pw.BorderSide(width: 1.0),
+                                          left: pw.BorderSide(width: 1.0),
+                                        ),
+                                      ),
+
+                                      // Left, Top, Right, Bottom
+                                      alignment: pw.Alignment.center,
+
+                                      child: pw.Column(
+                                        mainAxisAlignment:
+                                            pw.MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            pw.CrossAxisAlignment.center,
+                                        children: [
+                                          pw.Text(
+                                            'for $company',
+                                            textAlign: pw.TextAlign.center,
+                                            style: pw.TextStyle(fontSize: 10),
+                                          ),
+
+                                          pw.SizedBox(height: 30),
+
+                                          pw.Text(
+                                            'Authorised Signatory',
+                                            textAlign: pw.TextAlign.left,
+                                            style: pw.TextStyle(fontSize: 10),
+                                          ),
+
+                                          pw.SizedBox(height: 5),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  pw.Container(
+                    padding: pw.EdgeInsets.fromLTRB(
+                      5,
+                      5,
+                      5,
+                      5,
+                    ), // Left, Top, Right, Bottom
+                    alignment: pw.Alignment.center,
+
+                    child: pw.Text(
+                      'This is a System Generated Document',
+                      textAlign: pw.TextAlign.left,
+                      style: pw.TextStyle(fontSize: 10),
+                    ),
+                  ),
+                ],
+              ),
+              pw.Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: pw.Container(
+                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                  alignment: pw.Alignment.center,
+                  child: pw.Text(
+                    'Created in Fincore Go',
+                    textAlign: pw.TextAlign.center,
+                    style: pw.TextStyle(
+                      fontSize: 10,
+                      color: PdfColor.fromInt(0xFFCCCCCC),
+                    ),
+                  ),
                 ),
-
-
-              ]
+              ),
+            ],
           );
         },
       ),
@@ -2796,15 +3041,10 @@ _itemController.text = _selecteditem;
     await file.writeAsBytes(pdfData);
 
     // ✅ Share using ShareXFiles (modern API)
-    final xfile = XFile(
-      filePath,
-      mimeType: 'application/pdf',
-    );
-    await Share.shareXFiles(
-      [xfile],
-      
-      text: 'Sharing Sale Invoice for $_selectedpartyledger',
-    );
+    final xfile = XFile(filePath, mimeType: 'application/pdf');
+    await Share.shareXFiles([
+      xfile,
+    ], text: 'Sharing Sale Invoice for $_selectedpartyledger');
 
     setState(() {
       controller_narration.clear();
@@ -2832,13 +3072,10 @@ _itemController.text = _selecteditem;
 
       _selecteditem = '${itemdata[0]['name']}';
       _itemController.text = _selecteditem;
-      if (locationsdata.isNotEmpty)
-      {
+      if (locationsdata.isNotEmpty) {
         selectedLocation = locationsdata[0];
         isVisibleLocation = true;
-      }
-      else
-      {
+      } else {
         isVisibleLocation = false;
       }
       _updateUnitDropdown(_selecteditem);
@@ -2848,82 +3085,95 @@ _itemController.text = _selecteditem;
 
       // making sales list empty and setting values
 
-      totalPriceOfItems = saleItems
-          .fold(
-          0.0, (double previousAmount,
-          SaleItem item) {
+      totalPriceOfItems = saleItems.fold(0.0, (
+        double previousAmount,
+        SaleItem item,
+      ) {
         return previousAmount +
-            (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity));
+            (double.parse(item.itemPrice.toStringAsFixed(decimal!)) *
+                double.parse(item.itemQuantity));
       });
 
-      totalAmountOfLedgers = ledgerEntries
-          .fold(0.0, (double previousAmount, LedgerEntry entry) {
-        return previousAmount + double.parse(entry.ledgerAmount.toStringAsFixed(decimal!));
+      totalAmountOfLedgers = ledgerEntries.fold(0.0, (
+        double previousAmount,
+        LedgerEntry entry,
+      ) {
+        return previousAmount +
+            double.parse(entry.ledgerAmount.toStringAsFixed(decimal!));
       });
 
       if (_selectedvatledger != 'Not Applicable') {
         double vat_perc = vatperc / 100;
         itemsVatAmount = double.parse(
-            (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
+          (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!),
+        );
         totalVatAmount = itemsVatAmount + ledgerVatAmount;
 
-        roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
-        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+        roundedtotalVatAmount = double.parse(
+          totalVatAmount.toStringAsFixed(decimal!),
+        );
+        NumberFormat formatter = NumberFormat(
+          '#,##0.${'0' * decimal!}',
+          'en_US',
+        );
         String formattedVat = formatter.format(roundedtotalVatAmount);
         controller_vatamt.text = formattedVat.toString();
-      }
-      else
-      {
+      } else {
         totalVatAmount = 0;
 
-        roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
-        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+        roundedtotalVatAmount = double.parse(
+          totalVatAmount.toStringAsFixed(decimal!),
+        );
+        NumberFormat formatter = NumberFormat(
+          '#,##0.${'0' * decimal!}',
+          'en_US',
+        );
         String formattedVat = formatter.format(roundedtotalVatAmount);
         controller_vatamt.text = formattedVat.toString();
       }
-      if (saleItems.isEmpty)
-      {
+      if (saleItems.isEmpty) {
         isVisibleItemHeading = false;
-      }
-      else
-      {
+      } else {
         isVisibleItemHeading = true;
       }
       // making ledger list empty and setting values
-      totalAmountForVatAppEntries = ledgerEntries.where((entry) => entry.vatApp).fold(
-          0.0, (double previousAmount,
-          LedgerEntry entry) {
-        return previousAmount +
-            entry.ledgerAmount;
-      });
+      totalAmountForVatAppEntries = ledgerEntries
+          .where((entry) => entry.vatApp)
+          .fold(0.0, (double previousAmount, LedgerEntry entry) {
+            return previousAmount + entry.ledgerAmount;
+          });
 
-      if (_selectedvatledger != 'Not Applicable')
-      {
+      if (_selectedvatledger != 'Not Applicable') {
         double vat_perc = vatperc / 100;
         ledgerVatAmount = totalAmountForVatAppEntries * vat_perc;
         totalVatAmount = itemsVatAmount + ledgerVatAmount;
-        roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
-        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+        roundedtotalVatAmount = double.parse(
+          totalVatAmount.toStringAsFixed(decimal!),
+        );
+        NumberFormat formatter = NumberFormat(
+          '#,##0.${'0' * decimal!}',
+          'en_US',
+        );
         String formattedVat = formatter.format(roundedtotalVatAmount);
         controller_vatamt.text = formattedVat.toString();
-      }
-      else
-      {
+      } else {
         totalVatAmount = 0;
-        roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
-        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+        roundedtotalVatAmount = double.parse(
+          totalVatAmount.toStringAsFixed(decimal!),
+        );
+        NumberFormat formatter = NumberFormat(
+          '#,##0.${'0' * decimal!}',
+          'en_US',
+        );
         String formattedVat = formatter.format(roundedtotalVatAmount);
         controller_vatamt.text = formattedVat.toString();
       }
-      if (ledgerEntries.isEmpty)
-      {
+      if (ledgerEntries.isEmpty) {
         isVisibleLedgerHeading = false;
-      }
-      else
-      {
+      } else {
         isVisibleLedgerHeading = true;
       }
-      totalAmount = totalPriceOfItems +  totalAmountOfLedgers + totalVatAmount ;
+      totalAmount = totalPriceOfItems + totalAmountOfLedgers + totalVatAmount;
       roundedtotalAmount = double.parse(totalAmount.toStringAsFixed(decimal!));
       NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
       String formattedtotal = formatter.format(roundedtotalAmount);
@@ -2938,10 +3188,7 @@ _itemController.text = _selecteditem;
     });
   }
 
-
   Future<void> loadLedgerData() async {
-
-
     setState(() {
       _isLoading = true;
     });
@@ -2949,26 +3196,15 @@ _itemController.text = _selecteditem;
     // vchtype fetching
     try {
       final url = Uri.parse(HttpURL_loadLedgerData!);
-      Map<String,String> headers =
-      {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
+      var body = jsonEncode({"ledger": _selectedpartyledger});
+      final response = await http.post(url, headers: headers, body: body);
 
-      var body = jsonEncode( {
-
-        "ledger" : _selectedpartyledger,
-      });
-      final response = await http.post
-        (
-          url,
-          headers:headers,
-          body: body
-      );
-
-      if (response.statusCode == 200)
-      {
+      if (response.statusCode == 200) {
         /*print(response.body);*/
 
         List<dynamic> data = json.decode(response.body);
@@ -2982,29 +3218,27 @@ _itemController.text = _selecteditem;
         /*print('trn value of $_selectedpartyledger is $tinValue');*/
 
         setState(() {
-
-          showSalesInvoiceDialogUpdated(context,tinValue,address,emirate, country);
+          showSalesInvoiceDialogUpdated(
+            context,
+            tinValue,
+            address,
+            emirate,
+            country,
+          );
         });
-      }
-      else
-      {
+      } else {
         Map<String, dynamic> data = json.decode(response.body);
         String error = '';
-        if (data.containsKey('error'))
-        {
+        if (data.containsKey('error')) {
           setState(() {
             error = data['error'];
           });
-        }
-        else
-        {
+        } else {
           error = 'Something went wrong!!!';
         }
         Fluttertoast.showToast(msg: error);
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       print(e);
     }
 
@@ -3012,7 +3246,6 @@ _itemController.text = _selecteditem;
       _isLoading = false;
     });
   }
-
 
   Future<void> _selectrefDate(BuildContext context) async {
     setState(() {
@@ -3026,10 +3259,10 @@ _itemController.text = _selecteditem;
       lastDate: DateTime(2101),
       builder: (BuildContext context, Widget? child) {
         return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: ColorScheme.light().copyWith(
-              primary: app_color,
-            ),
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(
+              context,
+            ).colorScheme.copyWith(primary: app_color),
           ),
           child: child!,
         );
@@ -3049,40 +3282,41 @@ _itemController.text = _selecteditem;
     Locale locale = Localizations.localeOf(context);
 
     try {
-      if (currencyCode == 'INR' || currencyCode == 'EUR' || currencyCode == 'PKR'|| currencyCode == 'USD')
-      {
-        format = new NumberFormat.simpleCurrency(locale: locale.toString(), name: currencyCode);
-      }
-      else
-      {
-        format = new NumberFormat.currency(locale: locale.toString(), name: currencyCode);
+      if (currencyCode == 'INR' ||
+          currencyCode == 'EUR' ||
+          currencyCode == 'PKR' ||
+          currencyCode == 'USD') {
+        format = new NumberFormat.simpleCurrency(
+          locale: locale.toString(),
+          name: currencyCode,
+        );
+      } else {
+        format = new NumberFormat.currency(
+          locale: locale.toString(),
+          name: currencyCode,
+        );
       }
       return format.currencySymbol;
-    }
-    catch (e)
-    {
+    } catch (e) {
       return 'AED';
     }
   }
 
-  Future<void> updateEntry(int id) async
-  {
+  Future<void> updateEntry(int id) async {
     // ❌ Prevent save if Party Ledger not selected
-    if (_selectedpartyledger == null || _selectedpartyledger.toString().trim().isEmpty) {
+    if (_selectedpartyledger == null ||
+        _selectedpartyledger.toString().trim().isEmpty) {
       Fluttertoast.showToast(msg: "Please select Party Ledger");
 
       return;
     }
 
-    if (saleItems.isEmpty)
-    {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Atleast add 1 item')));
-    }
-    else
-    {
-      setState(()
-      {
+    if (saleItems.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Atleast add 1 item')));
+    } else {
+      setState(() {
         _isLoading = true;
       });
 
@@ -3094,7 +3328,9 @@ _itemController.text = _selecteditem;
       jsonEntryData["DATE"] = saledatestring;
       jsonEntryData["VOUCHERTYPENAME"] = _selectedvchtypename;
       jsonEntryData["PARTYLEDGERNAME"] = _selectedpartyledger;
-      jsonEntryData["totalAmount"] = roundedtotalAmount.toStringAsFixed(decimal!);
+      jsonEntryData["totalAmount"] = roundedtotalAmount.toStringAsFixed(
+        decimal!,
+      );
       jsonEntryData["NARRATION"] = narrationValue;
       jsonEntryData["VOUCHERNUMBER"] = vchnoValue;
       jsonEntryData["REFERENCE"] = refnoValue;
@@ -3102,13 +3338,14 @@ _itemController.text = _selecteditem;
 
       double totalItemAmount = 0.0;
 
-      for (SaleItem item in saleItems)
-      {
-        totalItemAmount += double.parse(item.itemAmount.toStringAsFixed(decimal!)); // calculating item amounts total
+      for (SaleItem item in saleItems) {
+        totalItemAmount += double.parse(
+          item.itemAmount.toStringAsFixed(decimal!),
+        ); // calculating item amounts total
       }
 
-      for (var saleItem in saleItems)
-      { // making sales ledger
+      for (var saleItem in saleItems) {
+        // making sales ledger
 
         saleItem.accountingAllocationList = {
           "LEDGERNAME": _selectedsalesledger,
@@ -3117,56 +3354,67 @@ _itemController.text = _selecteditem;
         };
       }
 
-      jsonEntryData["INVENTORYENTRIES.LIST"] = saleItems.map((item) { // making stockitem list
+      jsonEntryData["INVENTORYENTRIES.LIST"] = saleItems.map((item) {
+        // making stockitem list
         return {
           "STOCKITEMNAME": item.itemName,
           "ISDEEMEDPOSITIVE": "No",
-          "RATE": "${item.itemPrice.toStringAsFixed(decimal!)}/${item.itemUnit}",
+          "RATE":
+              "${item.itemPrice.toStringAsFixed(decimal!)}/${item.itemUnit}",
           "AMOUNT": item.itemAmount.toStringAsFixed(decimal!),
           "ACTUALQTY": "${item.itemQuantity} ${item.itemUnit}",
-          "BILLEDQTY":"${item.itemQuantity} ${item.itemUnit}",
-          "BATCHALLOCATIONS.LIST" : item.batchAllocationList,
-          "ACCOUNTINGALLOCATIONS.LIST" : item.accountingAllocationList
+          "BILLEDQTY": "${item.itemQuantity} ${item.itemUnit}",
+          "BATCHALLOCATIONS.LIST": item.batchAllocationList,
+          "ACCOUNTINGALLOCATIONS.LIST": item.accountingAllocationList,
         };
       }).toList();
 
       double totalLedgerAmount = 0.0;
 
-      for (LedgerEntry ledger in ledgerEntries) { // calculating total ledger amount
-        totalLedgerAmount +=
-            double.parse(ledger.ledgerAmount.toStringAsFixed(decimal!)); // calculating ledger amounts total
+      for (LedgerEntry ledger in ledgerEntries) {
+        // calculating total ledger amount
+        totalLedgerAmount += double.parse(
+          ledger.ledgerAmount.toStringAsFixed(decimal!),
+        ); // calculating ledger amounts total
       }
 
-      double partyLedgerAmount = double.parse((double.parse(totalVatAmount.toStringAsFixed(decimal!)) + double.parse(totalItemAmount.toStringAsFixed(decimal!)) + double.parse(totalLedgerAmount.toStringAsFixed(decimal!))).toStringAsFixed(decimal!)); // adding vat total, items total, ledgers total
+      double partyLedgerAmount = double.parse(
+        (double.parse(totalVatAmount.toStringAsFixed(decimal!)) +
+                double.parse(totalItemAmount.toStringAsFixed(decimal!)) +
+                double.parse(totalLedgerAmount.toStringAsFixed(decimal!)))
+            .toStringAsFixed(decimal!),
+      ); // adding vat total, items total, ledgers total
 
-      partyLedgerAmount = double.parse(
-          partyLedgerAmount.toStringAsFixed(decimal!)) * -1;
-
+      partyLedgerAmount =
+          double.parse(partyLedgerAmount.toStringAsFixed(decimal!)) * -1;
 
       List<Map<String, Object>> ledgerList = [];
 
-      Map<String, Object> partyLedgerData = { // making party ledger
+      Map<String, Object> partyLedgerData = {
+        // making party ledger
         "LEDGERNAME": _selectedpartyledger,
         "AMOUNT": partyLedgerAmount.toStringAsFixed(decimal!),
-        "ISPARTYLEDGER" : "Yes",
+        "ISPARTYLEDGER": "Yes",
         "ISDEEMEDPOSITIVE": "Yes",
         "ledgerType": "Party",
       };
 
       ledgerList.add(partyLedgerData);
 
-// Add ledger entries to the list
-      ledgerList.addAll(ledgerEntries.map((item) {
-        return {
-          "LEDGERNAME": item.ledgerName,
-          "VATAPPLICABLE": item.vatApp,
-          "AMOUNT": item.ledgerAmount,
-          "ISDEEMEDPOSITIVE": "No",
-          "ledgerType": "ledgerList",
-        };
-      }));
+      // Add ledger entries to the list
+      ledgerList.addAll(
+        ledgerEntries.map((item) {
+          return {
+            "LEDGERNAME": item.ledgerName,
+            "VATAPPLICABLE": item.vatApp,
+            "AMOUNT": item.ledgerAmount,
+            "ISDEEMEDPOSITIVE": "No",
+            "ledgerType": "ledgerList",
+          };
+        }),
+      );
 
-// Add VAT ledger data if applicable
+      // Add VAT ledger data if applicable
       if (_selectedvatledger != 'Not Applicable') {
         Map<String, Object> vatDataToAdd = {
           "LEDGERNAME": _selectedvatledger,
@@ -3179,14 +3427,11 @@ _itemController.text = _selecteditem;
 
       jsonEntryData["LEDGERENTRIES.LIST"] = ledgerList;
 
-
       Map<String, dynamic> jsonData = {
-        'id' : id,
-        'vchno' : _vchnoController.text,
-        'data' : jsonEntryData
-
+        'id': id,
+        'vchno': _vchnoController.text,
+        'data': jsonEntryData,
       };
-
 
       String jsonDataString = jsonEncode(jsonData);
 
@@ -3195,56 +3440,50 @@ _itemController.text = _selecteditem;
       try {
         final url_salesentry = Uri.parse(HttpURL_modifysalesEntry!);
 
-        Map<String,String> headers_salesentry = {
-          'Authorization' : 'Bearer $token',
-          "Content-Type": "application/json"
+        Map<String, String> headers_salesentry = {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json",
         };
 
         var body_salesentry = jsonDataString;
 
-
-        final response_salesentry = await http.post
-        (
-            url_salesentry,
-            body: body_salesentry,
-            headers:headers_salesentry
+        final response_salesentry = await http.post(
+          url_salesentry,
+          body: body_salesentry,
+          headers: headers_salesentry,
         );
 
         if (response_salesentry.statusCode == 200) {
-
-    if(response_salesentry.body == 'Entry updated successfully')
-    {
-
-      loadLedgerData();
-
+          if (response_salesentry.body == 'Entry updated successfully') {
+            loadLedgerData();
+          } else {
+            setState(() {
+              _isLoading = false;
+            });
+            Fluttertoast.showToast(msg: 'an error occoured');
+          }
+        } else {
+          Fluttertoast.showToast(msg: response_salesentry.body);
+        }
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+        });
+        print(e);
+      }
     }
-
-    else
-    {
-    setState(() {
-      _isLoading = false;
-
-    });
-    Fluttertoast.showToast(msg: 'an error occoured');
-    }
-    }
-    else
-    {
-    Fluttertoast.showToast(msg: response_salesentry.body);
-    }}
-    catch (e) {
     setState(() {
       _isLoading = false;
     });
-    print(e);
-    }
-    }
-    setState(() {
-      _isLoading = false;
+  }
 
-    });}
-
-  void showSalesInvoiceDialogUpdated(BuildContext context, String trn, String address, String emirate, String country) {
+  void showSalesInvoiceDialogUpdated(
+    BuildContext context,
+    String trn,
+    String address,
+    String emirate,
+    String country,
+  ) {
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
@@ -3259,7 +3498,7 @@ _itemController.text = _selecteditem;
               width: MediaQuery.of(context).size.width * 0.85,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(28), // rounded corners
               ),
               child: Column(
@@ -3270,10 +3509,7 @@ _itemController.text = _selecteditem;
                     height: 50,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.green,
-                        width: 4.0,
-                      ),
+                      border: Border.all(color: Colors.green, width: 4.0),
                     ),
                     child: const Icon(
                       Icons.done,
@@ -3343,7 +3579,12 @@ _itemController.text = _selecteditem;
                       ElevatedButton.icon(
                         onPressed: () async {
                           Navigator.pop(context);
-                          await generateInvoicePDF(trn, address, emirate, country);
+                          await generateInvoicePDF(
+                            trn,
+                            address,
+                            emirate,
+                            country,
+                          );
                         },
                         icon: const Icon(
                           Icons.share_rounded,
@@ -3374,7 +3615,7 @@ _itemController.text = _selecteditem;
                     ],
                   ),
 
-                 /* Row(
+                  /* Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       ElevatedButton.icon(
@@ -3448,15 +3689,11 @@ _itemController.text = _selecteditem;
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return Transform.scale(
           scale: Curves.easeOutBack.transform(animation.value),
-          child: Opacity(
-            opacity: animation.value,
-            child: child,
-          ),
+          child: Opacity(opacity: animation.value, child: child),
         );
       },
     );
   }
-
 
   /*Future<void> saveEntry(int id) async {
 
@@ -3549,7 +3786,7 @@ _itemController.text = _selecteditem;
 
         jsonEntryData["ledgers"].add(partyLedgerData);
       });
-      *//*print("entry data: ${jsonEntryData}");*//*
+      */ /*print("entry data: ${jsonEntryData}");*/ /*
 
       Map<String, dynamic> jsonData = {
         'id' : id,
@@ -3572,7 +3809,7 @@ _itemController.text = _selecteditem;
 
         if (response_salesentry.statusCode == 200) {
 
-          *//*print(response_salesentry.body);*//*
+          */ /*print(response_salesentry.body);*/ /*
           if(response_salesentry.body == 'Entry updated successfully')
             {
               setState(() {
@@ -3626,8 +3863,7 @@ _itemController.text = _selecteditem;
     }
   }
 
-  Future<void> loadData() async
-  {
+  Future<void> loadData() async {
     vchtypenamedata.clear();
     itemdata.clear();
     salesledger_data.clear();
@@ -3647,16 +3883,12 @@ _itemController.text = _selecteditem;
     try {
       final url = Uri.parse(HttpURL_loadData!);
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-
-      final response = await http.post(
-          url,
-          headers:headers
-      );
+      final response = await http.post(url, headers: headers);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
@@ -3664,9 +3896,7 @@ _itemController.text = _selecteditem;
         /*print('existing data = $data');*/
 
         setState(() {
-
           // setting current sales entry data
-
 
           String oldvchname = data['VOUCHERTYPENAME'];
           String oldpartyledger = data['PARTYLEDGERNAME'];
@@ -3677,7 +3907,6 @@ _itemController.text = _selecteditem;
           /* String oldsalesledger = data['salesledger'];*/
           String oldnarration = data['NARRATION'];
           String oldrefno = data['REFERENCE'];
-
 
           saledate = DateTime.parse(data['DATE']);
           saledatestring = _dateFormat.format(saledate);
@@ -3692,7 +3921,6 @@ _itemController.text = _selecteditem;
           controller_narration.text = oldnarration;
           controller_refno.text = oldrefno;
 
-
           vchtypenamedata = jsonResponse["vchTypes"].cast<String>();
           _selectedvchtypename = oldvchname;
           fetchvchnos(_selectedvchtypename);
@@ -3703,163 +3931,223 @@ _itemController.text = _selecteditem;
           salesledger_data = jsonResponse["salesLedgers"].cast<String>();
 
           /*_selectedsalesledger = oldsalesledger;*/ // setting sales ledgers later
-         /* _selectedsalesledger = salesledger_data[0];*/
+          /* _selectedsalesledger = salesledger_data[0];*/
 
-          if (data.containsKey("INVENTORYENTRIES.LIST") && data["INVENTORYENTRIES.LIST"] is List) {             // setting items list in SaleItem objects
+          if (data.containsKey("INVENTORYENTRIES.LIST") &&
+              data["INVENTORYENTRIES.LIST"] is List) {
+            // setting items list in SaleItem objects
 
             dynamic itemData = data['INVENTORYENTRIES.LIST'][0];
 
             print('INVENTORYENTRIES.LIST ${itemData}');
 
             if (itemData is Map<String, dynamic>) {
-                Map<String, dynamic> accountingAllocationList = itemData["ACCOUNTINGALLOCATIONS.LIST"];
-                String saleLedgerName = accountingAllocationList['LEDGERNAME'];
-                _selectedsalesledger = saleLedgerName; // setting sales ledger from first item data
-              }
+              Map<String, dynamic> accountingAllocationList =
+                  itemData["ACCOUNTINGALLOCATIONS.LIST"];
+              String saleLedgerName = accountingAllocationList['LEDGERNAME'];
+              _selectedsalesledger =
+                  saleLedgerName; // setting sales ledger from first item data
+            }
 
             print('_selectedsalesledger ${_selectedsalesledger}');
-
           }
 
-          ledgerdata = List<Map<String, dynamic>>.from(jsonResponse['otherLedgers']);
-          _selectedledger = ledgerdata.isNotEmpty ? ledgerdata[0]['name'] : null;
+          ledgerdata = List<Map<String, dynamic>>.from(
+            jsonResponse['otherLedgers'],
+          );
+          _selectedledger = ledgerdata.isNotEmpty
+              ? ledgerdata[0]['name']
+              : null;
 
           vatledgerdata.add('Not Applicable');
           vatledgerdata.addAll(jsonResponse["vatLedgers"].cast<String>());
 
           _selectedvatledger = vatledgerdata[0];
 
-          try{
+          try {
             // vat ledger name value setting
-            String vatLedgerValue = data['LEDGERENTRIES.LIST']
-                .firstWhere((ledger) => ledger['ledgerType'] == 'VAT', orElse: () => null)
-                ?.containsKey('LEDGERNAME') == true
-                ? data['LEDGERENTRIES.LIST']
-                .firstWhere((ledger) => ledger['ledgerType'] == 'VAT', orElse: () => null)['LEDGERNAME']
+            String vatLedgerValue =
+                data['LEDGERENTRIES.LIST']
+                        .firstWhere(
+                          (ledger) => ledger['ledgerType'] == 'VAT',
+                          orElse: () => null,
+                        )
+                        ?.containsKey('LEDGERNAME') ==
+                    true
+                ? data['LEDGERENTRIES.LIST'].firstWhere(
+                    (ledger) => ledger['ledgerType'] == 'VAT',
+                    orElse: () => null,
+                  )['LEDGERNAME']
                 : null;
 
-
-            if (vatLedgerValue != null && vatledgerdata.contains(vatLedgerValue)) { // if vat ledger exists
+            if (vatLedgerValue != null &&
+                vatledgerdata.contains(vatLedgerValue)) {
+              // if vat ledger exists
               _selectedvatledger = vatLedgerValue;
               // Extract VAT ledger amount as a string
 
               double vatLedgerAmountString = 0.0;
-              try
-              {
+              try {
                 // setting vat ledger amount if it is in double
-                vatLedgerAmountString = data['LEDGERENTRIES.LIST']
-                    .firstWhere((ledger) => ledger['ledgerType'] == 'VAT', orElse: () => null)
-                    ?.containsKey('AMOUNT') == true
-                    ? data['LEDGERENTRIES.LIST']
-                    .firstWhere((ledger) => ledger['ledgerType'] == 'VAT', orElse: () => null)['AMOUNT']
+                vatLedgerAmountString =
+                    data['LEDGERENTRIES.LIST']
+                            .firstWhere(
+                              (ledger) => ledger['ledgerType'] == 'VAT',
+                              orElse: () => null,
+                            )
+                            ?.containsKey('AMOUNT') ==
+                        true
+                    ? data['LEDGERENTRIES.LIST'].firstWhere(
+                        (ledger) => ledger['ledgerType'] == 'VAT',
+                        orElse: () => null,
+                      )['AMOUNT']
                     : null;
-              }
-              catch (e)
-              {
+              } catch (e) {
                 // setting vat ledger amount if it is in integer
 
-                int vatLedgerAmountint = data['LEDGERENTRIES.LIST']
-                    .firstWhere((ledger) => ledger['ledgerType'] == 'VAT', orElse: () => null)
-                    ?.containsKey('AMOUNT') == true
-                    ? data['LEDGERENTRIES.LIST']
-                    .firstWhere((ledger) => ledger['ledgerType'] == 'VAT', orElse: () => null)['AMOUNT']
+                int vatLedgerAmountint =
+                    data['LEDGERENTRIES.LIST']
+                            .firstWhere(
+                              (ledger) => ledger['ledgerType'] == 'VAT',
+                              orElse: () => null,
+                            )
+                            ?.containsKey('AMOUNT') ==
+                        true
+                    ? data['LEDGERENTRIES.LIST'].firstWhere(
+                        (ledger) => ledger['ledgerType'] == 'VAT',
+                        orElse: () => null,
+                      )['AMOUNT']
                     : null;
-                NumberFormat formatter = NumberFormat.decimalPattern(); // Create a formatter
-                formatter.minimumFractionDigits = decimal!; // Set the number of decimal places
+                NumberFormat formatter =
+                    NumberFormat.decimalPattern(); // Create a formatter
+                formatter.minimumFractionDigits =
+                    decimal!; // Set the number of decimal places
 
-                String formattedValue = formatter.format(vatLedgerAmountint); // Format the integer
-                formattedValue = formattedValue.replaceAll(',', ''); // Remove commas
+                String formattedValue = formatter.format(
+                  vatLedgerAmountint,
+                ); // Format the integer
+                formattedValue = formattedValue.replaceAll(
+                  ',',
+                  '',
+                ); // Remove commas
 
-                vatLedgerAmountString = double.tryParse(formattedValue.replaceAll(',', '')) ?? 0.0;
+                vatLedgerAmountString =
+                    double.tryParse(formattedValue.replaceAll(',', '')) ?? 0.0;
               }
 
               // if vat ledger is other than not applicable
               if (_selectedvatledger != 'Not Applicable') {
-
-                try
-                {
+                try {
                   // set total vat amount from vat ledger if it is in double
                   totalVatAmount = vatLedgerAmountString;
-
-                }
-                catch (e)
-                {
+                } catch (e) {
                   // set total vat amount from vat ledger if it is in integer
 
                   print(e);
-                  NumberFormat formatter = NumberFormat.decimalPattern(); // Create a formatter
-                  formatter.minimumFractionDigits = decimal!; // Set the number of decimal places
+                  NumberFormat formatter =
+                      NumberFormat.decimalPattern(); // Create a formatter
+                  formatter.minimumFractionDigits =
+                      decimal!; // Set the number of decimal places
 
-                  String formattedValue = formatter.format(vatLedgerAmountString); // Format the integer
-                  formattedValue = formattedValue.replaceAll(',', ''); // Remove commas
+                  String formattedValue = formatter.format(
+                    vatLedgerAmountString,
+                  ); // Format the integer
+                  formattedValue = formattedValue.replaceAll(
+                    ',',
+                    '',
+                  ); // Remove commas
 
-                  totalVatAmount = double.tryParse(formattedValue.replaceAll(',', '')) ?? 0.0;
+                  totalVatAmount =
+                      double.tryParse(formattedValue.replaceAll(',', '')) ??
+                      0.0;
                   /*print(totalVatAmount);*/
                 }
 
-                roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
+                roundedtotalVatAmount = double.parse(
+                  totalVatAmount.toStringAsFixed(decimal!),
+                );
 
                 NumberFormat formatter = NumberFormat(
-                    '#,##0.${'0' * decimal!}', 'en_US');
+                  '#,##0.${'0' * decimal!}',
+                  'en_US',
+                );
                 String formattedVat = formatter.format(roundedtotalVatAmount);
                 controller_vatamt.text = formattedVat.toString();
-              }
-              else               // if vat ledger is not applicable
-
+              } else // if vat ledger is not applicable
               {
                 totalVatAmount = 0;
                 roundedtotalVatAmount = double.parse(
-                    totalVatAmount.toStringAsFixed(decimal!));
+                  totalVatAmount.toStringAsFixed(decimal!),
+                );
                 NumberFormat formatter = NumberFormat(
-                    '#,##0.${'0' * decimal!}', 'en_US');
+                  '#,##0.${'0' * decimal!}',
+                  'en_US',
+                );
                 String formattedVat = formatter.format(0);
                 controller_vatamt.text = formattedVat.toString();
               }
             }
-          }
-          catch (e)               // if vat ledger has error
+          } catch (e) // if vat ledger has error
           {
             print(e);
             _selectedvatledger = vatledgerdata[0];
 
             totalVatAmount = 0;
-            roundedtotalVatAmount = double.parse(totalVatAmount.toStringAsFixed(decimal!));
-            NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+            roundedtotalVatAmount = double.parse(
+              totalVatAmount.toStringAsFixed(decimal!),
+            );
+            NumberFormat formatter = NumberFormat(
+              '#,##0.${'0' * decimal!}',
+              'en_US',
+            );
             String formattedVat = formatter.format(0);
             controller_vatamt.text = formattedVat.toString();
           }
-          try
-          {
-            totalAmount = double.tryParse(data['totalAmount'].toString().replaceAll(',', '')) ?? 0.0;
+          try {
+            totalAmount =
+                double.tryParse(
+                  data['totalAmount'].toString().replaceAll(',', ''),
+                ) ??
+                0.0;
+          } catch (e) {
+            NumberFormat formatter =
+                NumberFormat.decimalPattern(); // Create a formatter
+            formatter.minimumFractionDigits =
+                decimal!; // Set the number of decimal places
 
+            String formattedValue = formatter.format(
+              data['totalAmount'],
+            ); // Format the integer
+            formattedValue = formattedValue.replaceAll(
+              ',',
+              '',
+            ); // Remove commas
+
+            totalAmount =
+                double.tryParse(formattedValue.replaceAll(',', '')) ?? 0.0;
           }
-          catch (e)
-          {
-            NumberFormat formatter = NumberFormat.decimalPattern(); // Create a formatter
-            formatter.minimumFractionDigits = decimal!; // Set the number of decimal places
-
-            String formattedValue = formatter.format(data['totalAmount']); // Format the integer
-            formattedValue = formattedValue.replaceAll(',', ''); // Remove commas
-
-            totalAmount = double.tryParse(formattedValue.replaceAll(',', '')) ?? 0.0;
-          }
-          roundedtotalAmount = double.parse(totalAmount.toStringAsFixed(decimal!));
-          NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+          roundedtotalAmount = double.parse(
+            totalAmount.toStringAsFixed(decimal!),
+          );
+          NumberFormat formatter = NumberFormat(
+            '#,##0.${'0' * decimal!}',
+            'en_US',
+          );
           String formattedtotal = formatter.format(roundedtotalAmount);
 
           controller_totalamt.text = formattedtotal.toString();
 
-          if (data.containsKey("INVENTORYENTRIES.LIST") && data["INVENTORYENTRIES.LIST"] is List) {             // setting items list in SaleItem objects
+          if (data.containsKey("INVENTORYENTRIES.LIST") &&
+              data["INVENTORYENTRIES.LIST"] is List) {
+            // setting items list in SaleItem objects
 
             data["INVENTORYENTRIES.LIST"].forEach((itemData) {
               if (itemData is Map<String, dynamic>) {
                 String itemName = itemData["STOCKITEMNAME"] ?? "";
 
-
                 String itemQuantity = itemData["ACTUALQTY"] ?? "";
 
                 String quantity = extractQuantity(itemQuantity);
-
 
                 String parsedQuantity = quantity.replaceAll(',', '');
 
@@ -3874,13 +4162,10 @@ _itemController.text = _selecteditem;
                       itemPrice = int.parse(rateParts[0]).toDouble();
                       print("Error parsing itemPrice as double: $e");
                     }
-                  } else
-                  {
-                    try
-                    {
+                  } else {
+                    try {
                       itemPrice = int.parse(rateParts[0]).toDouble();
-                    } catch (e)
-                    {
+                    } catch (e) {
                       print("Error parsing itemPrice as int: $e");
                     }
                   }
@@ -3889,26 +4174,28 @@ _itemController.text = _selecteditem;
 
                   // Try parsing itemAmount as a double, and if that fails, as an integer
                   double itemAmount;
-                  try
-                  {
-                    itemAmount = double.parse(itemData["AMOUNT"].toStringAsFixed(decimal!));
-                  } catch (e)
-                  {
-                    try
-                    {
-                      itemAmount = int.parse(itemData["AMOUNT"].toString()).toDouble();
+                  try {
+                    itemAmount = double.parse(
+                      itemData["AMOUNT"].toStringAsFixed(decimal!),
+                    );
+                  } catch (e) {
+                    try {
+                      itemAmount = int.parse(
+                        itemData["AMOUNT"].toString(),
+                      ).toDouble();
                       print("Error parsing itemAmount as double: $e");
-                    } catch (e)
-                    {
+                    } catch (e) {
                       print("Error parsing itemAmount as int: $e");
                       itemAmount = 0.0; // Default to 0.0 if parsing fails
                     }
                   }
-                  Map<String,dynamic> batchAllocationList = itemData['BATCHALLOCATIONS.LIST'];
+                  Map<String, dynamic> batchAllocationList =
+                      itemData['BATCHALLOCATIONS.LIST'];
 
                   String itemLocation = batchAllocationList["GODOWNNAME"] ?? "";
 
-                  Map<String,dynamic> accountingAllocationList = itemData['ACCOUNTINGALLOCATIONS.LIST'];
+                  Map<String, dynamic> accountingAllocationList =
+                      itemData['ACCOUNTINGALLOCATIONS.LIST'];
 
                   SaleItem saleItem = SaleItem(
                     itemName: itemName,
@@ -3918,7 +4205,7 @@ _itemController.text = _selecteditem;
                     itemLocation: itemLocation,
                     itemUnit: itemUnit,
                     accountingAllocationList: accountingAllocationList,
-                    batchAllocationList: batchAllocationList
+                    batchAllocationList: batchAllocationList,
                   );
 
                   saleItems.add(saleItem);
@@ -3927,23 +4214,23 @@ _itemController.text = _selecteditem;
             });
           }
 
-          if (saleItems.isEmpty)
-          {
+          if (saleItems.isEmpty) {
             isVisibleItemHeading = false;
-          }
-          else
-          {
+          } else {
             isVisibleItemHeading = true;
           }
 
           // Extract and convert ledger entries from the JSON data
-          if (data.containsKey("LEDGERENTRIES.LIST") && data["LEDGERENTRIES.LIST"] is List) {
+          if (data.containsKey("LEDGERENTRIES.LIST") &&
+              data["LEDGERENTRIES.LIST"] is List) {
             data["LEDGERENTRIES.LIST"].forEach((ledgerData) {
-              if (ledgerData is Map<String, dynamic> && ledgerData["ledgerType"] == "ledgerList") {
+              if (ledgerData is Map<String, dynamic> &&
+                  ledgerData["ledgerType"] == "ledgerList") {
                 String ledgerName = ledgerData["LEDGERNAME"] ?? "";
 
                 // Try parsing ledgerAmount as a double, or default to 0.0
-                double ledgerAmount = double.tryParse(ledgerData["AMOUNT"].toString()) ?? 0.0;
+                double ledgerAmount =
+                    double.tryParse(ledgerData["AMOUNT"].toString()) ?? 0.0;
 
                 bool vatApp = ledgerData["VATAPPLICABLE"];
 
@@ -3957,12 +4244,9 @@ _itemController.text = _selecteditem;
               }
             });
           }
-          if (ledgerEntries.isEmpty)
-          {
+          if (ledgerEntries.isEmpty) {
             isVisibleLedgerHeading = false;
-          }
-          else
-          {
+          } else {
             isVisibleLedgerHeading = true;
           }
 
@@ -3971,34 +4255,25 @@ _itemController.text = _selecteditem;
           _selecteditem = '${itemdata[0]['name']}';
           _itemController.text = _selecteditem;
 
-
           locationsdata = List<String>.from(jsonResponse['locations']);
-          if (locationsdata.isNotEmpty)
-          {
+          if (locationsdata.isNotEmpty) {
             selectedLocation = locationsdata[0];
-            setState(()
-            {
+            setState(() {
               isVisibleLocation = true;
             });
-          }
-          else
-          {
-            setState(()
-            {
+          } else {
+            setState(() {
               isVisibleLocation = false;
             });
           }
           _updateUnitDropdown(_selecteditem);
         });
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       print(e);
     }
 
-    setState(()
-    {
+    setState(() {
       _isLoading = false;
     });
   }
@@ -4011,7 +4286,8 @@ _itemController.text = _selecteditem;
       itemQuantityController.text = 1.toString();
 
       dynamic selectedItemInfo = itemdata.firstWhere(
-            (item) => item["name"] == _selectedItem, orElse: () => null,
+        (item) => item["name"] == _selectedItem,
+        orElse: () => null,
       );
 
       String salePrice = selectedItemInfo["saleprice"].toString();
@@ -4044,26 +4320,27 @@ _itemController.text = _selecteditem;
           rateValue = 0;
 
           itemRateController.text = '';
-        }
-        else {
+        } else {
           rateValue = (double.parse(salePrice) * selectedMultiplier);
           double roundedrateValue = double.parse(
-              rateValue.toStringAsFixed(decimal!));
+            rateValue.toStringAsFixed(decimal!),
+          );
 
           itemRateController.text = roundedrateValue.toString();
         }
-      }
-      else {
+      } else {
         rateValue = (double.parse(standardPrice) * selectedMultiplier);
         double roundedrateValue = double.parse(
-            rateValue.toStringAsFixed(decimal!));
+          rateValue.toStringAsFixed(decimal!),
+        );
 
         itemRateController.text = roundedrateValue.toString();
       }
       double amountValue = (double.parse(qtyValue) * rateValue);
 
       double roundedAmountValue = double.parse(
-          amountValue.toStringAsFixed(decimal!));
+        amountValue.toStringAsFixed(decimal!),
+      );
 
       NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
       String formattedAmount = formatter.format(roundedAmountValue);
@@ -4086,7 +4363,8 @@ _itemController.text = _selecteditem;
     double amountValue = (double.parse(qtyValue) * double.parse(rateValue));
 
     double roundedAmountValue = double.parse(
-        amountValue.toStringAsFixed(decimal!));
+      amountValue.toStringAsFixed(decimal!),
+    );
 
     NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
     String formattedAmount = formatter.format(roundedAmountValue);
@@ -4108,7 +4386,8 @@ _itemController.text = _selecteditem;
     double amountValue = (double.parse(qtyValue) * double.parse(rateValue));
 
     double roundedAmountValue = double.parse(
-        amountValue.toStringAsFixed(decimal!));
+      amountValue.toStringAsFixed(decimal!),
+    );
 
     NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
     String formattedAmount = formatter.format(roundedAmountValue);
@@ -4128,10 +4407,10 @@ _itemController.text = _selecteditem;
       lastDate: DateTime(2101),
       builder: (BuildContext context, Widget? child) {
         return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: ColorScheme.light().copyWith(
-              primary: app_color,
-            ),
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(
+              context,
+            ).colorScheme.copyWith(primary: app_color),
           ),
           child: child!,
         );
@@ -4153,7 +4432,7 @@ _itemController.text = _selecteditem;
           return StatefulBuilder(
             builder: (context, setStateDialog) {
               return AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Column(
             children: [
@@ -4175,7 +4454,7 @@ _itemController.text = _selecteditem;
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -4209,11 +4488,11 @@ _itemController.text = _selecteditem;
                       return ListTile(
                         title: Text(
                           suggestion['name'] ?? '',
-                          style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
+                          style: GoogleFonts.poppins(fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
                         ),
                         subtitle: Text(
                           suggestion['part'] ?? '',
-                          style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                          style: GoogleFonts.poppins(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
                       );
                     },
@@ -4266,7 +4545,7 @@ _itemController.text = _selecteditem;
                             children: [
                               if (_itemController.text.isNotEmpty)
                                 IconButton(
-                                  icon: const Icon(Icons.close, color: Colors.grey, size: 20),
+                                  icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
                                   onPressed: () {
                                     _itemController.clear();
                                     setState(() {
@@ -4276,7 +4555,7 @@ _itemController.text = _selecteditem;
                                     });
                                   },
                                 ),
-                              const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                              Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               const SizedBox(width: 6),
                             ],
                           ),
@@ -4581,14 +4860,12 @@ _itemController.text = _selecteditem;
             return AnimatedPadding(
               duration: const Duration(milliseconds: 220),
               curve: Curves.easeOut,
-              padding: EdgeInsets.only(
-                bottom: mediaQuery.viewInsets.bottom,
-              ),
+              padding: EdgeInsets.only(bottom: mediaQuery.viewInsets.bottom),
               child: FractionallySizedBox(
                 heightFactor: sheetHeight,
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(24),
                     ),
@@ -4633,7 +4910,7 @@ _itemController.text = _selecteditem;
                         style: GoogleFonts.poppins(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
 
@@ -4642,7 +4919,7 @@ _itemController.text = _selecteditem;
                       Expanded(
                         child: SingleChildScrollView(
                           keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.manual,
+                              ScrollViewKeyboardDismissBehavior.manual,
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
                           child: Form(
                             key: _itemFormkey,
@@ -4654,22 +4931,24 @@ _itemController.text = _selecteditem;
                                   suggestionsCallback: (pattern) async {
                                     return itemdata
                                         .where((item) {
-                                      final name = item['name']
-                                          ?.toString()
-                                          .toLowerCase() ??
-                                          '';
-                                      final part = item['part']
-                                          ?.toString()
-                                          .toLowerCase() ??
-                                          '';
+                                          final name =
+                                              item['name']
+                                                  ?.toString()
+                                                  .toLowerCase() ??
+                                              '';
+                                          final part =
+                                              item['part']
+                                                  ?.toString()
+                                                  .toLowerCase() ??
+                                              '';
 
-                                      return name.contains(
-                                        pattern.toLowerCase(),
-                                      ) ||
-                                          part.contains(
-                                            pattern.toLowerCase(),
-                                          );
-                                    })
+                                          return name.contains(
+                                                pattern.toLowerCase(),
+                                              ) ||
+                                              part.contains(
+                                                pattern.toLowerCase(),
+                                              );
+                                        })
                                         .cast<Map<String, dynamic>>()
                                         .toList();
                                   },
@@ -4680,14 +4959,18 @@ _itemController.text = _selecteditem;
                                         suggestion['name'] ?? '',
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
-                                          color: Colors.black87,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                         ),
                                       ),
                                       subtitle: Text(
                                         suggestion['part'] ?? '',
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
-                                          color: Colors.grey,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                       ),
                                     );
@@ -4744,9 +5027,11 @@ _itemController.text = _selecteditem;
                                           children: [
                                             if (_itemController.text.isNotEmpty)
                                               IconButton(
-                                                icon: const Icon(
+                                                icon: Icon(
                                                   Icons.close,
-                                                  color: Colors.grey,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
                                                   size: 20,
                                                 ),
                                                 onPressed: () {
@@ -4759,35 +5044,45 @@ _itemController.text = _selecteditem;
                                                   });
                                                 },
                                               ),
-                                            const Icon(
+                                            Icon(
                                               Icons.arrow_drop_down,
-                                              color: Colors.grey,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
                                             ),
                                             const SizedBox(width: 6),
                                           ],
                                         ),
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
                                             width: 1,
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           borderSide: BorderSide(
                                             color: app_color,
                                             width: 1.5,
                                           ),
                                         ),
                                         contentPadding:
-                                        const EdgeInsets.symmetric(
-                                          horizontal: 14,
-                                          vertical: 14,
-                                        ),
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 14,
+                                              vertical: 14,
+                                            ),
                                       ),
                                     );
                                   },
@@ -4796,7 +5091,7 @@ _itemController.text = _selecteditem;
                                     return Material(
                                       elevation: 6,
                                       borderRadius: BorderRadius.circular(16),
-                                      color: Colors.white,
+                                      color: Theme.of(context).cardColor,
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(16),
                                         child: child,
@@ -4805,7 +5100,7 @@ _itemController.text = _selecteditem;
                                   },
 
                                   emptyBuilder: (context) =>
-                                  const SizedBox.shrink(),
+                                      const SizedBox.shrink(),
                                 ),
 
                                 const SizedBox(height: 14),
@@ -4831,7 +5126,7 @@ _itemController.text = _selecteditem;
                                         );
                                       }).toList(),
                                       onChanged: (val) => setStateDialog(
-                                            () => selectedLocation = val!,
+                                        () => selectedLocation = val!,
                                       ),
                                       decoration: InputDecoration(
                                         labelText: "Location",
@@ -4856,17 +5151,25 @@ _itemController.text = _selecteditem;
                                           ),
                                         ),
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
                                             width: 1,
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           borderSide: BorderSide(
                                             color: app_color,
                                             width: 1.5,
@@ -4902,7 +5205,7 @@ _itemController.text = _selecteditem;
                                           selectedMultiplier = unitdata
                                               .firstWhere(
                                                 (u) => u.name == _selectedunit,
-                                          )
+                                              )
                                               .multiplier;
                                           updateRateAndAmount();
                                         });
@@ -4930,17 +5233,25 @@ _itemController.text = _selecteditem;
                                           ),
                                         ),
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
                                             width: 1,
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           borderSide: BorderSide(
                                             color: app_color,
                                             width: 1.5,
@@ -4985,7 +5296,7 @@ _itemController.text = _selecteditem;
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
                                       borderSide: BorderSide(
-                                        color: Colors.grey.shade300,
+                                        color: Theme.of(context).dividerColor,
                                         width: 1,
                                       ),
                                     ),
@@ -5015,10 +5326,7 @@ _itemController.text = _selecteditem;
                                       ),
                                       decoration: const BoxDecoration(
                                         gradient: LinearGradient(
-                                          colors: [
-                                            Colors.blue,
-                                            Colors.blue,
-                                          ],
+                                          colors: [Colors.blue, Colors.blue],
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
                                         ),
@@ -5041,7 +5349,7 @@ _itemController.text = _selecteditem;
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
                                       borderSide: BorderSide(
-                                        color: Colors.grey.shade300,
+                                        color: Theme.of(context).dividerColor,
                                         width: 1,
                                       ),
                                     ),
@@ -5063,7 +5371,18 @@ _itemController.text = _selecteditem;
                                   decoration: InputDecoration(
                                     labelText: "Amount",
                                     filled: true,
-                                    fillColor: Colors.grey.shade100,
+                                    fillColor:
+                                        Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? Theme.of(
+                                            context,
+                                          ).colorScheme.surfaceContainerHighest
+                                        : (Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? Theme.of(context)
+                                                    .colorScheme
+                                                    .surfaceContainerHighest
+                                              : Colors.grey.shade100),
                                     prefix: Container(
                                       margin: const EdgeInsets.only(right: 8),
                                       padding: const EdgeInsets.symmetric(
@@ -5072,10 +5391,7 @@ _itemController.text = _selecteditem;
                                       ),
                                       decoration: const BoxDecoration(
                                         gradient: LinearGradient(
-                                          colors: [
-                                            Colors.green,
-                                            Colors.teal,
-                                          ],
+                                          colors: [Colors.green, Colors.teal],
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
                                         ),
@@ -5098,7 +5414,7 @@ _itemController.text = _selecteditem;
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
                                       borderSide: BorderSide(
-                                        color: Colors.grey.shade300,
+                                        color: Theme.of(context).dividerColor,
                                         width: 1,
                                       ),
                                     ),
@@ -5115,7 +5431,7 @@ _itemController.text = _selecteditem;
                         child: Container(
                           padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.08),
@@ -5193,14 +5509,13 @@ _itemController.text = _selecteditem;
     );
   }
 
-
- /* void _showLedgerDetailsPopup(BuildContext context) {
+  /* void _showLedgerDetailsPopup(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
         return StatefulBuilder(builder: (context, setState) {
           return AlertDialog(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
 
             // 🔝 Title with gradient icon
@@ -5224,7 +5539,7 @@ _itemController.text = _selecteditem;
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -5417,14 +5732,12 @@ _itemController.text = _selecteditem;
             return AnimatedPadding(
               duration: const Duration(milliseconds: 220),
               curve: Curves.easeOut,
-              padding: EdgeInsets.only(
-                bottom: mediaQuery.viewInsets.bottom,
-              ),
+              padding: EdgeInsets.only(bottom: mediaQuery.viewInsets.bottom),
               child: FractionallySizedBox(
                 heightFactor: sheetHeight,
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(24),
                     ),
@@ -5450,10 +5763,7 @@ _itemController.text = _selecteditem;
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
-                              colors: [
-                                Colors.deepPurple,
-                                Colors.purpleAccent,
-                              ],
+                              colors: [Colors.deepPurple, Colors.purpleAccent],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
@@ -5472,7 +5782,7 @@ _itemController.text = _selecteditem;
                         style: GoogleFonts.poppins(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
 
@@ -5481,7 +5791,7 @@ _itemController.text = _selecteditem;
                       Expanded(
                         child: SingleChildScrollView(
                           keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.manual,
+                              ScrollViewKeyboardDismissBehavior.manual,
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
                           child: Form(
                             key: _ledgerFormkey,
@@ -5501,124 +5811,152 @@ _itemController.text = _selecteditem;
                                         return ledgerdata
                                             .map<String>(
                                               (ledger) =>
-                                              ledger['name'].toString(),
-                                        )
+                                                  ledger['name'].toString(),
+                                            )
                                             .where(
-                                              (item) => item
-                                              .toLowerCase()
-                                              .contains(
-                                            pattern.toLowerCase(),
-                                          ),
-                                        )
+                                              (item) =>
+                                                  item.toLowerCase().contains(
+                                                    pattern.toLowerCase(),
+                                                  ),
+                                            )
                                             .toList();
                                       },
 
                                       builder:
                                           (context, textController, focusNode) {
-                                        return TextField(
-                                          controller: textController,
-                                          focusNode: focusNode,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black87,
-                                          ),
-                                          decoration: InputDecoration(
-                                            hintText:
-                                            _selectedledger?.isNotEmpty ==
-                                                true
-                                                ? _selectedledger
-                                                : "Select Ledger",
-                                            labelText: "Ledger Name",
-                                            hintStyle: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                              color: Colors.grey[600],
-                                            ),
-                                            labelStyle: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.grey[700],
-                                            ),
-                                            prefixIcon: Container(
-                                              margin: const EdgeInsets.all(8),
-                                              decoration: const BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: [
-                                                    Colors.blue,
-                                                    Colors.lightBlueAccent,
-                                                  ],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                borderRadius: BorderRadius.all(
-                                                  Radius.circular(12),
-                                                ),
+                                            return TextField(
+                                              controller: textController,
+                                              focusNode: focusNode,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface,
                                               ),
-                                              child: const Icon(
-                                                Icons.account_balance_wallet,
-                                                color: Colors.white,
-                                                size: 20,
-                                              ),
-                                            ),
-                                            suffixIcon: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                if (_ledgerController
-                                                    .text.isNotEmpty)
-                                                  IconButton(
-                                                    icon: const Icon(
-                                                      Icons.close,
-                                                      color: Colors.grey,
-                                                      size: 20,
-                                                    ),
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        _ledgerController
-                                                            .clear();
-                                                        _selectedledger = "";
-                                                      });
-                                                    },
+                                              decoration: InputDecoration(
+                                                hintText:
+                                                    _selectedledger
+                                                            ?.isNotEmpty ==
+                                                        true
+                                                    ? _selectedledger
+                                                    : "Select Ledger",
+                                                labelText: "Ledger Name",
+                                                hintStyle: GoogleFonts.poppins(
+                                                  fontSize: 13,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
+                                                labelStyle: GoogleFonts.poppins(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
+                                                prefixIcon: Container(
+                                                  margin: const EdgeInsets.all(
+                                                    8,
                                                   ),
-                                                const Icon(
-                                                  Icons.arrow_drop_down,
-                                                  color: Colors.grey,
+                                                  decoration: const BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                      colors: [
+                                                        Colors.blue,
+                                                        Colors.lightBlueAccent,
+                                                      ],
+                                                      begin: Alignment.topLeft,
+                                                      end:
+                                                          Alignment.bottomRight,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                          Radius.circular(12),
+                                                        ),
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons
+                                                        .account_balance_wallet,
+                                                    color: Colors.white,
+                                                    size: 20,
+                                                  ),
                                                 ),
-                                                const SizedBox(width: 6),
-                                              ],
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(16),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(16),
-                                              borderSide: BorderSide(
-                                                color: Colors.grey.shade300,
-                                                width: 1,
+                                                suffixIcon: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    if (_ledgerController
+                                                        .text
+                                                        .isNotEmpty)
+                                                      IconButton(
+                                                        icon: Icon(
+                                                          Icons.close,
+                                                          color: Theme.of(context)
+                                                              .colorScheme
+                                                              .onSurfaceVariant,
+                                                          size: 20,
+                                                        ),
+                                                        onPressed: () {
+                                                          setState(() {
+                                                            _ledgerController
+                                                                .clear();
+                                                            _selectedledger =
+                                                                "";
+                                                          });
+                                                        },
+                                                      ),
+                                                    Icon(
+                                                      Icons.arrow_drop_down,
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurfaceVariant,
+                                                    ),
+                                                    const SizedBox(width: 6),
+                                                  ],
+                                                ),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                ),
+                                                enabledBorder:
+                                                    OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            16,
+                                                          ),
+                                                      borderSide: BorderSide(
+                                                        color: Colors
+                                                            .grey
+                                                            .shade300,
+                                                        width: 1,
+                                                      ),
+                                                    ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            16,
+                                                          ),
+                                                      borderSide: BorderSide(
+                                                        color: app_color,
+                                                        width: 1.5,
+                                                      ),
+                                                    ),
                                               ),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(16),
-                                              borderSide: BorderSide(
-                                                color: app_color,
-                                                width: 1.5,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
+                                            );
+                                          },
 
                                       decorationBuilder: (context, child) {
                                         return Material(
                                           elevation: 6,
-                                          borderRadius:
-                                          BorderRadius.circular(16),
-                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          color: Theme.of(context).cardColor,
                                           child: ClipRRect(
-                                            borderRadius:
-                                            BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                             child: child,
                                           ),
                                         );
@@ -5626,18 +5964,20 @@ _itemController.text = _selecteditem;
 
                                       itemBuilder:
                                           (context, String suggestion) {
-                                        return ListTile(
-                                          title: Text(
-                                            suggestion,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                        );
-                                      },
+                                            return ListTile(
+                                              title: Text(
+                                                suggestion,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).colorScheme.onSurface,
+                                                ),
+                                              ),
+                                            );
+                                          },
 
                                       onSelected: (String suggestion) {
                                         FocusScope.of(context).unfocus();
@@ -5681,7 +6021,8 @@ _itemController.text = _selecteditem;
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter amount';
-                                      } else if (double.tryParse(value) == 0.0) {
+                                      } else if (double.tryParse(value) ==
+                                          0.0) {
                                         return 'Amount cannot be 0';
                                       }
                                       return null;
@@ -5723,7 +6064,7 @@ _itemController.text = _selecteditem;
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(16),
                                         borderSide: BorderSide(
-                                          color: Colors.grey.shade300,
+                                          color: Theme.of(context).dividerColor,
                                           width: 1,
                                         ),
                                       ),
@@ -5748,7 +6089,7 @@ _itemController.text = _selecteditem;
                         child: Container(
                           padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.08),
@@ -5872,18 +6213,23 @@ _itemController.text = _selecteditem;
       };
 
       // Check if the item already exists in the list with the same name and price
-      int existingIndex = saleItems.indexWhere((item) =>
-      item.itemName == itemName &&
-          double.parse(item.itemPrice.toStringAsFixed(decimal!)) == parsedPrice &&
-          item.itemUnit == itemUnit);
+      int existingIndex = saleItems.indexWhere(
+        (item) =>
+            item.itemName == itemName &&
+            double.parse(item.itemPrice.toStringAsFixed(decimal!)) ==
+                parsedPrice &&
+            item.itemUnit == itemUnit,
+      );
       if (existingIndex != -1) {
         // Item already exists with the same name, price, and unit, update its quantity and amount
         SaleItem existingItem = saleItems[existingIndex];
         String newQuantity =
-        (int.parse(existingItem.itemQuantity) + int.parse(parsedQuantity)).toString();
+            (int.parse(existingItem.itemQuantity) + int.parse(parsedQuantity))
+                .toString();
         double newAmount = parsedPrice * int.parse(newQuantity);
-        saleItems[existingIndex] =
-            existingItem.updateQuantity(newQuantity).updateItemAmount(newAmount);
+        saleItems[existingIndex] = existingItem
+            .updateQuantity(newQuantity)
+            .updateItemAmount(newAmount);
       } else {
         // Item doesn't exist, create a new SaleItem object and add it to the list
         final newItem = SaleItem(
@@ -5904,62 +6250,74 @@ _itemController.text = _selecteditem;
       }
 
       setState(() {
-
         if (saleItems.isEmpty) {
           isVisibleItemHeading = false;
-        }
-        else {
+        } else {
           isVisibleItemHeading = true;
         }
 
-        totalPriceOfItems = saleItems.fold(
-            0.0, (double previousAmount, SaleItem item) {
+        totalPriceOfItems = saleItems.fold(0.0, (
+          double previousAmount,
+          SaleItem item,
+        ) {
           return previousAmount +
-              (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity));
+              (double.parse(item.itemPrice.toStringAsFixed(decimal!)) *
+                  double.parse(item.itemQuantity));
         });
 
-
         if (_selectedvatledger != 'Not Applicable') {
-
           double vat_perc = vatperc / 100;
           itemsVatAmount = double.parse(
-              (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
+            (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!),
+          );
           totalAmountForVatAppEntries = ledgerEntries
               .where((entry) => entry.vatApp)
               .fold(0.0, (double previousAmount, LedgerEntry entry) {
-            return previousAmount + entry.ledgerAmount;
-          });
+                return previousAmount + entry.ledgerAmount;
+              });
 
           ledgerVatAmount = totalAmountForVatAppEntries * vat_perc;
 
           totalVatAmount = itemsVatAmount + ledgerVatAmount;
 
           roundedtotalVatAmount = double.parse(
-              totalVatAmount.toStringAsFixed(decimal!));
+            totalVatAmount.toStringAsFixed(decimal!),
+          );
 
           NumberFormat formatter = NumberFormat(
-              '#,##0.${'0' * decimal!}', 'en_US');
+            '#,##0.${'0' * decimal!}',
+            'en_US',
+          );
           String formattedVat = formatter.format(roundedtotalVatAmount);
           controller_vatamt.text = formattedVat.toString();
-        }
-        else {
+        } else {
           totalVatAmount = 0;
           roundedtotalVatAmount = double.parse(
-              totalVatAmount.toStringAsFixed(decimal!));
+            totalVatAmount.toStringAsFixed(decimal!),
+          );
           NumberFormat formatter = NumberFormat(
-              '#,##0.${'0' * decimal!}', 'en_US');
+            '#,##0.${'0' * decimal!}',
+            'en_US',
+          );
           String formattedVat = formatter.format(0);
           controller_vatamt.text = formattedVat.toString();
         }
 
-        totalAmountOfLedgers = ledgerEntries
-            .fold(0.0, (double previousAmount, LedgerEntry entry) {
+        totalAmountOfLedgers = ledgerEntries.fold(0.0, (
+          double previousAmount,
+          LedgerEntry entry,
+        ) {
           return previousAmount + entry.ledgerAmount;
         });
 
-        totalAmount = totalPriceOfItems +  totalAmountOfLedgers + totalVatAmount ;
-        roundedtotalAmount = double.parse(totalAmount.toStringAsFixed(decimal!));
-        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+        totalAmount = totalPriceOfItems + totalAmountOfLedgers + totalVatAmount;
+        roundedtotalAmount = double.parse(
+          totalAmount.toStringAsFixed(decimal!),
+        );
+        NumberFormat formatter = NumberFormat(
+          '#,##0.${'0' * decimal!}',
+          'en_US',
+        );
         String formattedtotal = formatter.format(roundedtotalAmount);
         controller_totalamt.text = formattedtotal.toString();
 
@@ -5970,8 +6328,7 @@ _itemController.text = _selecteditem;
           setState(() {
             isVisibleLocation = true;
           });
-        }
-        else {
+        } else {
           setState(() {
             isVisibleLocation = false;
           });
@@ -5985,9 +6342,8 @@ _itemController.text = _selecteditem;
   }
 
   void addLedger() {
-
     Map<String, dynamic>? specificLedger = ledgerdata.firstWhere(
-          (ledger) => ledger['name'] == _selectedledger
+      (ledger) => ledger['name'] == _selectedledger,
     );
 
     final ledgerName = specificLedger['name'];
@@ -5999,7 +6355,9 @@ _itemController.text = _selecteditem;
     if (ledgerName.isNotEmpty && ledgerAmount.isNotEmpty) {
       // Create a new SaleItem object and add it to the list
       Navigator.of(context).pop();
-      int existingIndex = ledgerEntries.indexWhere((entry) => entry.ledgerName == ledgerName);
+      int existingIndex = ledgerEntries.indexWhere(
+        (entry) => entry.ledgerName == ledgerName,
+      );
       double parsedAmount = double.parse(ledgerAmount.replaceAll(',', ''));
 
       if (existingIndex != -1) {
@@ -6008,11 +6366,14 @@ _itemController.text = _selecteditem;
         double newAmount = existingLedger.ledgerAmount + parsedAmount;
 
         // Update vatApp if necessary
-        bool newVatApp = existingLedger.vatApp; // Initialize with the existing value
+        bool newVatApp =
+            existingLedger.vatApp; // Initialize with the existing value
         newVatApp = vatApp;
 
-
-        ledgerEntries[existingIndex] = existingLedger.updateAmount(newAmount,newVatApp);
+        ledgerEntries[existingIndex] = existingLedger.updateAmount(
+          newAmount,
+          newVatApp,
+        );
       } else {
         // Ledger doesn't exist, create a new LedgerEntry object and add it to the list
         final newItem = LedgerEntry(
@@ -6028,15 +6389,17 @@ _itemController.text = _selecteditem;
       setState(() {
         if (ledgerEntries.isEmpty) {
           isVisibleLedgerHeading = false;
-        }
-        else {
+        } else {
           isVisibleLedgerHeading = true;
         }
 
-        totalPriceOfItems = saleItems.fold(
-            0.0, (double previousAmount, SaleItem item) {
+        totalPriceOfItems = saleItems.fold(0.0, (
+          double previousAmount,
+          SaleItem item,
+        ) {
           return previousAmount +
-              (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity));
+              (double.parse(item.itemPrice.toStringAsFixed(decimal!)) *
+                  double.parse(item.itemQuantity));
         });
 
         if (_selectedvatledger != 'Not Applicable') {
@@ -6044,13 +6407,14 @@ _itemController.text = _selecteditem;
           totalAmountForVatAppEntries = ledgerEntries
               .where((entry) => entry.vatApp)
               .fold(0.0, (double previousAmount, LedgerEntry entry) {
-            return previousAmount + entry.ledgerAmount;
-          });
+                return previousAmount + entry.ledgerAmount;
+              });
 
           double vat_perc = vatperc / 100;
 
           itemsVatAmount = double.parse(
-              (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
+            (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!),
+          );
           ledgerVatAmount = totalAmountForVatAppEntries * vat_perc;
 
           /*print('Total Ledger Amount for VAT-Applicable Entries: $totalAmountForVatAppEntries');
@@ -6059,30 +6423,42 @@ _itemController.text = _selecteditem;
           totalVatAmount = itemsVatAmount + ledgerVatAmount;
 
           roundedtotalVatAmount = double.parse(
-              totalVatAmount.toStringAsFixed(decimal!));
+            totalVatAmount.toStringAsFixed(decimal!),
+          );
           NumberFormat formatter = NumberFormat(
-              '#,##0.${'0' * decimal!}', 'en_US');
+            '#,##0.${'0' * decimal!}',
+            'en_US',
+          );
           String formattedVat = formatter.format(roundedtotalVatAmount);
           controller_vatamt.text = formattedVat.toString();
-        }
-        else {
+        } else {
           totalVatAmount = 0;
           roundedtotalVatAmount = double.parse(
-              totalVatAmount.toStringAsFixed(decimal!));
+            totalVatAmount.toStringAsFixed(decimal!),
+          );
           NumberFormat formatter = NumberFormat(
-              '#,##0.${'0' * decimal!}', 'en_US');
+            '#,##0.${'0' * decimal!}',
+            'en_US',
+          );
           String formattedVat = formatter.format(0);
           controller_vatamt.text = formattedVat.toString();
         }
 
-        totalAmountOfLedgers = ledgerEntries
-            .fold(0.0, (double previousAmount, LedgerEntry entry) {
+        totalAmountOfLedgers = ledgerEntries.fold(0.0, (
+          double previousAmount,
+          LedgerEntry entry,
+        ) {
           return previousAmount + entry.ledgerAmount;
         });
 
-        totalAmount = totalPriceOfItems +  totalAmountOfLedgers + totalVatAmount ;
-        roundedtotalAmount = double.parse(totalAmount.toStringAsFixed(decimal!));
-        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+        totalAmount = totalPriceOfItems + totalAmountOfLedgers + totalVatAmount;
+        roundedtotalAmount = double.parse(
+          totalAmount.toStringAsFixed(decimal!),
+        );
+        NumberFormat formatter = NumberFormat(
+          '#,##0.${'0' * decimal!}',
+          'en_US',
+        );
         String formattedtotal = formatter.format(roundedtotalAmount);
         controller_totalamt.text = formattedtotal.toString();
 
@@ -6093,7 +6469,7 @@ _itemController.text = _selecteditem;
     }
   }
 
-  late String company_trn,company_address,company_emirate,company_country;
+  late String company_trn, company_address, company_emirate, company_country;
 
   Future<void> _initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
@@ -6107,9 +6483,9 @@ _itemController.text = _selecteditem;
       token = prefs.getString('token')!;
       currencycode = prefs.getString('currencycode') ?? 'AED';
 
-      company_trn = prefs.getString("company_trn")?? "null";
+      company_trn = prefs.getString("company_trn") ?? "null";
       company_address = prefs.getString("company_address") ?? "null";
-      company_emirate = prefs.getString("company_emirate")?? "null";
+      company_emirate = prefs.getString("company_emirate") ?? "null";
       company_country = prefs.getString("company_country") ?? "null";
 
       vatperc = prefs.getDouble('vatperc') ?? 5.0;
@@ -6125,24 +6501,26 @@ _itemController.text = _selecteditem;
       refdatestring = _dateFormat.format(refdate);
       refdatetxt = formatlastsaledate(refdatestring);
       _refdateController.text = refdatetxt;
-      
+
       SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
 
       String? email_nav = prefs.getString('email_nav');
       String? name_nav = prefs.getString('name_nav');
 
-      HttpURL_loadData = '$hostname/api/entry/getSalesData/$company_lowercase/$serial_no';
+      HttpURL_loadData =
+          '$hostname/api/entry/getSalesData/$company_lowercase/$serial_no';
       /*HttpURL_loadData = 'http://192.168.2.110:4999/api/entry/getSalesData/$company_lowercase/$serial_no';*/
 
-      HttpURL_loadLedgerData = '$hostname/api/ledger/getLedger/$company_lowercase/$serial_no';
+      HttpURL_loadLedgerData =
+          '$hostname/api/ledger/getLedger/$company_lowercase/$serial_no';
       /*HttpURL_loadLedgerData = 'http://192.168.2.110:4999/api/ledger/getLedger/$company_lowercase/$serial_no';*/
 
-
-      HttpURL_fetchvchnos = '$hostname/api/entry/nos/$company_lowercase/$serial_no';
+      HttpURL_fetchvchnos =
+          '$hostname/api/entry/nos/$company_lowercase/$serial_no';
       /*HttpURL_fetchvchnos = 'http://192.168.2.110:4999/api/entry/nos/$company_lowercase/$serial_no';*/
 
-
-      HttpURL_modifysalesEntry = '$hostname/api/entry/updateEntry/$company_lowercase/$serial_no';
+      HttpURL_modifysalesEntry =
+          '$hostname/api/entry/updateEntry/$company_lowercase/$serial_no';
       /*HttpURL_salesEntry = 'http://192.168.2.110:4999/api/entry/create/demonewformobilepp/767060064';*/
 
       itemQuantityController.text = 1.toString();
@@ -6157,8 +6535,7 @@ _itemController.text = _selecteditem;
       if (SecuritybtnAcessHolder == "True") {
         isRolesVisible = true;
         isUserVisible = true;
-      }
-      else {
+      } else {
         isRolesVisible = false;
         isUserVisible = false;
       }
@@ -6176,17 +6553,15 @@ _itemController.text = _selecteditem;
     )..repeat(reverse: true);
 
     _animation = Tween<double>(begin: 1.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
     _initSharedPreferences();
   }
 
   @override
   void dispose() {
-    _textFieldFocusNodeNarration.dispose(); // Dispose of the focus node when it's no longer needed.
+    _textFieldFocusNodeNarration
+        .dispose(); // Dispose of the focus node when it's no longer needed.
     _animationController.dispose();
 
     super.dispose();
@@ -6195,1744 +6570,2393 @@ _itemController.text = _selecteditem;
   bool isValidEmail(String email) {
     // Simple email validation pattern
     final RegExp emailRegex = RegExp(
-        r'^[\w-]+(\.[\w-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,})$');
+      r'^[\w-]+(\.[\w-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,})$',
+    );
     return emailRegex.hasMatch(email);
   }
 
   @override
   Widget build(BuildContext context) {
-      final NumberFormat currencyFormat = NumberFormat(
-        "#,##0.${'0' * decimal!}",  // 👈 dynamically repeat '0' for decimal places
-      );
-      
+    final NumberFormat currencyFormat = NumberFormat(
+      "#,##0.${'0' * decimal!}", // 👈 dynamically repeat '0' for decimal places
+    );
+
     return Scaffold(
-
       key: _scaffoldKey,
-        backgroundColor: Colors.white,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(50),
-          child: AppBar(
-            backgroundColor:  app_color,
-            elevation: 6,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(20),
-              ),
-            ),
-            automaticallyImplyLeading: false,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => PendingSalesEntry()),
-                );
-              },
-            ),
-            centerTitle: true,
-            title: GestureDetector(
-              onTap: () {
-
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      "Modify Sales Entry" ?? '',
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(50),
+        child: AppBar(
+          backgroundColor: app_color,
+          elevation: 6,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+          ),
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => PendingSalesEntry()),
+              );
+            },
+          ),
+          centerTitle: true,
+          title: GestureDetector(
+            onTap: () {},
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    "Modify Sales Entry" ?? '',
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
+      ),
       drawer: Sidebar(
-          isDashEnable: isDashEnable,
-          isRolesVisible: isRolesVisible,
-          isRolesEnable: isRolesEnable,
-          isUserEnable: isUserEnable,
-          isUserVisible: isUserVisible,
-          Username: name,
-          Email: email,
-          tickerProvider: this
+        isDashEnable: isDashEnable,
+        isRolesVisible: isRolesVisible,
+        isRolesEnable: isRolesEnable,
+        isUserEnable: isUserEnable,
+        isUserVisible: isUserVisible,
+        Username: name,
+        Email: email,
+        tickerProvider: this,
       ),
       body: WillPopScope(
-          onWillPop: () async {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => PendingSalesEntry()),
-            );
-            return true;
-          },
-          child: Stack(children: [
-
-
+        onWillPop: () async {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => PendingSalesEntry()),
+          );
+          return true;
+        },
+        child: Stack(
+          children: [
             ListView(
-                children:[
-                  GestureDetector(
-                    onTap: () => _selectDateRangeVchNo(context),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 12,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
-                        border: Border.all(
-                          color: app_color.withOpacity(0.3),
-                          width: 1,
+              children: [
+                GestureDetector(
+                  onTap: () => _selectDateRangeVchNo(context),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 12,
+                    ),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
                         ),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // calendar icon with gradient style
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [app_color, app_color.withOpacity(0.7)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.calendar_today, color: Colors.white, size: 20),
-                          ),
-                          const SizedBox(width: 14),
-
-                          // text column
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Voucher No. Range",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[800],
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  "${DateFormat('dd-MMM-yyyy').format(yearStartDate)} → ${DateFormat('dd-MMM-yyyy').format(yearEndDate)}",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w600,
-                                    color: app_color,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          Icon(Icons.keyboard_arrow_down, color: Colors.grey[600]),
-                        ],
+                      ],
+                      border: Border.all(
+                        color: app_color.withOpacity(0.3),
+                        width: 1,
                       ),
                     ),
-                  ),
-
-
-                  Container(
-                      child: Column(
-                          children: [
-                            Form(
-                              key: _formKey,
-                              child: Column(
-                                children: [
-
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                    child: TextFormField(
-                                      controller: _dateController,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black87,
-                                      ),
-                                      decoration: InputDecoration(
-                                        labelText: "Date",
-                                        labelStyle: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.grey[700],
-                                        ),
-                                        filled: true,
-                                        fillColor: Colors.white.withOpacity(0.95),
-                                        prefixIcon: GestureDetector(
-                                          onTap: () => _selectsaleDate(context),
-                                          child: Container(
-                                            margin: const EdgeInsets.all(8),
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [app_color, app_color.withOpacity(0.7)],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                            child: const Icon(Icons.calendar_today, color: Colors.white, size: 20),
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(14),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
-                                            width: 1,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(14),
-                                          borderSide: BorderSide(
-                                            color: app_color,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
-                                      ),
-                                      readOnly: true,
-                                      onTap: () => _selectsaleDate(context),
-                                    ),
-                                  ),
-
-
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                                    child: TextFormField(
-                                      controller: _vchnoController,
-
-                                      readOnly: !isVchEditable, // 👈 MAIN CHANGE
-                                      enableInteractiveSelection: isVchEditable, // 👈 ADD THIS
-                                      onChanged: (value) {
-                                        if (isVchEditable) {
-                                          checkVchNoExistence(value);
-                                        }
-                                      },
-
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: isVchEditable ? Colors.black87 : Colors.grey, // 👈 visual hint
-                                      ),
-
-                                      decoration: InputDecoration(
-                                        labelText: "Voucher No.",
-                                        labelStyle: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.grey[700],
-                                        ),
-
-                                        errorText:
-                                        errorMessageVchNo.isNotEmpty ? errorMessageVchNo : null,
-
-                                        filled: true,
-                                        fillColor: Colors.white.withOpacity(0.95),
-
-                                        prefixIcon: Container(
-                                          margin: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            gradient: const LinearGradient(
-                                              colors: [Colors.deepOrangeAccent, Colors.orangeAccent],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius: BorderRadius.all(Radius.circular(12)),
-                                          ),
-                                          child: const Icon(
-                                            Icons.confirmation_num_outlined,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
-
-                                        // 👇 EDIT BUTTON
-                                        suffixIcon: IconButton(
-                                          icon: Icon(
-                                            Icons.lock_outline,
-                                            color: app_color,
-                                          ),
-                                          onPressed: () {
-
-                                          },
-                                        ),
-
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
-                                            width: 1,
-                                          ),
-                                        ),
-
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: app_color,
-                                            width: 1.5,
-                                          ),
-                                        ),
-
-                                        errorBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: const BorderSide(
-                                            color: Colors.redAccent,
-                                            width: 1.5,
-                                          ),
-                                        ),
-
-                                        focusedErrorBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: const BorderSide(
-                                            color: Colors.redAccent,
-                                            width: 1.5,
-                                          ),
-                                        ),
-
-                                        contentPadding:
-                                        const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
-                                      ),
-                                    ),
-                                  ),
-
-
-
-
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                        top: 0, left: 20, right: 20, bottom: 0),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(16),
-                                        color: Colors.grey.withOpacity(0.2),
-
-                                      ),
-                                      padding: EdgeInsets.all(10),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.info_outline_rounded,
-                                            color: Colors.grey,
-                                          ),
-                                          SizedBox(width: 10),
-                                          Expanded(
-                                            child: Text(
-                                              'Duplicate voucher numbers in Tally will trigger automatic assignment of a new number.',
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 12, left: 20, right: 20, bottom: 0),
-                                    child: DropdownButtonFormField<String>(
-                                      isExpanded: true,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.white.withOpacity(0.95),
-                                        labelText: "Voucher Type",   // 👈 This makes it a heading
-                                        labelStyle: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          color: Colors.grey[700],
-                                        ),
-                                        // Prefix icon with gradient bg (different color)
-                                        prefixIcon: Container(
-                                          margin: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            gradient: const LinearGradient(
-                                              colors: [Colors.purpleAccent, Colors.deepPurple],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius: BorderRadius.all(Radius.circular(12)),
-                                          ),
-                                          child: const Icon(
-                                            Icons.discount_outlined,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
-
-                                        // Borders
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
-                                            width: 1,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: app_color,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        errorBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: const BorderSide(
-                                            color: Colors.redAccent,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                      ),
-                                      hint: Text(
-                                        "Voucher Type",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                      value: _selectedvchtypename,
-                                      items: vchtypenamedata.map((item) {
-                                        return DropdownMenuItem<String>(
-                                          value: item,
-                                          child: Text(
-                                            item,
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                      onChanged: (value) async {
-                                        setState(() {
-                                          _selectedvchtypename = value!;
-                                          fetchvchnos(_selectedvchtypename);
-                                        });
-                                      },
-                                      onTap: () {
-                                        setState(() {
-                                          _isFocused_vchno = false;
-                                          _isFocused_narration = false;
-                                          _isFocused_totalamt = false;
-                                        });
-                                      },
-                                    ),
-                                  ),
-
-
-
-
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 0),
-                                    child: SizedBox(
-                                      width: MediaQuery.of(context).size.width,
-                                      child: TypeAheadField<String>(
-                                        controller: _partyLedgerController,
-                                        suggestionsCallback: (pattern) async {
-                                          return partyledgerdata
-                                              .where((item) => item.toLowerCase().contains(pattern.toLowerCase()))
-                                              .toList();
-                                        },
-
-                                        // 🔹 Modern text field builder
-                                        builder: (context, textController, focusNode) {
-                                          return TextField(
-                                            controller: textController,
-                                            focusNode: focusNode,
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.black87,
-                                            ),
-                                            decoration: InputDecoration(
-                                              hintText: _selectedpartyledger?.isNotEmpty == true
-                                                  ? _selectedpartyledger
-                                                  : "Select Party Ledger",
-                                              hintStyle: GoogleFonts.poppins(
-                                                fontSize: 13,
-                                                color: Colors.grey[600],
-                                              ),
-                                              labelText: "Party Ledger",
-                                              labelStyle: GoogleFonts.poppins(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.grey[700],
-                                              ),
-                                              filled: true,
-                                              fillColor: Colors.white.withOpacity(0.95),
-
-                                              prefixIcon: Container(
-                                                margin: const EdgeInsets.all(8),
-                                                decoration: const BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    colors: [Colors.greenAccent, Colors.teal],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                                                ),
-                                                child: const Icon(
-                                                  Icons.person_outline,
-                                                  color: Colors.white,
-                                                  size: 20,
-                                                ),
-                                              ),
-
-                                              suffixIcon: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  if (_partyLedgerController.text.isNotEmpty)
-                                                    IconButton(
-                                                      icon: const Icon(Icons.close, color: Colors.grey, size: 20),
-                                                      onPressed: () {
-                                                        setState(() {
-                                                          _partyLedgerController.clear();
-                                                          _selectedpartyledger = "";
-                                                        });
-
-                                                      },
-                                                    ),
-
-                                                  const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                                                  const SizedBox(width: 6),
-                                                ],
-                                              ),
-
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: BorderSide(color: app_color, width: 1.5),
-                                              ),
-                                              errorBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
-                                              ),
-                                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                            ),
-                                          );
-                                        },
-
-                                        // 🔹 Custom dropdown style
-                                        decorationBuilder: (context, child) {
-                                          return Material(
-                                            elevation: 6,
-                                            borderRadius: BorderRadius.circular(16),
-                                            color: Colors.white, // 👈 dropdown background white
-                                            child: ClipRRect(
-                                              borderRadius: BorderRadius.circular(16), // 👈 rounded corners
-                                              child: child,
-                                            ),
-                                          );
-                                        },
-
-
-                                        // 🔹 Suggestion item UI
-                                        itemBuilder: (context, String suggestion) {
-                                          return ListTile(
-                                            title: Text(
-                                              suggestion,
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 13,
-                                                color: Colors.black87,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          );
-                                        },
-
-                                        // 🔹 On item select
-                                        onSelected: (String suggestion) {
-                                          setState(() {
-                                            _selectedpartyledger = suggestion;
-                                            _partyLedgerController.text = suggestion;   // instead of _partyLedgerController
-                                          });
-                                        },
-
-
-                                        // 🔹 Empty result text
-                                        emptyBuilder: (context) => Padding(
-                                          padding: const EdgeInsets.all(12.0),
-                                          child: Text(
-                                            "No ledger found",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                              color: Colors.redAccent,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-
-
-
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 0),
-                                    child: DropdownButtonFormField<String>(
-                                      isExpanded: true,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.white.withOpacity(0.95),
-                                        labelText: "Sales Ledger",   // 👈 This makes it a heading
-                                        labelStyle: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          color: Colors.grey[700],
-                                        ),
-                                        // Prefix icon with gradient (blue)
-                                        prefixIcon: Container(
-                                          margin: const EdgeInsets.all(8),
-                                          decoration: const BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [Colors.blueAccent, Colors.indigo],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius: BorderRadius.all(Radius.circular(12)),
-                                          ),
-                                          child: const Icon(
-                                            Icons.sell_outlined,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
-
-                                        // Borders
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
-                                            width: 1,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: app_color,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        errorBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: const BorderSide(
-                                            color: Colors.redAccent,
-                                            width: 1.5,
-                                          ),
-                                        ),
-
-                                        contentPadding:
-                                        const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                      ),
-                                      hint: Text(
-                                        "Sales Ledger",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                      value: _selectedsalesledger,
-                                      items: salesledger_data.map((item) {
-                                        return DropdownMenuItem<String>(
-                                          value: item.toString(),
-                                          child: Text(
-                                            item.toString(),
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                      onChanged: (value) async {
-                                        setState(() {
-                                          _selectedsalesledger = value!;
-                                        });
-                                      },
-                                      onTap: () {
-                                        setState(() {
-                                          _isFocused_vchno = false;
-                                          _isFocused_narration = false;
-                                          _isFocused_totalamt = false;
-                                        });
-                                      },
-                                    ),
-                                  ),
-
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 20,right:20, bottom: 8,top:12),
-                                    child: TextFormField(
-                                      controller: _refdateController,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black87,
-                                      ),
-                                      decoration: InputDecoration(
-                                        labelText: "Reference Date",
-                                        labelStyle: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.grey[700],
-                                        ),
-                                        filled: true,
-                                        fillColor: Colors.white.withOpacity(0.95),
-
-                                        // Prefix Icon with new gradient (pink → purple)
-                                        prefixIcon: GestureDetector(
-                                          onTap: () => _selectrefDate(context),
-                                          child: Container(
-                                            margin: const EdgeInsets.all(8),
-                                            decoration: const BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [Colors.pinkAccent, Colors.deepPurpleAccent],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              borderRadius: BorderRadius.all(Radius.circular(12)),
-                                            ),
-                                            child: const Icon(
-                                              Icons.event, // changed icon for variety
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Borders
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
-                                            width: 1,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: app_color,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        errorBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: const BorderSide(
-                                            color: Colors.redAccent,
-                                            width: 1.5,
-                                          ),
-                                        ),
-
-                                        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
-                                      ),
-                                      readOnly: true,
-                                      onTap: () => _selectrefDate(context),
-                                    ),
-                                  ),
-
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                                    child: TextFormField(
-                                      enabled: true,
-                                      controller: controller_refno,
-                                      validator: (value) {
-                                        return null;
-                                      },
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black87,
-                                      ),
-                                      decoration: InputDecoration(
-                                        labelText: "Reference No",
-                                        hintText: "Enter reference no",
-                                        labelStyle: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                          color: _isFocused_refno ? app_color : Colors.grey[700],
-                                        ),
-                                        filled: true,
-                                        fillColor: Colors.white.withOpacity(0.95),
-
-                                        // Gradient Prefix Icon (Red → Orange)
-                                        prefixIcon: Container(
-                                          margin: const EdgeInsets.all(8),
-                                          decoration: const BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [Colors.redAccent, Colors.deepOrange],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius: BorderRadius.all(Radius.circular(12)),
-                                          ),
-                                          child: const Icon(
-                                            Icons.link,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
-
-                                        // Borders
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
-                                            width: 1,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(
-                                            color: app_color,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        errorBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: const BorderSide(
-                                            color: Colors.redAccent,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
-                                      ),
-
-                                      // Focus state handling
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _isFocused_narration = false;
-                                          _isFocused_totalamt = false;
-                                          _isFocused_refno = true;
-                                          _isFocused_vatamt = false;
-                                          _isFocused_vchno = false;
-                                        });
-                                      },
-                                      onFieldSubmitted: (value) {
-                                        setState(() {
-                                          _isFocused_refno = false;
-                                        });
-                                      },
-                                      onTap: () {
-                                        setState(() {
-                                          _isFocused_narration = false;
-                                          _isFocused_totalamt = false;
-                                          _isFocused_refno = true;
-                                          _isFocused_vatamt = false;
-                                          _isFocused_vchno = false;
-                                        });
-                                      },
-                                      onEditingComplete: () {
-                                        setState(() {
-                                          _isFocused_refno = false;
-                                        });
-                                      },
-                                    ),
-                                  ),
-
-                                  Container(
-                                    margin: const EdgeInsets.only(left: 20,right:20, top: 10,bottom:5),
-                                    padding: const EdgeInsets.only(bottom: 0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      color: app_color.withOpacity(0.07),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        // Header Row
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-                                          child: Row(
-                                            children: [
-                                              // Gradient start icon
-                                              Container(
-                                                width: 34,
-                                                height: 34,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  gradient: LinearGradient(
-                                                    colors: [Colors.purple, Colors.blue],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.purple.withOpacity(0.3),
-                                                      blurRadius: 6,
-                                                      offset: const Offset(0, 3),
-                                                    )
-                                                  ],
-                                                ),
-                                                child: const Icon(Icons.shopping_cart, color: Colors.white, size: 20),
-                                              ),
-                                              const SizedBox(width: 12),
-
-                                              // Title
-                                              Expanded(
-                                                child: Text(
-                                                  "Items",
-                                                  style: GoogleFonts.poppins(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 16,
-                                                    color: app_color,
-                                                  ),
-                                                ),
-                                              ),
-
-                                              // Gradient add icon
-                                              GestureDetector(
-                                                onTap: () {
-                                                  _showItemDetailsPopup(context);
-                                                  _updateUnitDropdown(_selecteditem);
-                                                },
-                                                child: Container(
-                                                  width: 34,
-                                                  height: 34,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    gradient: LinearGradient(
-                                                      colors: [Colors.teal, Colors.green],
-                                                      begin: Alignment.topLeft,
-                                                      end: Alignment.bottomRight,
-                                                    ),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.teal.withOpacity(0.3),
-                                                        blurRadius: 6,
-                                                        offset: const Offset(0, 3),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  child: const Icon(Icons.add, color: Colors.white, size: 20),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-
-                                        // Items List with swipe-to-delete
-                                        ListView.builder(
-                                          physics: const NeverScrollableScrollPhysics(),
-                                          shrinkWrap: true,
-                                          itemCount: saleItems.length,
-                                          itemBuilder: (context, index) {
-                                            final item = saleItems[index];
-
-                                            return Dismissible(
-                                              key: UniqueKey(),
-                                              direction: DismissDirection.endToStart, // swipe left to delete
-                                              background: Container(
-                                                alignment: Alignment.centerRight,
-                                                padding: const EdgeInsets.symmetric(horizontal: 20),
-                                                color: Colors.redAccent,
-                                                child: const Icon(Icons.delete, color: Colors.white, size: 24),
-                                              ),
-                                              onDismissed: (direction) {
-                                                _deleteSaleItem(index);
-                                              },
-
-                                              child: Container(
-                                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
-                                                padding: const EdgeInsets.all(12),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius: BorderRadius.circular(16),
-                                                  border: Border.all(color: Colors.grey.shade300),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.black.withOpacity(0.03),
-                                                      blurRadius: 6,
-                                                      offset: const Offset(0, 3),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    // Item Name
-                                                    Row(
-                                                      children: [
-                                                        const Icon(Icons.shopping_bag, color: Colors.teal, size: 18),
-                                                        const SizedBox(width: 6),
-                                                        Expanded(
-                                                          child: Text(
-                                                            item.itemName,
-                                                            style: GoogleFonts.poppins(
-                                                              fontSize: 14,
-                                                              fontWeight: FontWeight.w600,
-                                                              color: Colors.black87,
-                                                            ),
-                                                            softWrap: true,
-                                                            overflow: TextOverflow.visible,
-                                                            maxLines: null,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-
-                                                    const SizedBox(height: 10),
-
-                                                    // Qty Row
-                                                    Row(
-                                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                                      children: [
-                                                        Text(
-                                                          "Qty",
-                                                          style: GoogleFonts.poppins(
-                                                            fontSize: 13,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Colors.black87,
-                                                          ),
-                                                        ),
-                                                        const SizedBox(width: 8),
-
-                                                        // Minus Button
-                                                        InkWell(
-                                                          onTap: () {
-                                                            int currentQty = int.tryParse(item.itemQuantity) ?? 0;
-                                                            if (currentQty > 1) {
-                                                              setState(() {
-                                                                item.itemQuantity = (currentQty - 1).toString();
-                                                                _recalculateTotals();
-                                                              });
-                                                            } else {
-                                                              setState(() {
-                                                                saleItems.removeAt(index);
-                                                                _recalculateTotals();
-                                                              });
-                                                            }
-                                                          },
-                                                          child: Container(
-                                                            padding: const EdgeInsets.all(6),
-                                                            decoration: BoxDecoration(
-                                                              color: Colors.redAccent.withOpacity(0.15),
-                                                              borderRadius: BorderRadius.circular(8),
-                                                            ),
-                                                            child: const Icon(Icons.remove, size: 18, color: Colors.redAccent),
-                                                          ),
-                                                        ),
-
-                                                        const SizedBox(width: 6),
-
-                                                        // Qty Display (Non-editable)
-                                                        Container(
-                                                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.grey.shade100,
-                                                            borderRadius: BorderRadius.circular(10),
-                                                            border: Border.all(color: Colors.grey.shade400),
-                                                          ),
-                                                          child: Text(
-                                                            item.itemQuantity,
-                                                            textAlign: TextAlign.center,
-                                                            style: GoogleFonts.poppins(
-                                                              fontSize: 14,
-                                                              fontWeight: FontWeight.w600,
-                                                              color: Colors.black87,
-                                                            ),
-                                                          ),
-                                                        ),
-
-                                                        const SizedBox(width: 6),
-
-                                                        // Plus Button
-                                                        InkWell(
-                                                          onTap: () {
-                                                            int currentQty = int.tryParse(item.itemQuantity) ?? 0;
-                                                            setState(() {
-                                                              item.itemQuantity = (currentQty + 1).toString();
-                                                              _recalculateTotals();
-                                                            });
-                                                          },
-                                                          child: Container(
-                                                            padding: const EdgeInsets.all(6),
-                                                            decoration: BoxDecoration(
-                                                              color: Colors.green.withOpacity(0.15),
-                                                              borderRadius: BorderRadius.circular(8),
-                                                            ),
-                                                            child: const Icon(Icons.add, size: 18, color: Colors.green),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-
-                                                    const SizedBox(height: 12),
-
-                                                    // Rate Section
-                                                    Row(
-                                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                                      children: [
-                                                        Text(
-                                                          "Rate",
-                                                          style: GoogleFonts.poppins(
-                                                            fontSize: 13,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Colors.black87,
-                                                          ),
-                                                        ),
-                                                        const SizedBox(width: 8),
-                                                        Container(
-                                                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.grey.shade100,
-                                                            borderRadius: BorderRadius.circular(10),
-                                                            border: Border.all(color: Colors.grey.shade400),
-                                                          ),
-                                                          child: Text(
-                                                            "${getCurrencySymbol(currencycode)} ${currencyFormat.format(double.parse(item.itemPrice.toStringAsFixed(decimal!)))}",
-                                                            style: GoogleFonts.poppins(
-                                                              fontSize: 14,
-                                                              fontWeight: FontWeight.w600,
-                                                              color: Colors.black87,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-
-
-
-                                  Container(
-                                    margin: const EdgeInsets.only(left: 20,right:20, top: 5,bottom:10),
-                                    padding: const EdgeInsets.only(bottom: 0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      color: app_color.withOpacity(0.07),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.06),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        // Header Row
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-                                          child: Row(
-                                            children: [
-                                              // Gradient start icon
-                                              Container(
-                                                width: 34,
-                                                height: 34,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  gradient: LinearGradient(
-                                                    colors: [Colors.red, Colors.redAccent],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.purple.withOpacity(0.3),
-                                                      blurRadius: 6,
-                                                      offset: const Offset(0, 3),
-                                                    )
-                                                  ],
-                                                ),
-                                                child: const Icon(Icons.list, color: Colors.white, size: 20),
-                                              ),
-                                              const SizedBox(width: 12),
-
-                                              // Title
-                                              Expanded(
-                                                child: Text(
-                                                  "Ledger",
-                                                  style: GoogleFonts.poppins(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 16,
-                                                    color: app_color,
-                                                  ),
-                                                ),
-                                              ),
-
-                                              // Gradient add icon
-                                              GestureDetector(
-                                                onTap: () {
-                                                  _showLedgerDetailsPopup(context);
-
-                                                },
-                                                child: Container(
-                                                  width: 34,
-                                                  height: 34,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    gradient: LinearGradient(
-                                                      colors: [Colors.orange, Colors.orange],
-                                                      begin: Alignment.topLeft,
-                                                      end: Alignment.bottomRight,
-                                                    ),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.teal.withOpacity(0.3),
-                                                        blurRadius: 6,
-                                                        offset: const Offset(0, 3),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  child: const Icon(Icons.add, color: Colors.white, size: 20),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-
-                                        // Ledger List
-                                        ListView.builder(
-                                          physics: const NeverScrollableScrollPhysics(),
-                                          shrinkWrap: true,
-                                          itemCount: ledgerEntries.length,
-                                          itemBuilder: (context, index) {
-                                            final item = ledgerEntries[index];
-
-                                            return Dismissible(
-                                              key: UniqueKey(),
-                                              direction: DismissDirection.endToStart,
-                                              background: Container(
-                                                alignment: Alignment.centerRight,
-                                                padding: const EdgeInsets.symmetric(horizontal: 20),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.redAccent,
-                                                  borderRadius: BorderRadius.circular(14),
-                                                ),
-                                                child: const Icon(Icons.delete, color: Colors.white, size: 22),
-                                              ),
-                                              onDismissed: (direction) {
-                                                _deleteLedger(index);
-                                              },
-
-                                              child: Container(
-                                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
-                                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius: BorderRadius.circular(14),
-                                                  border: Border.all(color: Colors.grey.shade200),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.black.withOpacity(0.03),
-                                                      blurRadius: 6,
-                                                      offset: const Offset(0, 2),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: Row(
-                                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                                  children: [
-                                                    // Ledger Icon + Name
-                                                    Icon(Icons.account_balance_wallet_outlined,
-                                                        color: app_color, size: 20),
-                                                    const SizedBox(width: 8),
-                                                    Expanded(
-                                                      flex: 6,
-                                                      child: Text(
-                                                        item.ledgerName,
-                                                        style: GoogleFonts.poppins(
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight.w500,
-                                                          color: Colors.black87,
-                                                        ),
-                                                        overflow: TextOverflow.visible,
-                                                        softWrap: true,
-                                                      ),
-                                                    ),
-
-                                                    // Amount with currency
-                                                    Expanded(
-                                                      flex: 4,
-                                                      child: Text(
-                                                        "${getCurrencySymbol(currencycode)} ${currencyFormat.format(item.ledgerAmount)}",
-                                                        textAlign: TextAlign.end,
-                                                        style: GoogleFonts.poppins(
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight.w600,
-                                                          color: Colors.black87,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-
-
-                                      ],
-                                    ),
-                                  ),
-
-                                  Row(
-                                    children: [
-                                      // 🌈 VAT Ledger Dropdown
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(top: 20, left: 20, right: 5),
-                                          child: DropdownButtonFormField<String>(
-                                            isExpanded: true,
-                                            decoration: InputDecoration(
-                                              labelText: "VAT Ledger",
-                                              labelStyle: GoogleFonts.poppins(
-                                                color: Colors.black87,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                              // 🌈 Gradient Icon Container
-                                              prefixIcon: Container(
-                                                margin: const EdgeInsets.all(8),
-                                                decoration: const BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    colors: [Colors.indigo, Colors.cyan],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                                                ),
-                                                child: const Icon(Icons.receipt_long_outlined,
-                                                    size: 20, color: Colors.white),
-                                              ),
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: const BorderSide(color: Colors.black54),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: BorderSide(color: app_color, width: 1.5),
-                                              ),
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: const BorderSide(color: Colors.black54),
-                                              ),
-                                              contentPadding:
-                                              const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                                            ),
-                                            value: _selectedvatledger,
-                                            hint: const Text("Select VAT Ledger"),
-                                            items: vatledgerdata.map((item) {
-                                              return DropdownMenuItem<String>(
-                                                value: item,
-                                                child: Text(
-                                                  item,
-                                                  maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                              );
-                                            }).toList(),
-                                            onChanged: (value) {
-                                              setState(() {
-                                                _selectedvatledger = value!;
-
-                                                // 👇 VAT calculation logic intact
-                                                totalPriceOfItems = saleItems.fold(
-                                                  0.0,
-                                                      (double prev, SaleItem item) =>
-                                                  prev + (double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity)),
-                                                );
-
-                                                totalAmountOfLedgers = ledgerEntries.fold(
-                                                  0.0,
-                                                      (double prev, LedgerEntry entry) => prev + entry.ledgerAmount,
-                                                );
-
-                                                if (_selectedvatledger == 'Not Applicable') {
-                                                  totalVatAmount = 0;
-                                                  roundedtotalVatAmount =
-                                                      double.parse(totalVatAmount.toStringAsFixed(decimal!));
-                                                  NumberFormat formatter =
-                                                  NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
-                                                  controller_vatamt.text = formatter.format(0);
-                                                } else {
-                                                  double totalAmountForLedgerVatAppEntries = ledgerEntries
-                                                      .where((entry) => entry.vatApp)
-                                                      .fold(0.0,
-                                                          (double prev, LedgerEntry entry) => prev + entry.ledgerAmount);
-
-                                                  double vat_perc = vatperc / 100;
-                                                  itemsVatAmount = double.parse(
-                                                      (totalPriceOfItems * vat_perc).toStringAsFixed(decimal!));
-                                                  ledgerVatAmount = totalAmountForLedgerVatAppEntries * vat_perc;
-                                                  totalVatAmount = itemsVatAmount + ledgerVatAmount;
-
-                                                  roundedtotalVatAmount =
-                                                      double.parse(totalVatAmount.toStringAsFixed(decimal!));
-                                                  NumberFormat formatter =
-                                                  NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
-                                                  controller_vatamt.text = formatter.format(roundedtotalVatAmount);
-                                                }
-
-                                                totalAmount =
-                                                    totalPriceOfItems + totalAmountOfLedgers + totalVatAmount;
-                                                roundedtotalAmount =
-                                                    double.parse(totalAmount.toStringAsFixed(decimal!));
-                                                NumberFormat formatter =
-                                                NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
-                                                controller_totalamt.text = formatter.format(roundedtotalAmount);
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ),
-
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(top: 20, left: 5, right: 20),
-                                          child: TextFormField(
-                                            enabled: false,
-                                            controller: controller_vatamt,
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black87,
-                                            ),
-                                            decoration: InputDecoration(
-                                              labelText: "VAT Amount",
-                                              labelStyle: GoogleFonts.poppins(
-                                                color: Colors.black87,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-
-                                              // 🌈 Gradient Currency Symbol (inline instead of icon)
-                                              prefix: Container(
-                                                margin: const EdgeInsets.only(right: 8),
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                                decoration: const BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    colors: [Colors.green, Colors.teal], // ✅ distinct from Ledger
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                                                ),
-                                                child: Text(
-                                                  getCurrencySymbol(currencycode),
-                                                  style: GoogleFonts.poppins(
-                                                    color: Colors.white,
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: const BorderSide(color: Colors.black54),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: BorderSide(color: app_color, width: 1.5),
-                                              ),
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: const BorderSide(color: Colors.black54),
-                                              ),
-                                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-
-
-                                    ],
-                                  ),
-
-
-
-
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                    child: TextFormField(
-                                      controller: controller_narration,
-                                      focusNode: _textFieldFocusNodeNarration,
-                                      validator: (value) => null,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black87,
-                                      ),
-                                      decoration: InputDecoration(
-                                        labelText: "Narration",
-                                        hintText: "Enter narration",
-                                        hintStyle: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          color: Colors.grey.shade500,
-                                        ),
-                                        labelStyle: GoogleFonts.poppins(
-                                          color: _isFocused_narration ? app_color : Colors.black87,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-
-                                        // 🌈 Gradient Icon (Notes)
-                                        prefixIcon: Container(
-                                          margin: const EdgeInsets.all(8),
-                                          decoration: const BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [Colors.pinkAccent, Colors.deepOrange],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius: BorderRadius.all(Radius.circular(12)),
-                                          ),
-                                          child: const Icon(
-                                            Icons.notes_rounded,
-                                            size: 20,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-
-                                        filled: true,
-                                        fillColor: Colors.white.withOpacity(0.95),
-                                        contentPadding:
-                                        const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-
-                                        // Borders
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: const BorderSide(color: Colors.black54),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: const BorderSide(color: Colors.black45),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: BorderSide(color: app_color, width: 1.5),
-                                        ),
-                                      ),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _isFocused_narration = true;
-                                          _isFocused_vchno = false;
-                                          _isFocused_vatamt = false;
-                                          _isFocused_totalamt = false;
-                                          _isFocused_refno = false;
-                                        });
-                                      },
-                                      onFieldSubmitted: (value) {
-                                        setState(() {
-                                          _isFocused_narration = false;
-                                          _isFocused_vchno = false;
-                                          _isFocused_vatamt = false;
-                                          _isFocused_totalamt = false;
-                                          _isFocused_refno = false;
-                                        });
-                                      },
-                                      onTap: () {
-                                        setState(() {
-                                          _isFocused_narration = true;
-                                          _isFocused_vchno = false;
-                                          _isFocused_vatamt = false;
-                                          _isFocused_totalamt = false;
-                                          _isFocused_refno = false;
-                                        });
-                                      },
-                                      onEditingComplete: () {
-                                        setState(() {
-                                          _isFocused_narration = false;
-                                          _isFocused_vchno = false;
-                                          _isFocused_vatamt = false;
-                                          _isFocused_totalamt = false;
-                                          _isFocused_refno = false;
-                                        });
-                                      },
-                                    ),
-                                  )
-
-
-                                  ,],),),
-
-                            Padding(
-                              padding: const EdgeInsets.only(top: 15, left: 20, right: 20, bottom: 0),
-                              child: TextFormField(
-                                enabled: false,
-                                controller: controller_totalamt,
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,4}')),
-                                ],
-                                keyboardType: TextInputType.number,
-                                validator: (value) => null,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // calendar icon with gradient style
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [app_color, app_color.withOpacity(0.7)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.calendar_today,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+
+                        // text column
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Voucher No. Range",
                                 style: GoogleFonts.poppins(
-                                  fontSize: 15,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "${DateFormat('dd-MMM-yyyy').format(yearStartDate)} → ${DateFormat('dd-MMM-yyyy').format(yearEndDate)}",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12.5,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
+                                  color: app_color,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                Container(
+                  child: Column(
+                    children: [
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                              child: TextFormField(
+                                controller: _dateController,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                                 decoration: InputDecoration(
-                                  labelText: 'Total Amount',
-                                  hintText: 'Enter total amount',
+                                  labelText: "Date",
+                                  labelStyle: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                                  filled: true,
+                                  fillColor:
+                                      Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.fillColor ??
+                                      (Theme.of(
+                                            context,
+                                          ).inputDecorationTheme.fillColor ??
+                                          Theme.of(
+                                            context,
+                                          ).cardColor.withOpacity(0.95)),
+                                  prefixIcon: GestureDetector(
+                                    onTap: () => _selectsaleDate(context),
+                                    child: Container(
+                                      margin: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            app_color,
+                                            app_color.withOpacity(0.7),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Icon(
+                                        Icons.calendar_today,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context).dividerColor,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide(
+                                      color: app_color,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 14,
+                                  ),
+                                ),
+                                readOnly: true,
+                                onTap: () => _selectsaleDate(context),
+                              ),
+                            ),
 
-                                  // 🌈 Gradient Currency Symbol (cool tone, unique)
-                                  prefix: Container(
-                                    margin: const EdgeInsets.only(right: 8),
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [Colors.indigo, Colors.blueAccent], // 🔵 unique from narration
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 6,
+                              ),
+                              child: TextFormField(
+                                controller: _vchnoController,
+
+                                readOnly: !isVchEditable, // 👈 MAIN CHANGE
+                                enableInteractiveSelection:
+                                    isVchEditable, // 👈 ADD THIS
+                                onChanged: (value) {
+                                  if (isVchEditable) {
+                                    checkVchNoExistence(value);
+                                  }
+                                },
+
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: isVchEditable
+                                      ? Theme.of(context).colorScheme.onSurface
+                                      : Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant, // 👈 visual hint
+                                ),
+
+                                decoration: InputDecoration(
+                                  labelText: "Voucher No.",
+                                  labelStyle: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+
+                                  errorText: errorMessageVchNo.isNotEmpty
+                                      ? errorMessageVchNo
+                                      : null,
+
+                                  filled: true,
+                                  fillColor:
+                                      Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.fillColor ??
+                                      (Theme.of(
+                                            context,
+                                          ).inputDecorationTheme.fillColor ??
+                                          Theme.of(
+                                            context,
+                                          ).cardColor.withOpacity(0.95)),
+
+                                  prefixIcon: Container(
+                                    margin: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Colors.deepOrangeAccent,
+                                          Colors.orangeAccent,
+                                        ],
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
                                       ),
-                                      borderRadius: BorderRadius.all(Radius.circular(8)),
-                                    ),
-                                    child: Text(
-                                      getCurrencySymbol(currencycode), // e.g. AED, $, ₹
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.white,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(12),
                                       ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.confirmation_num_outlined,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                  ),
+
+                                  // 👇 EDIT BUTTON
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      Icons.lock_outline,
+                                      color: app_color,
+                                    ),
+                                    onPressed: () {},
+                                  ),
+
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context).dividerColor,
+                                      width: 1,
+                                    ),
+                                  ),
+
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: app_color,
+                                      width: 1.5,
+                                    ),
+                                  ),
+
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: const BorderSide(
+                                      color: Colors.redAccent,
+                                      width: 1.5,
+                                    ),
+                                  ),
+
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: const BorderSide(
+                                      color: Colors.redAccent,
+                                      width: 1.5,
+                                    ),
+                                  ),
+
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 14,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            Padding(
+                              padding: EdgeInsets.only(
+                                top: 0,
+                                left: 20,
+                                right: 20,
+                                bottom: 0,
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: Colors.grey.withOpacity(0.2),
+                                ),
+                                padding: EdgeInsets.all(10),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.info_outline_rounded,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        'Duplicate voucher numbers in Tally will trigger automatic assignment of a new number.',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 12,
+                                left: 20,
+                                right: 20,
+                                bottom: 0,
+                              ),
+                              child: DropdownButtonFormField<String>(
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor:
+                                      Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.fillColor ??
+                                      (Theme.of(
+                                            context,
+                                          ).inputDecorationTheme.fillColor ??
+                                          Theme.of(
+                                            context,
+                                          ).cardColor.withOpacity(0.95)),
+                                  labelText:
+                                      "Voucher Type", // 👈 This makes it a heading
+                                  labelStyle: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                                  // Prefix icon with gradient bg (different color)
+                                  prefixIcon: Container(
+                                    margin: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Colors.purpleAccent,
+                                          Colors.deepPurple,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(12),
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.discount_outlined,
+                                      color: Colors.white,
+                                      size: 20,
                                     ),
                                   ),
 
                                   // Borders
-                                  border: OutlineInputBorder(
+                                  enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
-                                    borderSide: const BorderSide(color: Colors.black),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context).dividerColor,
+                                      width: 1,
+                                    ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
                                     borderSide: BorderSide(
                                       color: app_color,
-                                      width: 1.4,
+                                      width: 1.5,
                                     ),
                                   ),
-                                  enabledBorder: OutlineInputBorder(
+                                  errorBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
-                                    borderSide: const BorderSide(color: Colors.black),
+                                    borderSide: const BorderSide(
+                                      color: Colors.redAccent,
+                                      width: 1.5,
+                                    ),
                                   ),
-                                  labelStyle: GoogleFonts.poppins(
-                                    color: _isFocused_totalamt ? app_color : Colors.black87,
-                                    fontWeight: FontWeight.w500,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 14,
                                   ),
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-                                  filled: true,
-                                  fillColor: Colors.grey.shade50,
                                 ),
-
-                                // Focus State
+                                hint: Text(
+                                  "Voucher Type",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                value: _selectedvchtypename,
+                                items: vchtypenamedata.map((item) {
+                                  return DropdownMenuItem<String>(
+                                    value: item,
+                                    child: Text(
+                                      item,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) async {
+                                  setState(() {
+                                    _selectedvchtypename = value!;
+                                    fetchvchnos(_selectedvchtypename);
+                                  });
+                                },
                                 onTap: () {
                                   setState(() {
-                                    _isFocused_totalamt = true;
-                                    _isFocused_narration = false;
-                                    _isFocused_refno = false;
-                                    _isFocused_vatamt = false;
                                     _isFocused_vchno = false;
-                                  });
-                                },
-                                onFieldSubmitted: (_) {
-                                  setState(() {
-                                    _isFocused_totalamt = false;
-                                  });
-                                },
-                                onEditingComplete: () {
-                                  setState(() {
+                                    _isFocused_narration = false;
                                     _isFocused_totalamt = false;
                                   });
                                 },
                               ),
                             ),
 
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 12,
+                                left: 20,
+                                right: 20,
+                                bottom: 0,
+                              ),
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                child: TypeAheadField<String>(
+                                  controller: _partyLedgerController,
+                                  suggestionsCallback: (pattern) async {
+                                    return partyledgerdata
+                                        .where(
+                                          (item) => item.toLowerCase().contains(
+                                            pattern.toLowerCase(),
+                                          ),
+                                        )
+                                        .toList();
+                                  },
 
+                                  // 🔹 Modern text field builder
+                                  builder:
+                                      (context, textController, focusNode) {
+                                        return TextField(
+                                          controller: textController,
+                                          focusNode: focusNode,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
+                                          ),
+                                          decoration: InputDecoration(
+                                            hintText:
+                                                _selectedpartyledger
+                                                        ?.isNotEmpty ==
+                                                    true
+                                                ? _selectedpartyledger
+                                                : "Select Party Ledger",
+                                            hintStyle: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                            ),
+                                            labelText: "Party Ledger",
+                                            labelStyle: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                            ),
+                                            filled: true,
+                                            fillColor:
+                                                Theme.of(context)
+                                                    .inputDecorationTheme
+                                                    .fillColor ??
+                                                (Theme.of(context)
+                                                        .inputDecorationTheme
+                                                        .fillColor ??
+                                                    Colors.white.withOpacity(
+                                                      0.95,
+                                                    )),
 
+                                            prefixIcon: Container(
+                                              margin: const EdgeInsets.all(8),
+                                              decoration: const BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Colors.greenAccent,
+                                                    Colors.teal,
+                                                  ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(12),
+                                                ),
+                                              ),
+                                              child: const Icon(
+                                                Icons.person_outline,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
+                                            ),
 
+                                            suffixIcon: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                if (_partyLedgerController
+                                                    .text
+                                                    .isNotEmpty)
+                                                  IconButton(
+                                                    icon: Icon(
+                                                      Icons.close,
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurfaceVariant,
+                                                      size: 20,
+                                                    ),
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        _partyLedgerController
+                                                            .clear();
+                                                        _selectedpartyledger =
+                                                            "";
+                                                      });
+                                                    },
+                                                  ),
+
+                                                Icon(
+                                                  Icons.arrow_drop_down,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
+                                                const SizedBox(width: 6),
+                                              ],
+                                            ),
+
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                              borderSide: BorderSide(
+                                                color: Theme.of(
+                                                  context,
+                                                ).dividerColor,
+                                                width: 1,
+                                              ),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                              borderSide: BorderSide(
+                                                color: app_color,
+                                                width: 1.5,
+                                              ),
+                                            ),
+                                            errorBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                              borderSide: const BorderSide(
+                                                color: Colors.redAccent,
+                                                width: 1.5,
+                                              ),
+                                            ),
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                  horizontal: 14,
+                                                  vertical: 14,
+                                                ),
+                                          ),
+                                        );
+                                      },
+
+                                  // 🔹 Custom dropdown style
+                                  decorationBuilder: (context, child) {
+                                    return Material(
+                                      elevation: 6,
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: Theme.of(
+                                        context,
+                                      ).cardColor, // 👈 dropdown background white
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(
+                                          16,
+                                        ), // 👈 rounded corners
+                                        child: child,
+                                      ),
+                                    );
+                                  },
+
+                                  // 🔹 Suggestion item UI
+                                  itemBuilder: (context, String suggestion) {
+                                    return ListTile(
+                                      title: Text(
+                                        suggestion,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    );
+                                  },
+
+                                  // 🔹 On item select
+                                  onSelected: (String suggestion) {
+                                    setState(() {
+                                      _selectedpartyledger = suggestion;
+                                      _partyLedgerController.text =
+                                          suggestion; // instead of _partyLedgerController
+                                    });
+                                  },
+
+                                  // 🔹 Empty result text
+                                  emptyBuilder: (context) => Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Text(
+                                      "No ledger found",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        color: Colors.redAccent,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 12,
+                                left: 20,
+                                right: 20,
+                                bottom: 0,
+                              ),
+                              child: DropdownButtonFormField<String>(
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor:
+                                      Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.fillColor ??
+                                      (Theme.of(
+                                            context,
+                                          ).inputDecorationTheme.fillColor ??
+                                          Theme.of(
+                                            context,
+                                          ).cardColor.withOpacity(0.95)),
+                                  labelText:
+                                      "Sales Ledger", // 👈 This makes it a heading
+                                  labelStyle: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                                  // Prefix icon with gradient (blue)
+                                  prefixIcon: Container(
+                                    margin: const EdgeInsets.all(8),
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.blueAccent,
+                                          Colors.indigo,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(12),
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.sell_outlined,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                  ),
+
+                                  // Borders
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context).dividerColor,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: app_color,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: const BorderSide(
+                                      color: Colors.redAccent,
+                                      width: 1.5,
+                                    ),
+                                  ),
+
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 14,
+                                  ),
+                                ),
+                                hint: Text(
+                                  "Sales Ledger",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                value: _selectedsalesledger,
+                                items: salesledger_data.map((item) {
+                                  return DropdownMenuItem<String>(
+                                    value: item.toString(),
+                                    child: Text(
+                                      item.toString(),
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) async {
+                                  setState(() {
+                                    _selectedsalesledger = value!;
+                                  });
+                                },
+                                onTap: () {
+                                  setState(() {
+                                    _isFocused_vchno = false;
+                                    _isFocused_narration = false;
+                                    _isFocused_totalamt = false;
+                                  });
+                                },
+                              ),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 20,
+                                right: 20,
+                                bottom: 8,
+                                top: 12,
+                              ),
+                              child: TextFormField(
+                                controller: _refdateController,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: "Reference Date",
+                                  labelStyle: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                                  filled: true,
+                                  fillColor:
+                                      Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.fillColor ??
+                                      (Theme.of(
+                                            context,
+                                          ).inputDecorationTheme.fillColor ??
+                                          Theme.of(
+                                            context,
+                                          ).cardColor.withOpacity(0.95)),
+
+                                  // Prefix Icon with new gradient (pink → purple)
+                                  prefixIcon: GestureDetector(
+                                    onTap: () => _selectrefDate(context),
+                                    child: Container(
+                                      margin: const EdgeInsets.all(8),
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.pinkAccent,
+                                            Colors.deepPurpleAccent,
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(12),
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.event, // changed icon for variety
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+
+                                  // Borders
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context).dividerColor,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: app_color,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: const BorderSide(
+                                      color: Colors.redAccent,
+                                      width: 1.5,
+                                    ),
+                                  ),
+
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 14,
+                                  ),
+                                ),
+                                readOnly: true,
+                                onTap: () => _selectrefDate(context),
+                              ),
+                            ),
 
                             Container(
-                              padding: const EdgeInsets.only(top: 10),
-                              margin: const EdgeInsets.only(bottom: 30, left: 20, right: 20),
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: errorMessageVchNo.isNotEmpty
-                                    ? null
-                                    : () {
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 4,
+                              ),
+                              child: TextFormField(
+                                enabled: true,
+                                controller: controller_refno,
+                                validator: (value) {
+                                  return null;
+                                },
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: "Reference No",
+                                  hintText: "Enter reference no",
+                                  labelStyle: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: _isFocused_refno
+                                        ? app_color
+                                        : Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                  ),
+                                  filled: true,
+                                  fillColor:
+                                      Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.fillColor ??
+                                      (Theme.of(
+                                            context,
+                                          ).inputDecorationTheme.fillColor ??
+                                          Theme.of(
+                                            context,
+                                          ).cardColor.withOpacity(0.95)),
+
+                                  // Gradient Prefix Icon (Red → Orange)
+                                  prefixIcon: Container(
+                                    margin: const EdgeInsets.all(8),
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.redAccent,
+                                          Colors.deepOrange,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(12),
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.link,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                  ),
+
+                                  // Borders
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context).dividerColor,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: app_color,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: const BorderSide(
+                                      color: Colors.redAccent,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 14,
+                                  ),
+                                ),
+
+                                // Focus state handling
+                                onChanged: (value) {
+                                  setState(() {
+                                    _isFocused_narration = false;
+                                    _isFocused_totalamt = false;
+                                    _isFocused_refno = true;
+                                    _isFocused_vatamt = false;
+                                    _isFocused_vchno = false;
+                                  });
+                                },
+                                onFieldSubmitted: (value) {
+                                  setState(() {
+                                    _isFocused_refno = false;
+                                  });
+                                },
+                                onTap: () {
+                                  setState(() {
+                                    _isFocused_narration = false;
+                                    _isFocused_totalamt = false;
+                                    _isFocused_refno = true;
+                                    _isFocused_vatamt = false;
+                                    _isFocused_vchno = false;
+                                  });
+                                },
+                                onEditingComplete: () {
+                                  setState(() {
+                                    _isFocused_refno = false;
+                                  });
+                                },
+                              ),
+                            ),
+
+                            Container(
+                              margin: const EdgeInsets.only(
+                                left: 20,
+                                right: 20,
+                                top: 10,
+                                bottom: 5,
+                              ),
+                              padding: const EdgeInsets.only(bottom: 0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: app_color.withOpacity(0.07),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Header Row
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 7,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        // Gradient start icon
+                                        Container(
+                                          width: 34,
+                                          height: 34,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.purple,
+                                                Colors.blue,
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.purple
+                                                    .withOpacity(0.3),
+                                                blurRadius: 6,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ],
+                                          ),
+                                          child: const Icon(
+                                            Icons.shopping_cart,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+
+                                        // Title
+                                        Expanded(
+                                          child: Text(
+                                            "Items",
+                                            style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                              color: app_color,
+                                            ),
+                                          ),
+                                        ),
+
+                                        // Gradient add icon
+                                        GestureDetector(
+                                          onTap: () {
+                                            _showItemDetailsPopup(context);
+                                            _updateUnitDropdown(_selecteditem);
+                                          },
+                                          child: Container(
+                                            width: 34,
+                                            height: 34,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  Colors.teal,
+                                                  Colors.green,
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.teal
+                                                      .withOpacity(0.3),
+                                                  blurRadius: 6,
+                                                  offset: const Offset(0, 3),
+                                                ),
+                                              ],
+                                            ),
+                                            child: const Icon(
+                                              Icons.add,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // Items List with swipe-to-delete
+                                  ListView.builder(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemCount: saleItems.length,
+                                    itemBuilder: (context, index) {
+                                      final item = saleItems[index];
+
+                                      return Dismissible(
+                                        key: UniqueKey(),
+                                        direction: DismissDirection
+                                            .endToStart, // swipe left to delete
+                                        background: Container(
+                                          alignment: Alignment.centerRight,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 20,
+                                          ),
+                                          color: Colors.redAccent,
+                                          child: const Icon(
+                                            Icons.delete,
+                                            color: Colors.white,
+                                            size: 24,
+                                          ),
+                                        ),
+                                        onDismissed: (direction) {
+                                          _deleteSaleItem(index);
+                                        },
+
+                                        child: Container(
+                                          margin: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 3,
+                                          ),
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).cardColor,
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.grey.shade300,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(
+                                                  0.03,
+                                                ),
+                                                blurRadius: 6,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              // Item Name
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.shopping_bag,
+                                                    color: Colors.teal,
+                                                    size: 18,
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Expanded(
+                                                    child: Text(
+                                                      item.itemName,
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color:
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .colorScheme
+                                                                    .onSurface,
+                                                          ),
+                                                      softWrap: true,
+                                                      overflow:
+                                                          TextOverflow.visible,
+                                                      maxLines: null,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+
+                                              const SizedBox(height: 10),
+
+                                              // Qty Row
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    "Qty",
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).colorScheme.onSurface,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+
+                                                  // Minus Button
+                                                  InkWell(
+                                                    onTap: () {
+                                                      int currentQty =
+                                                          int.tryParse(
+                                                            item.itemQuantity,
+                                                          ) ??
+                                                          0;
+                                                      if (currentQty > 1) {
+                                                        setState(() {
+                                                          item.itemQuantity =
+                                                              (currentQty - 1)
+                                                                  .toString();
+                                                          _recalculateTotals();
+                                                        });
+                                                      } else {
+                                                        setState(() {
+                                                          saleItems.removeAt(
+                                                            index,
+                                                          );
+                                                          _recalculateTotals();
+                                                        });
+                                                      }
+                                                    },
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            6,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.redAccent
+                                                            .withOpacity(0.15),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              8,
+                                                            ),
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.remove,
+                                                        size: 18,
+                                                        color: Colors.redAccent,
+                                                      ),
+                                                    ),
+                                                  ),
+
+                                                  const SizedBox(width: 6),
+
+                                                  // Qty Display (Non-editable)
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 6,
+                                                          horizontal: 12,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          Theme.of(
+                                                                context,
+                                                              ).brightness ==
+                                                              Brightness.dark
+                                                          ? Theme.of(context)
+                                                                .colorScheme
+                                                                .surfaceContainerHighest
+                                                          : Colors
+                                                                .grey
+                                                                .shade100,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            10,
+                                                          ),
+                                                      border: Border.all(
+                                                        color: Colors
+                                                            .grey
+                                                            .shade400,
+                                                      ),
+                                                    ),
+                                                    child: Text(
+                                                      item.itemQuantity,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color:
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .colorScheme
+                                                                    .onSurface,
+                                                          ),
+                                                    ),
+                                                  ),
+
+                                                  const SizedBox(width: 6),
+
+                                                  // Plus Button
+                                                  InkWell(
+                                                    onTap: () {
+                                                      int currentQty =
+                                                          int.tryParse(
+                                                            item.itemQuantity,
+                                                          ) ??
+                                                          0;
+                                                      setState(() {
+                                                        item.itemQuantity =
+                                                            (currentQty + 1)
+                                                                .toString();
+                                                        _recalculateTotals();
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            6,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.green
+                                                            .withOpacity(0.15),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              8,
+                                                            ),
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.add,
+                                                        size: 18,
+                                                        color: Colors.green,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+
+                                              const SizedBox(height: 12),
+
+                                              // Rate Section
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    "Rate",
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).colorScheme.onSurface,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 6,
+                                                          horizontal: 10,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          Theme.of(
+                                                                context,
+                                                              ).brightness ==
+                                                              Brightness.dark
+                                                          ? Theme.of(context)
+                                                                .colorScheme
+                                                                .surfaceContainerHighest
+                                                          : Colors
+                                                                .grey
+                                                                .shade100,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            10,
+                                                          ),
+                                                      border: Border.all(
+                                                        color: Colors
+                                                            .grey
+                                                            .shade400,
+                                                      ),
+                                                    ),
+                                                    child: Text(
+                                                      "${getCurrencySymbol(currencycode)} ${currencyFormat.format(double.parse(item.itemPrice.toStringAsFixed(decimal!)))}",
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color:
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .colorScheme
+                                                                    .onSurface,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            Container(
+                              margin: const EdgeInsets.only(
+                                left: 20,
+                                right: 20,
+                                top: 5,
+                                bottom: 10,
+                              ),
+                              padding: const EdgeInsets.only(bottom: 0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: app_color.withOpacity(0.07),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.06),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  // Header Row
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 7,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        // Gradient start icon
+                                        Container(
+                                          width: 34,
+                                          height: 34,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.red,
+                                                Colors.redAccent,
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.purple
+                                                    .withOpacity(0.3),
+                                                blurRadius: 6,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ],
+                                          ),
+                                          child: const Icon(
+                                            Icons.list,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+
+                                        // Title
+                                        Expanded(
+                                          child: Text(
+                                            "Ledger",
+                                            style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                              color: app_color,
+                                            ),
+                                          ),
+                                        ),
+
+                                        // Gradient add icon
+                                        GestureDetector(
+                                          onTap: () {
+                                            _showLedgerDetailsPopup(context);
+                                          },
+                                          child: Container(
+                                            width: 34,
+                                            height: 34,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  Colors.orange,
+                                                  Colors.orange,
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.teal
+                                                      .withOpacity(0.3),
+                                                  blurRadius: 6,
+                                                  offset: const Offset(0, 3),
+                                                ),
+                                              ],
+                                            ),
+                                            child: const Icon(
+                                              Icons.add,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // Ledger List
+                                  ListView.builder(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemCount: ledgerEntries.length,
+                                    itemBuilder: (context, index) {
+                                      final item = ledgerEntries[index];
+
+                                      return Dismissible(
+                                        key: UniqueKey(),
+                                        direction: DismissDirection.endToStart,
+                                        background: Container(
+                                          alignment: Alignment.centerRight,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 20,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.redAccent,
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.delete,
+                                            color: Colors.white,
+                                            size: 22,
+                                          ),
+                                        ),
+                                        onDismissed: (direction) {
+                                          _deleteLedger(index);
+                                        },
+
+                                        child: Container(
+                                          margin: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 3,
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 12,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).cardColor,
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.grey.shade200,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(
+                                                  0.03,
+                                                ),
+                                                blurRadius: 6,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              // Ledger Icon + Name
+                                              Icon(
+                                                Icons
+                                                    .account_balance_wallet_outlined,
+                                                color: app_color,
+                                                size: 20,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                flex: 6,
+                                                child: Text(
+                                                  item.ledgerName,
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).colorScheme.onSurface,
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.visible,
+                                                  softWrap: true,
+                                                ),
+                                              ),
+
+                                              // Amount with currency
+                                              Expanded(
+                                                flex: 4,
+                                                child: Text(
+                                                  "${getCurrencySymbol(currencycode)} ${currencyFormat.format(item.ledgerAmount)}",
+                                                  textAlign: TextAlign.end,
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).colorScheme.onSurface,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            Row(
+                              children: [
+                                // 🌈 VAT Ledger Dropdown
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 20,
+                                      left: 20,
+                                      right: 5,
+                                    ),
+                                    child: DropdownButtonFormField<String>(
+                                      isExpanded: true,
+                                      decoration: InputDecoration(
+                                        labelText: "VAT Ledger",
+                                        labelStyle: GoogleFonts.poppins(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        // 🌈 Gradient Icon Container
+                                        prefixIcon: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.indigo,
+                                                Colors.cyan,
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(12),
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.receipt_long_outlined,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 14,
+                                            ),
+                                      ),
+                                      value: _selectedvatledger,
+                                      hint: const Text("Select VAT Ledger"),
+                                      items: vatledgerdata.map((item) {
+                                        return DropdownMenuItem<String>(
+                                          value: item,
+                                          child: Text(
+                                            item,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        );
+                                      }).toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _selectedvatledger = value!;
+
+                                          // 👇 VAT calculation logic intact
+                                          totalPriceOfItems = saleItems.fold(
+                                            0.0,
+                                            (double prev, SaleItem item) =>
+                                                prev +
+                                                (double.parse(
+                                                      item.itemPrice
+                                                          .toStringAsFixed(
+                                                            decimal!,
+                                                          ),
+                                                    ) *
+                                                    double.parse(
+                                                      item.itemQuantity,
+                                                    )),
+                                          );
+
+                                          totalAmountOfLedgers = ledgerEntries
+                                              .fold(
+                                                0.0,
+                                                (
+                                                  double prev,
+                                                  LedgerEntry entry,
+                                                ) => prev + entry.ledgerAmount,
+                                              );
+
+                                          if (_selectedvatledger ==
+                                              'Not Applicable') {
+                                            totalVatAmount = 0;
+                                            roundedtotalVatAmount =
+                                                double.parse(
+                                                  totalVatAmount
+                                                      .toStringAsFixed(
+                                                        decimal!,
+                                                      ),
+                                                );
+                                            NumberFormat formatter =
+                                                NumberFormat(
+                                                  '#,##0.${'0' * decimal!}',
+                                                  'en_US',
+                                                );
+                                            controller_vatamt.text = formatter
+                                                .format(0);
+                                          } else {
+                                            double
+                                            totalAmountForLedgerVatAppEntries =
+                                                ledgerEntries
+                                                    .where(
+                                                      (entry) => entry.vatApp,
+                                                    )
+                                                    .fold(
+                                                      0.0,
+                                                      (
+                                                        double prev,
+                                                        LedgerEntry entry,
+                                                      ) =>
+                                                          prev +
+                                                          entry.ledgerAmount,
+                                                    );
+
+                                            double vat_perc = vatperc / 100;
+                                            itemsVatAmount = double.parse(
+                                              (totalPriceOfItems * vat_perc)
+                                                  .toStringAsFixed(decimal!),
+                                            );
+                                            ledgerVatAmount =
+                                                totalAmountForLedgerVatAppEntries *
+                                                vat_perc;
+                                            totalVatAmount =
+                                                itemsVatAmount +
+                                                ledgerVatAmount;
+
+                                            roundedtotalVatAmount =
+                                                double.parse(
+                                                  totalVatAmount
+                                                      .toStringAsFixed(
+                                                        decimal!,
+                                                      ),
+                                                );
+                                            NumberFormat formatter =
+                                                NumberFormat(
+                                                  '#,##0.${'0' * decimal!}',
+                                                  'en_US',
+                                                );
+                                            controller_vatamt.text = formatter
+                                                .format(roundedtotalVatAmount);
+                                          }
+
+                                          totalAmount =
+                                              totalPriceOfItems +
+                                              totalAmountOfLedgers +
+                                              totalVatAmount;
+                                          roundedtotalAmount = double.parse(
+                                            totalAmount.toStringAsFixed(
+                                              decimal!,
+                                            ),
+                                          );
+                                          NumberFormat formatter = NumberFormat(
+                                            '#,##0.${'0' * decimal!}',
+                                            'en_US',
+                                          );
+                                          controller_totalamt.text = formatter
+                                              .format(roundedtotalAmount);
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 20,
+                                      left: 5,
+                                      right: 20,
+                                    ),
+                                    child: TextFormField(
+                                      enabled: false,
+                                      controller: controller_vatamt,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
+                                      decoration: InputDecoration(
+                                        labelText: "VAT Amount",
+                                        labelStyle: GoogleFonts.poppins(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+
+                                        // 🌈 Gradient Currency Symbol (inline instead of icon)
+                                        prefix: Container(
+                                          margin: const EdgeInsets.only(
+                                            right: 8,
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.green,
+                                                Colors.teal,
+                                              ], // ✅ distinct from Ledger
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(8),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            getCurrencySymbol(currencycode),
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 12,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                              child: TextFormField(
+                                controller: controller_narration,
+                                focusNode: _textFieldFocusNodeNarration,
+                                validator: (value) => null,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: "Narration",
+                                  hintText: "Enter narration",
+                                  hintStyle: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                                  labelStyle: GoogleFonts.poppins(
+                                    color: _isFocused_narration
+                                        ? app_color
+                                        : Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+
+                                  // 🌈 Gradient Icon (Notes)
+                                  prefixIcon: Container(
+                                    margin: const EdgeInsets.all(8),
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.pinkAccent,
+                                          Colors.deepOrange,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(12),
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.notes_rounded,
+                                      size: 20,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+
+                                  filled: true,
+                                  fillColor:
+                                      Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.fillColor ??
+                                      (Theme.of(
+                                            context,
+                                          ).inputDecorationTheme.fillColor ??
+                                          Theme.of(
+                                            context,
+                                          ).cardColor.withOpacity(0.95)),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 14,
+                                  ),
+
+                                  // Borders
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: app_color,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _isFocused_narration = true;
+                                    _isFocused_vchno = false;
+                                    _isFocused_vatamt = false;
+                                    _isFocused_totalamt = false;
+                                    _isFocused_refno = false;
+                                  });
+                                },
+                                onFieldSubmitted: (value) {
+                                  setState(() {
+                                    _isFocused_narration = false;
+                                    _isFocused_vchno = false;
+                                    _isFocused_vatamt = false;
+                                    _isFocused_totalamt = false;
+                                    _isFocused_refno = false;
+                                  });
+                                },
+                                onTap: () {
+                                  setState(() {
+                                    _isFocused_narration = true;
+                                    _isFocused_vchno = false;
+                                    _isFocused_vatamt = false;
+                                    _isFocused_totalamt = false;
+                                    _isFocused_refno = false;
+                                  });
+                                },
+                                onEditingComplete: () {
+                                  setState(() {
+                                    _isFocused_narration = false;
+                                    _isFocused_vchno = false;
+                                    _isFocused_vatamt = false;
+                                    _isFocused_totalamt = false;
+                                    _isFocused_refno = false;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 15,
+                          left: 20,
+                          right: 20,
+                          bottom: 0,
+                        ),
+                        child: TextFormField(
+                          enabled: false,
+                          controller: controller_totalamt,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d+\.?\d{0,4}'),
+                            ),
+                          ],
+                          keyboardType: TextInputType.number,
+                          validator: (value) => null,
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: 'Total Amount',
+                            hintText: 'Enter total amount',
+
+                            // 🌈 Gradient Currency Symbol (cool tone, unique)
+                            prefix: Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.indigo,
+                                    Colors.blueAccent,
+                                  ], // 🔵 unique from narration
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(8),
+                                ),
+                              ),
+                              child: Text(
+                                getCurrencySymbol(
+                                  currencycode,
+                                ), // e.g. AED, $, ₹
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+
+                            // Borders
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).dividerColor,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: app_color,
+                                width: 1.4,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).dividerColor,
+                              ),
+                            ),
+                            labelStyle: GoogleFonts.poppins(
+                              color: _isFocused_totalamt
+                                  ? app_color
+                                  : Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                              horizontal: 12,
+                            ),
+                            filled: true,
+                            fillColor:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest
+                                : (Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Theme.of(
+                                          context,
+                                        ).colorScheme.surfaceContainerHighest
+                                      : Colors.grey.shade50),
+                          ),
+
+                          // Focus State
+                          onTap: () {
+                            setState(() {
+                              _isFocused_totalamt = true;
+                              _isFocused_narration = false;
+                              _isFocused_refno = false;
+                              _isFocused_vatamt = false;
+                              _isFocused_vchno = false;
+                            });
+                          },
+                          onFieldSubmitted: (_) {
+                            setState(() {
+                              _isFocused_totalamt = false;
+                            });
+                          },
+                          onEditingComplete: () {
+                            setState(() {
+                              _isFocused_totalamt = false;
+                            });
+                          },
+                        ),
+                      ),
+
+                      Container(
+                        padding: const EdgeInsets.only(top: 10),
+                        margin: const EdgeInsets.only(
+                          bottom: 30,
+                          left: 20,
+                          right: 20,
+                        ),
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: errorMessageVchNo.isNotEmpty
+                              ? null
+                              : () {
                                   if (_formKey.currentState != null &&
                                       _formKey.currentState!.validate()) {
                                     _formKey.currentState!.save();
                                     updateEntry(id);
                                   }
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30), // pill shape
-                                  ),
-                                  elevation: 8,
-                                  backgroundColor: app_color, // ✅ always full app_color
-                                  disabledBackgroundColor: Colors.grey.shade300, // disabled state
-                                  shadowColor: app_color.withOpacity(0.4),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                              horizontal: 20,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                30,
+                              ), // pill shape
+                            ),
+                            elevation: 8,
+                            backgroundColor:
+                                app_color, // ✅ always full app_color
+                            disabledBackgroundColor:
+                                Colors.grey.shade300, // disabled state
+                            shadowColor: app_color.withOpacity(0.4),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // 🌟 Modern Save Icon (circular background inside button)
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).cardColor
+                                      .withOpacity(
+                                        0.2,
+                                      ), // soft white tint inside
+                                  shape: BoxShape.circle,
                                 ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    // 🌟 Modern Save Icon (circular background inside button)
-                                    Container(
-                                      padding: const EdgeInsets.all(6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2), // soft white tint inside
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.save_as_rounded, // modern variant of save
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-
-                                    // Save Text
-                                    Text(
-                                      "Update",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                        letterSpacing: 1,
-                                      ),
-                                    ),
-                                  ],
+                                child: const Icon(
+                                  Icons
+                                      .save_as_rounded, // modern variant of save
+                                  color: Colors.white,
+                                  size: 20,
                                 ),
                               ),
-                            )
+                              const SizedBox(width: 10),
 
-
-                          ]))]),
+                              // Save Text
+                              Text(
+                                "Update",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
 
             Visibility(
               visible: _isLoading,
-              child: Center(
-                  child: AppLogoLoader()))])));}
-
-
-
+              child: Center(child: AppLogoLoader()),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

@@ -12,23 +12,17 @@ import 'constants.dart';
 class ModifyVanAllocationScreen extends StatefulWidget {
   final Map<String, dynamic> allocation;
 
-  const ModifyVanAllocationScreen({
-    super.key,
-    required this.allocation,
-  });
+  const ModifyVanAllocationScreen({super.key, required this.allocation});
 
   @override
   State<ModifyVanAllocationScreen> createState() =>
       _ModifyVanAllocationScreenState();
 }
 
-class _ModifyVanAllocationScreenState
-    extends State<ModifyVanAllocationScreen> {
+class _ModifyVanAllocationScreenState extends State<ModifyVanAllocationScreen> {
   final Color primaryColor = app_color;
-  final Color backgroundColor =
-  const Color(0xFFF5F7FA);
-  final Color textColor =
-  const Color(0xFF1F2937);
+  final Color backgroundColor = const Color(0xFFF5F7FA);
+  final Color textColor = const Color(0xFF1F2937);
 
   bool isLoading = true;
   bool isSaving = false;
@@ -79,112 +73,94 @@ class _ModifyVanAllocationScreenState
         const SizedBox(height: 8),
 
         Autocomplete<String>(
-          optionsBuilder:
-              (TextEditingValue textEditingValue) {
+          optionsBuilder: (TextEditingValue textEditingValue) {
             if (textEditingValue.text.isEmpty) {
               return items;
             }
 
             return items.where(
-                  (item) => item
-                  .toLowerCase()
-                  .contains(
-                textEditingValue.text
-                    .toLowerCase(),
+              (item) => item.toLowerCase().contains(
+                textEditingValue.text.toLowerCase(),
               ),
             );
           },
 
-          initialValue:
-          TextEditingValue(text: value ?? ''),
+          initialValue: TextEditingValue(text: value ?? ''),
 
           onSelected: onSelected,
 
           fieldViewBuilder:
-              (context,
-              controller,
-              focusNode,
-              onEditingComplete) {
-            controller.text =
-                value ?? controller.text;
+              (context, controller, focusNode, onEditingComplete) {
+                controller.text = value ?? controller.text;
 
-            return TextField(
-              controller: controller,
-              focusNode: focusNode,
+                return TextField(
+                  controller: controller,
+                  focusNode: focusNode,
 
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: textColor,
-              ),
-
-              decoration: InputDecoration(
-                hintText: hint,
-
-                hintStyle: GoogleFonts.poppins(
-                  fontSize: 12.5,
-                  color: Colors.grey.shade500,
-                ),
-
-                prefixIcon: Icon(
-                  icon,
-                  color: primaryColor,
-                  size: 20,
-                ),
-
-                suffixIcon: (controller.text.isNotEmpty || value != null)
-                    ? IconButton(
-                  icon: Icon(
-                    Icons.close_rounded,
-                    color: Colors.grey.shade600,
-                    size: 20,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: textColor,
                   ),
-                  onPressed: () {
-                    controller.clear();
 
-                    onSelected(null);
+                  decoration: InputDecoration(
+                    hintText: hint,
 
-                    setState(() {});
-                  },
-                )
-                    : null,
+                    hintStyle: GoogleFonts.poppins(
+                      fontSize: 12.5,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
 
-                filled: true,
-                fillColor: backgroundColor,
+                    prefixIcon: Icon(icon, color: primaryColor, size: 20),
 
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 15,
-                ),
+                    suffixIcon: (controller.text.isNotEmpty || value != null)
+                        ? IconButton(
+                            icon: Icon(
+                              Icons.close_rounded,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              controller.clear();
 
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
-                ),
+                              onSelected(null);
 
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(
-                    color: Colors.grey.shade200,
+                              setState(() {});
+                            },
+                          )
+                        : null,
+
+                    filled: true,
+                    fillColor: backgroundColor,
+
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 15,
+                    ),
+
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).dividerColor,
+                      ),
+                    ),
+
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: primaryColor, width: 1.4),
+                    ),
                   ),
-                ),
+                );
+              },
 
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(
-                    color: primaryColor,
-                    width: 1.4,
-                  ),
-                ),
-              ),
-
-            );
-          },
-
-          optionsViewBuilder:
-              (context,
-              onSelected,
-              options) {
+          optionsViewBuilder: (context, onSelected, options) {
             return Align(
               alignment: Alignment.topLeft,
 
@@ -192,81 +168,48 @@ class _ModifyVanAllocationScreenState
                 color: Colors.transparent,
 
                 child: Container(
-                  margin:
-                  const EdgeInsets.only(
-                      top: 8),
+                  margin: const EdgeInsets.only(top: 8),
 
-                  constraints:
-                  const BoxConstraints(
-                    maxHeight: 260,
-                  ),
+                  constraints: const BoxConstraints(maxHeight: 260),
 
-                  width:
-                  MediaQuery.of(context)
-                      .size
-                      .width *
-                      0.9,
+                  width: MediaQuery.of(context).size.width * 0.9,
 
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                    BorderRadius.circular(
-                        18),
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(18),
 
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black
-                            .withOpacity(0.08),
+                        color: Colors.black.withOpacity(0.08),
                         blurRadius: 18,
-                        offset:
-                        const Offset(0, 6),
+                        offset: const Offset(0, 6),
                       ),
                     ],
                   ),
 
                   child: ListView.builder(
-                    padding:
-                    const EdgeInsets.all(
-                        10),
+                    padding: const EdgeInsets.all(10),
 
                     shrinkWrap: true,
 
-                    itemCount:
-                    options.length,
+                    itemCount: options.length,
 
-                    itemBuilder:
-                        (context, index) {
-                      final option =
-                      options.elementAt(
-                          index);
+                    itemBuilder: (context, index) {
+                      final option = options.elementAt(index);
 
                       return InkWell(
-                        borderRadius:
-                        BorderRadius
-                            .circular(14),
+                        borderRadius: BorderRadius.circular(14),
 
-                        onTap: () =>
-                            onSelected(option),
+                        onTap: () => onSelected(option),
 
                         child: Container(
-                          margin:
-                          const EdgeInsets
-                              .only(
-                            bottom: 8,
-                          ),
+                          margin: const EdgeInsets.only(bottom: 8),
 
-                          padding:
-                          const EdgeInsets
-                              .all(12),
+                          padding: const EdgeInsets.all(12),
 
-                          decoration:
-                          BoxDecoration(
-                            color:
-                            backgroundColor,
-                            borderRadius:
-                            BorderRadius
-                                .circular(
-                                14),
+                          decoration: BoxDecoration(
+                            color: backgroundColor,
+                            borderRadius: BorderRadius.circular(14),
                           ),
 
                           child: Row(
@@ -275,43 +218,29 @@ class _ModifyVanAllocationScreenState
                                 height: 40,
                                 width: 40,
 
-                                decoration:
-                                BoxDecoration(
-                                  color: primaryColor
-                                      .withOpacity(
-                                      0.12),
+                                decoration: BoxDecoration(
+                                  color: primaryColor.withOpacity(0.12),
 
-                                  borderRadius:
-                                  BorderRadius
-                                      .circular(
-                                      12),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
 
                                 child: Icon(
                                   icon,
-                                  color:
-                                  primaryColor,
+                                  color: primaryColor,
                                   size: 20,
                                 ),
                               ),
 
-                              const SizedBox(
-                                  width: 12),
+                              const SizedBox(width: 12),
 
                               Expanded(
                                 child: Text(
                                   option,
 
-                                  style:
-                                  GoogleFonts
-                                      .poppins(
-                                    fontSize:
-                                    12.5,
-                                    fontWeight:
-                                    FontWeight
-                                        .w600,
-                                    color:
-                                    textColor,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
                                   ),
                                 ),
                               ),
@@ -337,19 +266,14 @@ class _ModifyVanAllocationScreenState
   }
 
   Future<void> initialize() async {
-    final prefs =
-    await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
 
     token = prefs.getString('token') ?? '';
-    serial_no =
-        prefs.getString('serial_no') ?? '';
+    serial_no = prefs.getString('serial_no') ?? '';
 
-    selectedLocation =
-    widget.allocation['godown_name'];
+    selectedLocation = widget.allocation['godown_name'];
 
-    selectedDeliveryNoteVchType =
-    widget.allocation[
-    'voucher_type_name'];
+    selectedDeliveryNoteVchType = widget.allocation['voucher_type_name'];
 
     hostname = prefs.getString('hostname');
     company = prefs.getString('company_name');
@@ -358,11 +282,9 @@ class _ModifyVanAllocationScreenState
 
     selectedReceiptVchType = widget.allocation['receipt_voucher_type'];
 
-    selectedSalesLedger =
-    widget.allocation['sales_ledger'];
+    selectedSalesLedger = widget.allocation['sales_ledger'];
 
-    selectedCashLedger =
-    widget.allocation['cash_ledger'];
+    selectedCashLedger = widget.allocation['cash_ledger'];
 
     await fetchDropdownData();
   }
@@ -370,9 +292,7 @@ class _ModifyVanAllocationScreenState
   Future<void> fetchDropdownData() async {
     try {
       final response = await http.post(
-        Uri.parse(
-          '$hostname/api/entry/getSpectra/$company/$serial_no',
-        ),
+        Uri.parse('$hostname/api/entry/getSpectra/$company/$serial_no'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -385,14 +305,13 @@ class _ModifyVanAllocationScreenState
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        final allocationsUrl = Uri.parse(
-          '$BASE_URL_config/api/spectra/Allocations',
-        ).replace(
-          queryParameters: {
-            'serial_no': serial_no,
-            'company_name': company,
-          },
-        );
+        final allocationsUrl =
+            Uri.parse('$BASE_URL_config/api/spectra/Allocations').replace(
+              queryParameters: {
+                'serial_no': serial_no,
+                'company_name': company,
+              },
+            );
 
         final allocationResponse = await http.get(
           allocationsUrl,
@@ -410,21 +329,31 @@ class _ModifyVanAllocationScreenState
         final Set<String> allocatedSalesVchTypes = {};
         final Set<String> allocatedReceiptVchTypes = {};
 
-        final currentLocation =
-        widget.allocation['godown_name']?.toString().trim().toLowerCase();
+        final currentLocation = widget.allocation['godown_name']
+            ?.toString()
+            .trim()
+            .toLowerCase();
 
-        final currentDeliveryNoteVchType =
-        widget.allocation['voucher_type_name']?.toString().trim().toLowerCase();
+        final currentDeliveryNoteVchType = widget
+            .allocation['voucher_type_name']
+            ?.toString()
+            .trim()
+            .toLowerCase();
 
-        final currentSalesVchType =
-        widget.allocation['sales_voucher_type']?.toString().trim().toLowerCase();
+        final currentSalesVchType = widget.allocation['sales_voucher_type']
+            ?.toString()
+            .trim()
+            .toLowerCase();
 
-        final currentReceiptVchType =
-        widget.allocation['receipt_voucher_type']?.toString().trim().toLowerCase();
+        final currentReceiptVchType = widget.allocation['receipt_voucher_type']
+            ?.toString()
+            .trim()
+            .toLowerCase();
 
         if (allocationResponse.statusCode == 200) {
-          final List<dynamic> allocationJsonList =
-          jsonDecode(allocationResponse.body);
+          final List<dynamic> allocationJsonList = jsonDecode(
+            allocationResponse.body,
+          );
 
           for (final item in allocationJsonList) {
             final map = item as Map<String, dynamic>;
@@ -432,17 +361,25 @@ class _ModifyVanAllocationScreenState
             final serialNo = map['serial_no']?.toString().trim();
 
             if (serialNo == serial_no) {
-              final location =
-              map['godown_name']?.toString().trim().toLowerCase();
+              final location = map['godown_name']
+                  ?.toString()
+                  .trim()
+                  .toLowerCase();
 
-              final deliveryNoteVchType =
-              map['voucher_type_name']?.toString().trim().toLowerCase();
+              final deliveryNoteVchType = map['voucher_type_name']
+                  ?.toString()
+                  .trim()
+                  .toLowerCase();
 
-              final salesVchType =
-              map['sales_voucher_type']?.toString().trim().toLowerCase();
+              final salesVchType = map['sales_voucher_type']
+                  ?.toString()
+                  .trim()
+                  .toLowerCase();
 
-              final receiptVchType =
-              map['receipt_voucher_type']?.toString().trim().toLowerCase();
+              final receiptVchType = map['receipt_voucher_type']
+                  ?.toString()
+                  .trim()
+                  .toLowerCase();
 
               if (location != null &&
                   location.isNotEmpty &&
@@ -472,7 +409,9 @@ class _ModifyVanAllocationScreenState
         }
 
         debugPrint("Modify Allocated Locations: $allocatedLocations");
-        debugPrint("Modify Allocated Delivery Note: $allocatedDeliveryNoteVchTypes");
+        debugPrint(
+          "Modify Allocated Delivery Note: $allocatedDeliveryNoteVchTypes",
+        );
         debugPrint("Modify Allocated Sales: $allocatedSalesVchTypes");
         debugPrint("Modify Allocated Receipt: $allocatedReceiptVchTypes");
 
@@ -482,8 +421,7 @@ class _ModifyVanAllocationScreenState
           for (final item in apiVchTypes) {
             final map = item as Map<String, dynamic>;
 
-            final parent =
-                map['parent']?.toString().trim().toLowerCase() ?? '';
+            final parent = map['parent']?.toString().trim().toLowerCase() ?? '';
 
             if (parent == parentName.toLowerCase()) {
               return List<String>.from(map['name'] ?? [])
@@ -498,28 +436,29 @@ class _ModifyVanAllocationScreenState
 
         locations = List<String>.from(data['locations'] ?? [])
             .where((location) {
-          final locationName = location.toString().trim().toLowerCase();
+              final locationName = location.toString().trim().toLowerCase();
 
-          return locationName.isNotEmpty &&
-              !allocatedLocations.contains(locationName);
-        }).toSet().toList();
+              return locationName.isNotEmpty &&
+                  !allocatedLocations.contains(locationName);
+            })
+            .toSet()
+            .toList();
 
-        deliveryNoteVchTypes = getVchTypesByParent('delivery note')
-            .where((vch) {
+        deliveryNoteVchTypes = getVchTypesByParent('delivery note').where((
+          vch,
+        ) {
           final vchName = vch.toString().trim().toLowerCase();
 
           return !allocatedDeliveryNoteVchTypes.contains(vchName);
         }).toList();
 
-        salesVchTypes = getVchTypesByParent('sales')
-            .where((vch) {
+        salesVchTypes = getVchTypesByParent('sales').where((vch) {
           final vchName = vch.toString().trim().toLowerCase();
 
           return !allocatedSalesVchTypes.contains(vchName);
         }).toList();
 
-        receiptVchTypes = getVchTypesByParent('receipt')
-            .where((vch) {
+        receiptVchTypes = getVchTypesByParent('receipt').where((vch) {
           final vchName = vch.toString().trim().toLowerCase();
 
           return !allocatedReceiptVchTypes.contains(vchName);
@@ -545,57 +484,38 @@ class _ModifyVanAllocationScreenState
       });
 
       dynamic body = jsonEncode({
-        "user_name":
-        widget.allocation[
-        'user_name'],
+        "user_name": widget.allocation['user_name'],
 
-        "serial_no":
-        widget.allocation[
-        'serial_no'],
+        "serial_no": widget.allocation['serial_no'],
 
-        "company_name":
-        widget.allocation[
-        'company_name'],
+        "company_name": widget.allocation['company_name'],
 
-        "godown_name":
-        selectedLocation,
+        "godown_name": selectedLocation,
 
-        "voucher_type_name":
-        selectedDeliveryNoteVchType,
-
+        "voucher_type_name": selectedDeliveryNoteVchType,
 
         "sales_voucher_type": selectedSalesVchType,
 
         "receipt_voucher_type": selectedReceiptVchType,
 
-        "sales_ledger":
-        selectedSalesLedger,
+        "sales_ledger": selectedSalesLedger,
 
-        "cash_ledger":
-        selectedCashLedger,
+        "cash_ledger": selectedCashLedger,
       });
 
       final response = await http.put(
-        Uri.parse(
-          '$BASE_URL_config/api/spectra/Allocations',
-        ),
+        Uri.parse('$BASE_URL_config/api/spectra/Allocations'),
 
         headers: {
-          'Authorization':
-          'Bearer $authTokenBase',
-          'Content-Type':
-          'application/json',
+          'Authorization': 'Bearer $authTokenBase',
+          'Content-Type': 'application/json',
         },
 
         body: body,
       );
 
-      debugPrint(
-        "UPDATE RESPONSE BODY: ${body}",
-      );
-      debugPrint(
-        "UPDATE RESPONSE: ${response.body}",
-      );
+      debugPrint("UPDATE RESPONSE BODY: ${body}");
+      debugPrint("UPDATE RESPONSE: ${response.body}");
 
       if (response.statusCode == 200) {
         /*ScaffoldMessenger.of(context)
@@ -609,20 +529,12 @@ class _ModifyVanAllocationScreenState
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (_) => ViewVanAllocationScreen(
-            ),
-          ),
+          MaterialPageRoute(builder: (_) => ViewVanAllocationScreen()),
         );
       } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(
-          SnackBar(
-            content: Text(
-              response.body,
-            ),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(response.body)));
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -636,7 +548,7 @@ class _ModifyVanAllocationScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: AppBar(
         elevation: 0,
@@ -648,28 +560,20 @@ class _ModifyVanAllocationScreenState
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (_) =>
-                const ViewVanAllocationScreen(),
+                builder: (_) => const ViewVanAllocationScreen(),
               ),
             );
           },
-          icon: const Icon(
-            Icons.arrow_back_rounded,
-            color: Colors.white,
-          ),
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
         ),
 
         title: Row(
           children: [
             Container(
-              padding:
-              const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white
-                    .withOpacity(0.15),
-                borderRadius:
-                BorderRadius.circular(
-                    12),
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.edit_outlined,
@@ -681,27 +585,22 @@ class _ModifyVanAllocationScreenState
             const SizedBox(width: 12),
 
             Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Modify Allocation',
-                  style:
-                  GoogleFonts.poppins(
+                  style: GoogleFonts.poppins(
                     fontSize: 17,
-                    fontWeight:
-                    FontWeight.w700,
+                    fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
                 ),
 
                 Text(
                   'Update allocation details',
-                  style:
-                  GoogleFonts.poppins(
+                  style: GoogleFonts.poppins(
                     fontSize: 11,
-                    color: Colors.white
-                        .withOpacity(0.8),
+                    color: Colors.white.withOpacity(0.8),
                   ),
                 ),
               ],
@@ -711,198 +610,161 @@ class _ModifyVanAllocationScreenState
       ),
 
       body: isLoading
-          ? Center(
-        child:
-        CircularProgressIndicator
-            .adaptive(
-        ),
-      )
+          ? Center(child: CircularProgressIndicator.adaptive())
           : SingleChildScrollView(
-        padding:
-        const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
 
-        child: Container(
-          padding:
-          const EdgeInsets.all(18),
+              child: Container(
+                padding: const EdgeInsets.all(18),
 
-          decoration:
-          _cardDecoration(),
+                decoration: _cardDecoration(),
 
-          child: Column(
-            crossAxisAlignment:
-            CrossAxisAlignment
-                .start,
-            children: [
-              _sectionTitle(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionTitle(),
 
-              const SizedBox(
-                  height: 24),
+                    const SizedBox(height: 24),
 
-              _searchableDropdownField(
-                title: 'Location',
-                value: selectedLocation,
-                items: locations,
-                icon: Icons.location_on_outlined,
-                hint: 'Search and select location',
-                onSelected: (val) {
-                  setState(() {
-                    selectedLocation = val;
-                  });
-                },
-              ),
-
-              const SizedBox(
-                  height: 16),
-
-              _searchableDropdownField(
-                title: 'Delivery Note Voucher Type',
-                value: selectedDeliveryNoteVchType,
-                items: deliveryNoteVchTypes,
-                icon: Icons.receipt_long_outlined,
-                hint: 'Search and select delivery note voucher type',
-                onSelected: (val) {
-                  setState(() {
-                    selectedDeliveryNoteVchType = val;
-                  });
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              _searchableDropdownField(
-                title: 'Sales Voucher Type',
-                value: selectedSalesVchType,
-                items: salesVchTypes,
-                icon: Icons.point_of_sale_outlined,
-                hint: 'Search and select sales voucher type',
-                onSelected: (val) {
-                  setState(() {
-                    selectedSalesVchType = val;
-                  });
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              _searchableDropdownField(
-                title: 'Receipt Voucher Type',
-                value: selectedReceiptVchType,
-                items: receiptVchTypes,
-                icon: Icons.receipt_outlined,
-                hint: 'Search and select receipt voucher type',
-                onSelected: (val) {
-                  setState(() {
-                    selectedReceiptVchType = val;
-                  });
-                },
-              ),
-
-              const SizedBox(
-                  height: 16),
-
-              _searchableDropdownField(
-                title: 'Sales Ledger',
-                value: selectedSalesLedger,
-                items: salesLedgers,
-                icon: Icons.account_balance_wallet_outlined,
-                hint: 'Search and select sales ledger',
-                onSelected: (val) {
-                  setState(() {
-                    selectedSalesLedger = val;
-                  });
-                },
-              ),
-
-              const SizedBox(
-                  height: 16),
-
-              _searchableDropdownField(
-                title: 'Cash Ledger',
-                value: selectedCashLedger,
-                items: cashLedgers,
-                icon: Icons.payments_outlined,
-                hint: 'Search and select cash ledger',
-                onSelected: (val) {
-                  setState(() {
-                    selectedCashLedger = val;
-                  });
-                },
-              ),
-
-              const SizedBox(
-                  height: 28),
-
-              SizedBox(
-                width:
-                double.infinity,
-                child:
-                ElevatedButton.icon(
-                  onPressed:
-                  isSaving
-                      ? null
-                      : updateAllocation,
-
-                  style:
-                  ElevatedButton
-                      .styleFrom(
-                    backgroundColor:
-                    primaryColor,
-                    elevation: 0,
-                    padding:
-                    const EdgeInsets
-                        .symmetric(
-                      vertical: 15,
+                    _searchableDropdownField(
+                      title: 'Location',
+                      value: selectedLocation,
+                      items: locations,
+                      icon: Icons.location_on_outlined,
+                      hint: 'Search and select location',
+                      onSelected: (val) {
+                        setState(() {
+                          selectedLocation = val;
+                        });
+                      },
                     ),
-                    shape:
-                    RoundedRectangleBorder(
-                      borderRadius:
-                      BorderRadius
-                          .circular(
-                          16),
-                    ),
-                  ),
 
-                  icon: isSaving
-                      ?  SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: Platform.isIOS
-                        ?  CupertinoActivityIndicator(
-                      color: Colors.white,
-                      radius: 10,
-                    )
-                        :  CircularProgressIndicator(
-                      strokeWidth: 2.2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                      : const Icon(
-                    Icons
-                        .save_outlined,
-                    color: Colors
-                        .white,
-                  ),
+                    const SizedBox(height: 16),
 
-                  label: Text(
-                    isSaving
-                        ? "Updating..."
-                        : "Update Allocation",
-                    style:
-                    GoogleFonts
-                        .poppins(
-                      color: Colors
-                          .white,
-                      fontWeight:
-                      FontWeight
-                          .w600,
+                    _searchableDropdownField(
+                      title: 'Delivery Note Voucher Type',
+                      value: selectedDeliveryNoteVchType,
+                      items: deliveryNoteVchTypes,
+                      icon: Icons.receipt_long_outlined,
+                      hint: 'Search and select delivery note voucher type',
+                      onSelected: (val) {
+                        setState(() {
+                          selectedDeliveryNoteVchType = val;
+                        });
+                      },
                     ),
-                  ),
+
+                    const SizedBox(height: 16),
+
+                    _searchableDropdownField(
+                      title: 'Sales Voucher Type',
+                      value: selectedSalesVchType,
+                      items: salesVchTypes,
+                      icon: Icons.point_of_sale_outlined,
+                      hint: 'Search and select sales voucher type',
+                      onSelected: (val) {
+                        setState(() {
+                          selectedSalesVchType = val;
+                        });
+                      },
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    _searchableDropdownField(
+                      title: 'Receipt Voucher Type',
+                      value: selectedReceiptVchType,
+                      items: receiptVchTypes,
+                      icon: Icons.receipt_outlined,
+                      hint: 'Search and select receipt voucher type',
+                      onSelected: (val) {
+                        setState(() {
+                          selectedReceiptVchType = val;
+                        });
+                      },
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    _searchableDropdownField(
+                      title: 'Sales Ledger',
+                      value: selectedSalesLedger,
+                      items: salesLedgers,
+                      icon: Icons.account_balance_wallet_outlined,
+                      hint: 'Search and select sales ledger',
+                      onSelected: (val) {
+                        setState(() {
+                          selectedSalesLedger = val;
+                        });
+                      },
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    _searchableDropdownField(
+                      title: 'Cash Ledger',
+                      value: selectedCashLedger,
+                      items: cashLedgers,
+                      icon: Icons.payments_outlined,
+                      hint: 'Search and select cash ledger',
+                      onSelected: (val) {
+                        setState(() {
+                          selectedCashLedger = val;
+                        });
+                      },
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: isSaving ? null : updateAllocation,
+
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+
+                        icon: isSaving
+                            ? SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: Platform.isIOS
+                                    ? CupertinoActivityIndicator(
+                                        color: Colors.white,
+                                        radius: 10,
+                                      )
+                                    : CircularProgressIndicator(
+                                        strokeWidth: 2.2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
+                                      ),
+                              )
+                            : const Icon(
+                                Icons.save_outlined,
+                                color: Colors.white,
+                              ),
+
+                        label: Text(
+                          isSaving ? "Updating..." : "Update Allocation",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
@@ -914,8 +776,7 @@ class _ModifyVanAllocationScreenState
     required Function(String?) onChanged,
   }) {
     return Column(
-      crossAxisAlignment:
-      CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
@@ -932,62 +793,36 @@ class _ModifyVanAllocationScreenState
           value: value,
           isExpanded: true,
 
-          icon: Icon(
-            Icons.keyboard_arrow_down,
-            color: primaryColor,
-          ),
+          icon: Icon(Icons.keyboard_arrow_down, color: primaryColor),
 
-          style: GoogleFonts.poppins(
-            color: textColor,
-          ),
+          style: GoogleFonts.poppins(color: textColor),
 
           decoration: InputDecoration(
             hintText: 'Select $title',
 
-            prefixIcon: Icon(
-              icon,
-              color: primaryColor,
-            ),
+            prefixIcon: Icon(icon, color: primaryColor),
 
             filled: true,
             fillColor: backgroundColor,
 
             border: OutlineInputBorder(
-              borderRadius:
-              BorderRadius.circular(
-                  16),
-              borderSide: BorderSide
-                  .none,
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
             ),
 
-            enabledBorder:
-            OutlineInputBorder(
-              borderRadius:
-              BorderRadius.circular(
-                  16),
-              borderSide: BorderSide(
-                color:
-                Colors.grey.shade200,
-              ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: Theme.of(context).dividerColor),
             ),
 
-            focusedBorder:
-            OutlineInputBorder(
-              borderRadius:
-              BorderRadius.circular(
-                  16),
-              borderSide: BorderSide(
-                color: primaryColor,
-                width: 1.4,
-              ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: primaryColor, width: 1.4),
             ),
           ),
 
           items: items.map((e) {
-            return DropdownMenuItem(
-              value: e,
-              child: Text(e),
-            );
+            return DropdownMenuItem(value: e, child: Text(e));
           }).toList(),
 
           onChanged: onChanged,
@@ -1002,16 +837,10 @@ class _ModifyVanAllocationScreenState
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color:
-            primaryColor.withOpacity(
-                0.1),
-            borderRadius:
-            BorderRadius.circular(12),
+            color: primaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            Icons.settings_outlined,
-            color: primaryColor,
-          ),
+          child: Icon(Icons.settings_outlined, color: primaryColor),
         ),
 
         const SizedBox(width: 10),
@@ -1030,14 +859,11 @@ class _ModifyVanAllocationScreenState
 
   BoxDecoration _cardDecoration() {
     return BoxDecoration(
-      color: Colors.white,
-      borderRadius:
-      BorderRadius.circular(24),
+      color: Theme.of(context).cardColor,
+      borderRadius: BorderRadius.circular(24),
       boxShadow: [
         BoxShadow(
-          color:
-          Colors.black.withOpacity(
-              0.04),
+          color: Colors.black.withOpacity(0.04),
           blurRadius: 18,
           offset: const Offset(0, 8),
         ),

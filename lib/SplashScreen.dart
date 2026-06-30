@@ -56,7 +56,9 @@ class _SplashScreenState extends State<SplashScreen> {
   // ANDROID — FORCED UPDATE
   // -------------------------------
   Future<void> _mandatoryAndroidUpdate(
-      String? username, String? password) async {
+    String? username,
+    String? password,
+  ) async {
     try {
       final info = await InAppUpdate.checkForUpdate();
 
@@ -83,8 +85,7 @@ class _SplashScreenState extends State<SplashScreen> {
   // -------------------------------
   // iOS — FORCED UPDATE
   // -------------------------------
-  Future<void> _mandatoryIOSUpdate(
-      String? username, String? password) async {
+  Future<void> _mandatoryIOSUpdate(String? username, String? password) async {
     bool updateAvailable = await AppUpdateService.isIOSUpdateAvailable();
 
     if (updateAvailable) {
@@ -103,13 +104,15 @@ class _SplashScreenState extends State<SplashScreen> {
       barrierDismissible: false,
       builder: (context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black12.withOpacity(0.05),
@@ -121,7 +124,6 @@ class _SplashScreenState extends State<SplashScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-
                 // App Icon Circle
                 Container(
                   padding: const EdgeInsets.all(18),
@@ -148,7 +150,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
 
@@ -160,7 +162,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: Colors.black54,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
 
@@ -170,7 +172,8 @@ class _SplashScreenState extends State<SplashScreen> {
                 GestureDetector(
                   onTap: () async {
                     final url = Uri.parse(
-                        "https://apps.apple.com/app/id${AppUpdateService.iosAppId}");
+                      "https://apps.apple.com/app/id${AppUpdateService.iosAppId}",
+                    );
 
                     await launchUrl(url, mode: LaunchMode.externalApplication);
                   },
@@ -199,7 +202,6 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
 
                 const SizedBox(height: 10),
-
               ],
             ),
           ),
@@ -215,10 +217,8 @@ class _SplashScreenState extends State<SplashScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => Login(
-          username: username ?? '',
-          password: password ?? '',
-        ),
+        builder: (context) =>
+            Login(username: username ?? '', password: password ?? ''),
       ),
     );
   }
@@ -229,9 +229,10 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(children: [
-        Center(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Stack(
+        children: [
+          Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -241,33 +242,30 @@ class _SplashScreenState extends State<SplashScreen> {
                   height: 200,
                 ),
                 const SizedBox(height: 20),
-                SpinKitWave(
-                  color: app_color,
-                  size: 40.0,
-                  itemCount: 5,
-                )
+                SpinKitWave(color: app_color, size: 40.0, itemCount: 5),
               ],
-            )),
+            ),
+          ),
 
-        Positioned(
-          bottom: 20,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: Text(
-              "© 2023-2026 CSH LLC. All Rights Reserved.",
-              style: GoogleFonts.poppins(
-                color: Colors.black54,
-                fontSize: 12,
+          Positioned(
+            bottom: 20,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                "© 2023-2026 CSH LLC. All Rights Reserved.",
+                style: GoogleFonts.poppins(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 12,
+                ),
               ),
             ),
           ),
-        )
-      ]),
+        ],
+      ),
     );
   }
 }
-
 
 class AppUpdateService {
   // CHANGE THIS to your real iOS App ID

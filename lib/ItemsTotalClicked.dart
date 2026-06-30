@@ -19,18 +19,11 @@ import 'dart:io';
 import 'constants.dart';
 
 class Ledger {
-
   final String Partyledger;
   final String qty;
   final double amount;
 
-  Ledger({
-
-    required this.Partyledger,
-    required this.qty,
-    required this.amount,
-
-  });
+  Ledger({required this.Partyledger, required this.qty, required this.amount});
 
   factory Ledger.fromJson(Map<String, dynamic> json) {
     return Ledger(
@@ -41,8 +34,8 @@ class Ledger {
   }
 }
 
-class Bills{
-  final String vchno,Partyledger,vchdate;
+class Bills {
+  final String vchno, Partyledger, vchdate;
   final double amount;
 
   Bills({
@@ -52,20 +45,18 @@ class Bills{
     required this.amount,
   });
 
-  factory Bills.fromJson(Map<String, dynamic> json)
-  {
+  factory Bills.fromJson(Map<String, dynamic> json) {
     return Bills(
       vchno: json['vchno'].toString(),
       Partyledger: json['Partyledger'].toString(),
       vchdate: json['vchdate'].toString(),
-      amount:  double.tryParse(json['amount'].toString()) ?? 0,
+      amount: double.tryParse(json['amount'].toString()) ?? 0,
     );
   }
 }
 
-class Costcenter{
-
-  final String costcentre,qty;
+class Costcenter {
+  final String costcentre, qty;
   final double amount;
 
   Costcenter({
@@ -83,16 +74,11 @@ class Costcenter{
   }
 }
 
-class Vouchertype{
-
-  final String vchname,qty;
+class Vouchertype {
+  final String vchname, qty;
   final double amount;
 
-  Vouchertype({
-    required this.vchname,
-    required this.qty,
-    required this.amount,
-  });
+  Vouchertype({required this.vchname, required this.qty, required this.amount});
 
   factory Vouchertype.fromJson(Map<String, dynamic> json) {
     return Vouchertype(
@@ -103,56 +89,73 @@ class Vouchertype{
   }
 }
 
-class ItemsTotalClicked extends StatefulWidget
-{
-  final String startdate_string,enddate_string,type,item_name,total;
+class ItemsTotalClicked extends StatefulWidget {
+  final String startdate_string, enddate_string, type, item_name, total;
 
-  const ItemsTotalClicked(
-      {
-        required this.startdate_string,
-        required this.enddate_string,
-        required this.type,
-        required this.item_name,
-        required this.total
-      }
-      );
+  const ItemsTotalClicked({
+    required this.startdate_string,
+    required this.enddate_string,
+    required this.type,
+    required this.item_name,
+    required this.total,
+  });
   @override
-  _ItemsTotalClickedPageState createState() => _ItemsTotalClickedPageState(startDateString: startdate_string,
-      endDateString: enddate_string,type: type,total: total,item_name:  item_name);
+  _ItemsTotalClickedPageState createState() => _ItemsTotalClickedPageState(
+    startDateString: startdate_string,
+    endDateString: enddate_string,
+    type: type,
+    total: total,
+    item_name: item_name,
+  );
 }
 
-class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerProviderStateMixin{
+class _ItemsTotalClickedPageState extends State<ItemsTotalClicked>
+    with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String startDateString = "",endDateString = "",type = "",item_name = "",total = "";
+  String startDateString = "",
+      endDateString = "",
+      type = "",
+      item_name = "",
+      total = "";
 
   int counter = 0;
 
-  List<Bills> filteredItems_Bills = []; // Initialize an empty list to hold the filtered items
-  List<Ledger> filteredItems_ledger = []; // Initialize an empty list to hold the filtered items
-  List<Vouchertype> filteredItems_vouchertype = []; // Initialize an empty list to hold the filtered items
+  List<Bills> filteredItems_Bills =
+      []; // Initialize an empty list to hold the filtered items
+  List<Ledger> filteredItems_ledger =
+      []; // Initialize an empty list to hold the filtered items
+  List<Vouchertype> filteredItems_vouchertype =
+      []; // Initialize an empty list to hold the filtered items
   List<Costcenter> filteredItems_costcenter = [];
 
   ScrollController _scrollController_ledger = ScrollController(),
-      _scrollController_bills= ScrollController(),
-      _scrollController_vchtype= ScrollController(),
-      _scrollController_costcenter= ScrollController();
+      _scrollController_bills = ScrollController(),
+      _scrollController_vchtype = ScrollController(),
+      _scrollController_costcenter = ScrollController();
 
-  bool isSortVisible = false,showDateSort = false;// Initialize an empty list to hold the filtered items
+  bool isSortVisible = false,
+      showDateSort =
+          false; // Initialize an empty list to hold the filtered items
 
-  _ItemsTotalClickedPageState(
-      {
-        required this.startDateString,
-        required this.endDateString,
-        required this.type,
-        required this.item_name,
-        required this.total
-      }
-      );
+  _ItemsTotalClickedPageState({
+    required this.startDateString,
+    required this.endDateString,
+    required this.type,
+    required this.item_name,
+    required this.total,
+  });
 
   String? SecuritybtnAcessHolder;
-  bool isDashEnable = true,isRolesEnable = true,isUserEnable = true,isRolesVisible = true,
-      isUserVisible = true,_isSearchViewVisible = false,_isLedgerListVisible = false,_isBillsListVisible = false,
-      _isVoucherTypeListVisible = false, _isCostCenterListVisible = false;
+  bool isDashEnable = true,
+      isRolesEnable = true,
+      isUserEnable = true,
+      isRolesVisible = true,
+      isUserVisible = true,
+      _isSearchViewVisible = false,
+      _isLedgerListVisible = false,
+      _isBillsListVisible = false,
+      _isVoucherTypeListVisible = false,
+      _isCostCenterListVisible = false;
 
   String email = "";
   String name = "";
@@ -168,17 +171,25 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
 
   late String? startdate_pref, enddate_pref;
 
-  String HttpURL = "",token = '';
+  String HttpURL = "", token = '';
 
   String selectedSortOption = '';
 
-  String? hostname = "",company = "",serial_no = "",company_lowercase = "",username = "";
+  String? hostname = "",
+      company = "",
+      serial_no = "",
+      company_lowercase = "",
+      username = "";
   List<dynamic> myData = [];
   bool _isLoading = false;
 
   dynamic _selectedgroup = "Ledger";
   List<String> spinner_list = [
-    'Ledger','Bills', 'Voucher Type','Cost Center'];
+    'Ledger',
+    'Bills',
+    'Voucher Type',
+    'Cost Center',
+  ];
 
   List<Ledger> ledger_list = [];
   List<Bills> bills_list = [];
@@ -187,31 +198,28 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
 
   void sortByDefault() {
     setState(() {
-      if(filteredItems_ledger.isNotEmpty) {
+      if (filteredItems_ledger.isNotEmpty) {
         filteredItems_ledger = List.from(ledger_list);
         _scrollController_ledger.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
-      }
-      else if(filteredItems_Bills.isNotEmpty) {
+      } else if (filteredItems_Bills.isNotEmpty) {
         filteredItems_Bills = List.from(bills_list);
         _scrollController_bills.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
-      }
-      else if(filteredItems_vouchertype.isNotEmpty) {
+      } else if (filteredItems_vouchertype.isNotEmpty) {
         filteredItems_vouchertype = List.from(vouchertype_list);
         _scrollController_vchtype.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
-      }
-      else if(filteredItems_costcenter.isNotEmpty) {
+      } else if (filteredItems_costcenter.isNotEmpty) {
         filteredItems_costcenter = List.from(costcenter_list);
         _scrollController_costcenter.animateTo(
           0.0,
@@ -224,92 +232,91 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
 
   void sortByAlphabetAtoZ() {
     setState(() {
-      if(filteredItems_ledger.isNotEmpty)
-      {
-        filteredItems_ledger.sort((a, b) => a.Partyledger.compareTo(b.Partyledger));
+      if (filteredItems_ledger.isNotEmpty) {
+        filteredItems_ledger.sort(
+          (a, b) => a.Partyledger.compareTo(b.Partyledger),
+        );
         _scrollController_ledger.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
-      }
-      else if(filteredItems_Bills.isNotEmpty)
-      {
-        filteredItems_Bills.sort((a, b) => a.Partyledger.compareTo(b.Partyledger));
+      } else if (filteredItems_Bills.isNotEmpty) {
+        filteredItems_Bills.sort(
+          (a, b) => a.Partyledger.compareTo(b.Partyledger),
+        );
         _scrollController_bills.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
-      }
-      else if(filteredItems_vouchertype.isNotEmpty)
-      {
-        filteredItems_vouchertype.sort((a, b) => a.vchname.compareTo(b.vchname));
+      } else if (filteredItems_vouchertype.isNotEmpty) {
+        filteredItems_vouchertype.sort(
+          (a, b) => a.vchname.compareTo(b.vchname),
+        );
         _scrollController_vchtype.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
-      }
-      else if(filteredItems_costcenter.isNotEmpty)
-      {
-        filteredItems_costcenter.sort((a, b) => a.costcentre.compareTo(b.costcentre));
+      } else if (filteredItems_costcenter.isNotEmpty) {
+        filteredItems_costcenter.sort(
+          (a, b) => a.costcentre.compareTo(b.costcentre),
+        );
         _scrollController_costcenter.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
   void sortByAlphabetZtoA() {
     setState(() {
-      if(filteredItems_ledger.isNotEmpty)
-      {
-        filteredItems_ledger.sort((a, b) => b.Partyledger.compareTo(a.Partyledger));
+      if (filteredItems_ledger.isNotEmpty) {
+        filteredItems_ledger.sort(
+          (a, b) => b.Partyledger.compareTo(a.Partyledger),
+        );
         _scrollController_ledger.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
-      }
-      else if(filteredItems_Bills.isNotEmpty)
-      {
-        filteredItems_Bills.sort((a, b) => b.Partyledger.compareTo(a.Partyledger));
+      } else if (filteredItems_Bills.isNotEmpty) {
+        filteredItems_Bills.sort(
+          (a, b) => b.Partyledger.compareTo(a.Partyledger),
+        );
         _scrollController_bills.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
-      }
-      else if(filteredItems_vouchertype.isNotEmpty)
-      {
-        filteredItems_vouchertype.sort((a, b) => b.vchname.compareTo(a.vchname));
+      } else if (filteredItems_vouchertype.isNotEmpty) {
+        filteredItems_vouchertype.sort(
+          (a, b) => b.vchname.compareTo(a.vchname),
+        );
         _scrollController_vchtype.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
-      }
-      else if(filteredItems_costcenter.isNotEmpty)
-      {
-        filteredItems_costcenter.sort((a, b) => b.costcentre.compareTo(a.costcentre));
+      } else if (filteredItems_costcenter.isNotEmpty) {
+        filteredItems_costcenter.sort(
+          (a, b) => b.costcentre.compareTo(a.costcentre),
+        );
         _scrollController_costcenter.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
   void sortByDateLowtoHigh() {
     setState(() {
-      if(filteredItems_Bills.isNotEmpty)
-      {
+      if (filteredItems_Bills.isNotEmpty) {
         setState(() {
           showDateSort = true;
         });
@@ -320,14 +327,12 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
   void sortByDateHightoLow() {
     setState(() {
-      if(filteredItems_Bills.isNotEmpty)
-      {
+      if (filteredItems_Bills.isNotEmpty) {
         setState(() {
           showDateSort = true;
         });
@@ -338,47 +343,36 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
           curve: Curves.easeInOut,
         );
       }
-
     });
   }
 
   void sortByAmountLowtoHigh() {
     setState(() {
-      if(filteredItems_ledger.isNotEmpty)
-      {
-        if(type == 'Sales')
-          {
-            filteredItems_ledger.sort((a, b) => a.amount.compareTo(b.amount));
-            _scrollController_ledger.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-        else if (type == 'Purchase')
-          {
-            filteredItems_ledger.sort((a, b) => b.amount.compareTo(a.amount));
-            _scrollController_ledger.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-
-      }
-      else if(filteredItems_Bills.isNotEmpty)
-      {
-        if(type == 'Sales')
-        {
+      if (filteredItems_ledger.isNotEmpty) {
+        if (type == 'Sales') {
+          filteredItems_ledger.sort((a, b) => a.amount.compareTo(b.amount));
+          _scrollController_ledger.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else if (type == 'Purchase') {
+          filteredItems_ledger.sort((a, b) => b.amount.compareTo(a.amount));
+          _scrollController_ledger.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
+      } else if (filteredItems_Bills.isNotEmpty) {
+        if (type == 'Sales') {
           filteredItems_Bills.sort((a, b) => a.amount.compareTo(b.amount));
           _scrollController_bills.animateTo(
             0.0,
             duration: Duration(milliseconds: 500),
             curve: Curves.easeInOut,
           );
-        }
-        else if (type == 'Purchase')
-        {
+        } else if (type == 'Purchase') {
           filteredItems_Bills.sort((a, b) => b.amount.compareTo(a.amount));
           _scrollController_bills.animateTo(
             0.0,
@@ -386,42 +380,35 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
             curve: Curves.easeInOut,
           );
         }
-
-      }
-      else if(filteredItems_vouchertype.isNotEmpty)
-      {
-        if(type == 'Sales')
-        {
-          filteredItems_vouchertype.sort((a, b) => a.amount.compareTo(b.amount));
+      } else if (filteredItems_vouchertype.isNotEmpty) {
+        if (type == 'Sales') {
+          filteredItems_vouchertype.sort(
+            (a, b) => a.amount.compareTo(b.amount),
+          );
+          _scrollController_vchtype.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else if (type == 'Purchase') {
+          filteredItems_vouchertype.sort(
+            (a, b) => b.amount.compareTo(a.amount),
+          );
           _scrollController_vchtype.animateTo(
             0.0,
             duration: Duration(milliseconds: 500),
             curve: Curves.easeInOut,
           );
         }
-        else if (type == 'Purchase')
-        {
-          filteredItems_vouchertype.sort((a, b) => b.amount.compareTo(a.amount));
-        _scrollController_vchtype.animateTo(
-          0.0,
-          duration: Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-        }
-      }
-      else if(filteredItems_costcenter.isNotEmpty)
-      {
-        if(type == 'Sales')
-        {
+      } else if (filteredItems_costcenter.isNotEmpty) {
+        if (type == 'Sales') {
           filteredItems_costcenter.sort((a, b) => a.amount.compareTo(b.amount));
           _scrollController_costcenter.animateTo(
             0.0,
             duration: Duration(milliseconds: 500),
             curve: Curves.easeInOut,
           );
-        }
-        else if (type == 'Purchase')
-        {
+        } else if (type == 'Purchase') {
           filteredItems_costcenter.sort((a, b) => b.amount.compareTo(a.amount));
           _scrollController_costcenter.animateTo(
             0.0,
@@ -435,93 +422,74 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
 
   void sortByAmountHightoLow() {
     setState(() {
-      if(filteredItems_ledger.isNotEmpty)
-      {
-        if(type == 'Sales')
-          {
-            filteredItems_ledger.sort((a, b) => b.amount.compareTo(a.amount));
-            _scrollController_ledger.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-        else if (type == 'Purchase')
-          {
-            filteredItems_ledger.sort((a, b) => a.amount.compareTo(b.amount));
-            _scrollController_ledger.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-
-      }
-      else if(filteredItems_Bills.isNotEmpty)
-      {
-        if(type == 'Sales')
-          {
-            filteredItems_Bills.sort((a, b) => b.amount.compareTo(a.amount));
-            _scrollController_bills.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-        else if (type == 'Purchase')
-          {
-            filteredItems_Bills.sort((a, b) => a.amount.compareTo(b.amount));
-            _scrollController_bills.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-
-      }
-      else if(filteredItems_vouchertype.isNotEmpty)
-      {
-        if(type == 'Sales')
-          {
-            filteredItems_vouchertype.sort((a, b) => b.amount.compareTo(a.amount));
-            _scrollController_vchtype.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-        else if (type == 'Purchase')
-          {
-            filteredItems_vouchertype.sort((a, b) => a.amount.compareTo(b.amount));
-            _scrollController_vchtype.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-
-      }
-      else if(filteredItems_costcenter.isNotEmpty)
-      {
-        if(type == 'Sales')
-          {
-            filteredItems_costcenter.sort((a, b) => b.amount.compareTo(a.amount));
-            _scrollController_costcenter.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-        else if (type == 'Purchase')
-          {
-            filteredItems_costcenter.sort((a, b) => a.amount.compareTo(b.amount));
-            _scrollController_costcenter.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-
+      if (filteredItems_ledger.isNotEmpty) {
+        if (type == 'Sales') {
+          filteredItems_ledger.sort((a, b) => b.amount.compareTo(a.amount));
+          _scrollController_ledger.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else if (type == 'Purchase') {
+          filteredItems_ledger.sort((a, b) => a.amount.compareTo(b.amount));
+          _scrollController_ledger.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
+      } else if (filteredItems_Bills.isNotEmpty) {
+        if (type == 'Sales') {
+          filteredItems_Bills.sort((a, b) => b.amount.compareTo(a.amount));
+          _scrollController_bills.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else if (type == 'Purchase') {
+          filteredItems_Bills.sort((a, b) => a.amount.compareTo(b.amount));
+          _scrollController_bills.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
+      } else if (filteredItems_vouchertype.isNotEmpty) {
+        if (type == 'Sales') {
+          filteredItems_vouchertype.sort(
+            (a, b) => b.amount.compareTo(a.amount),
+          );
+          _scrollController_vchtype.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else if (type == 'Purchase') {
+          filteredItems_vouchertype.sort(
+            (a, b) => a.amount.compareTo(b.amount),
+          );
+          _scrollController_vchtype.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
+      } else if (filteredItems_costcenter.isNotEmpty) {
+        if (type == 'Sales') {
+          filteredItems_costcenter.sort((a, b) => b.amount.compareTo(a.amount));
+          _scrollController_costcenter.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else if (type == 'Purchase') {
+          filteredItems_costcenter.sort((a, b) => a.amount.compareTo(b.amount));
+          _scrollController_costcenter.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
       }
     });
   }
@@ -529,7 +497,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
   void _showSelectionWindow(BuildContext context) {
     final List<IconData> icons = [
       Icons.sort_rounded,
-      if(showDateSort) Icons.date_range_sharp,
+      if (showDateSort) Icons.date_range_sharp,
       if (showDateSort) Icons.date_range_sharp,
       Icons.sort_by_alpha_rounded,
       Icons.sort_by_alpha_rounded,
@@ -538,19 +506,31 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     ];
 
     // Replace this list with your actual list data
-    final List<String> itemList = ['Default', if(showDateSort) 'Newest to Oldest', if(showDateSort) 'Oldest to Newest', 'A->Z', 'Z->A', 'Amount High to Low', 'Amount Low to High'];
+    final List<String> itemList = [
+      'Default',
+      if (showDateSort) 'Newest to Oldest',
+      if (showDateSort) 'Oldest to Newest',
+      'A->Z',
+      'Z->A',
+      'Amount High to Low',
+      'Amount Low to High',
+    ];
 
-    double totalHeight = itemList.length * 50.0 + 30.0 + 50.0; // Assuming each item has a height of 50 and adding padding height
+    double totalHeight =
+        itemList.length * 50.0 +
+        30.0 +
+        50.0; // Assuming each item has a height of 50 and adding padding height
 
     showModalBottomSheet<void>(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       context: context,
       builder: (BuildContext context) {
         return Container(
           constraints: BoxConstraints(
-            maxHeight: totalHeight, // Set the maximum height of the selection window with additional padding
+            maxHeight:
+                totalHeight, // Set the maximum height of the selection window with additional padding
           ),
-          color: Colors.white, // Set the background color of the selection window
+          color: Theme.of(context).colorScheme.surface,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -564,7 +544,8 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                   ),
                 ),
               ),
-              Expanded( // Wrap the ListView.builder with Expanded
+              Expanded(
+                // Wrap the ListView.builder with Expanded
                 child: ListView.builder(
                   itemCount: itemList.length,
                   itemExtent: 50, // Set the height of each item in the list
@@ -573,7 +554,8 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                     return GestureDetector(
                       onTap: () {
                         setState(() {
-                          selectedSortOption = itemList[index]; // Update the selected value
+                          selectedSortOption =
+                              itemList[index]; // Update the selected value
                         });
                         // Now, you can use a switch or if-else statement to check the selected value
                         switch (selectedSortOption) {
@@ -600,19 +582,27 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                             break;
                         }
                         print('Tile $index selected');
-                        Navigator.pop(context); // Close the selection window after a tile is selected
+                        Navigator.pop(
+                          context,
+                        ); // Close the selection window after a tile is selected
                       },
                       child: Container(
                         child: ListTile(
-                          leading: Icon(icons[index]), // Add the icon to each list tile
+                          leading: Icon(
+                            icons[index],
+                          ), // Add the icon to each list tile
                           title: Text(
                             itemList[index],
                             style: GoogleFonts.poppins(
-                              fontWeight: itemList[index] == selectedSortOption ? FontWeight.bold : FontWeight.normal, // Apply bold style to the text if the tile is selected
+                              fontWeight: itemList[index] == selectedSortOption
+                                  ? FontWeight.bold
+                                  : FontWeight
+                                        .normal, // Apply bold style to the text if the tile is selected
                             ),
                           ),
-                          trailing: itemList[index] == selectedSortOption ? Icon(Icons.check,
-                            color: app_color,) : null, // Show arrow icon if the tile is selected
+                          trailing: itemList[index] == selectedSortOption
+                              ? Icon(Icons.check, color: app_color)
+                              : null, // Show arrow icon if the tile is selected
                         ),
                       ),
                     );
@@ -627,7 +617,9 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
   }
 
   Future<void> generateAndSharePDF_Ledger() async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+    final font = pw.Font.ttf(
+      await rootBundle.load("assets/fonts/NotoSans.ttf"),
+    );
     final pdf = pw.Document();
     final companyName = company!;
     final parentname = _selectedgroup;
@@ -641,21 +633,34 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     for (int i = 0; i < pageCount; i++) {
       final start = i * itemsPerPage;
       final end = (i + 1) * itemsPerPage;
-      final subset = ledger_list.sublist(start, end > ledger_list.length ? ledger_list.length : end);
+      final subset = ledger_list.sublist(
+        start,
+        end > ledger_list.length ? ledger_list.length : end,
+      );
 
-      final rows = subset.map((item) => [
-        item.Partyledger,
-        item.qty,
-        formatAmount(item.amount.toString()),
-      ]).toList();
+      final rows = subset
+          .map(
+            (item) => [
+              item.Partyledger,
+              item.qty,
+              formatAmount(item.amount.toString()),
+            ],
+          )
+          .toList();
 
       final table = pw.Table.fromTextArray(
         headers: headersRow3,
         data: rows,
         border: pw.TableBorder.all(width: 1),
         headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font), // ✅ Use your font
-        cellStyle: pw.TextStyle(fontSize: 12, font: font), // ✅ Use your font here too
+        headerStyle: pw.TextStyle(
+          fontWeight: pw.FontWeight.bold,
+          font: font,
+        ), // ✅ Use your font
+        cellStyle: pw.TextStyle(
+          fontSize: 12,
+          font: font,
+        ), // ✅ Use your font here too
       );
 
       pdf.addPage(
@@ -663,9 +668,21 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
           build: (context) => pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
-              pw.Text(companyName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                companyName,
+                style: pw.TextStyle(
+                  fontSize: 20,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
-              pw.Text(reportname, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                reportname,
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.center,
@@ -681,7 +698,10 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.center,
                 children: [
-                  pw.Text('Stock Item:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    'Stock Item:',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
                   pw.SizedBox(width: 5),
                   pw.Text(itemname),
                 ],
@@ -709,7 +729,9 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
   }
 
   Future<void> generateAndSharePDF_Bills() async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+    final font = pw.Font.ttf(
+      await rootBundle.load("assets/fonts/NotoSans.ttf"),
+    );
     final pdf = pw.Document();
     final companyName = company!;
     final parentname = _selectedgroup;
@@ -723,22 +745,35 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     for (int i = 0; i < totalPages; i++) {
       final start = i * perPage;
       final end = (i + 1) * perPage;
-      final subset = bills_list.sublist(start, end > bills_list.length ? bills_list.length : end);
+      final subset = bills_list.sublist(
+        start,
+        end > bills_list.length ? bills_list.length : end,
+      );
 
-      final rows = subset.map((e) => [
-        convertDateFormat(e.vchdate),
-        e.vchno,
-        e.Partyledger,
-        formatAmount(e.amount.toString())
-      ]).toList();
+      final rows = subset
+          .map(
+            (e) => [
+              convertDateFormat(e.vchdate),
+              e.vchno,
+              e.Partyledger,
+              formatAmount(e.amount.toString()),
+            ],
+          )
+          .toList();
 
       final table = pw.Table.fromTextArray(
         headers: headers,
         data: rows,
         border: pw.TableBorder.all(width: 1),
         headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font), // ✅ Use your font
-        cellStyle: pw.TextStyle(fontSize: 12, font: font), // ✅ Use your font here too
+        headerStyle: pw.TextStyle(
+          fontWeight: pw.FontWeight.bold,
+          font: font,
+        ), // ✅ Use your font
+        cellStyle: pw.TextStyle(
+          fontSize: 12,
+          font: font,
+        ), // ✅ Use your font here too
       );
 
       pdf.addPage(
@@ -746,9 +781,21 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
           build: (context) => pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
-              pw.Text(companyName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                companyName,
+                style: pw.TextStyle(
+                  fontSize: 20,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
-              pw.Text(reportname, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                reportname,
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.center,
@@ -764,7 +811,10 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.center,
                 children: [
-                  pw.Text('Stock Item:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    'Stock Item:',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
                   pw.SizedBox(width: 5),
                   pw.Text(itemname),
                 ],
@@ -792,7 +842,9 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
   }
 
   Future<void> generateAndSharePDF_VchType() async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+    final font = pw.Font.ttf(
+      await rootBundle.load("assets/fonts/NotoSans.ttf"),
+    );
     final pdf = pw.Document();
     final companyName = company!;
     final parentname = _selectedgroup;
@@ -806,17 +858,28 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     for (int i = 0; i < totalPages; i++) {
       final start = i * perPage;
       final end = (i + 1) * perPage;
-      final subset = vouchertype_list.sublist(start, end > vouchertype_list.length ? vouchertype_list.length : end);
+      final subset = vouchertype_list.sublist(
+        start,
+        end > vouchertype_list.length ? vouchertype_list.length : end,
+      );
 
-      final rows = subset.map((e) => [e.vchname, e.qty, formatAmount(e.amount.toString())]).toList();
+      final rows = subset
+          .map((e) => [e.vchname, e.qty, formatAmount(e.amount.toString())])
+          .toList();
 
       final table = pw.Table.fromTextArray(
         headers: headers,
         data: rows,
         border: pw.TableBorder.all(width: 1),
         headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font), // ✅ Use your font
-        cellStyle: pw.TextStyle(fontSize: 12, font: font), // ✅ Use your font here too
+        headerStyle: pw.TextStyle(
+          fontWeight: pw.FontWeight.bold,
+          font: font,
+        ), // ✅ Use your font
+        cellStyle: pw.TextStyle(
+          fontSize: 12,
+          font: font,
+        ), // ✅ Use your font here too
       );
 
       pdf.addPage(
@@ -824,9 +887,21 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
           build: (context) => pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
-              pw.Text(companyName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                companyName,
+                style: pw.TextStyle(
+                  fontSize: 20,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
-              pw.Text(reportname, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                reportname,
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.center,
@@ -839,7 +914,10 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                 ],
               ),
               pw.SizedBox(height: 10),
-              pw.Text('Stock Item: $itemname', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                'Stock Item: $itemname',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
               pw.SizedBox(height: 20),
               pw.Expanded(child: table),
             ],
@@ -862,7 +940,9 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
   }
 
   Future<void> generateAndSharePDF_CostCenter() async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+    final font = pw.Font.ttf(
+      await rootBundle.load("assets/fonts/NotoSans.ttf"),
+    );
     final pdf = pw.Document();
     final companyName = company!;
     final parentname = _selectedgroup;
@@ -876,13 +956,20 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     for (int i = 0; i < totalPages; i++) {
       final start = i * perPage;
       final end = (i + 1) * perPage;
-      final subset = costcenter_list.sublist(start, end > costcenter_list.length ? costcenter_list.length : end);
+      final subset = costcenter_list.sublist(
+        start,
+        end > costcenter_list.length ? costcenter_list.length : end,
+      );
 
-      final rows = subset.map((e) => [
-        formatCostCenter(e.costcentre),
-        e.qty,
-        formatAmount(e.amount.toString())
-      ]).toList();
+      final rows = subset
+          .map(
+            (e) => [
+              formatCostCenter(e.costcentre),
+              e.qty,
+              formatAmount(e.amount.toString()),
+            ],
+          )
+          .toList();
 
       final table = pw.Table.fromTextArray(
         headers: headers,
@@ -898,9 +985,21 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
           build: (context) => pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
-              pw.Text(companyName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                companyName,
+                style: pw.TextStyle(
+                  fontSize: 20,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
-              pw.Text(reportname, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                reportname,
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.center,
@@ -913,7 +1012,10 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                 ],
               ),
               pw.SizedBox(height: 10),
-              pw.Text('Stock Item: $itemname', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                'Stock Item: $itemname',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
               pw.SizedBox(height: 20),
               pw.Expanded(child: table),
             ],
@@ -935,12 +1037,17 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     );
   }
 
-
   Future<void> generateAndShareCSV_Ledger() async {
     final parentname = _selectedgroup;
     final csvData = [
       ['Party Name', 'Qty', 'Amount'],
-      ...ledger_list.map((item) => [item.Partyledger, item.qty, formatAmount(item.amount.toString())])
+      ...ledger_list.map(
+        (item) => [
+          item.Partyledger,
+          item.qty,
+          formatAmount(item.amount.toString()),
+        ],
+      ),
     ];
 
     final csvString = const ListToCsvConverter().convert(csvData);
@@ -960,12 +1067,14 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     final parentname = _selectedgroup;
     final csvData = [
       ['Vch Date', 'Vch No', 'Party Name', 'Amount'],
-      ...bills_list.map((e) => [
-        convertDateFormat(e.vchdate),
-        e.vchno,
-        e.Partyledger,
-        formatAmount(e.amount.toString())
-      ])
+      ...bills_list.map(
+        (e) => [
+          convertDateFormat(e.vchdate),
+          e.vchno,
+          e.Partyledger,
+          formatAmount(e.amount.toString()),
+        ],
+      ),
     ];
 
     final csvString = const ListToCsvConverter().convert(csvData);
@@ -985,7 +1094,9 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     final parentname = _selectedgroup;
     final csvData = [
       ['Vch Name', 'Qty', 'Amount'],
-      ...vouchertype_list.map((e) => [e.vchname, e.qty, formatAmount(e.amount.toString())])
+      ...vouchertype_list.map(
+        (e) => [e.vchname, e.qty, formatAmount(e.amount.toString())],
+      ),
     ];
 
     final csvString = const ListToCsvConverter().convert(csvData);
@@ -1005,7 +1116,13 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     final parentname = _selectedgroup;
     final csvData = [
       ['Cost Center', 'Qty', 'Amount'],
-      ...costcenter_list.map((e) => [formatCostCenter(e.costcentre), e.qty, formatAmount(e.amount.toString())])
+      ...costcenter_list.map(
+        (e) => [
+          formatCostCenter(e.costcentre),
+          e.qty,
+          formatAmount(e.amount.toString()),
+        ],
+      ),
     ];
 
     final csvString = const ListToCsvConverter().convert(csvData);
@@ -1021,38 +1138,27 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     );
   }
 
-
-
   String formatCostCenter(String costcenter) {
-
     String costcenter_string = "";
-    if(costcenter == 'null')
-    {
-        costcenter_string = '*Not Applicable';
-    }
-    else
-    {
+    if (costcenter == 'null') {
+      costcenter_string = '*Not Applicable';
+    } else {
       costcenter_string = costcenter;
-
     }
     // Apply any transformations or formatting to the 'amount' variable here
     return costcenter_string;
   }
 
-
   String formatOpening(String opening) {
     String opening_string = "";
 
-    if(opening.contains("-"))
-    {
+    if (opening.contains("-")) {
       opening = opening.replaceAll("-", "");
       double opening_double = double.parse(opening);
       int opening_int = opening_double.round();
       opening_string = CurrencyFormatter.formatCurrency_int(opening_int);
       opening_string = opening_string + " DR";
-    }
-    else
-    {
+    } else {
       double opening_double = double.parse(opening);
       int opening_int = opening_double.round();
       opening_string = CurrencyFormatter.formatCurrency_int(opening_int);
@@ -1071,10 +1177,14 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     return formattedDate;
   }
 
-  Future<void> fetchBills(final String item,final String startdate, final String enddate, final String vchtype, final String groupby,final String orderby) async
-  {
-
-
+  Future<void> fetchBills(
+    final String item,
+    final String startdate,
+    final String enddate,
+    final String vchtype,
+    final String groupby,
+    final String orderby,
+  ) async {
     setState(() {
       _isLoading = true;
       _isBillsListVisible = true;
@@ -1083,17 +1193,11 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
       _isCostCenterListVisible = false;
       showDateSort = true;
 
-
-      if(prefs.getString('sort') == null)
-        {
-          selectedSortOption = 'Default';
-        }
-      else if(prefs.getString('sort') == 'Newest to Oldest' )
-      {
+      if (prefs.getString('sort') == null) {
+        selectedSortOption = 'Default';
+      } else if (prefs.getString('sort') == 'Newest to Oldest') {
         selectedSortOption = 'Newest to Oldest';
-      }
-      else if (prefs.getString('sort') == 'Oldest to Newest')
-      {
+      } else if (prefs.getString('sort') == 'Oldest to Newest') {
         selectedSortOption = 'Oldest to Newest';
       }
     });
@@ -1110,50 +1214,41 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     costcenter_list.clear();
     filteredItems_costcenter.clear();
 
-    try
-    {
-
+    try {
       final url = Uri.parse(HttpURL);
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
+      var body = jsonEncode({
         'startdate': startdate,
         'enddate': enddate,
         'item': item,
-        'vchtype' : vchtype,
-        'groupby' : groupby,
-        'orderby' : orderby
+        'vchtype': vchtype,
+        'groupby': groupby,
+        'orderby': orderby,
       });
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-      if (response.statusCode == 200)
-      {
+      if (response.statusCode == 200) {
         final List<dynamic> values_list = jsonDecode(response.body);
         if (values_list != null) {
           isVisibleNoDataFound = false;
 
-          bills_list.addAll(values_list.map((json) => Bills.fromJson(json)).toList());
+          bills_list.addAll(
+            values_list.map((json) => Bills.fromJson(json)).toList(),
+          );
           filteredItems_Bills = bills_list;
-
         }
 
         setState(() {
           _isLoading = false;
         });
-
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
@@ -1161,47 +1256,47 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     }
 
     setState(() {
-      if(bills_list.isEmpty)
-      {
+      if (bills_list.isEmpty) {
         isVisibleNoDataFound = true;
         isSortVisible = false;
-
-      }
-      else
-        {
-          isSortVisible = true;
-          switch (selectedSortOption) {
-            case 'Default':
-              sortByDefault(); // Call the sorting function
-              break;
-            case 'Newest to Oldest':
-              sortByDateHightoLow(); // Call the sorting function
-              break;
-            case 'Oldest to Newest':
-              sortByDateLowtoHigh(); // Call the sorting function
-              break;
-            case 'A->Z':
-              sortByAlphabetAtoZ(); // Call the sorting function
-              break;
-            case 'Z->A':
-              sortByAlphabetZtoA(); // Call the sorting function
-              break;
-            case 'Amount High to Low':
-              sortByAmountHightoLow(); // Call the sorting function
-              break;
-            case 'Amount Low to High':
-              sortByAmountLowtoHigh(); // Call the sorting function
-              break;
-          }
+      } else {
+        isSortVisible = true;
+        switch (selectedSortOption) {
+          case 'Default':
+            sortByDefault(); // Call the sorting function
+            break;
+          case 'Newest to Oldest':
+            sortByDateHightoLow(); // Call the sorting function
+            break;
+          case 'Oldest to Newest':
+            sortByDateLowtoHigh(); // Call the sorting function
+            break;
+          case 'A->Z':
+            sortByAlphabetAtoZ(); // Call the sorting function
+            break;
+          case 'Z->A':
+            sortByAlphabetZtoA(); // Call the sorting function
+            break;
+          case 'Amount High to Low':
+            sortByAmountHightoLow(); // Call the sorting function
+            break;
+          case 'Amount Low to High':
+            sortByAmountLowtoHigh(); // Call the sorting function
+            break;
         }
+      }
       _isLoading = false;
     });
-
   }
 
-  Future<void> fetchLedger(final String item,final String startdate, final String enddate, final String vchtype, final String groupby,final String orderby) async
-  {
-
+  Future<void> fetchLedger(
+    final String item,
+    final String startdate,
+    final String enddate,
+    final String vchtype,
+    final String groupby,
+    final String orderby,
+  ) async {
     setState(() {
       _isLoading = true;
       _isBillsListVisible = false;
@@ -1210,8 +1305,9 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
       _isCostCenterListVisible = false;
       showDateSort = false;
 
-      if(prefs.getString('sort') == null || prefs.getString('sort') == 'Newest to Oldest' || prefs.getString('sort') == 'Oldest to Newest' )
-      {
+      if (prefs.getString('sort') == null ||
+          prefs.getString('sort') == 'Newest to Oldest' ||
+          prefs.getString('sort') == 'Oldest to Newest') {
         selectedSortOption = 'Default';
       }
     });
@@ -1228,50 +1324,40 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     costcenter_list.clear();
     filteredItems_costcenter.clear();
 
-    try
-    {
-
+    try {
       final url = Uri.parse(HttpURL);
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
+      var body = jsonEncode({
         'startdate': startdate,
         'enddate': enddate,
         'item': item,
-        'vchtype' : vchtype,
-        'groupby' : groupby,
-        'orderby' : orderby
+        'vchtype': vchtype,
+        'groupby': groupby,
+        'orderby': orderby,
       });
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-      if (response.statusCode == 200)
-      {
-
+      if (response.statusCode == 200) {
         final List<dynamic> values_list = jsonDecode(response.body);
         if (values_list != null) {
           isVisibleNoDataFound = false;
 
-          ledger_list.addAll(values_list.map((json) => Ledger.fromJson(json)).toList());
+          ledger_list.addAll(
+            values_list.map((json) => Ledger.fromJson(json)).toList(),
+          );
           filteredItems_ledger = ledger_list;
-
         }
         setState(() {
           _isLoading = false;
         });
-
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
@@ -1279,47 +1365,48 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     }
 
     setState(() {
-      if(ledger_list.isEmpty)
-      {
+      if (ledger_list.isEmpty) {
         isVisibleNoDataFound = true;
         isSortVisible = false;
-
-      }
-      else
-        {
-          isSortVisible = true;
-          switch (selectedSortOption) {
-            case 'Default':
-              sortByDefault(); // Call the sorting function
-              break;
-            case 'Newest to Oldest':
-              sortByDateHightoLow(); // Call the sorting function
-              break;
-            case 'Oldest to Newest':
-              sortByDateLowtoHigh(); // Call the sorting function
-              break;
-            case 'A->Z':
-              sortByAlphabetAtoZ(); // Call the sorting function
-              break;
-            case 'Z->A':
-              sortByAlphabetZtoA(); // Call the sorting function
-              break;
-            case 'Amount High to Low':
-              sortByAmountHightoLow(); // Call the sorting function
-              break;
-            case 'Amount Low to High':
-              sortByAmountLowtoHigh(); // Call the sorting function
-              break;
-          }
+      } else {
+        isSortVisible = true;
+        switch (selectedSortOption) {
+          case 'Default':
+            sortByDefault(); // Call the sorting function
+            break;
+          case 'Newest to Oldest':
+            sortByDateHightoLow(); // Call the sorting function
+            break;
+          case 'Oldest to Newest':
+            sortByDateLowtoHigh(); // Call the sorting function
+            break;
+          case 'A->Z':
+            sortByAlphabetAtoZ(); // Call the sorting function
+            break;
+          case 'Z->A':
+            sortByAlphabetZtoA(); // Call the sorting function
+            break;
+          case 'Amount High to Low':
+            sortByAmountHightoLow(); // Call the sorting function
+            break;
+          case 'Amount Low to High':
+            sortByAmountLowtoHigh(); // Call the sorting function
+            break;
         }
+      }
 
       _isLoading = false;
     });
-
   }
 
-  Future<void> fetchVoucherType(final String item,final String startdate, final String enddate, final String vchtype, final String groupby,final String orderby) async
-  {
+  Future<void> fetchVoucherType(
+    final String item,
+    final String startdate,
+    final String enddate,
+    final String vchtype,
+    final String groupby,
+    final String orderby,
+  ) async {
     setState(() {
       _isLoading = true;
       _isBillsListVisible = false;
@@ -1328,12 +1415,11 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
       _isCostCenterListVisible = false;
       showDateSort = false;
 
-      if(prefs.getString('sort') == null || prefs.getString('sort') == 'Newest to Oldest' || prefs.getString('sort') == 'Oldest to Newest' )
-      {
+      if (prefs.getString('sort') == null ||
+          prefs.getString('sort') == 'Newest to Oldest' ||
+          prefs.getString('sort') == 'Oldest to Newest') {
         selectedSortOption = 'Default';
       }
-
-
     });
 
     bills_list.clear();
@@ -1345,55 +1431,42 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     vouchertype_list.clear();
     filteredItems_vouchertype.clear();
 
-
     costcenter_list.clear();
     filteredItems_costcenter.clear();
 
-
-
-    try
-    {
-
+    try {
       final url = Uri.parse(HttpURL);
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
+      var body = jsonEncode({
         'startdate': startdate,
         'enddate': enddate,
         'item': item,
-        'vchtype' : vchtype,
-        'groupby' : groupby,
-        'orderby' : orderby
+        'vchtype': vchtype,
+        'groupby': groupby,
+        'orderby': orderby,
       });
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-      if (response.statusCode == 200)
-      {
-
+      if (response.statusCode == 200) {
         final List<dynamic> values_list = jsonDecode(response.body);
         if (values_list != null) {
           isVisibleNoDataFound = false;
 
-          vouchertype_list.addAll(values_list.map((json) => Vouchertype.fromJson(json)).toList());
+          vouchertype_list.addAll(
+            values_list.map((json) => Vouchertype.fromJson(json)).toList(),
+          );
           filteredItems_vouchertype = vouchertype_list;
-
         }
         setState(() {
           _isLoading = false;
         });
-
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
@@ -1401,14 +1474,10 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     }
 
     setState(() {
-      if(vouchertype_list.isEmpty)
-      {
+      if (vouchertype_list.isEmpty) {
         isVisibleNoDataFound = true;
         isSortVisible = false;
-
-      }
-      else
-      {
+      } else {
         isSortVisible = true;
         switch (selectedSortOption) {
           case 'Default':
@@ -1436,11 +1505,16 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
       }
       _isLoading = false;
     });
-
   }
 
-  Future<void> fetchCostCenter(final String item,final String startdate, final String enddate, final String vchtype, final String groupby,final String orderby) async
-  {
+  Future<void> fetchCostCenter(
+    final String item,
+    final String startdate,
+    final String enddate,
+    final String vchtype,
+    final String groupby,
+    final String orderby,
+  ) async {
     setState(() {
       _isLoading = true;
       _isBillsListVisible = false;
@@ -1448,8 +1522,9 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
       _isVoucherTypeListVisible = false;
       _isCostCenterListVisible = true;
       showDateSort = false;
-      if(prefs.getString('sort') == null || prefs.getString('sort') == 'Newest to Oldest' || prefs.getString('sort') == 'Oldest to Newest' )
-      {
+      if (prefs.getString('sort') == null ||
+          prefs.getString('sort') == 'Newest to Oldest' ||
+          prefs.getString('sort') == 'Oldest to Newest') {
         selectedSortOption = 'Default';
       }
     });
@@ -1463,55 +1538,43 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     vouchertype_list.clear();
     filteredItems_vouchertype.clear();
 
-
     costcenter_list.clear();
     filteredItems_costcenter.clear();
 
-
-    try
-    {
-
+    try {
       final url = Uri.parse(HttpURL);
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
+      var body = jsonEncode({
         'startdate': startdate,
         'enddate': enddate,
         'item': item,
-        'vchtype' : vchtype,
-        'groupby' : groupby,
-        'orderby' : orderby
+        'vchtype': vchtype,
+        'groupby': groupby,
+        'orderby': orderby,
       });
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-      if (response.statusCode == 200)
-      {
-
+      if (response.statusCode == 200) {
         final List<dynamic> values_list = jsonDecode(response.body);
         if (values_list != null) {
           isVisibleNoDataFound = false;
 
-          costcenter_list.addAll(values_list.map((json) => Costcenter.fromJson(json)).toList());
+          costcenter_list.addAll(
+            values_list.map((json) => Costcenter.fromJson(json)).toList(),
+          );
           filteredItems_costcenter = costcenter_list;
-
         }
         setState(() {
           _isLoading = false;
         });
-
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
@@ -1519,14 +1582,10 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     }
 
     setState(() {
-      if(costcenter_list.isEmpty)
-      {
+      if (costcenter_list.isEmpty) {
         isVisibleNoDataFound = true;
         isSortVisible = false;
-
-      }
-      else
-      {
+      } else {
         isSortVisible = true;
         switch (selectedSortOption) {
           case 'Default':
@@ -1554,35 +1613,27 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
       }
       _isLoading = false;
     });
-
   }
 
   Future<void> _initSharedPreferences() async {
-
     prefs = await SharedPreferences.getInstance();
 
     setState(() {
       hostname = prefs.getString('hostname');
-      company  = prefs.getString('company_name');
+      company = prefs.getString('company_name');
       company_lowercase = company!.replaceAll(' ', '').toLowerCase();
       serial_no = prefs.getString('serial_no');
       username = prefs.getString('username');
       token = prefs.getString('token')!;
-
     });
-    try
-    {
+    try {
       selectedSortOption = prefs.getString('sort')!;
-      if(selectedSortOption == null || selectedSortOption == 'null')
-      {
+      if (selectedSortOption == null || selectedSortOption == 'null') {
         selectedSortOption = 'Default';
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       selectedSortOption = 'Default';
     }
-
 
     HttpURL = '$hostname/api/item/getTotalAmount/$company_lowercase/$serial_no';
 
@@ -1591,31 +1642,21 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     String? email_nav = prefs.getString('email_nav');
     String? name_nav = prefs.getString('name_nav');
 
-    if (email_nav!=null && name_nav!= null)
-    {
+    if (email_nav != null && name_nav != null) {
       name = name_nav;
       email = email_nav;
-    }
-    else
-    {
+    } else {
       String val = "";
-      if (SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         val = SecuritybtnAcessHolder!;
-      }
-      else if (SecuritybtnAcessHolder == "False")
-      {
+      } else if (SecuritybtnAcessHolder == "False") {
         val = "";
       }
-
     }
-    if(SecuritybtnAcessHolder == "True")
-    {
+    if (SecuritybtnAcessHolder == "True") {
       isRolesVisible = true;
       isUserVisible = true;
-    }
-    else
-    {
+    } else {
       isRolesVisible = false;
       isUserVisible = false;
     }
@@ -1623,25 +1664,42 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     startdate_text = convertDateFormat(startDateString);
     enddate_text = convertDateFormat(endDateString);
 
-    if(_selectedgroup == "Ledger")
-      {
-        fetchLedger(item_name,startDateString,endDateString,type,"Partyledger","Partyledger");
-
-      }
-    else if (_selectedgroup == "Bills")
-      {
-        fetchBills(item_name,startDateString,endDateString,type,"vchno","vchno");
-
-      }
-    else if (_selectedgroup == "Voucher Type")
-    {
-      fetchVoucherType(item_name,startDateString,endDateString,type,"vchname","vchname");
-
-    }
-    else if (_selectedgroup == "Cost Center")
-    {
-      fetchCostCenter(item_name,startDateString,endDateString,type,"costcentre","costcentre");
-
+    if (_selectedgroup == "Ledger") {
+      fetchLedger(
+        item_name,
+        startDateString,
+        endDateString,
+        type,
+        "Partyledger",
+        "Partyledger",
+      );
+    } else if (_selectedgroup == "Bills") {
+      fetchBills(
+        item_name,
+        startDateString,
+        endDateString,
+        type,
+        "vchno",
+        "vchno",
+      );
+    } else if (_selectedgroup == "Voucher Type") {
+      fetchVoucherType(
+        item_name,
+        startDateString,
+        endDateString,
+        type,
+        "vchname",
+        "vchname",
+      );
+    } else if (_selectedgroup == "Cost Center") {
+      fetchCostCenter(
+        item_name,
+        startDateString,
+        endDateString,
+        type,
+        "costcentre",
+        "costcentre",
+      );
     }
   }
 
@@ -1652,17 +1710,16 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     _initSharedPreferences();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: AppBar(
-          backgroundColor:  app_color,
+          backgroundColor: app_color,
           elevation: 6,
           automaticallyImplyLeading: false,
           shape: const RoundedRectangleBorder(
@@ -1680,7 +1737,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
             children: [
               Text(
                 type,
-                style:  GoogleFonts.poppins(
+                style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -1688,7 +1745,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
               ),
               Text(
                 item_name,
-                style:  GoogleFonts.poppins(
+                style: GoogleFonts.poppins(
                   color: Colors.white70,
                   fontSize: 13,
                   fontWeight: FontWeight.normal,
@@ -1702,31 +1759,34 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
               onPressed: () {
                 counter++;
                 setState(() {
-                  _isSearchViewVisible =!_isSearchViewVisible;
+                  _isSearchViewVisible = !_isSearchViewVisible;
 
-                  if(!_isSearchViewVisible)
-                    {
-                      searchController.clear();
-                      if (_selectedgroup == "Ledger") {
-                        filteredItems_ledger = ledger_list;
-                      } else if (_selectedgroup == "Bills") {
-                        filteredItems_Bills = bills_list;
-                      } else if (_selectedgroup == "Voucher Type") {
-                        filteredItems_vouchertype = vouchertype_list;
-                      } else if (_selectedgroup == "Cost Center") {
-                        filteredItems_costcenter = costcenter_list;
-                      }
+                  if (!_isSearchViewVisible) {
+                    searchController.clear();
+                    if (_selectedgroup == "Ledger") {
+                      filteredItems_ledger = ledger_list;
+                    } else if (_selectedgroup == "Bills") {
+                      filteredItems_Bills = bills_list;
+                    } else if (_selectedgroup == "Voucher Type") {
+                      filteredItems_vouchertype = vouchertype_list;
+                    } else if (_selectedgroup == "Cost Center") {
+                      filteredItems_costcenter = costcenter_list;
                     }
-
+                  }
                 });
               },
               icon: const Icon(Icons.search, color: Colors.white, size: 28),
             ),
             IconButton(
               onPressed: () {
-                final RenderBox button = context.findRenderObject() as RenderBox;
-                final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-                final Offset buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
+                final RenderBox button =
+                    context.findRenderObject() as RenderBox;
+                final RenderBox overlay =
+                    Overlay.of(context).context.findRenderObject() as RenderBox;
+                final Offset buttonPosition = button.localToGlobal(
+                  Offset.zero,
+                  ancestor: overlay,
+                );
 
                 showMenu(
                   context: context,
@@ -1741,56 +1801,76 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                       child: GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
-                          if (_selectedgroup == "Ledger" && ledger_list.isNotEmpty) {
+                          if (_selectedgroup == "Ledger" &&
+                              ledger_list.isNotEmpty) {
                             generateAndSharePDF_Ledger();
-                          } else if (_selectedgroup == "Bills" && bills_list.isNotEmpty) {
+                          } else if (_selectedgroup == "Bills" &&
+                              bills_list.isNotEmpty) {
                             generateAndSharePDF_Bills();
-                          } else if (_selectedgroup == "Voucher Type" && vouchertype_list.isNotEmpty) {
+                          } else if (_selectedgroup == "Voucher Type" &&
+                              vouchertype_list.isNotEmpty) {
                             generateAndSharePDF_VchType();
-                          } else if (_selectedgroup == "Cost Center" && costcenter_list.isNotEmpty) {
+                          } else if (_selectedgroup == "Cost Center" &&
+                              costcenter_list.isNotEmpty) {
                             generateAndSharePDF_CostCenter();
                           }
                         },
-                        child: Row(children:  [
-                          Icon(Icons.picture_as_pdf, size: 16, color: app_color),
-                          SizedBox(width: 5),
-                          Text(
-                            'Share as PDF',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.normal,
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.picture_as_pdf,
+                              size: 16,
                               color: app_color,
-                              fontSize: 16,
                             ),
-                          ),
-                        ]),
+                            SizedBox(width: 5),
+                            Text(
+                              'Share as PDF',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.normal,
+                                color: app_color,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     PopupMenuItem<String>(
                       child: GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
-                          if (_selectedgroup == "Ledger" && ledger_list.isNotEmpty) {
+                          if (_selectedgroup == "Ledger" &&
+                              ledger_list.isNotEmpty) {
                             generateAndShareCSV_Ledger();
-                          } else if (_selectedgroup == "Bills" && bills_list.isNotEmpty) {
+                          } else if (_selectedgroup == "Bills" &&
+                              bills_list.isNotEmpty) {
                             generateAndShareCSV_Bills();
-                          } else if (_selectedgroup == "Voucher Type" && vouchertype_list.isNotEmpty) {
+                          } else if (_selectedgroup == "Voucher Type" &&
+                              vouchertype_list.isNotEmpty) {
                             generateAndShareCSV_VchType();
-                          } else if (_selectedgroup == "Cost Center" && costcenter_list.isNotEmpty) {
+                          } else if (_selectedgroup == "Cost Center" &&
+                              costcenter_list.isNotEmpty) {
                             generateAndShareCSV_CostCenter();
                           }
                         },
-                        child: Row(children:  [
-                          Icon(Icons.add_chart_outlined, size: 16, color: app_color),
-                          SizedBox(width: 5),
-                          Text(
-                            'Share as CSV',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.normal,
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.add_chart_outlined,
+                              size: 16,
                               color: app_color,
-                              fontSize: 16,
                             ),
-                          ),
-                        ]),
+                            SizedBox(width: 5),
+                            Text(
+                              'Share as CSV',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.normal,
+                                color: app_color,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -1801,8 +1881,6 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
           ],
         ),
       ),
-
-
 
       drawer: Sidebar(
         isDashEnable: isDashEnable,
@@ -1822,7 +1900,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Theme.of(context).cardColor.withOpacity(0.9),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
@@ -1840,23 +1918,36 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                     Center(
                       child: Text(
                         widget.total,
-                        style:  GoogleFonts.poppins(
+                        style: GoogleFonts.poppins(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
-                          color: Colors.black87,
-                          letterSpacing: 0.3,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          letterSpacing: 0,
                         ),
                       ),
                     ),
                     const SizedBox(height: 8),
                     Center(
-                      child:  Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Colors.white.withOpacity(0.2),
-                              Colors.white.withOpacity(0.8),
+                              Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest.withOpacity(
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? 0.85
+                                    : 0.35,
+                              ),
+                              Theme.of(context).cardColor.withOpacity(
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? 0.95
+                                    : 0.9,
+                              ),
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -1867,36 +1958,64 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.calendar_month_rounded, size: 18, color: app_color),
+                            Icon(
+                              Icons.calendar_month_rounded,
+                              size: 18,
+                              color: app_color,
+                            ),
                             SizedBox(width: 10),
                             Text(
                               "$startdate_text → $enddate_text",
                               style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
-                                color: Colors.black87,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ],
                         ),
                       ),
-
                     ),
                     const SizedBox(height: 20),
                     Container(
-                      padding: const EdgeInsets.only(left: 14,right:14, top: 5,bottom:5),
+                      padding: const EdgeInsets.only(
+                        left: 14,
+                        right: 14,
+                        top: 5,
+                        bottom: 5,
+                      ),
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest
+                                  .withOpacity(0.72)
+                            : Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest
+                                  .withOpacity(0.45),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: Colors.grey.shade300),
+                        border: Border.all(
+                          color: Theme.of(context).dividerColor,
+                        ),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.filter_alt_outlined, size: 20, color: Colors.black54),
+                          Icon(
+                            Icons.filter_alt_outlined,
+                            size: 20,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
                           const SizedBox(width: 10),
-                           Text(
+                          Text(
                             'Group by:',
-                            style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w600),
+                            style: GoogleFonts.poppins(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
@@ -1905,35 +2024,79 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                                 value: _selectedgroup,
                                 icon: AnimatedRotation(
                                   turns: 0,
-                                  duration:  Duration(milliseconds: 300),
-                                  child:  Icon(Icons.arrow_drop_down, color: Colors.black),
+                                  duration: Duration(milliseconds: 300),
+                                  child: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
                                 ),
-                                style:  GoogleFonts.poppins(fontSize: 15, color: Colors.black87),
-                                dropdownColor: Colors.white,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                                dropdownColor: Theme.of(
+                                  context,
+                                ).colorScheme.surface,
                                 borderRadius: BorderRadius.circular(12),
                                 onChanged: (String? newValue) {
                                   setState(() => _selectedgroup = newValue);
                                   switch (_selectedgroup) {
                                     case "Ledger":
-                                      fetchLedger(item_name, startDateString, endDateString, type, "Partyledger", "Partyledger");
+                                      fetchLedger(
+                                        item_name,
+                                        startDateString,
+                                        endDateString,
+                                        type,
+                                        "Partyledger",
+                                        "Partyledger",
+                                      );
                                       break;
                                     case "Bills":
-                                      fetchBills(item_name, startDateString, endDateString, type, "vchno", "vchno");
+                                      fetchBills(
+                                        item_name,
+                                        startDateString,
+                                        endDateString,
+                                        type,
+                                        "vchno",
+                                        "vchno",
+                                      );
                                       break;
                                     case "Voucher Type":
-                                      fetchVoucherType(item_name, startDateString, endDateString, type, "vchname", "vchname");
+                                      fetchVoucherType(
+                                        item_name,
+                                        startDateString,
+                                        endDateString,
+                                        type,
+                                        "vchname",
+                                        "vchname",
+                                      );
                                       break;
                                     case "Cost Center":
-                                      fetchCostCenter(item_name, startDateString, endDateString, type, "costcentre", "costcentre");
+                                      fetchCostCenter(
+                                        item_name,
+                                        startDateString,
+                                        endDateString,
+                                        type,
+                                        "costcentre",
+                                        "costcentre",
+                                      );
                                       break;
                                   }
                                 },
-                                items: spinner_list.map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
+                                items: spinner_list
+                                    .map<DropdownMenuItem<String>>((
+                                      String value,
+                                    ) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    })
+                                    .toList(),
                               ),
                             ),
                           ),
@@ -1946,10 +2109,19 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
 
               Expanded(
                 child: Container(
-                  margin: const EdgeInsets.only(left: 16,right:16, bottom: 16),
-                  padding: const EdgeInsets.only(left:0,right:0,top:4,bottom:4),
+                  margin: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    bottom: 16,
+                  ),
+                  padding: const EdgeInsets.only(
+                    left: 0,
+                    right: 0,
+                    top: 4,
+                    bottom: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -1961,57 +2133,74 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                   ),
                   child: Column(
                     children: [
+                      if (_isSearchViewVisible) ...[
+                        Padding(
+                          padding: EdgeInsets.only(
+                            left: 12,
+                            right: 12,
+                            top: 12,
+                          ),
+                          child: Material(
+                            elevation: 2,
+                            borderRadius: BorderRadius.circular(14),
+                            shadowColor: Colors.black12,
 
-                      if(_isSearchViewVisible)...[
-
-                        Padding( padding:  EdgeInsets.only(left: 12,right:12, top:12 ),
-                            child:  Material(
-                              elevation: 2,
-                              borderRadius: BorderRadius.circular(14),
-                              shadowColor: Colors.black12,
-
-                              child: TextField(
-                                controller: searchController,
-                                onChanged: _handleSearchChange,
-                                style:  GoogleFonts.poppins(fontSize: 15),
-                                decoration: InputDecoration(
-                                  hintText: 'Search...',
-                                  prefixIcon: const Icon(Icons.search, color: Colors.black54),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(color: Colors.grey.shade200),
+                            child: TextField(
+                              controller: searchController,
+                              onChanged: _handleSearchChange,
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'Search...',
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                                filled: true,
+                                fillColor:
+                                    Theme.of(
+                                      context,
+                                    ).inputDecorationTheme.fillColor ??
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                  horizontal: 16,
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context).dividerColor,
                                   ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: const BorderSide(color: app_color, width: 1.5),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: const BorderSide(
+                                    color: app_color,
+                                    width: 1.5,
                                   ),
                                 ),
                               ),
                             ),
-                        )
-
+                          ),
+                        ),
                       ],
 
-                      Expanded(
-                        child: _buildListSection(),
-                      ),
+                      Expanded(child: _buildListSection()),
                     ],
                   ),
                 ),
               ),
-
-
-
             ],
           ),
 
           // Loading Spinner
-          if (_isLoading)
-            const Center(
-                child: AppLogoLoader()),
+          if (_isLoading) const Center(child: AppLogoLoader()),
 
           // Sort FAB
           if (isSortVisible)
@@ -2023,7 +2212,10 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                 child: GestureDetector(
                   onTap: () => _showSelectionWindow(context),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [app_color, app_color],
@@ -2033,7 +2225,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                       borderRadius: BorderRadius.circular(50),
                       boxShadow: [
                         BoxShadow(
-                          color:  app_color.withOpacity(0.3),
+                          color: app_color.withOpacity(0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 6),
                         ),
@@ -2042,7 +2234,11 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.tune_rounded, color: Colors.white, size: 20),
+                        const Icon(
+                          Icons.tune_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'Sort',
@@ -2050,7 +2246,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                             color: Colors.white,
                             fontSize: 15.5,
                             fontWeight: FontWeight.w600,
-                            letterSpacing: 0.3,
+                            letterSpacing: 0,
                           ),
                         ),
                       ],
@@ -2060,15 +2256,15 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
               ),
             ),
 
-
-
-
           // No Data Message
           if (isVisibleNoDataFound)
-             Center(
+            Center(
               child: Text(
                 'No data found',
-                style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
         ],
@@ -2079,7 +2275,6 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
   void _handleSearchChange(String value) {
     setState(() {
       final query = value.toLowerCase();
-
 
       if (value.isEmpty) {
         if (_selectedgroup == "Ledger") {
@@ -2140,7 +2335,6 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                 ),
               );
             },
-
           );
         },
       );
@@ -2233,7 +2427,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
     String? subtitle,
     required double amount,
     String? date, // for Bills
-    String? qty,  // for Ledger/VchType/CostCenter
+    String? qty, // for Ledger/VchType/CostCenter
     VoidCallback? onTap,
   }) {
     IconData leadingIcon;
@@ -2244,8 +2438,9 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
       topRightLabel = qty != null ? "Qty: $qty" : null;
     } else if (_isBillsListVisible) {
       leadingIcon = Icons.receipt_long_rounded;
-      topRightLabel =
-      (date != null && date.isNotEmpty) ? convertDateFormat(date) : null;
+      topRightLabel = (date != null && date.isNotEmpty)
+          ? convertDateFormat(date)
+          : null;
     } else if (_isVoucherTypeListVisible) {
       leadingIcon = Icons.assignment_outlined;
       topRightLabel = qty != null ? "Qty: $qty" : null;
@@ -2260,7 +2455,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
         margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
@@ -2299,11 +2494,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                       ),
                     ],
                   ),
-                  child: Icon(
-                    leadingIcon,
-                    color: Colors.white,
-                    size: 20,
-                  ),
+                  child: Icon(leadingIcon, color: Colors.white, size: 20),
                 ),
                 const SizedBox(width: 14),
 
@@ -2325,7 +2516,7 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                               style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15.5,
-                                color: Colors.black87,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ),
@@ -2333,18 +2524,24 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                             Container(
                               margin: const EdgeInsets.only(left: 8),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: _isBillsListVisible
                                       ? [
-                                    Colors.orangeAccent.withOpacity(0.9),
-                                    Colors.deepOrangeAccent.withOpacity(0.8)
-                                  ]
+                                          Colors.orangeAccent.withOpacity(0.9),
+                                          Colors.deepOrangeAccent.withOpacity(
+                                            0.8,
+                                          ),
+                                        ]
                                       : [
-                                    Colors.orangeAccent.withOpacity(0.9),
-                                    Colors.deepOrangeAccent.withOpacity(0.8)
-                                  ],
+                                          Colors.orangeAccent.withOpacity(0.9),
+                                          Colors.deepOrangeAccent.withOpacity(
+                                            0.8,
+                                          ),
+                                        ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
@@ -2372,7 +2569,9 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                           overflow: TextOverflow.visible,
                           style: GoogleFonts.poppins(
                             fontSize: 13,
-                            color: Colors.black54,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                     ],
@@ -2392,20 +2591,37 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Color(0xFF4A5568).withOpacity(0.15),
-                              Color(0xFF4A5568).withOpacity(0.05),
+                              Theme.of(context).colorScheme.primary.withOpacity(
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? 0.22
+                                    : 0.12,
+                              ),
+                              Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest.withOpacity(
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? 0.55
+                                    : 0.35,
+                              ),
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Color(0xFF4A5568).withOpacity(0.2), width: 1),
+                          border: Border.all(
+                            color: Theme.of(
+                              context,
+                            ).dividerColor.withOpacity(0.75),
+                            width: 1,
+                          ),
                         ),
                         child: Text(
                           formatAmount(amount.toString()),
@@ -2414,20 +2630,22 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
                           style: GoogleFonts.poppins(
                             fontSize: 14.5,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF4A5568).withOpacity(0.9),
-                            letterSpacing: 0.2,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            letterSpacing: 0,
                           ),
                         ),
                       ),
-
                     ],
                   ),
                 ),
                 if (onTap != null)
                   Padding(
                     padding: const EdgeInsets.only(left: 8),
-                    child: Icon(Icons.chevron_right_rounded,
-                        color: Colors.black45, size: 22),
+                    child: Icon(
+                      Icons.chevron_right_rounded,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      size: 22,
+                    ),
                   ),
               ],
             ),
@@ -2436,10 +2654,4 @@ class _ItemsTotalClickedPageState extends State<ItemsTotalClicked> with TickerPr
       ),
     );
   }
-
-
-
-
-
-
 }

@@ -121,7 +121,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           style: GoogleFonts.poppins(
             fontSize: 14,
             fontWeight: FontWeight.w800,
-            color: const Color(0xFF172033),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 10),
@@ -133,7 +133,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF7F9FC),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Theme.of(context).colorScheme.surfaceContainerHighest
+                  : const Color(0xFFF7F9FC),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -152,7 +154,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF172033),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -301,7 +303,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   double _amountListTotal(List<Map<String, dynamic>> data) {
     return data.fold<double>(
       0,
-          (sum, item) => sum + _asDouble(item['amount']).abs(),
+      (sum, item) => sum + _asDouble(item['amount']).abs(),
     );
   }
 
@@ -321,11 +323,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final lineMonths = _lineMonths;
     final hasAnyChart =
         widget.isBarChartVisible ||
-            widget.isVisibleLineChart ||
-            widget.isVisiblePieChart;
+        widget.isVisibleLineChart ||
+        widget.isVisiblePieChart;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FB),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: app_color,
         elevation: 0,
@@ -355,7 +357,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   icon: Icons.analytics_outlined,
                   title: "No analytics enabled",
                   message:
-                  "Select at least one chart to view your business insights.",
+                      "Select at least one chart to view your business insights.",
                 ),
               ),
             if (widget.isBarChartVisible)
@@ -372,14 +374,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   ),
                   child: barEntries.isEmpty
                       ? const _EmptyState(
-                    icon: Icons.calendar_month_outlined,
-                    title: "No monthly activity",
-                    message:
-                    "There is no sales or receipt value for this period.",
-                  )
+                          icon: Icons.calendar_month_outlined,
+                          title: "No monthly activity",
+                          message:
+                              "There is no sales or receipt value for this period.",
+                        )
                       : Column(
-                    children: [
-                      /*Row(
+                          children: [
+                            /*Row(
                         children: [
                           Expanded(
                             child: _SummaryTile(
@@ -404,44 +406,44 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           ),
                         ],
                       ),*/
-                      const SizedBox(height: 9),
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final shouldScroll = barEntries.length > 3;
-                          final chart = SizedBox(
-                            width: shouldScroll
-                                ? _chartWidth(context, barEntries.length)
-                                : constraints.maxWidth,
-                            height: 250,
-                            child: BarChartWidget(
-                              entries: barEntries,
-                              selectedScale: selectedScale,
-                              decimalPlaces: widget.decimalPlaces,
+                            const SizedBox(height: 9),
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final shouldScroll = barEntries.length > 3;
+                                final chart = SizedBox(
+                                  width: shouldScroll
+                                      ? _chartWidth(context, barEntries.length)
+                                      : constraints.maxWidth,
+                                  height: 250,
+                                  child: BarChartWidget(
+                                    entries: barEntries,
+                                    selectedScale: selectedScale,
+                                    decimalPlaces: widget.decimalPlaces,
+                                  ),
+                                );
+
+                                if (!shouldScroll) return chart;
+
+                                return SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: chart,
+                                );
+                              },
                             ),
-                          );
-
-                          if (!shouldScroll) return chart;
-
-                          return SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: chart,
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 14),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _LegendDot(color: app_color, label: "Sales"),
-                          const SizedBox(width: 18),
-                          const _LegendDot(
-                            color: Color(0xFFFF8A3D),
-                            label: "Receipts",
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                            const SizedBox(height: 14),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _LegendDot(color: app_color, label: "Sales"),
+                                const SizedBox(width: 18),
+                                const _LegendDot(
+                                  color: Color(0xFFFF8A3D),
+                                  label: "Receipts",
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                 ),
               ),
             if (widget.isVisibleLineChart)
@@ -454,30 +456,30 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   accentColor: const Color(0xFF00A6A6),
                   child: lineMonths.isEmpty
                       ? const _EmptyState(
-                    icon: Icons.timeline_outlined,
-                    title: "No trend data",
-                    message:
-                    "There are no sales values to plot for this period.",
-                  )
+                          icon: Icons.timeline_outlined,
+                          title: "No trend data",
+                          message:
+                              "There are no sales values to plot for this period.",
+                        )
                       : Column(
-                    children: [
-                      SizedBox(
-                        height: 280,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: SizedBox(
-                            width: _chartWidth(
-                              context,
-                              lineMonths.length,
+                          children: [
+                            SizedBox(
+                              height: 280,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: SizedBox(
+                                  width: _chartWidth(
+                                    context,
+                                    lineMonths.length,
+                                  ),
+                                  child: _buildLineChart(lineMonths),
+                                ),
+                              ),
                             ),
-                            child: _buildLineChart(lineMonths),
-                          ),
+                            const SizedBox(height: 12),
+                            _buildYearLegend(),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildYearLegend(),
-                    ],
-                  ),
                 ),
               ),
             if (widget.isVisiblePieChart)
@@ -497,10 +499,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   ),
                   child: Column(
                     children: [
-
-                     //  _buildPieSalesRawData(),
+                      //  _buildPieSalesRawData(),
                       // const SizedBox(height: 18),
-
                       if (widget.isSalesPieChartVisible)
                         _PieBreakdownSection(
                           title: "Sales",
@@ -531,7 +531,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           icon: Icons.pie_chart_outline_rounded,
                           title: "No breakdown selected",
                           message:
-                          "Enable sales or purchase breakdown to view category share.",
+                              "Enable sales or purchase breakdown to view category share.",
                         ),
                     ],
                   ),
@@ -633,7 +633,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             drawVerticalLine: false,
             horizontalInterval: interval,
             getDrawingHorizontalLine: (value) =>
-                FlLine(color: const Color(0xFFE4E8F0), strokeWidth: 1),
+                FlLine(color: Theme.of(context).dividerColor, strokeWidth: 1),
           ),
           borderData: FlBorderData(show: false),
           titlesData: FlTitlesData(
@@ -648,7 +648,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     _formatCompact(value),
                     style: GoogleFonts.poppins(
                       fontSize: 11,
-                      color: const Color(0xFF697386),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -673,7 +673,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       style: GoogleFonts.poppins(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF374151),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   );
@@ -754,9 +754,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final bars = <LineChartBarData>[];
 
     for (
-    var yearIndex = 0;
-    yearIndex < widget.lineChartData.length;
-    yearIndex++
+      var yearIndex = 0;
+      yearIndex < widget.lineChartData.length;
+      yearIndex++
     ) {
       final yearData = widget.lineChartData[yearIndex];
       final values = yearData['value'];
@@ -778,7 +778,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
       final color =
           widget.yearColors[yearIndex] ??
-              _chartPalette[yearIndex % _chartPalette.length];
+          _chartPalette[yearIndex % _chartPalette.length];
       bars.add(
         LineChartBarData(
           spots: spots,
@@ -836,16 +836,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   List<Map<String, dynamic>> _cleanPieData(List<Map<String, dynamic>> rawData) {
     return rawData
         .where((item) {
-      final amount = _asDouble(item['amount']).abs();
-      return item['name'] != null && _hasValue(amount);
-    })
+          final amount = _asDouble(item['amount']).abs();
+          return item['name'] != null && _hasValue(amount);
+        })
         .toList(growable: false);
   }
 
   List<Color> _colorsFor(int count, {int offset = 0}) {
     return List.generate(
       count,
-          (index) => _chartPalette[(index + offset) % _chartPalette.length],
+      (index) => _chartPalette[(index + offset) % _chartPalette.length],
     );
   }
 }
@@ -887,9 +887,9 @@ class _AnalyticsCard extends StatelessWidget {
       margin: margin,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE9EDF5)),
+        border: Border.all(color: Theme.of(context).dividerColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -922,7 +922,7 @@ class _AnalyticsCard extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF172033),
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -931,7 +931,7 @@ class _AnalyticsCard extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF697386),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -964,7 +964,7 @@ class _HeaderMetric extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.13),
+        color: Theme.of(context).cardColor.withOpacity(0.13),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.18)),
       ),
@@ -1036,7 +1036,7 @@ class _SummaryTile extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF172033),
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ],
@@ -1056,7 +1056,9 @@ class _MetricPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F4F9),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surfaceContainerHighest
+            : const Color(0xFFF1F4F9),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
@@ -1067,7 +1069,7 @@ class _MetricPill extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 13,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF172033),
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(width: 4),
@@ -1076,7 +1078,7 @@ class _MetricPill extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF697386),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -1099,7 +1101,9 @@ class _SegmentedToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F4F9),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surfaceContainerHighest
+            : const Color(0xFFF1F4F9),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
@@ -1149,7 +1153,9 @@ class _ToggleButton extends StatelessWidget {
           style: GoogleFonts.poppins(
             fontSize: 12,
             fontWeight: FontWeight.w800,
-            color: active ? Colors.white : const Color(0xFF697386),
+            color: active
+                ? Colors.white
+                : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -1201,7 +1207,7 @@ class _PieBreakdownSection extends StatelessWidget {
           style: GoogleFonts.poppins(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: const Color(0xFF172033),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 12),
@@ -1265,8 +1271,18 @@ class _PieBreakdownSection extends StatelessWidget {
                               center: const Alignment(-0.45, -0.55),
                               radius: 0.95,
                               colors: [
-                                Colors.white.withOpacity(0.30),
-                                Colors.white.withOpacity(0.07),
+                                Colors.white.withOpacity(
+                                  Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? 0.08
+                                      : 0.30,
+                                ),
+                                Colors.white.withOpacity(
+                                  Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? 0.02
+                                      : 0.07,
+                                ),
                                 Colors.transparent,
                               ],
                               stops: const [0.0, 0.34, 0.72],
@@ -1279,7 +1295,7 @@ class _PieBreakdownSection extends StatelessWidget {
                         height: chartSize * 0.42,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.12),
@@ -1287,7 +1303,11 @@ class _PieBreakdownSection extends StatelessWidget {
                               offset: const Offset(0, 10),
                             ),
                             BoxShadow(
-                              color: Colors.white.withOpacity(0.8),
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.transparent
+                                  : Colors.white.withOpacity(0.8),
                               blurRadius: 10,
                               offset: const Offset(-4, -5),
                             ),
@@ -1329,9 +1349,9 @@ class _PieBreakdownSection extends StatelessWidget {
   }
 
   List<PieChartSectionData> _sections(
-      double chartSize, {
-        bool depthLayer = false,
-      }) {
+    double chartSize, {
+    bool depthLayer = false,
+  }) {
     return List.generate(data.length, (index) {
       final item = data[index];
       final amount = (item['amount'] is num)
@@ -1348,13 +1368,13 @@ class _PieBreakdownSection extends StatelessWidget {
             ? ""
             : ratio >= 0.14
             ? showPercentage
-            ? "${(ratio * 100).toStringAsFixed(1)}%"
-            : formatNumberAbbreviation(
-          amount,
-          scale: selectedScale,
-          decimalPlaces: decimalPlaces,
-          showSuffix: false,
-        )
+                  ? "${(ratio * 100).toStringAsFixed(1)}%"
+                  : formatNumberAbbreviation(
+                      amount,
+                      scale: selectedScale,
+                      decimalPlaces: decimalPlaces,
+                      showSuffix: false,
+                    )
             : "",
         titleStyle: GoogleFonts.poppins(
           fontSize: 10,
@@ -1365,11 +1385,11 @@ class _PieBreakdownSection extends StatelessWidget {
         gradient: depthLayer
             ? null
             : LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [_lighten(color, 0.20), color, _darken(color, 0.18)],
-          stops: const [0.0, 0.56, 1.0],
-        ),
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [_lighten(color, 0.20), color, _darken(color, 0.18)],
+                stops: const [0.0, 0.56, 1.0],
+              ),
       );
     });
   }
@@ -1421,7 +1441,9 @@ class _PieLegend extends StatelessWidget {
           margin: EdgeInsets.only(bottom: index == data.length - 1 ? 0 : 8),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFFF7F9FC),
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Theme.of(context).colorScheme.surfaceContainerHighest
+                : const Color(0xFFF7F9FC),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -1440,7 +1462,7 @@ class _PieLegend extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF374151),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -1450,7 +1472,7 @@ class _PieLegend extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF172033),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -1483,7 +1505,7 @@ class _LegendDot extends StatelessWidget {
           style: GoogleFonts.poppins(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF4B5563),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],
@@ -1514,10 +1536,15 @@ class _EmptyState extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: const Color(0xFFF1F4F9),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                    : const Color(0xFFF1F4F9),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(icon, color: const Color(0xFF697386)),
+              child: Icon(
+                icon,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
@@ -1526,7 +1553,7 @@ class _EmptyState extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFF172033),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 4),
@@ -1536,7 +1563,7 @@ class _EmptyState extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: const Color(0xFF697386),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -1558,7 +1585,6 @@ class BarChartWidget extends StatelessWidget {
     required this.decimalPlaces,
   });
 
-
   @override
   Widget build(BuildContext context) {
     final maxValue = _maxValue();
@@ -1570,7 +1596,7 @@ class BarChartWidget extends StatelessWidget {
             : BarChartAlignment.spaceAround,
         maxY: maxValue == 0 ? 1 : maxValue * 1.18,
         groupsSpace: entries.length <= 2 ? 28 : 18,
-        barGroups: _barGroups(maxValue),
+        barGroups: _barGroups(context, maxValue),
         barTouchData: BarTouchData(
           enabled: true,
           touchTooltipData: BarTouchTooltipData(
@@ -1609,7 +1635,7 @@ class BarChartWidget extends StatelessWidget {
                     style: GoogleFonts.poppins(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF374151),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 );
@@ -1633,7 +1659,7 @@ class BarChartWidget extends StatelessWidget {
                     ),
                     style: GoogleFonts.poppins(
                       fontSize: 11,
-                      color: const Color(0xFF697386),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 );
@@ -1652,7 +1678,7 @@ class BarChartWidget extends StatelessWidget {
           show: true,
           drawVerticalLine: false,
           getDrawingHorizontalLine: (value) =>
-              FlLine(color: const Color(0xFFE4E8F0), strokeWidth: 1),
+              FlLine(color: Theme.of(context).dividerColor, strokeWidth: 1),
         ),
       ),
     );
@@ -1668,7 +1694,10 @@ class BarChartWidget extends StatelessWidget {
     return values.reduce(max);
   }
 
-  List<BarChartGroupData> _barGroups(double maxValue) {
+  List<BarChartGroupData> _barGroups(BuildContext context, double maxValue) {
+    final backgroundRodColor = Theme.of(context).brightness == Brightness.dark
+        ? Theme.of(context).colorScheme.surfaceContainerHighest
+        : const Color(0xFFF1F4F9);
     return List.generate(entries.length, (index) {
       final entry = entries[index];
       return BarChartGroupData(
@@ -1684,7 +1713,7 @@ class BarChartWidget extends StatelessWidget {
             backDrawRodData: BackgroundBarChartRodData(
               show: true,
               toY: maxValue == 0 ? 1 : maxValue * 1.12,
-              color: const Color(0xFFF1F4F9),
+              color: backgroundRodColor,
             ),
           ),
           BarChartRodData(
@@ -1696,7 +1725,7 @@ class BarChartWidget extends StatelessWidget {
             backDrawRodData: BackgroundBarChartRodData(
               show: true,
               toY: maxValue == 0 ? 1 : maxValue * 1.12,
-              color: const Color(0xFFF1F4F9),
+              color: backgroundRodColor,
             ),
           ),
         ],

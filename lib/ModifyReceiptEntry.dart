@@ -20,18 +20,23 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-class ModifyReceiptEntry extends StatefulWidget
-{
-  final int id,isSynced;
+class ModifyReceiptEntry extends StatefulWidget {
+  final int id, isSynced;
   final String type;
   final Map<String, dynamic> data;
-  const ModifyReceiptEntry(
-      {required this.id,
-        required this.isSynced,
-        required this.type,
-        required this.data,}
-      );  @override
-  _ModifyReceiptEntryPageState createState() => _ModifyReceiptEntryPageState(id: id,isSynced:isSynced,type:type,data:data);
+  const ModifyReceiptEntry({
+    required this.id,
+    required this.isSynced,
+    required this.type,
+    required this.data,
+  });
+  @override
+  _ModifyReceiptEntryPageState createState() => _ModifyReceiptEntryPageState(
+    id: id,
+    isSynced: isSynced,
+    type: type,
+    data: data,
+  );
 }
 
 class Bills {
@@ -49,7 +54,6 @@ class Bills {
 }
 
 class Cheque {
-
   final String date;
   final String instno;
   final String? instdate;
@@ -66,14 +70,12 @@ class Cheque {
     required this.paymentMode,
     required this.paymentFavouring,
     required this.bankPartyName,
-  required this.date,
-
-
-
+    required this.date,
   });
 }
 
-class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with TickerProviderStateMixin {
+class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry>
+    with TickerProviderStateMixin {
   bool isDashEnable = true,
       isRolesVisible = true,
       isUserEnable = true,
@@ -82,19 +84,15 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       _isLoading = false,
       isVisibleNoUserFound = false;
 
-  int id,isSynced;
+  int id, isSynced;
   String type;
   Map<String, dynamic> data;
-  _ModifyReceiptEntryPageState(
-      {
-
-        required this.id,
-        required this.isSynced,
-        required this.type,
-        required this.data,
-
-      }
-      );
+  _ModifyReceiptEntryPageState({
+    required this.id,
+    required this.isSynced,
+    required this.type,
+    required this.data,
+  });
 
   TextEditingController _partyController = TextEditingController();
 
@@ -104,7 +102,8 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
   TextEditingController _banknameController = TextEditingController();
 
-  late final TextEditingController controller_narration = TextEditingController();
+  late final TextEditingController controller_narration =
+      TextEditingController();
 
   final FocusNode _textFieldFocusNodeNarration = FocusNode();
 
@@ -120,7 +119,6 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
   bool isVchEditable = false; // state variable
 
-
   late DateTime now = DateTime.now();
 
   // Current year start date
@@ -130,8 +128,10 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
   late DateTime yearEndDate = DateTime(now.year, 12, 31);
 
   Future<void> _selectDateRangeVchNo(BuildContext context) async {
-
-    final initialDateRange = DateTimeRange(start: yearStartDate, end: yearEndDate);
+    final initialDateRange = DateTimeRange(
+      start: yearStartDate,
+      end: yearEndDate,
+    );
 
     DateTimeRange? selectedDateRange = await showDateRangePicker(
       context: context,
@@ -139,18 +139,21 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
       builder: (BuildContext context, Widget? child) {
-        return  Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: ColorScheme.light().copyWith(
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
               primary: app_color, // main accent color
               onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black87,
+              surface: Theme.of(context).colorScheme.surface,
+              onSurface: Theme.of(context).colorScheme.onSurface,
             ),
             datePickerTheme: DatePickerThemeData(
-              rangeSelectionBackgroundColor: app_color.withOpacity(0.15), // 🔹 light shade of your app_color
-              rangeSelectionOverlayColor:
-              MaterialStatePropertyAll(app_color.withOpacity(0.15)),
+              rangeSelectionBackgroundColor: app_color.withOpacity(
+                0.15,
+              ), // 🔹 light shade of your app_color
+              rangeSelectionOverlayColor: MaterialStatePropertyAll(
+                app_color.withOpacity(0.15),
+              ),
             ),
           ),
           child: child!,
@@ -158,8 +161,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       },
     );
 
-    if (selectedDateRange != null &&
-        selectedDateRange != initialDateRange) {
+    if (selectedDateRange != null && selectedDateRange != initialDateRange) {
       setState(() {
         yearStartDate = selectedDateRange.start;
         yearEndDate = selectedDateRange.end;
@@ -170,35 +172,29 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
   }
 
   void checkVchNoExistence(String vchNo) {
-
-    if(vchNo.isEmpty || vchNo == '')
-    {
+    if (vchNo.isEmpty || vchNo == '') {
       setState(() {
         errorMessageVchNo = 'Voucher No. cannot be empty';
       });
-    }
-    else
-    {
+    } else {
       if (vchnos.contains(vchNo)) {
         setState(() {
-
-          errorMessageVchNo = 'Voucher no: $vchNo against $_selectedvchtypename already exists';
+          errorMessageVchNo =
+              'Voucher no: $vchNo against $_selectedvchtypename already exists';
         });
       } else {
         setState(() {
           errorMessageVchNo = '';
-
         });
       }
     }
   }
 
   Future<void> fetchvchnos(String vchname) async {
-
-
-
     // Format the dates as yyyyMMdd
-    String formattedStartDateVchNo = DateFormat('yyyyMMdd').format(yearStartDate);
+    String formattedStartDateVchNo = DateFormat(
+      'yyyyMMdd',
+    ).format(yearStartDate);
     String formattedEndDateVchNo = DateFormat('yyyyMMdd').format(yearEndDate);
 
     vchnos.clear();
@@ -209,32 +205,23 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
     // vchnos fetching
     try {
       final url = Uri.parse(HttpURL_fetchvchnos!);
-      Map<String,String> headers =
-      {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
       Map<String, dynamic> jsonDatabody = {
         "to": formattedEndDateVchNo,
         "from": formattedStartDateVchNo,
-        "vchname" : vchname
+        "vchname": vchname,
       };
 
       String jsonDatabodyString = jsonEncode(jsonDatabody);
 
-      var body =jsonDatabodyString;
-      final response = await http.post
-        (
-          url,
-          headers:headers,
-          body:body
-      );
+      var body = jsonDatabodyString;
+      final response = await http.post(url, headers: headers, body: body);
 
-      if (response.statusCode == 200)
-      {
-
-
+      if (response.statusCode == 200) {
         /*print(response.body);*/
         setState(() {
           final Map<String, dynamic> jsonResponse = json.decode(response.body);
@@ -247,29 +234,21 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
           if (isVchEditable) {
             checkVchNoExistence(_vchnoController.text);
           }
-
         });
-      }
-      else
-      {
+      } else {
         vchnos.clear();
         Map<String, dynamic> data = json.decode(response.body);
         String error = '';
-        if (data.containsKey('error'))
-        {
+        if (data.containsKey('error')) {
           setState(() {
             error = data['error'];
           });
-        }
-        else
-        {
+        } else {
           error = 'Something went wrong!!!';
         }
         Fluttertoast.showToast(msg: error);
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       vchnos.clear();
       print(e);
     }
@@ -279,10 +258,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
     });
   }
 
-
-
-  String formatChequeAmount (double amount)
-  {
+  String formatChequeAmount(double amount) {
     String amountstring = '0';
 
     amount = -amount;
@@ -294,18 +270,19 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
   late List<String> vchtypenamedata = [];
 
-  Map<String, dynamic> jsonEntryData =
-  {
+  Map<String, dynamic> jsonEntryData = {
     "DATE": "",
     "VOUCHERTYPENAME": "",
     "PARTYLEDGERNAME": "",
-    "VOUCHERNUMBER" : "",
+    "VOUCHERNUMBER": "",
     "ENTEREDBY": "",
     "NARRATION": "",
     "ALLLEDGERENTRIES.LIST": [],
   };
 
-  bool isVisibleBillHeading = false,isVisibleChequeHeading = false,isChequeVisible = false;
+  bool isVisibleBillHeading = false,
+      isVisibleChequeHeading = false,
+      isChequeVisible = false;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -314,12 +291,9 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
   String selectedbankname = '';
 
   bool isInstNoRepeated(String instNo, List<Cheque> cheques) {
-    if(instNo.isNotEmpty)
-    {
-      for (var cheque in cheques)
-      {
-        if (cheque.instno == instNo)
-        {
+    if (instNo.isNotEmpty) {
+      for (var cheque in cheques) {
+        if (cheque.instno == instNo) {
           return true; // Found a match, instno is repeated
         }
       }
@@ -347,15 +321,72 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
   late List<String> partydata = [];
 
-  List<String> bankname_data = ['Not Applicable',"RAK Bank (UAE)", "Mashreq Bank (UAE)", "National Bank of Abu Dhabi (UAE)", "ADCB (UAE)", "Arab Bank (UAE)", "Commercial Bank of Dubai (UAE)", "Emirates NBD (UAE)", "Habib Bank AG Zurich (UAE)", "National Bank of Fujairah (UAE)", "Standard Chartered Bank (UAE)", "Bank of Baroda (UAE)", "HSBC Bank (UAE)", "Union National Bank (UAE)", "United Arab Bank (UAE)", "Al Ahli Bank of Kuwait (UAE)", "Noor Islamic Bank (UAE)", "Emirates Bank (UAE)", "Emirates Islamic Bank (UAE)", "United Bank Ltd. (UAE)", "Dubai Islamic Bank (UAE)", "ADIB (UAE)", "Bank of Sharjah (UAE)", "Blom Bank France (UAE)", "First Gulf Bank (UAE)", "Invest Bank (UAE)", "Habib Bank Limited (UAE)", "Oman Arab Bank (UAE)", "NBAD(UAE)", "NCB Bank(UAE)", "NBQ Bank (UAE)", "HBL Bank (UAE)", "Al Hilal Bank(UAE)", "FGB (UAE)", "Sharjah Islamic Bank(UAE)", "Noor Bank(UAE)", "CBI - Commercial Bank International (UAE)", "Janata Bank Ltd (UAE)", "Ajman Bank (UAE)", "Bank Melli Iran (UAE)", "FAB - First Abu Dhabi Bank (UAE)", "Citi Bank (UAE)", "The Saudi British Bank (UAE)", "BNP Paribas (UAE)", "Arab African International Bank (UAE)", "AL Masraf (UAE)", "Banque Misr (UAE)", "Samba Financial Group (UAE)"];
+  List<String> bankname_data = [
+    'Not Applicable',
+    "RAK Bank (UAE)",
+    "Mashreq Bank (UAE)",
+    "National Bank of Abu Dhabi (UAE)",
+    "ADCB (UAE)",
+    "Arab Bank (UAE)",
+    "Commercial Bank of Dubai (UAE)",
+    "Emirates NBD (UAE)",
+    "Habib Bank AG Zurich (UAE)",
+    "National Bank of Fujairah (UAE)",
+    "Standard Chartered Bank (UAE)",
+    "Bank of Baroda (UAE)",
+    "HSBC Bank (UAE)",
+    "Union National Bank (UAE)",
+    "United Arab Bank (UAE)",
+    "Al Ahli Bank of Kuwait (UAE)",
+    "Noor Islamic Bank (UAE)",
+    "Emirates Bank (UAE)",
+    "Emirates Islamic Bank (UAE)",
+    "United Bank Ltd. (UAE)",
+    "Dubai Islamic Bank (UAE)",
+    "ADIB (UAE)",
+    "Bank of Sharjah (UAE)",
+    "Blom Bank France (UAE)",
+    "First Gulf Bank (UAE)",
+    "Invest Bank (UAE)",
+    "Habib Bank Limited (UAE)",
+    "Oman Arab Bank (UAE)",
+    "NBAD(UAE)",
+    "NCB Bank(UAE)",
+    "NBQ Bank (UAE)",
+    "HBL Bank (UAE)",
+    "Al Hilal Bank(UAE)",
+    "FGB (UAE)",
+    "Sharjah Islamic Bank(UAE)",
+    "Noor Bank(UAE)",
+    "CBI - Commercial Bank International (UAE)",
+    "Janata Bank Ltd (UAE)",
+    "Ajman Bank (UAE)",
+    "Bank Melli Iran (UAE)",
+    "FAB - First Abu Dhabi Bank (UAE)",
+    "Citi Bank (UAE)",
+    "The Saudi British Bank (UAE)",
+    "BNP Paribas (UAE)",
+    "Arab African International Bank (UAE)",
+    "AL Masraf (UAE)",
+    "Banque Misr (UAE)",
+    "Samba Financial Group (UAE)",
+  ];
 
   List<String> billsdata = ['On Account', 'New Ref', 'Agst Ref'];
 
-  String user_email_fetched = "",token = '';
+  String user_email_fetched = "", token = '';
 
   bool isVisibleDueDate = false, isVisibleBillNo = false;
 
-  String name = "", email = "", receiptdatestring = '', receiptdatetxt = '',instdatestring = '', instdatetxt = '',currencycode = '',billduedatestring = '', billduedatetxt = '';
+  String name = "",
+      email = "",
+      receiptdatestring = '',
+      receiptdatetxt = '',
+      instdatestring = '',
+      instdatetxt = '',
+      currencycode = '',
+      billduedatestring = '',
+      billduedatetxt = '';
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -367,17 +398,20 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
   late dynamic _selectedpaymentmode = '';
 
-  late final TextEditingController controller_totalamt = TextEditingController();
+  late final TextEditingController controller_totalamt =
+      TextEditingController();
 
-  void updateChequeAmount () {
-    totalChequeAmount = cheque.fold(
-      0.0,
-          (double previousAmount, Cheque cheque) {
-        return previousAmount + cheque.chequeAmount;
-      },
-    );
+  void updateChequeAmount() {
+    totalChequeAmount = cheque.fold(0.0, (
+      double previousAmount,
+      Cheque cheque,
+    ) {
+      return previousAmount + cheque.chequeAmount;
+    });
     // Update formatted total amount
-    roundedtotalChequeAmount = double.parse(totalChequeAmount.toStringAsFixed(decimal!));
+    roundedtotalChequeAmount = double.parse(
+      totalChequeAmount.toStringAsFixed(decimal!),
+    );
     print('cheque amount $roundedtotalChequeAmount');
   }
 
@@ -387,24 +421,28 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
     Locale locale = Localizations.localeOf(context);
 
     try {
-      if (currencyCode == 'INR' || currencyCode == 'EUR' || currencyCode == 'PKR' || currencyCode == 'USD')
-      {
-        format =  NumberFormat.simpleCurrency(locale: locale.toString(), name: currencyCode);
-      }
-      else
-      {
-        format =  NumberFormat.currency(locale: locale.toString(), name: currencyCode);
+      if (currencyCode == 'INR' ||
+          currencyCode == 'EUR' ||
+          currencyCode == 'PKR' ||
+          currencyCode == 'USD') {
+        format = NumberFormat.simpleCurrency(
+          locale: locale.toString(),
+          name: currencyCode,
+        );
+      } else {
+        format = NumberFormat.currency(
+          locale: locale.toString(),
+          name: currencyCode,
+        );
       }
       return format.currencySymbol;
-    }
-    catch (e)
-    {
+    } catch (e) {
       return 'AED';
     }
   }
 
   bool isNumeric(String s) {
-    if(s == null) {
+    if (s == null) {
       return false;
     }
     return double.tryParse(s) != null;
@@ -422,7 +460,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
   late DateTime billduedate;
   late DateTime instdate;
 
-  String? HttpURL_loadData,HttpURL_receiptEntry,HttpURL_fetchvchnos;
+  String? HttpURL_loadData, HttpURL_receiptEntry, HttpURL_fetchvchnos;
 
   final DateFormat _dateFormat = DateFormat('yyyyMMdd');
 
@@ -437,7 +475,12 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
   final TextEditingController instNoController = TextEditingController();
   final TextEditingController chequeAmountController = TextEditingController();
 
-  void _confirmBillDeletion(BuildContext context, int index,String billname,String billamount) {
+  void _confirmBillDeletion(
+    BuildContext context,
+    int index,
+    String billname,
+    String billamount,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -449,20 +492,26 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
               onPressed: () {
                 Navigator.of(context).pop(); // Dismiss the dialog
               },
-              child: Text('No',
-                  style: GoogleFonts.poppins(
-                    color: Colors.grey, // Change the text color here
-                  )),
+              child: Text(
+                'No',
+                style: GoogleFonts.poppins(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant, // Change the text color here
+                ),
+              ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Dismiss the dialog
                 _deleteBill(index);
               },
-              child: Text('Yes',
-                  style: GoogleFonts.poppins(
-                    color: app_color, // Change the text color here
-                  )),
+              child: Text(
+                'Yes',
+                style: GoogleFonts.poppins(
+                  color: app_color, // Change the text color here
+                ),
+              ),
             ),
           ],
         );
@@ -474,14 +523,13 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
     setState(() {
       bills.removeAt(index);
       // Calculate the total price of items
-      totalBillAmount = bills
-          .fold(
-          0.0, (double previousAmount,
-          Bills bill) {
+      totalBillAmount = bills.fold(0.0, (double previousAmount, Bills bill) {
         return previousAmount + bill.billAmount;
       });
 
-      roundedtotalBillAmount = double.parse(totalBillAmount.toStringAsFixed(decimal!));
+      roundedtotalBillAmount = double.parse(
+        totalBillAmount.toStringAsFixed(decimal!),
+      );
       NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
       String formattedtotal = formatter.format(roundedtotalBillAmount);
       controller_totalamt.text = formattedtotal.toString();
@@ -502,12 +550,10 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
         instdatetxt = formatlastsaledate(instdatestring);
         instDateController.text = instdatetxt;
         isVisibleChequeHeading = false;
-      }
-      else
-      {
+      } else {
         isVisibleBillHeading = true;
-        if (_selectedbankcashname != null && _selectedbankcashname!['type'] == 'Cash-in-Hand') {
-
+        if (_selectedbankcashname != null &&
+            _selectedbankcashname!['type'] == 'Cash-in-Hand') {
           isPaymentModeVisible = false;
           _selectedpaymentmode = paymentmode_data.first;
           cheque.clear();
@@ -515,19 +561,13 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
           isVisibleChequeHeading = false;
           isChequeVisible = false;
-        }
-        else
-        {
-          if(bills.isNotEmpty)
-          {
-            if(cheque.isNotEmpty)
-            {
+        } else {
+          if (bills.isNotEmpty) {
+            if (cheque.isNotEmpty) {
               isPaymentModeVisible = true;
               isChequeVisible = true;
               isVisibleChequeHeading = true;
-            }
-            else
-            {
+            } else {
               isPaymentModeVisible = true;
               _selectedpaymentmode = paymentmode_data.first;
               cheque.clear();
@@ -536,9 +576,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
               isVisibleChequeHeading = false;
               isChequeVisible = true;
             }
-          }
-          else
-          {
+          } else {
             isPaymentModeVisible = true;
             _selectedpaymentmode = paymentmode_data.first;
             cheque.clear();
@@ -549,8 +587,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
           }
         }
       }
-      if(roundedtotalBillAmount < roundedtotalChequeAmount)
-      {
+      if (roundedtotalBillAmount < roundedtotalChequeAmount) {
         cheque.clear();
         updateChequeAmount();
 
@@ -559,18 +596,49 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
     });
   }
 
-
   String convertAmountToWords(num amount) {
     if (amount == null) return "Invalid input";
 
-    List<String> units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-    List<String> teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-    List<String> tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-
+    List<String> units = [
+      '',
+      'One',
+      'Two',
+      'Three',
+      'Four',
+      'Five',
+      'Six',
+      'Seven',
+      'Eight',
+      'Nine',
+    ];
+    List<String> teens = [
+      'Ten',
+      'Eleven',
+      'Twelve',
+      'Thirteen',
+      'Fourteen',
+      'Fifteen',
+      'Sixteen',
+      'Seventeen',
+      'Eighteen',
+      'Nineteen',
+    ];
+    List<String> tens = [
+      '',
+      '',
+      'Twenty',
+      'Thirty',
+      'Forty',
+      'Fifty',
+      'Sixty',
+      'Seventy',
+      'Eighty',
+      'Ninety',
+    ];
 
     NumberFormat formatter = NumberFormat.decimalPatternDigits(
       locale: 'en_us',
-      decimalDigits:decimal,
+      decimalDigits: decimal,
     );
     String formattedAmount = formatter.format(amount);
 
@@ -581,11 +649,21 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
     String currencyWords = getCurrencyWords(currencycode);
     String fractionalUnit = getFractionalUnit(currencycode);
 
-    String integerWords = convertIntegerToWords(units, teens, tens, integerPart);
+    String integerWords = convertIntegerToWords(
+      units,
+      teens,
+      tens,
+      integerPart,
+    );
     String result = '$currencyWords $integerWords';
 
     if (decimalPart > 0) {
-      String decimalWords = convertIntegerToWords(units, teens, tens, decimalPart);
+      String decimalWords = convertIntegerToWords(
+        units,
+        teens,
+        tens,
+        decimalPart,
+      );
       result += ' and $decimalWords $fractionalUnit Only';
     } else {
       result += ' Only';
@@ -595,58 +673,92 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
   }
 
   String getCurrencyWords(String currencyCode) {
-    switch(currencyCode.toLowerCase()) {
-      case 'aed': return 'UAE dirham';
-      case 'usd': return 'US dollar';
-      case 'inr': return 'Indian rupee';
-      case 'pkr': return 'Pakistani rupee';
-      case 'eur': return 'Euro';
-      case 'lkr': return 'Sri Lankan rupee';
-      case 'sar': return 'Saudi riyal';
-      case 'omr': return 'Omani rial';
-      case 'bhd': return 'Bahraini dinar';
-      case 'qar': return 'Qatari riyal';
-      case 'kwd': return 'Kuwaiti dinar';
-      case 'sle': return 'Sierra Leonean leone';
-      default: return '';
+    switch (currencyCode.toLowerCase()) {
+      case 'aed':
+        return 'UAE dirham';
+      case 'usd':
+        return 'US dollar';
+      case 'inr':
+        return 'Indian rupee';
+      case 'pkr':
+        return 'Pakistani rupee';
+      case 'eur':
+        return 'Euro';
+      case 'lkr':
+        return 'Sri Lankan rupee';
+      case 'sar':
+        return 'Saudi riyal';
+      case 'omr':
+        return 'Omani rial';
+      case 'bhd':
+        return 'Bahraini dinar';
+      case 'qar':
+        return 'Qatari riyal';
+      case 'kwd':
+        return 'Kuwaiti dinar';
+      case 'sle':
+        return 'Sierra Leonean leone';
+      default:
+        return '';
     }
   }
 
   String getFractionalUnit(String currencyCode) {
-    switch(currencyCode.toLowerCase()) {
-      case 'aed': return 'fils';
-      case 'usd': return 'cents';
-      case 'inr': return 'paise';
-      case 'pkr': return 'paisa';
-      case 'eur': return 'cents';
-      case 'lkr': return 'cents';
-      case 'sar': return 'halala';
-      case 'omr': return 'baisa';
-      case 'bhd': return 'fils';
-      case 'qar': return 'dirham';
-      case 'kwd': return 'fils';
-      case 'sle': return 'cents';
-      default: return '';
+    switch (currencyCode.toLowerCase()) {
+      case 'aed':
+        return 'fils';
+      case 'usd':
+        return 'cents';
+      case 'inr':
+        return 'paise';
+      case 'pkr':
+        return 'paisa';
+      case 'eur':
+        return 'cents';
+      case 'lkr':
+        return 'cents';
+      case 'sar':
+        return 'halala';
+      case 'omr':
+        return 'baisa';
+      case 'bhd':
+        return 'fils';
+      case 'qar':
+        return 'dirham';
+      case 'kwd':
+        return 'fils';
+      case 'sle':
+        return 'cents';
+      default:
+        return '';
     }
   }
 
-  String convertIntegerToWords(List<String> units, List<String> teens, List<String> tens, int amount) {
+  String convertIntegerToWords(
+    List<String> units,
+    List<String> teens,
+    List<String> tens,
+    int amount,
+  ) {
     if (amount == 0) return 'zero';
 
     String words = '';
 
     if (amount >= 1000000000) {
-      words += '${convertIntegerToWords(units, teens, tens, amount ~/ 1000000000)} billion ';
+      words +=
+          '${convertIntegerToWords(units, teens, tens, amount ~/ 1000000000)} billion ';
       amount %= 1000000000;
     }
 
     if (amount >= 1000000) {
-      words += '${convertIntegerToWords(units, teens, tens, amount ~/ 1000000)} million ';
+      words +=
+          '${convertIntegerToWords(units, teens, tens, amount ~/ 1000000)} million ';
       amount %= 1000000;
     }
 
     if (amount >= 1000) {
-      words += '${convertIntegerToWords(units, teens, tens, amount ~/ 1000)} thousand ';
+      words +=
+          '${convertIntegerToWords(units, teens, tens, amount ~/ 1000)} thousand ';
       amount %= 1000;
     }
 
@@ -669,19 +781,18 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
     return words.trim();
   }
 
-  String formatAmountVoucher(String amount)  {
+  String formatAmountVoucher(String amount) {
     int? decimal = prefs?.getInt('decimalplace') ?? 2;
 
     String amount_string = "";
-    if(amount == "null" || amount.isEmpty)
-    {
+    if (amount == "null" || amount.isEmpty) {
       amount = "0";
     }
     double amount_double = double.parse(amount);
 
     NumberFormat formatter = NumberFormat.decimalPatternDigits(
       locale: 'en_us',
-      decimalDigits:decimal,
+      decimalDigits: decimal,
     );
     String formattedAmount = formatter.format(amount_double);
 
@@ -703,7 +814,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
               width: MediaQuery.of(context).size.width * 0.85,
               padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(28),
               ),
               child: Column(
@@ -714,10 +825,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                     height: 50,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.green,
-                        width: 4.0,
-                      ),
+                      border: Border.all(color: Colors.green, width: 4.0),
                     ),
                     child: const Icon(
                       Icons.done,
@@ -892,10 +1000,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return Transform.scale(
           scale: Curves.easeOutBack.transform(animation.value),
-          child: Opacity(
-            opacity: animation.value,
-            child: child,
-          ),
+          child: Opacity(opacity: animation.value, child: child),
         );
       },
     );
@@ -907,174 +1012,306 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
     pdf.addPage(
       pw.Page(
         build: (pw.Context context) {
-
           return pw.Stack(
-              children:[
+            children: [
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  // Tax Invoice Heading
+                  pw.Header(
+                    level: 0,
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border(bottom: pw.BorderSide.none),
+                    ),
 
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.center,
-                  children: [
-                    // Tax Invoice Heading
-                    pw.Header(
-                        level: 0,
-                        decoration: pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide.none)),
-
-                        child: pw.Center(child:pw.Column(children: [
-                          pw.Text(company!, textAlign: pw.TextAlign.center,
-                              style: pw.TextStyle(
-                                  fontSize: 18
-                              )),
+                    child: pw.Center(
+                      child: pw.Column(
+                        children: [
+                          pw.Text(
+                            company!,
+                            textAlign: pw.TextAlign.center,
+                            style: pw.TextStyle(fontSize: 18),
+                          ),
                           pw.SizedBox(height: 20),
-                          pw.Text('Receipt Voucher', textAlign: pw.TextAlign.center,
-                              style: pw.TextStyle(
-                                  fontSize: 18
-                              ))
-                        ]), )
+                          pw.Text(
+                            'Receipt Voucher',
+                            textAlign: pw.TextAlign.center,
+                            style: pw.TextStyle(fontSize: 18),
+                          ),
+                        ],
+                      ),
                     ),
+                  ),
 
-                    pw.SizedBox(height: 10),
+                  pw.SizedBox(height: 10),
 
-                    pw.Table(
-                        border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide.none,
-                            bottom: pw.BorderSide.none
-                        ),
-                        children:[
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide.none,
+                      bottom: pw.BorderSide.none,
+                    ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 5,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                              alignment: pw.Alignment.centerLeft,
 
-                          pw.TableRow(children: [
+                              child: pw.Row(
+                                children: [
+                                  pw.Text(
+                                    'No. : ',
+                                    style: pw.TextStyle(fontSize: 12),
+                                  ),
 
-                            pw.Expanded(
-                              flex: 5,
-                              child: pw.Container(
-                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                  alignment: pw.Alignment.centerLeft,
-
-                                  child: pw.Row(children: [
-
-                                    pw.Text(
-                                      'No. : ',
-                                      style: pw.TextStyle(
-                                        fontSize: 12,
-                                      ),
-                                    ),
-
-
-                                    pw.Text(
-                                      _vchnoController.text,
-                                      style: pw.TextStyle(
-                                        fontSize: 12,
-                                      ),
-                                    ),
-
-                                  ])
+                                  pw.Text(
+                                    _vchnoController.text,
+                                    style: pw.TextStyle(fontSize: 12),
+                                  ),
+                                ],
                               ),
                             ),
+                          ),
 
+                          pw.Expanded(
+                            flex: 5,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                              alignment: pw.Alignment.centerRight,
 
-                            pw.Expanded(
-                              flex: 5,
-                              child: pw.Container(
+                              child: pw.Row(
+                                mainAxisAlignment: pw.MainAxisAlignment.end,
+                                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                                children: [
+                                  pw.Text(
+                                    'Dated : ',
+                                    style: pw.TextStyle(fontSize: 12),
+                                  ),
 
-
-                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                  alignment: pw.Alignment.centerRight,
-
-                                  child: pw.Row(
-                                      mainAxisAlignment: pw.MainAxisAlignment.end,
-                                      crossAxisAlignment: pw.CrossAxisAlignment.end,
-                                      children: [
-
-
-
-                                        pw.Text(
-                                          'Dated : ',
-                                          style: pw.TextStyle(
-                                            fontSize: 12,
-                                          ),
-                                        ),
-
-
-                                        pw.Text(
-                                          formatlastsaledate(receiptdatestring),
-                                          style: pw.TextStyle(
-                                            fontSize: 12,
-                                          ),
-                                        ),
-
-                                      ])
+                                  pw.Text(
+                                    formatlastsaledate(receiptdatestring),
+                                    style: pw.TextStyle(fontSize: 12),
+                                  ),
+                                ],
                               ),
                             ),
-                          ])
-                        ]
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  pw.SizedBox(height: 5),
+
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide.none,
+                      bottom: pw.BorderSide.none,
                     ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 5,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 15),
+                              alignment: pw.Alignment.centerLeft,
 
-                    pw.SizedBox(height:5),
+                              child: pw.Row(
+                                children: [
+                                  pw.Text(
+                                    'Remarks : ',
+                                    style: pw.TextStyle(fontSize: 12),
+                                  ),
 
-                    pw.Table(
-                        border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide.none,
-                            bottom: pw.BorderSide.none
-                        ),
-                        children:[
-
-                          pw.TableRow(children: [
-
-
-
-
-                            pw.Expanded(
-                              flex: 5,
-                              child: pw.Container(
-                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 15),
-                                  alignment: pw.Alignment.centerLeft,
-
-                                  child: pw.Row(children: [
-
-                                    pw.Text(
-                                      'Remarks : ',
-                                      style: pw.TextStyle(
-                                        fontSize: 12,
-                                      ),
-                                    ),
-
-                                    pw.Text(
-                                      controller_narration.text,
-                                      style: pw.TextStyle(
-                                        fontSize: 12,
-                                      ),
-                                    )])
+                                  pw.Text(
+                                    controller_narration.text,
+                                    style: pw.TextStyle(fontSize: 12),
+                                  ),
+                                ],
                               ),
                             ),
-                          ])
-                        ]
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  pw.SizedBox(height: 20),
+
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      verticalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      bottom: pw.BorderSide(color: PdfColor.fromHex('#050400')),
+                      top: pw.BorderSide(color: PdfColor.fromHex('#050400')),
                     ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 7,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(10, 2, 5, 2),
+                              alignment: pw.Alignment.centerLeft,
 
-                    pw.SizedBox(height: 20),
+                              child: pw.Text(
+                                'Particulars',
+                                style: pw.TextStyle(fontSize: 11),
+                              ),
+                            ),
+                          ),
 
-                    pw.Table(
-                        border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            bottom:  pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            top:  pw.BorderSide(color: PdfColor.fromHex('#050400'))
-                        ),
-                        children:[
+                          pw.Expanded(
+                            flex: 3,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                              alignment: pw.Alignment.centerRight,
 
-                          pw.TableRow(children: [
+                              child: pw.Text(
+                                'Amount',
+                                style: pw.TextStyle(fontSize: 11),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
 
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      bottom: pw.BorderSide.none,
+                      top: pw.BorderSide.none,
+                    ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 7,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 3, 5, 2),
+                              alignment: pw.Alignment.centerLeft,
+
+                              child: pw.Text(
+                                'Account :',
+                                style: pw.TextStyle(fontSize: 11),
+                              ),
+                            ),
+                          ),
+
+                          pw.Expanded(
+                            flex: 3,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                              alignment: pw.Alignment.centerRight,
+
+                              child: pw.Text(
+                                '',
+                                style: pw.TextStyle(fontSize: 11),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      bottom: pw.BorderSide.none,
+                      top: pw.BorderSide.none,
+                    ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 7,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(15, 3, 5, 2),
+                              alignment: pw.Alignment.centerLeft,
+
+                              child: pw.Text(
+                                _selectedparty,
+                                style: pw.TextStyle(fontSize: 11),
+                              ),
+                            ),
+                          ),
+
+                          pw.Expanded(
+                            flex: 3,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                              alignment: pw.Alignment.centerRight,
+
+                              child: pw.Text(
+                                formatAmountVoucher(
+                                  roundedtotalBillAmount.toString(),
+                                ),
+                                style: pw.TextStyle(fontSize: 11),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      bottom: pw.BorderSide.none,
+                      top: pw.BorderSide.none,
+                    ),
+                    children: [
+                      for (var bill in bills.asMap().entries)
+                        pw.TableRow(
+                          children: [
                             pw.Expanded(
-                              flex:7,
+                              flex: 7,
                               child: pw.Container(
-                                padding: pw.EdgeInsets.fromLTRB(10, 2, 5, 2),
+                                padding: pw.EdgeInsets.fromLTRB(20, 2, 10, 2),
                                 alignment: pw.Alignment.centerLeft,
 
-                                child: pw.Text(
-                                  'Particulars',
-                                  style: pw.TextStyle(
-                                    fontSize: 11,
-                                  ),
+                                child: pw.Row(
+                                  children: [
+                                    pw.Text(
+                                      bill.value.billName,
+                                      style: pw.TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: pw.FontWeight.bold,
+                                      ),
+                                    ),
+                                    pw.SizedBox(width: 2),
+                                    pw.Text(
+                                      formatAmountVoucher(
+                                        bill.value.billAmount.toString(),
+                                      ),
+                                      style: pw.TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: pw.FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -1082,169 +1319,364 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                             pw.Expanded(
                               flex: 3,
                               child: pw.Container(
-
-
-                                padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
-                                alignment: pw.Alignment.centerRight,
-
-                                child: pw.Text(
-                                  'Amount',
-                                  style: pw.TextStyle(
-                                    fontSize: 11,
-                                  ),
-                                ),
-
-                              ),
-                            ),
-                          ])
-                        ]
-                    ),
-
-                    pw.Table(
-                        border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            bottom:  pw.BorderSide.none,
-                            top:  pw.BorderSide.none
-                        ),
-                        children:[
-
-                          pw.TableRow(children: [
-
-
-
-
-                            pw.Expanded(
-                              flex:7,
-                              child: pw.Container(
-                                padding: pw.EdgeInsets.fromLTRB(5, 3, 5, 2),
-                                alignment: pw.Alignment.centerLeft,
-
-                                child: pw.Text(
-                                  'Account :',
-                                  style: pw.TextStyle(
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-
-                            pw.Expanded(
-                              flex: 3,
-                              child: pw.Container(
-
-
                                 padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
                                 alignment: pw.Alignment.centerRight,
 
                                 child: pw.Text(
                                   '',
-                                  style: pw.TextStyle(
-                                    fontSize: 11,
-                                  ),
+                                  style: pw.TextStyle(fontSize: 11),
                                 ),
-
                               ),
                             ),
-                          ])
-                        ]
-                    ),
-
-                    pw.Table(
-                        border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            bottom:  pw.BorderSide.none,
-                            top:  pw.BorderSide.none
+                          ],
                         ),
-                        children:[
-                          pw.TableRow(children: [
-                            pw.Expanded(
-                              flex:7,
-                              child: pw.Container(
-                                padding: pw.EdgeInsets.fromLTRB(15, 3, 5, 2),
-                                alignment: pw.Alignment.centerLeft,
+                    ],
+                  ),
 
-                                child: pw.Text(
-                                  _selectedparty,
-                                  style: pw.TextStyle(
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-
-                            pw.Expanded(
-                              flex: 3,
-                              child: pw.Container(
-
-
-                                padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
-                                alignment: pw.Alignment.centerRight,
-
-                                child: pw.Text(
-                                  formatAmountVoucher(roundedtotalBillAmount.toString()),
-                                  style: pw.TextStyle(
-                                    fontSize: 11,
-                                  ),
-                                ),
-
-                              ),
-                            ),
-                          ])
-                        ]
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      bottom: pw.BorderSide.none,
+                      top: pw.BorderSide.none,
                     ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 7,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(20, 2, 5, 2),
+                              alignment: pw.Alignment.centerLeft,
 
-                    pw.Table(
-                        border: pw.TableBorder(
+                              child: pw.SizedBox(height: 25),
+                            ),
+                          ),
+
+                          pw.Expanded(
+                            flex: 3,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                              alignment: pw.Alignment.centerRight,
+
+                              child: pw.SizedBox(height: 25),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      bottom: pw.BorderSide.none,
+                      top: pw.BorderSide.none,
+                    ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 7,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                              alignment: pw.Alignment.centerLeft,
+
+                              child: pw.Text(
+                                'Through : ',
+                                style: pw.TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: pw.FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          pw.Expanded(
+                            flex: 3,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                              alignment: pw.Alignment.centerRight,
+
+                              child: pw.Text(
+                                '',
+                                style: pw.TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: pw.FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  pw.Table(
+                    border: pw.TableBorder(
+                      horizontalInside: pw.BorderSide.none,
+                      verticalInside: pw.BorderSide(
+                        color: PdfColor.fromHex('#050400'),
+                      ),
+                      bottom: pw.BorderSide.none,
+                      top: pw.BorderSide.none,
+                    ),
+                    children: [
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 7,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                              alignment: pw.Alignment.centerLeft,
+
+                              child: pw.Text(
+                                _selectedbankcashname!['name']!,
+                                style: pw.TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: pw.FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          pw.Expanded(
+                            flex: 3,
+                            child: pw.Container(
+                              padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                              alignment: pw.Alignment.centerRight,
+
+                              child: pw.Text(
+                                '',
+                                style: pw.TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: pw.FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  if (cheque.isNotEmpty)
+                    pw.Column(
+                      children: [
+                        pw.Table(
+                          border: pw.TableBorder(
                             horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            bottom:  pw.BorderSide.none,
-                            top:  pw.BorderSide.none
-                        ),
-                        children:[
-                          for(var bill in bills.asMap().entries)
-
-                            pw.TableRow(children: [
-
-
-
-
-                              pw.Expanded(
-                                flex:7,
-                                child: pw.Container(
-                                    padding: pw.EdgeInsets.fromLTRB(20, 2, 10, 2),
+                            verticalInside: pw.BorderSide(
+                              color: PdfColor.fromHex('#050400'),
+                            ),
+                            bottom: pw.BorderSide.none,
+                            top: pw.BorderSide.none,
+                          ),
+                          children: [
+                            pw.TableRow(
+                              children: [
+                                pw.Expanded(
+                                  flex: 7,
+                                  child: pw.Container(
+                                    padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
                                     alignment: pw.Alignment.centerLeft,
 
-                                    child: pw.Row(children: [
-                                      pw.Text(
-                                        bill.value.billName,
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.bold
-                                        ),
+                                    child: pw.Text(
+                                      'Bank Transaction Details:',
+                                      style: pw.TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: pw.FontWeight.normal,
                                       ),
-                                      pw.SizedBox(width: 2),
-                                      pw.Text(
-                                        formatAmountVoucher(bill.value.billAmount.toString()),
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.bold
-                                        ),
-                                      ),
+                                    ),
+                                  ),
+                                ),
 
-                                    ])
+                                pw.Expanded(
+                                  flex: 3,
+                                  child: pw.Container(
+                                    padding: pw.EdgeInsets.fromLTRB(
+                                      5,
+                                      2,
+                                      10,
+                                      2,
+                                    ),
+                                    alignment: pw.Alignment.centerRight,
+
+                                    child: pw.Text(
+                                      '',
+                                      style: pw.TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: pw.FontWeight.normal,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        for (var cheque in cheque.asMap().entries)
+                          pw.Table(
+                            border: pw.TableBorder(
+                              horizontalInside: pw.BorderSide.none,
+                              verticalInside: pw.BorderSide(
+                                color: PdfColor.fromHex('#050400'),
+                              ),
+                              bottom: pw.BorderSide.none,
+                              top: pw.BorderSide.none,
+                            ),
+                            children: [
+                              pw.TableRow(
+                                children: [
+                                  pw.Expanded(
+                                    flex: 7,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        2,
+                                        5,
+                                        2,
+                                      ),
+                                      alignment: pw.Alignment.centerLeft,
+
+                                      child: pw.Row(
+                                        children: [
+                                          pw.Text(
+                                            cheque.value.paymentMode,
+                                            style: pw.TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: pw.FontWeight.normal,
+                                            ),
+                                          ),
+
+                                          pw.SizedBox(width: 10),
+
+                                          pw.Text(
+                                            formatlastsaledate(
+                                              cheque.value.instdate.toString(),
+                                            ),
+                                            style: pw.TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: pw.FontWeight.normal,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+
+                                  pw.Expanded(
+                                    flex: 3,
+                                    child: pw.Container(
+                                      padding: pw.EdgeInsets.fromLTRB(
+                                        5,
+                                        2,
+                                        10,
+                                        2,
+                                      ),
+                                      alignment: pw.Alignment.centerRight,
+
+                                      child: pw.Text(
+                                        '',
+                                        style: pw.TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: pw.FontWeight.normal,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  pw.Column(
+                    children: [
+                      pw.Table(
+                        border: pw.TableBorder(
+                          horizontalInside: pw.BorderSide.none,
+                          verticalInside: pw.BorderSide(
+                            color: PdfColor.fromHex('#050400'),
+                          ),
+                          bottom: pw.BorderSide.none,
+                          top: pw.BorderSide.none,
+                        ),
+                        children: [
+                          pw.TableRow(
+                            children: [
+                              pw.Expanded(
+                                flex: 7,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 30, 5, 2),
+                                  alignment: pw.Alignment.centerLeft,
+
+                                  child: pw.Text(
+                                    'Amount (in words) :',
+                                    style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal,
+                                    ),
+                                  ),
                                 ),
                               ),
-
 
                               pw.Expanded(
                                 flex: 3,
                                 child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 30, 10, 2),
+                                  alignment: pw.Alignment.centerRight,
 
+                                  child: pw.Text(
+                                    '',
+                                    style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
 
+                      pw.Table(
+                        border: pw.TableBorder(
+                          horizontalInside: pw.BorderSide.none,
+                          verticalInside: pw.BorderSide(
+                            color: PdfColor.fromHex('#050400'),
+                          ),
+                          bottom: pw.BorderSide.none,
+                          top: pw.BorderSide.none,
+                        ),
+                        children: [
+                          pw.TableRow(
+                            children: [
+                              pw.Expanded(
+                                flex: 7,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
+                                  alignment: pw.Alignment.centerLeft,
+
+                                  child: pw.Text(
+                                    convertAmountToWords(totalBillAmount),
+                                    style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              pw.Expanded(
+                                flex: 3,
+                                child: pw.Container(
                                   padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
                                   alignment: pw.Alignment.centerRight,
 
@@ -1252,512 +1684,169 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                     '',
                                     style: pw.TextStyle(
                                       fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal,
                                     ),
                                   ),
-
                                 ),
                               ),
-                            ])
-                        ]
-                    ),
+                            ],
+                          ),
+                        ],
+                      ),
 
-                    pw.Table(
+                      pw.Table(
                         border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            bottom:  pw.BorderSide.none,
-                            top:  pw.BorderSide.none
+                          horizontalInside: pw.BorderSide.none,
+                          verticalInside: pw.BorderSide(
+                            color: PdfColor.fromHex('#050400'),
+                          ),
+                          bottom: pw.BorderSide.none,
+                          top: pw.BorderSide.none,
+                          right: pw.BorderSide.none,
                         ),
-                        children:[
-                          pw.TableRow(children: [
-                            pw.Expanded(
-                              flex:7,
-                              child: pw.Container(
-                                  padding: pw.EdgeInsets.fromLTRB(20, 2, 5, 2),
+                        children: [
+                          pw.TableRow(
+                            children: [
+                              pw.Expanded(
+                                flex: 7,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 0),
                                   alignment: pw.Alignment.centerLeft,
 
-                                  child: pw.SizedBox(height:25)
+                                  child: pw.Text(
+                                    '',
+                                    style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
 
-
-                            pw.Expanded(
-                              flex: 3,
-                              child: pw.Container(
-
-
-                                  padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
+                              pw.Expanded(
+                                flex: 3,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(0, 5, 0, 0),
                                   alignment: pw.Alignment.centerRight,
 
-                                  child: pw.SizedBox(height:25)
-
-                              ),
-                            ),
-                          ])
-                        ]
-                    ),
-
-
-                    pw.Table(
-                        border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            bottom:  pw.BorderSide.none,
-                            top:  pw.BorderSide.none
-                        ),
-                        children:[
-                          pw.TableRow(children: [
-                            pw.Expanded(
-                              flex:7,
-                              child: pw.Container(
-                                padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
-                                alignment: pw.Alignment.centerLeft,
-
-                                child: pw.Text(
-                                  'Through : ',
-                                  style: pw.TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: pw.FontWeight.normal
-                                  ),
-                                ),
-                              ),
-                            ),
-
-
-                            pw.Expanded(
-                              flex: 3,
-                              child: pw.Container(
-
-
-                                padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
-                                alignment: pw.Alignment.centerRight,
-
-                                child: pw.Text(
-                                  '',
-                                  style: pw.TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: pw.FontWeight.normal
-                                  ),
-                                ),
-
-                              ),
-                            ),
-                          ])
-                        ]
-                    ),
-                    pw.Table(
-                        border: pw.TableBorder(
-                            horizontalInside: pw.BorderSide.none,
-                            verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                            bottom:  pw.BorderSide.none,
-                            top:  pw.BorderSide.none
-                        ),
-                        children:[
-                          pw.TableRow(children: [
-                            pw.Expanded(
-                              flex:7,
-                              child: pw.Container(
-                                padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
-                                alignment: pw.Alignment.centerLeft,
-
-                                child: pw.Text(
-                                  _selectedbankcashname!['name']!,
-                                  style: pw.TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: pw.FontWeight.normal
-                                  ),
-                                ),
-                              ),
-                            ),
-
-
-                            pw.Expanded(
-                              flex: 3,
-                              child: pw.Container(
-
-
-                                padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
-                                alignment: pw.Alignment.centerRight,
-
-                                child: pw.Text(
-                                  '',
-                                  style: pw.TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: pw.FontWeight.normal
-                                  ),
-                                ),
-
-                              ),
-                            ),
-                          ])
-                        ]
-                    ),
-
-                    if(cheque.isNotEmpty)
-                      pw.Column(
-                          children: [
-                            pw.Table(
-                                border: pw.TableBorder(
-                                    horizontalInside: pw.BorderSide.none,
-                                    verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                    bottom:  pw.BorderSide.none,
-                                    top:  pw.BorderSide.none
-                                ),
-                                children:[
-                                  pw.TableRow(children: [
-                                    pw.Expanded(
-                                      flex:7,
-                                      child: pw.Container(
-                                        padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
-                                        alignment: pw.Alignment.centerLeft,
-
-                                        child: pw.Text(
-                                          'Bank Transaction Details:',
-                                          style: pw.TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: pw.FontWeight.normal
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-
-                                    pw.Expanded(
-                                      flex: 3,
-                                      child: pw.Container(
-
-
-                                        padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
-                                        alignment: pw.Alignment.centerRight,
-
-                                        child: pw.Text(
-                                          '',
-                                          style: pw.TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: pw.FontWeight.normal
-                                          ),
-                                        ),
-
-                                      ),
-                                    ),
-                                  ])
-                                ]
-                            ),
-
-                            for(var cheque in cheque.asMap().entries)
-                              pw.Table(
-                                  border: pw.TableBorder(
+                                  child: pw.Table(
+                                    border: pw.TableBorder(
                                       horizontalInside: pw.BorderSide.none,
-                                      verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                      bottom:  pw.BorderSide.none,
-                                      top:  pw.BorderSide.none
-                                  ),
-                                  children:[
-                                    pw.TableRow(children: [
-                                      pw.Expanded(
-                                        flex:7,
-                                        child: pw.Container(
-                                            padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
-                                            alignment: pw.Alignment.centerLeft,
-
-                                            child: pw.Row(children: [
-
-                                              pw.Text(
-                                                cheque.value.paymentMode,
-                                                style: pw.TextStyle(
-                                                    fontSize: 11,
-                                                    fontWeight: pw.FontWeight.normal
-                                                ),
-                                              ),
-
-                                              pw.SizedBox(width: 10),
-
-                                              pw.Text(
-                                                formatlastsaledate(cheque.value.instdate.toString()),
-                                                style: pw.TextStyle(
-                                                    fontSize: 11,
-                                                    fontWeight: pw.FontWeight.normal
-                                                ),
-                                              ),
-                                            ])
-                                        ),
+                                      verticalInside: pw.BorderSide.none,
+                                      bottom: pw.BorderSide(
+                                        color: PdfColor.fromHex('#050400'),
                                       ),
+                                      top: pw.BorderSide(
+                                        color: PdfColor.fromHex('#050400'),
+                                      ),
+                                      right: pw.BorderSide.none,
+                                    ),
+                                    children: [
+                                      pw.TableRow(
+                                        children: [
+                                          pw.Expanded(
+                                            flex: 3,
+                                            child: pw.Container(
+                                              padding: pw.EdgeInsets.fromLTRB(
+                                                0,
+                                                5,
+                                                10,
+                                                5,
+                                              ),
+                                              alignment:
+                                                  pw.Alignment.centerRight,
 
-
-                                      pw.Expanded(
-                                        flex: 3,
-                                        child: pw.Container(
-
-
-                                          padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
-                                          alignment: pw.Alignment.centerRight,
-
-                                          child: pw.Text(
-                                            '',
-                                            style: pw.TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: pw.FontWeight.normal
+                                              child: pw.Text(
+                                                formatAmountVoucher(
+                                                  totalBillAmount.toString(),
+                                                ),
+                                                style: pw.TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight:
+                                                      pw.FontWeight.normal,
+                                                ),
+                                              ),
                                             ),
                                           ),
-
-                                        ),
+                                        ],
                                       ),
-                                    ])
-                                  ]
+                                    ],
+                                  ),
+                                ),
                               ),
-                          ]
+                            ],
+                          ),
+                        ],
                       ),
-                    pw.Column(
+
+                      pw.Table(
+                        border: pw.TableBorder(
+                          horizontalInside: pw.BorderSide.none,
+                          verticalInside: pw.BorderSide.none,
+                          bottom: pw.BorderSide.none,
+                          top: pw.BorderSide.none,
+                          right: pw.BorderSide.none,
+                        ),
                         children: [
-                          pw.Table(
-                              border: pw.TableBorder(
-                                  horizontalInside: pw.BorderSide.none,
-                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                  bottom:  pw.BorderSide.none,
-                                  top:  pw.BorderSide.none
+                          pw.TableRow(
+                            children: [
+                              pw.Expanded(
+                                flex: 7,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(5, 50, 5, 0),
+                                  alignment: pw.Alignment.centerLeft,
+
+                                  child: pw.Text(
+                                    '',
+                                    style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              children:[
-                                pw.TableRow(children: [
-                                  pw.Expanded(
-                                    flex:7,
-                                    child: pw.Container(
-                                      padding: pw.EdgeInsets.fromLTRB(5, 30, 5, 2),
-                                      alignment: pw.Alignment.centerLeft,
 
-                                      child: pw.Text(
-                                        'Amount (in words) :',
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.normal
-                                        ),
-                                      ),
+                              pw.Expanded(
+                                flex: 3,
+                                child: pw.Container(
+                                  padding: pw.EdgeInsets.fromLTRB(0, 50, 5, 0),
+                                  alignment: pw.Alignment.centerLeft,
+
+                                  child: pw.Text(
+                                    'Authorised Signatory',
+                                    style: pw.TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: pw.FontWeight.normal,
                                     ),
                                   ),
-
-
-                                  pw.Expanded(
-                                    flex: 3,
-                                    child: pw.Container(
-
-
-                                      padding: pw.EdgeInsets.fromLTRB(5, 30, 10, 2),
-                                      alignment: pw.Alignment.centerRight,
-
-                                      child: pw.Text(
-                                        '',
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.normal
-                                        ),
-                                      ),
-
-                                    ),
-                                  ),
-                                ])
-                              ]
-                          ),
-
-                          pw.Table(
-                              border: pw.TableBorder(
-                                  horizontalInside: pw.BorderSide.none,
-                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                  bottom:  pw.BorderSide.none,
-                                  top:  pw.BorderSide.none
+                                ),
                               ),
-                              children:[
-                                pw.TableRow(children: [
-                                  pw.Expanded(
-                                    flex:7,
-                                    child: pw.Container(
-                                      padding: pw.EdgeInsets.fromLTRB(5, 2, 5, 2),
-                                      alignment: pw.Alignment.centerLeft,
-
-                                      child: pw.Text(
-                                        convertAmountToWords(totalBillAmount),
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.normal
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-
-                                  pw.Expanded(
-                                    flex: 3,
-                                    child: pw.Container(
-
-
-                                      padding: pw.EdgeInsets.fromLTRB(5, 2, 10, 2),
-                                      alignment: pw.Alignment.centerRight,
-
-                                      child: pw.Text(
-                                        '',
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.normal
-                                        ),
-                                      ),
-
-                                    ),
-                                  ),
-                                ])
-                              ]
+                            ],
                           ),
-
-                          pw.Table(
-                              border: pw.TableBorder(
-                                  horizontalInside: pw.BorderSide.none,
-                                  verticalInside: pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                  bottom:  pw.BorderSide.none,
-                                  top:  pw.BorderSide.none,
-                                  right:  pw.BorderSide.none
-                              ),
-                              children:[
-                                pw.TableRow(children: [
-                                  pw.Expanded(
-                                    flex:7,
-                                    child: pw.Container(
-                                      padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 0),
-                                      alignment: pw.Alignment.centerLeft,
-
-                                      child: pw.Text(
-                                        '',
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.normal
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-
-                                  pw.Expanded(
-                                    flex:3,
-                                    child: pw.Container(
-                                      padding: pw.EdgeInsets.fromLTRB(0, 5, 0, 0),
-                                      alignment: pw.Alignment.centerRight,
-
-                                      child: pw.Table(
-                                          border: pw.TableBorder(
-                                              horizontalInside: pw.BorderSide.none,
-                                              verticalInside: pw.BorderSide.none,
-                                              bottom:  pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                              top:  pw.BorderSide(color: PdfColor.fromHex('#050400')),
-                                              right:  pw.BorderSide.none
-                                          ),
-                                          children:[
-                                            pw.TableRow(children: [
-
-
-
-                                              pw.Expanded(
-                                                flex:3,
-                                                child: pw.Container(
-                                                  padding: pw.EdgeInsets.fromLTRB(0, 5, 10, 5),
-                                                  alignment: pw.Alignment.centerRight,
-
-                                                  child: pw.Text(
-                                                    formatAmountVoucher(totalBillAmount.toString()),
-                                                    style: pw.TextStyle(
-                                                        fontSize: 11,
-                                                        fontWeight: pw.FontWeight.normal
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-
-
-
-                                            ])
-                                          ]
-                                      ),
-                                    ),
-                                  ),
-
-
-
-                                ])
-                              ]
-                          ),
-
-                          pw.Table(
-                              border: pw.TableBorder(
-                                  horizontalInside: pw.BorderSide.none,
-                                  verticalInside: pw.BorderSide.none,
-                                  bottom:  pw.BorderSide.none,
-                                  top:  pw.BorderSide.none,
-                                  right:  pw.BorderSide.none
-                              ),
-                              children:[
-                                pw.TableRow(children: [
-                                  pw.Expanded(
-                                    flex:7,
-                                    child: pw.Container(
-                                      padding: pw.EdgeInsets.fromLTRB(5, 50, 5, 0),
-                                      alignment: pw.Alignment.centerLeft,
-
-                                      child: pw.Text(
-                                        '',
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.normal
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-
-                                  pw.Expanded(
-                                    flex:3,
-                                    child: pw.Container(
-                                      padding: pw.EdgeInsets.fromLTRB(0, 50, 5, 0),
-                                      alignment: pw.Alignment.centerLeft,
-
-                                      child: pw.Text(
-                                        'Authorised Signatory',
-                                        style: pw.TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: pw.FontWeight.normal
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-
-
-                                ])
-                              ]
-                          ),
-
-
-
-
-                        ]
-                    )
-
-
-                  ],
-                ),
-                pw.Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: pw.Container(
-                    padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-                    alignment: pw.Alignment.center,
-                    child: pw.Text(
-                      'Created in Fincore Go',
-                      textAlign: pw.TextAlign.center,
-                      style: pw.TextStyle(
-                          fontSize: 10,
-                          color: PdfColor.fromInt(0xFFCCCCCC)
+                        ],
                       ),
+                    ],
+                  ),
+                ],
+              ),
+              pw.Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: pw.Container(
+                  padding: pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+                  alignment: pw.Alignment.center,
+                  child: pw.Text(
+                    'Created in Fincore Go',
+                    textAlign: pw.TextAlign.center,
+                    style: pw.TextStyle(
+                      fontSize: 10,
+                      color: PdfColor.fromInt(0xFFCCCCCC),
                     ),
                   ),
                 ),
-
-              ]
+              ),
+            ],
           );
         },
       ),
@@ -1770,14 +1859,9 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
     final file = File(filePath);
     await file.writeAsBytes(pdfData);
 
-    await Share.shareXFiles(
-      [XFile(filePath, mimeType: 'application/pdf')],
-      text: 'Sharing Receipt Voucher for $_selectedparty',
-    );
-
-
-
-
+    await Share.shareXFiles([
+      XFile(filePath, mimeType: 'application/pdf'),
+    ], text: 'Sharing Receipt Voucher for $_selectedparty');
 
     setState(() {
       controller_narration.clear();
@@ -1791,44 +1875,37 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       fetchvchnos(_selectedvchtypename);
       _selectedparty = partydata.first;
 
-      if(serial_no != uniGasSerialNumber){
+      if (serial_no != uniGasSerialNumber) {
         _selectedbankcashname = bankcashname_data.first;
       }
-
 
       bills.clear();
       cheque.clear();
 
       updateChequeAmount();
 
-      totalBillAmount = bills.fold(0.0,(double previousAmount, Bills bill) {
+      totalBillAmount = bills.fold(0.0, (double previousAmount, Bills bill) {
         return previousAmount + bill.billAmount;
-      },
+      });
+      roundedtotalBillAmount = double.parse(
+        totalBillAmount.toStringAsFixed(decimal!),
       );
-      roundedtotalBillAmount = double.parse(totalBillAmount.toStringAsFixed(decimal!));
       NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
       String formattedtotal = formatter.format(roundedtotalBillAmount);
       controller_totalamt.text = formattedtotal.toString();
 
-      if (bills.isEmpty)
-      {
+      if (bills.isEmpty) {
         isVisibleBillHeading = false;
-      }
-      else
-      {
+      } else {
         isVisibleBillHeading = true;
       }
 
-      if (cheque.isEmpty)
-      {
+      if (cheque.isEmpty) {
         isVisibleChequeHeading = false;
-      }
-      else
-      {
+      } else {
         isVisibleChequeHeading = true;
       }
     });
-
   }
 
   Future<void> updateEntry(int id) async {
@@ -1846,12 +1923,11 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       return;
     }
 
-    if (bills.isEmpty)
-    {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Atleast add 1 bill')));
-    }
-    else {
+    if (bills.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Atleast add 1 bill')));
+    } else {
       setState(() {
         _isLoading = true;
       });
@@ -1869,32 +1945,43 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       final List<Map<String, dynamic>> allLedgerEntriesList = [];
 
       // Get the list of non-"On Account" bills
-      final List<Map<String, dynamic>> nonOnAccountBills = bills.where((bill) => bill.billName != "On Account").map((bill) {
-        final Map<String, dynamic> billData = {
-          "BILLTYPE": bill.billName,
-          "AMOUNT": bill.billAmount.toStringAsFixed(decimal!),
-        };
+      final List<Map<String, dynamic>> nonOnAccountBills = bills
+          .where((bill) => bill.billName != "On Account")
+          .map((bill) {
+            final Map<String, dynamic> billData = {
+              "BILLTYPE": bill.billName,
+              "AMOUNT": bill.billAmount.toStringAsFixed(decimal!),
+            };
 
-        // Conditionally add BILLNO and BILL CREDIT PERIOD if BILLTYPE is not "On Account"
-        if (bill.billName != "On Account") {
-          billData["NAME"] = bill.billNo;
-          billData["BILLCREDITPERIOD"] = bill.billDueDate ?? ""; // Assuming billDueDate is part of the bill object
-        }
+            // Conditionally add BILLNO and BILL CREDIT PERIOD if BILLTYPE is not "On Account"
+            if (bill.billName != "On Account") {
+              billData["NAME"] = bill.billNo;
+              billData["BILLCREDITPERIOD"] =
+                  bill.billDueDate ??
+                  ""; // Assuming billDueDate is part of the bill object
+            }
 
-        return billData;
-      }).toList();
+            return billData;
+          })
+          .toList();
 
-// Get the list of "On Account" bills
-      final List<Map<String, dynamic>> onAccountBills = bills.where((bill) => bill.billName == "On Account").map((bill) {
-        final Map<String, dynamic> billData = {
-          "BILLTYPE": bill.billName,
-          "AMOUNT": bill.billAmount,
-        };
-        return billData;
-      }).toList();
+      // Get the list of "On Account" bills
+      final List<Map<String, dynamic>> onAccountBills = bills
+          .where((bill) => bill.billName == "On Account")
+          .map((bill) {
+            final Map<String, dynamic> billData = {
+              "BILLTYPE": bill.billName,
+              "AMOUNT": bill.billAmount,
+            };
+            return billData;
+          })
+          .toList();
 
-// Combine the lists, placing "On Account" bills at the end
-      final List<Map<String, dynamic>> allBillAllocations = [...nonOnAccountBills, ...onAccountBills];
+      // Combine the lists, placing "On Account" bills at the end
+      final List<Map<String, dynamic>> allBillAllocations = [
+        ...nonOnAccountBills,
+        ...onAccountBills,
+      ];
 
       final Map<String, dynamic> allLedgerEntry = {
         "LEDGERNAME": _selectedparty,
@@ -1907,11 +1994,14 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
       // Add bank allocation details
       final Map<String, dynamic> bankAllocation = {
-        "LEDGERNAME": _selectedbankcashname!['name'], // Assuming you're getting bank name dynamically
-        "AMOUNT": -totalBillAmount, // Assuming you have totalBankAmount calculated
+        "LEDGERNAME":
+            _selectedbankcashname!['name'], // Assuming you're getting bank name dynamically
+        "AMOUNT":
+            -totalBillAmount, // Assuming you have totalBankAmount calculated
         "ISPARTYLEDGER": "No",
         "ISDEEMEDPOSITIVE": "Yes",
-        "BANKALLOCATIONS.LIST": [] // Conditionally empty list based on the type of selected bank/cash
+        "BANKALLOCATIONS.LIST":
+            [], // Conditionally empty list based on the type of selected bank/cash
       };
       allLedgerEntriesList.add(bankAllocation);
 
@@ -1922,7 +2012,9 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
             "DATE": cheque.date,
             "INSTRUMENTDATE": cheque.instdate ?? receiptdatestring,
             "TRANSACTIONTYPE": cheque.paymentMode,
-            "BANKNAME": (cheque.bankname != "Not Applicable") ? cheque.bankname : "",
+            "BANKNAME": (cheque.bankname != "Not Applicable")
+                ? cheque.bankname
+                : "",
             "PAYMENTFAVOURING": cheque.paymentFavouring,
             "INSTRUMENTNUMBER": cheque.instno,
             "BANKPARTYNAME": cheque.bankPartyName,
@@ -1933,44 +2025,31 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
       jsonEntryData['ALLLEDGERENTRIES.LIST'] = allLedgerEntriesList;
 
-
-      try
-      {
+      try {
         final url_receiptentry = Uri.parse(HttpURL_receiptEntry!);
-        Map<String,String> headers_receiptentry = {
-          'Authorization' : 'Bearer $token',
-          "Content-Type": "application/json"
+        Map<String, String> headers_receiptentry = {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json",
         };
-        Map<String, dynamic> jsonData = {
-          'id' : id,
-          'data' : jsonEntryData
-
-        };
+        Map<String, dynamic> jsonData = {'id': id, 'data': jsonEntryData};
         String jsonDataString = jsonEncode(jsonData);
         print(jsonDataString);
-
-
 
         var body_receiptentry = jsonDataString;
 
         final response_receiptentry = await http.post(
-            url_receiptentry,
-            body: body_receiptentry,
-            headers:headers_receiptentry
+          url_receiptentry,
+          body: body_receiptentry,
+          headers: headers_receiptentry,
         );
 
         if (response_receiptentry.statusCode == 200) {
-          if(response_receiptentry.body == 'Entry updated successfully') {
-
+          if (response_receiptentry.body == 'Entry updated successfully') {
             showReceiptVoucherUpdatedDialog(context);
-
-          }
-          else
-          {
+          } else {
             Fluttertoast.showToast(msg: 'an error occoured');
           }
-        }
-        else {
+        } else {
           Map<String, dynamic> data = json.decode(response_receiptentry.body);
           String error = '';
 
@@ -1978,27 +2057,21 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
             setState(() {
               error = data['error'];
             });
-          }
-          else {
+          } else {
             error = "Error in data fetching!!!";
           }
           Fluttertoast.showToast(msg: error);
         }
-      }
-      catch (e)
-      {
+      } catch (e) {
         setState(() {
           _isLoading = false;
         });
         print(e);
       }
-
     }
-    setState(()
-    {
+    setState(() {
       _isLoading = false;
     });
-
   }
 
   Future<void> loadData() async {
@@ -2006,13 +2079,13 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
     partydata.clear();
     bankcashname_data.clear();
     bills.clear();
-    totalBillAmount = bills.fold(0.0,
-          (double previousAmount, Bills bill) {
-        return previousAmount + bill.billAmount;
-      },
-    );
+    totalBillAmount = bills.fold(0.0, (double previousAmount, Bills bill) {
+      return previousAmount + bill.billAmount;
+    });
     // Update formatted total amount
-    roundedtotalBillAmount = double.parse(totalBillAmount.toStringAsFixed(decimal!));
+    roundedtotalBillAmount = double.parse(
+      totalBillAmount.toStringAsFixed(decimal!),
+    );
     NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
     String formattedtotal = formatter.format(roundedtotalBillAmount);
     controller_totalamt.text = formattedtotal.toString();
@@ -2033,19 +2106,13 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
     // data fetching
     try {
       final url = Uri.parse(HttpURL_loadData!);
-      Map<String,String> headers =
-      {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
-      final response = await http.post
-        (
-          url,
-          headers:headers
-      );
+      final response = await http.post(url, headers: headers);
 
-      if (response.statusCode == 200)
-      {
+      if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
 
         String oldvchname = data['VOUCHERTYPENAME'];
@@ -2067,7 +2134,12 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
           _vchnoController.text = oldvchno;
 
-          bankcashname_data = List<Map<String, String>>.from(jsonResponse['cashLedgers']?.map((cashLedger) => Map<String, String>.from(cashLedger)) ?? []);
+          bankcashname_data = List<Map<String, String>>.from(
+            jsonResponse['cashLedgers']?.map(
+                  (cashLedger) => Map<String, String>.from(cashLedger),
+                ) ??
+                [],
+          );
 
           var lastEntry = data['ALLLEDGERENTRIES.LIST'].last;
 
@@ -2075,12 +2147,13 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
           String ledgerNameToMatch = lastEntry['LEDGERNAME'];
 
           Map<String, String>? selectedLedger = bankcashname_data.firstWhere(
-                (item) => item['name'] == ledgerNameToMatch
+            (item) => item['name'] == ledgerNameToMatch,
           );
           if (selectedLedger != null) {
             _selectedbankcashname = selectedLedger;
-            _bankcashnameController.text = _selectedbankcashname!=null ? _selectedbankcashname!['name']! : "" ;
-
+            _bankcashnameController.text = _selectedbankcashname != null
+                ? _selectedbankcashname!['name']!
+                : "";
           }
 
           List<dynamic> ledgerEntries = data['ALLLEDGERENTRIES.LIST'];
@@ -2090,56 +2163,55 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
             print(entry);
           }
 
-          try
-          {
+          try {
             // Iterate over "ALLLEDGERENTRIES.LIST" to populate bills list
             for (var entry in ledgerEntries) {
-              List<dynamic> billAllocations = entry['BILLALLOCATIONS.LIST'] ?? null;
-              if(billAllocations !=null)
-                {
-                  for (var allocation in billAllocations) {
-                    String billType = allocation['BILLTYPE'] ?? 'Unknown';
-                    double billAmount = (allocation['AMOUNT'] ?? 0).toDouble();
+              List<dynamic> billAllocations =
+                  entry['BILLALLOCATIONS.LIST'] ?? null;
+              if (billAllocations != null) {
+                for (var allocation in billAllocations) {
+                  String billType = allocation['BILLTYPE'] ?? 'Unknown';
+                  double billAmount = (allocation['AMOUNT'] ?? 0).toDouble();
 
-                    String? billNo = null;
-                    String? billDueDate = null;
+                  String? billNo = null;
+                  String? billDueDate = null;
 
-                    if (billType != 'On Account') {
-                      billNo = allocation['NAME'];
-                      billDueDate = allocation['BILLCREDITPERIOD'];
-                    }
-                      bills.add(Bills(
-                        billName: billType,
-                        billAmount: billAmount,
-                        billNo: billNo,
-                        billDueDate: billDueDate,
-                      ));
+                  if (billType != 'On Account') {
+                    billNo = allocation['NAME'];
+                    billDueDate = allocation['BILLCREDITPERIOD'];
                   }
+                  bills.add(
+                    Bills(
+                      billName: billType,
+                      billAmount: billAmount,
+                      billNo: billNo,
+                      billDueDate: billDueDate,
+                    ),
+                  );
                 }
+              }
             }
-          }
-          catch (e)
-          {
-          }
-          try
-          {
+          } catch (e) {}
+          try {
             var secondEntry = ledgerEntries[1];
-            List<dynamic> bankAllocations = secondEntry['BANKALLOCATIONS.LIST'] ?? null;
+            List<dynamic> bankAllocations =
+                secondEntry['BANKALLOCATIONS.LIST'] ?? null;
             int l = bankAllocations.length;
             print('bank length $l');
-            if(bankAllocations!=null)
-            {
+            if (bankAllocations != null) {
               for (var allocation in bankAllocations) {
                 String instno = allocation['INSTRUMENTNUMBER'] ?? '';
                 String? instdate = allocation['INSTRUMENTDATE'];
                 String? bankname = allocation['BANKNAME'];
-                double chequeAmount = (allocation['AMOUNT'] ?? 0).toDouble(); // Explicitly cast to double
+                double chequeAmount = (allocation['AMOUNT'] ?? 0)
+                    .toDouble(); // Explicitly cast to double
                 String paymentMode = allocation['TRANSACTIONTYPE'] ?? '';
                 String date = allocation['DATE'] ?? '';
                 String paymentfavouring = allocation['PAYMENTFAVOURING'] ?? '';
                 String bankpartyname = allocation['BANKPARTYNAME'] ?? '';
 
-                cheque.add(Cheque(
+                cheque.add(
+                  Cheque(
                     date: date,
                     paymentFavouring: paymentfavouring,
                     bankPartyName: bankpartyname,
@@ -2148,12 +2220,12 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                     instdate: instdate,
                     bankname: bankname,
                     chequeAmount: -chequeAmount,
-                    paymentMode: paymentMode));
+                    paymentMode: paymentMode,
+                  ),
+                );
               }
             }
-          }
-          catch (e)
-          {
+          } catch (e) {
             print(e);
           }
           int l = cheque.length;
@@ -2167,39 +2239,28 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
             isPaymentModeVisible = false;
           }
 
-          if (bills.isEmpty)
-          {
+          if (bills.isEmpty) {
             isVisibleBillHeading = false;
             isPaymentModeVisible = false;
-
-          }
-          else
-          {
+          } else {
             isVisibleBillHeading = true;
-
           }
 
-          if (_selectedbankcashname != null && _selectedbankcashname!['type'] == 'Cash-in-Hand') {
-
+          if (_selectedbankcashname != null &&
+              _selectedbankcashname!['type'] == 'Cash-in-Hand') {
             isPaymentModeVisible = false;
             _selectedpaymentmode = paymentmode_data.first;
             cheque.clear();
             updateChequeAmount();
             isVisibleChequeHeading = false;
             isChequeVisible = false;
-          }
-          else
-          {
-            if(bills.isNotEmpty)
-            {
-              if(cheque.isNotEmpty)
-              {
+          } else {
+            if (bills.isNotEmpty) {
+              if (cheque.isNotEmpty) {
                 isPaymentModeVisible = true;
                 isChequeVisible = true;
                 isVisibleChequeHeading = true;
-              }
-              else
-              {
+              } else {
                 isPaymentModeVisible = true;
                 _selectedpaymentmode = paymentmode_data.first;
                 cheque.clear();
@@ -2208,9 +2269,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                 isVisibleChequeHeading = false;
                 isChequeVisible = true;
               }
-            }
-            else
-            {
+            } else {
               isPaymentModeVisible = true;
               _selectedpaymentmode = paymentmode_data.first;
               cheque.clear();
@@ -2221,37 +2280,37 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
             }
           }
 
-          totalBillAmount = bills.fold(0.0,(double previousAmount, Bills bill) {
+          totalBillAmount = bills.fold(0.0, (
+            double previousAmount,
+            Bills bill,
+          ) {
             return previousAmount + bill.billAmount;
-          },
+          });
+          roundedtotalBillAmount = double.parse(
+            totalBillAmount.toStringAsFixed(decimal!),
           );
-          roundedtotalBillAmount = double.parse(totalBillAmount.toStringAsFixed(decimal!));
-          NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+          NumberFormat formatter = NumberFormat(
+            '#,##0.${'0' * decimal!}',
+            'en_US',
+          );
           String formattedtotal = formatter.format(roundedtotalBillAmount);
           controller_totalamt.text = formattedtotal.toString();
 
           updateChequeAmount();
         });
-      }
-      else
-      {
+      } else {
         Map<String, dynamic> data = json.decode(response.body);
         String error = '';
-        if (data.containsKey('error'))
-        {
+        if (data.containsKey('error')) {
           setState(() {
             error = data['error'];
           });
-        }
-        else
-        {
+        } else {
           error = 'Something went wrong!!!';
         }
         Fluttertoast.showToast(msg: error);
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       /*print(e);*/
     }
 
@@ -2268,36 +2327,41 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       lastDate: DateTime(2101),
       builder: (BuildContext context, Widget? child) {
         return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme:  ColorScheme.light().copyWith(
-              primary:  app_color,
-            ),
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(
+              context,
+            ).colorScheme.copyWith(primary: app_color),
           ),
           child: child!,
         );
       },
     );
-    if (picked != null && picked != receiptdate)
-    {
+    if (picked != null && picked != receiptdate) {
       setState(() {
         receiptdate = picked;
         receiptdatestring = _dateFormat.format(receiptdate);
         receiptdatetxt = formatlastsaledate(receiptdatestring);
         _dateController.text = receiptdatetxt;
 
-        if (_selectedbankcashname != null && _selectedbankcashname!['type'] == 'Cash-in-Hand') {
-
+        if (_selectedbankcashname != null &&
+            _selectedbankcashname!['type'] == 'Cash-in-Hand') {
           isPaymentModeVisible = false;
           _selectedpaymentmode = paymentmode_data.first;
           cheque.clear();
           updateChequeAmount();
           isVisibleChequeHeading = false;
           isChequeVisible = false;
-        }
-        else
-        {
-          if(bills.isNotEmpty) {
-            if(cheque.isNotEmpty) {
+        } else {
+          if (bills.isNotEmpty) {
+            if (cheque.isNotEmpty) {
+              isPaymentModeVisible = true;
+              _selectedpaymentmode = paymentmode_data.first;
+              cheque.clear();
+              updateChequeAmount();
+
+              isVisibleChequeHeading = false;
+              isChequeVisible = true;
+            } else {
               isPaymentModeVisible = true;
               _selectedpaymentmode = paymentmode_data.first;
               cheque.clear();
@@ -2306,18 +2370,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
               isVisibleChequeHeading = false;
               isChequeVisible = true;
             }
-            else
-            {
-              isPaymentModeVisible = true;
-              _selectedpaymentmode = paymentmode_data.first;
-              cheque.clear();
-              updateChequeAmount();
-
-              isVisibleChequeHeading = false;
-              isChequeVisible = true;
-            }}
-          else
-          {
+          } else {
             isPaymentModeVisible = true;
             _selectedpaymentmode = paymentmode_data.first;
             cheque.clear();
@@ -2325,10 +2378,10 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
             isVisibleChequeHeading = false;
             isChequeVisible = false;
-          }}
+          }
+        }
       });
     }
-
   } // main receipt date
 
   Future<void> _selectinstDate(BuildContext context) async {
@@ -2339,17 +2392,16 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       lastDate: DateTime(2101),
       builder: (BuildContext context, Widget? child) {
         return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme:  ColorScheme.light().copyWith(
-              primary:  app_color,
-            ),
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(
+              context,
+            ).colorScheme.copyWith(primary: app_color),
           ),
           child: child!,
         );
       },
     );
-    if (picked != null && picked != instdate)
-    {
+    if (picked != null && picked != instdate) {
       setState(() {
         instdate = picked;
         instdatestring = _dateFormat.format(instdate);
@@ -2357,7 +2409,6 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
         instDateController.text = instdatetxt;
       });
     }
-
   }
 
   /*Future<void> _selectbilldueDate(BuildContext context) async {
@@ -2369,8 +2420,8 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       lastDate: DateTime(2101),
       builder: (BuildContext context, Widget? child) {
         return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme:  ColorScheme.light().copyWith(
+          data: Theme.of(context).copyWith(
+            colorScheme:  Theme.of(context).colorScheme.copyWith(
               primary:  app_color,
             ),
           ),
@@ -2396,7 +2447,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             titlePadding: EdgeInsets.zero,
             title:
@@ -2453,11 +2504,11 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                         hintText: "Select Bill Type",
                         labelStyle: GoogleFonts.poppins(
                           fontSize: 12.5,
-                          color: Colors.grey[700],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         hintStyle: GoogleFonts.poppins(
                           fontSize: 12.5,
-                          color: Colors.grey[400],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         prefixIcon: Container(
                           margin: const EdgeInsets.all(8), // 👈 smaller margin
@@ -2473,7 +2524,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14), // 👈 slightly tighter radius
-                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderSide: BorderSide(color: Theme.of(context).dividerColor),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -2523,11 +2574,11 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                             hintText: "Enter Bill No",
                             labelStyle: GoogleFonts.poppins(
                               fontSize: 12.5,
-                              color: Colors.grey[700],
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             hintStyle: GoogleFonts.poppins(
                               fontSize: 12.5,
-                              color: Colors.grey[400],
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             prefixIcon: Container(
                               margin: const EdgeInsets.all(8),
@@ -2577,11 +2628,11 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                             hintText: "Enter due date",
                             labelStyle: GoogleFonts.poppins(
                               fontSize: 13,
-                              color: Colors.grey[700],
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             hintStyle: GoogleFonts.poppins(
                               fontSize: 13,
-                              color: Colors.grey[400],
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             prefixIcon: Container(
                               margin: const EdgeInsets.all(8),
@@ -2626,11 +2677,11 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                           hintText: "0",
                           labelStyle: GoogleFonts.poppins(
                             fontSize: 13,
-                            color: Colors.grey[700],
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           hintStyle: GoogleFonts.poppins(
                             fontSize: 13,
-                            color: Colors.grey[400],
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           prefix: Container(
                             margin: const EdgeInsets.only(right: 8),
@@ -2681,7 +2732,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                   billAmountController.clear();
                 },
                 child: Text('Cancel',
-                  style: GoogleFonts.poppins(color: Colors.grey),
+                  style: GoogleFonts.poppins(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ),
 
@@ -2762,14 +2813,12 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
               return AnimatedPadding(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOut,
-                padding: EdgeInsets.only(
-                  bottom: mediaQuery.viewInsets.bottom,
-                ),
+                padding: EdgeInsets.only(bottom: mediaQuery.viewInsets.bottom),
                 child: FractionallySizedBox(
                   heightFactor: sheetHeight,
                   child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(24),
                       ),
@@ -2811,7 +2860,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                           style: GoogleFonts.poppins(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
 
@@ -2820,7 +2869,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                         Expanded(
                           child: SingleChildScrollView(
                             keyboardDismissBehavior:
-                            ScrollViewKeyboardDismissBehavior.manual,
+                                ScrollViewKeyboardDismissBehavior.manual,
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
                             child: Form(
                               key: _billsFormkey,
@@ -2833,22 +2882,30 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                       hintText: "Select Bill Type",
                                       labelStyle: GoogleFonts.poppins(
                                         fontSize: 12.5,
-                                        color: Colors.grey[700],
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                       ),
                                       hintStyle: GoogleFonts.poppins(
                                         fontSize: 12.5,
-                                        color: Colors.grey[400],
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                       ),
                                       prefixIcon: Container(
                                         margin: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
                                           gradient: const LinearGradient(
-                                            colors: [Colors.indigo, Colors.cyan],
+                                            colors: [
+                                              Colors.indigo,
+                                              Colors.cyan,
+                                            ],
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
                                           ),
-                                          borderRadius:
-                                          BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
                                         ),
                                         child: const Icon(
                                           Icons.book,
@@ -2859,13 +2916,13 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(14),
                                         borderSide: BorderSide(
-                                          color: Colors.grey.shade300,
+                                          color: Theme.of(context).dividerColor,
                                         ),
                                       ),
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(14),
                                         borderSide: BorderSide(
-                                          color: Colors.grey.shade300,
+                                          color: Theme.of(context).dividerColor,
                                         ),
                                       ),
                                       focusedBorder: OutlineInputBorder(
@@ -2876,10 +2933,10 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                         ),
                                       ),
                                       contentPadding:
-                                      const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 10,
-                                      ),
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 10,
+                                          ),
                                     ),
                                     value: _selectedbill,
                                     items: billsdata.map((String value) {
@@ -2927,11 +2984,15 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                           hintText: "Enter Bill No",
                                           labelStyle: GoogleFonts.poppins(
                                             fontSize: 12.5,
-                                            color: Colors.grey[700],
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                           ),
                                           hintStyle: GoogleFonts.poppins(
                                             fontSize: 12.5,
-                                            color: Colors.grey[400],
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                           ),
                                           prefixIcon: Container(
                                             margin: const EdgeInsets.all(8),
@@ -2945,7 +3006,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                                 end: Alignment.bottomRight,
                                               ),
                                               borderRadius:
-                                              BorderRadius.circular(12),
+                                                  BorderRadius.circular(12),
                                             ),
                                             child: const Icon(
                                               Icons.confirmation_num_outlined,
@@ -2954,29 +3015,34 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                             ),
                                           ),
                                           border: OutlineInputBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                           ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                             borderSide: BorderSide(
-                                              color: Colors.grey.shade300,
+                                              color: Theme.of(
+                                                context,
+                                              ).dividerColor,
                                             ),
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                             borderSide: BorderSide(
                                               color: app_color,
                                               width: 1.5,
                                             ),
                                           ),
                                           contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 10,
-                                          ),
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 10,
+                                              ),
                                         ),
                                       ),
                                     ),
@@ -2990,9 +3056,11 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                         controller: _billduedateController,
                                         validator: (value) {
                                           if (value!.isNotEmpty) {
-                                            if (double.tryParse(value) == null) {
+                                            if (double.tryParse(value) ==
+                                                null) {
                                               return 'Invalid input, please enter a number';
-                                            } else if (double.parse(value) < 0) {
+                                            } else if (double.parse(value) <
+                                                0) {
                                               return 'Due date days cannot be negative';
                                             }
                                           }
@@ -3003,11 +3071,15 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                           hintText: "Enter due date",
                                           labelStyle: GoogleFonts.poppins(
                                             fontSize: 13,
-                                            color: Colors.grey[700],
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                           ),
                                           hintStyle: GoogleFonts.poppins(
                                             fontSize: 13,
-                                            color: Colors.grey[400],
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                           ),
                                           prefixIcon: Container(
                                             margin: const EdgeInsets.all(8),
@@ -3021,7 +3093,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                                 end: Alignment.bottomRight,
                                               ),
                                               borderRadius:
-                                              BorderRadius.circular(12),
+                                                  BorderRadius.circular(12),
                                             ),
                                             child: const Icon(
                                               Icons.calendar_today,
@@ -3030,29 +3102,34 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                             ),
                                           ),
                                           border: OutlineInputBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                           ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                             borderSide: BorderSide(
-                                              color: Colors.grey.shade300,
+                                              color: Theme.of(
+                                                context,
+                                              ).dividerColor,
                                             ),
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                             borderSide: BorderSide(
                                               color: app_color,
                                               width: 1.5,
                                             ),
                                           ),
                                           contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 10,
-                                          ),
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 10,
+                                              ),
                                         ),
                                       ),
                                     ),
@@ -3080,15 +3157,20 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                         hintText: "0",
                                         labelStyle: GoogleFonts.poppins(
                                           fontSize: 13,
-                                          color: Colors.grey[700],
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                         hintStyle: GoogleFonts.poppins(
                                           fontSize: 13,
-                                          color: Colors.grey[400],
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                         prefix: Container(
-                                          margin:
-                                          const EdgeInsets.only(right: 8),
+                                          margin: const EdgeInsets.only(
+                                            right: 8,
+                                          ),
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 8,
                                             vertical: 4,
@@ -3116,29 +3198,34 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                           ),
                                         ),
                                         border: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           borderSide: BorderSide(
                                             color: app_color,
                                             width: 1.5,
                                           ),
                                         ),
                                         contentPadding:
-                                        const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 10,
-                                        ),
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 10,
+                                            ),
                                       ),
                                     ),
                                   ),
@@ -3153,7 +3240,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                           child: Container(
                             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.08),
@@ -3179,7 +3266,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                       _selectedbill = billsdata.first;
                                       isVisibleDueDate =
                                           _selectedbill == 'New Ref' ||
-                                              _selectedbill == 'Agst Ref';
+                                          _selectedbill == 'Agst Ref';
                                       isVisibleBillNo = isVisibleDueDate;
                                       _billduedateController.clear();
                                       billAmountController.clear();
@@ -3187,7 +3274,9 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                     child: Text(
                                       'Cancel',
                                       style: GoogleFonts.poppins(
-                                        color: Colors.grey,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -3239,7 +3328,6 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       );
     });
   }
-
 
   /* Future<void> _showChequeDetailsPopup(BuildContext context) async {
     setState(() {
@@ -3311,13 +3399,13 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                           hintText: 'Enter Inst No',
                           labelStyle: GoogleFonts.poppins(
                             fontSize: 13,
-                            color: Colors.grey.shade700,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 10, // 👈 tighter padding
                           ),
                           filled: true,
-                          fillColor: Colors.white.withOpacity(0.95),
+                          fillColor: Theme.of(context).inputDecorationTheme.fillColor ?? Theme.of(context).cardColor.withOpacity(0.95),
                           prefixIcon: Container(
                             margin: const EdgeInsets.all(8),
                             decoration: const BoxDecoration(
@@ -3332,7 +3420,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                            borderSide: BorderSide(color: Theme.of(context).dividerColor, width: 1),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -3354,13 +3442,13 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                           hintText: 'Select Date',
                           labelStyle: GoogleFonts.poppins(
                             fontSize: 13,
-                            color: Colors.grey.shade700,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 10, // 👈 tighter padding
                           ),
                           filled: true,
-                          fillColor: Colors.white.withOpacity(0.95),
+                          fillColor: Theme.of(context).inputDecorationTheme.fillColor ?? Theme.of(context).cardColor.withOpacity(0.95),
                           prefixIcon: Container(
                             margin: const EdgeInsets.all(8),
                             decoration: const BoxDecoration(
@@ -3375,7 +3463,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                            borderSide: BorderSide(color: Theme.of(context).dividerColor, width: 1),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -3407,12 +3495,12 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                 hintText: 'Search Bank',
                                 labelStyle: GoogleFonts.poppins(
                                   fontSize: 13,
-                                  color: Colors.grey.shade700,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 contentPadding:
                                 const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                 filled: true,
-                                fillColor: Colors.white.withOpacity(0.95),
+                                fillColor: Theme.of(context).inputDecorationTheme.fillColor ?? Theme.of(context).cardColor.withOpacity(0.95),
                                 prefixIcon: Container(
                                   margin: const EdgeInsets.all(8),
                                   decoration: const BoxDecoration(
@@ -3438,17 +3526,17 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                           });
                                         },
                                         child:
-                                        const Icon(Icons.close, color: Colors.grey, size: 20),
+                                        Icon(Icons.close, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
                                       ),
                                     const SizedBox(width: 4),
-                                    const Icon(Icons.arrow_drop_down, color: Colors.black87),
+                                    Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurface),
                                     const SizedBox(width: 8),
                                   ],
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
                                   borderSide:
-                                  BorderSide(color: Colors.grey.shade300, width: 1),
+                                  BorderSide(color: Theme.of(context).dividerColor, width: 1),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
@@ -3479,11 +3567,11 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
 
                           // ✅ New API uses EmptyBuilder instead of noItemsFoundBuilder
-                          emptyBuilder: (context) => const Padding(
+                          emptyBuilder: (context) => Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Text(
                               'No matching bank found',
-                              style: TextStyle(color: Colors.grey),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
                           ),
                         )
@@ -3511,10 +3599,10 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                           ),
                           labelStyle: GoogleFonts.poppins(
                             fontSize: 13,
-                            color: Colors.grey.shade700,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           filled: true,
-                          fillColor: Colors.white.withOpacity(0.95),
+                          fillColor: Theme.of(context).inputDecorationTheme.fillColor ?? Theme.of(context).cardColor.withOpacity(0.95),
                           prefixIcon: Container(
                             margin:  EdgeInsets.all(8),
                             width: 32,
@@ -3541,7 +3629,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                            borderSide: BorderSide(color: Theme.of(context).dividerColor, width: 1),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -3571,7 +3659,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                     chequeAmountController.clear();
                   });
                 },
-                child: Text('Cancel', style: GoogleFonts.poppins(color: Colors.grey)),
+                child: Text('Cancel', style: GoogleFonts.poppins(color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -3635,14 +3723,12 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
               return AnimatedPadding(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOut,
-                padding: EdgeInsets.only(
-                  bottom: mediaQuery.viewInsets.bottom,
-                ),
+                padding: EdgeInsets.only(bottom: mediaQuery.viewInsets.bottom),
                 child: FractionallySizedBox(
                   heightFactor: sheetHeight,
                   child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(24),
                       ),
@@ -3684,7 +3770,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                           style: GoogleFonts.poppins(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -3694,15 +3780,16 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                         Expanded(
                           child: SingleChildScrollView(
                             keyboardDismissBehavior:
-                            ScrollViewKeyboardDismissBehavior.manual,
+                                ScrollViewKeyboardDismissBehavior.manual,
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
                             child: Form(
                               key: _chequedetailsFormkey,
                               child: Column(
                                 children: <Widget>[
                                   Padding(
-                                    padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                    ),
                                     child: TextFormField(
                                       controller: instNoController,
                                       decoration: InputDecoration(
@@ -3710,16 +3797,26 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                         hintText: 'Enter Inst No',
                                         labelStyle: GoogleFonts.poppins(
                                           fontSize: 13,
-                                          color: Colors.grey.shade700,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                         contentPadding:
-                                        const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 10,
-                                        ),
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 10,
+                                            ),
                                         filled: true,
                                         fillColor:
-                                        Colors.white.withOpacity(0.95),
+                                            Theme.of(
+                                              context,
+                                            ).inputDecorationTheme.fillColor ??
+                                            (Theme.of(context)
+                                                    .inputDecorationTheme
+                                                    .fillColor ??
+                                                Theme.of(
+                                                  context,
+                                                ).cardColor.withOpacity(0.95)),
                                         prefixIcon: Container(
                                           margin: const EdgeInsets.all(8),
                                           decoration: const BoxDecoration(
@@ -3742,16 +3839,20 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                           ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                           borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
                                             width: 1,
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                           borderSide: BorderSide(
                                             color: app_color,
                                             width: 1.5,
@@ -3762,8 +3863,9 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                   ),
 
                                   Padding(
-                                    padding:
-                                    const EdgeInsets.symmetric(vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 4,
+                                    ),
                                     child: TextFormField(
                                       controller: instDateController,
                                       readOnly: true,
@@ -3773,21 +3875,34 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                         hintText: 'Select Date',
                                         labelStyle: GoogleFonts.poppins(
                                           fontSize: 13,
-                                          color: Colors.grey.shade700,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                         contentPadding:
-                                        const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 10,
-                                        ),
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 10,
+                                            ),
                                         filled: true,
                                         fillColor:
-                                        Colors.white.withOpacity(0.95),
+                                            Theme.of(
+                                              context,
+                                            ).inputDecorationTheme.fillColor ??
+                                            (Theme.of(context)
+                                                    .inputDecorationTheme
+                                                    .fillColor ??
+                                                Theme.of(
+                                                  context,
+                                                ).cardColor.withOpacity(0.95)),
                                         prefixIcon: Container(
                                           margin: const EdgeInsets.all(8),
                                           decoration: const BoxDecoration(
                                             gradient: LinearGradient(
-                                              colors: [Colors.teal, Colors.cyan],
+                                              colors: [
+                                                Colors.teal,
+                                                Colors.cyan,
+                                              ],
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                             ),
@@ -3802,16 +3917,20 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                           ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                           borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
                                             width: 1,
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                           borderSide: BorderSide(
                                             color: app_color,
                                             width: 1.5,
@@ -3822,20 +3941,21 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                   ),
 
                                   Padding(
-                                    padding:
-                                    const EdgeInsets.symmetric(vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 4,
+                                    ),
                                     child: TypeAheadField<String>(
                                       suggestionsCallback: (pattern) {
                                         return bankname_data.where((item) {
-                                          final name =
-                                          item.toString().toLowerCase();
+                                          final name = item
+                                              .toString()
+                                              .toLowerCase();
                                           return name.contains(
                                             pattern.toLowerCase(),
                                           );
                                         }).toList();
                                       },
-                                      builder:
-                                          (context, controller, focusNode) {
+                                      builder: (context, controller, focusNode) {
                                         controller.text =
                                             _banknameController.text;
 
@@ -3847,16 +3967,26 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                             hintText: 'Search Bank',
                                             labelStyle: GoogleFonts.poppins(
                                               fontSize: 13,
-                                              color: Colors.grey.shade700,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
                                             ),
                                             contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 10,
-                                            ),
+                                                const EdgeInsets.symmetric(
+                                                  horizontal: 12,
+                                                  vertical: 10,
+                                                ),
                                             filled: true,
                                             fillColor:
-                                            Colors.white.withOpacity(0.95),
+                                                Theme.of(context)
+                                                    .inputDecorationTheme
+                                                    .fillColor ??
+                                                (Theme.of(context)
+                                                        .inputDecorationTheme
+                                                        .fillColor ??
+                                                    Colors.white.withOpacity(
+                                                      0.95,
+                                                    )),
                                             prefixIcon: Container(
                                               margin: const EdgeInsets.all(8),
                                               decoration: const BoxDecoration(
@@ -3873,8 +4003,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                                 ),
                                               ),
                                               child: const Icon(
-                                                Icons
-                                                    .account_balance_outlined,
+                                                Icons.account_balance_outlined,
                                                 color: Colors.white,
                                                 size: 20,
                                               ),
@@ -3890,31 +4019,37 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                                         selectedbankname = "";
                                                       });
                                                     },
-                                                    child: const Icon(
+                                                    child: Icon(
                                                       Icons.close,
-                                                      color: Colors.grey,
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurfaceVariant,
                                                       size: 20,
                                                     ),
                                                   ),
                                                 const SizedBox(width: 4),
-                                                const Icon(
+                                                Icon(
                                                   Icons.arrow_drop_down,
-                                                  color: Colors.black87,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).colorScheme.onSurface,
                                                 ),
                                                 const SizedBox(width: 8),
                                               ],
                                             ),
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(14),
+                                                  BorderRadius.circular(14),
                                               borderSide: BorderSide(
-                                                color: Colors.grey.shade300,
+                                                color: Theme.of(
+                                                  context,
+                                                ).dividerColor,
                                                 width: 1,
                                               ),
                                             ),
                                             focusedBorder: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(14),
+                                                  BorderRadius.circular(14),
                                               borderSide: BorderSide(
                                                 color: app_color,
                                                 width: 1.5,
@@ -3925,15 +4060,15 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                       },
                                       itemBuilder:
                                           (context, String suggestion) {
-                                        return ListTile(
-                                          title: Text(
-                                            suggestion,
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                        );
-                                      },
+                                            return ListTile(
+                                              title: Text(
+                                                suggestion,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            );
+                                          },
                                       onSelected: (String suggestion) {
                                         FocusScope.of(context).unfocus();
 
@@ -3942,21 +4077,24 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                           _banknameController.text = suggestion;
                                         });
                                       },
-                                      emptyBuilder: (context) =>
-                                      const Padding(
+                                      emptyBuilder: (context) => Padding(
                                         padding: EdgeInsets.all(8.0),
                                         child: Text(
                                           'No matching bank found',
-                                          style:
-                                          TextStyle(color: Colors.grey),
+                                          style: TextStyle(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
 
                                   Padding(
-                                    padding:
-                                    const EdgeInsets.symmetric(vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 4,
+                                    ),
                                     child: TextFormField(
                                       controller: chequeAmountController,
                                       keyboardType: TextInputType.number,
@@ -3973,17 +4111,27 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                         labelText: 'Amount',
                                         hintText: '0',
                                         contentPadding:
-                                        const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 10,
-                                        ),
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 10,
+                                            ),
                                         labelStyle: GoogleFonts.poppins(
                                           fontSize: 13,
-                                          color: Colors.grey.shade700,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                         filled: true,
                                         fillColor:
-                                        Colors.white.withOpacity(0.95),
+                                            Theme.of(
+                                              context,
+                                            ).inputDecorationTheme.fillColor ??
+                                            (Theme.of(context)
+                                                    .inputDecorationTheme
+                                                    .fillColor ??
+                                                Theme.of(
+                                                  context,
+                                                ).cardColor.withOpacity(0.95)),
                                         prefixIcon: Container(
                                           margin: const EdgeInsets.all(8),
                                           width: 32,
@@ -3997,8 +4145,9 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                             ),
-                                            borderRadius:
-                                            BorderRadius.circular(12),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
                                           ),
                                           alignment: Alignment.center,
                                           child: Text(
@@ -4011,16 +4160,20 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                           ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                           borderSide: BorderSide(
-                                            color: Colors.grey.shade300,
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
                                             width: 1,
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                           borderSide: BorderSide(
                                             color: app_color,
                                             width: 1.5,
@@ -4040,7 +4193,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                           child: Container(
                             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.08),
@@ -4058,8 +4211,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                         vertical: 14,
                                       ),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(14),
+                                        borderRadius: BorderRadius.circular(14),
                                       ),
                                     ),
                                     onPressed: () {
@@ -4071,10 +4223,12 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                             selectedbankname;
                                         instNoController.clear();
                                         instdate = DateTime.now();
-                                        instdatestring =
-                                            _dateFormat.format(instdate);
-                                        instdatetxt =
-                                            formatlastsaledate(instdatestring);
+                                        instdatestring = _dateFormat.format(
+                                          instdate,
+                                        );
+                                        instdatetxt = formatlastsaledate(
+                                          instdatestring,
+                                        );
                                         instDateController.text = instdatetxt;
                                         chequeAmountController.clear();
                                       });
@@ -4082,7 +4236,9 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                     child: Text(
                                       'Cancel',
                                       style: GoogleFonts.poppins(
-                                        color: Colors.grey,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -4099,13 +4255,12 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                         vertical: 14,
                                       ),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(14),
+                                        borderRadius: BorderRadius.circular(14),
                                       ),
                                     ),
                                     onPressed: () {
                                       if (_chequedetailsFormkey.currentState !=
-                                          null &&
+                                              null &&
                                           _chequedetailsFormkey.currentState!
                                               .validate()) {
                                         _chequedetailsFormkey.currentState!
@@ -4149,20 +4304,25 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       int billDueDateinDaysint = int.parse(billDueDateinDaysString);
 
       DateTime currentDate = DateTime.now();
-      DateTime finalDate = currentDate.add(Duration(days: billDueDateinDaysint));
+      DateTime finalDate = currentDate.add(
+        Duration(days: billDueDateinDaysint),
+      );
       dueDateString = DateFormat('yyyyMMdd').format(finalDate);
     }
 
     if (billAmount.isNotEmpty) {
       // Check if a bill with name "On Account" already exists
-      if (billName == "On Account" && bills.any((bill) => bill.billName == "On Account")) {
+      if (billName == "On Account" &&
+          bills.any((bill) => bill.billName == "On Account")) {
         // Show message that the bill already exists
         showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
               title: Text("Duplicate Bill"),
-              content: Text("A bill with the name 'On Account' already exists."),
+              content: Text(
+                "A bill with the name 'On Account' already exists.",
+              ),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -4179,29 +4339,34 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
       // Create a new bill
       Navigator.of(context).pop();
-      double parsedAmount = double.parse(billAmount.replaceAll(',', '')) ;
+      double parsedAmount = double.parse(billAmount.replaceAll(',', ''));
       final newBill = Bills(
         billName: billName,
         billAmount: parsedAmount,
-        billNo: (billName == "New Ref" || billName == "Agst Ref") ? billNo : null,
-        billDueDate: (billName == "New Ref" || billName == "Agst Ref") ? dueDateString : null,
+        billNo: (billName == "New Ref" || billName == "Agst Ref")
+            ? billNo
+            : null,
+        billDueDate: (billName == "New Ref" || billName == "Agst Ref")
+            ? dueDateString
+            : null,
       );
 
       // Add the new bill to the list and update the total bill amount
-      setState(()
-      {
+      setState(() {
         bills.add(newBill);
         // Update visibility of bill heading
         isVisibleBillHeading = bills.isNotEmpty;
-        totalBillAmount = bills.fold(
-          0.0,
-              (double previousAmount, Bills bill) {
-            return previousAmount + bill.billAmount;
-          },
-        );
+        totalBillAmount = bills.fold(0.0, (double previousAmount, Bills bill) {
+          return previousAmount + bill.billAmount;
+        });
         // Update formatted total amount
-        roundedtotalBillAmount = double.parse(totalBillAmount.toStringAsFixed(decimal!));
-        NumberFormat formatter = NumberFormat('#,##0.${'0' * decimal!}', 'en_US');
+        roundedtotalBillAmount = double.parse(
+          totalBillAmount.toStringAsFixed(decimal!),
+        );
+        NumberFormat formatter = NumberFormat(
+          '#,##0.${'0' * decimal!}',
+          'en_US',
+        );
         String formattedtotal = formatter.format(roundedtotalBillAmount);
         controller_totalamt.text = formattedtotal.toString();
       });
@@ -4209,29 +4374,25 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
       // Reset selected bill and visibility of due date and bill number
       setState(() {
         _selectedbill = billsdata.first;
-        isVisibleDueDate = (_selectedbill == 'New Ref' || _selectedbill == "Agst Ref");
-        isVisibleBillNo = (_selectedbill == "Agst Ref" || _selectedbill == 'New Ref');
-        if (_selectedbankcashname != null && _selectedbankcashname!['type'] == 'Cash-in-Hand')
-        {
+        isVisibleDueDate =
+            (_selectedbill == 'New Ref' || _selectedbill == "Agst Ref");
+        isVisibleBillNo =
+            (_selectedbill == "Agst Ref" || _selectedbill == 'New Ref');
+        if (_selectedbankcashname != null &&
+            _selectedbankcashname!['type'] == 'Cash-in-Hand') {
           isPaymentModeVisible = false;
           _selectedpaymentmode = paymentmode_data.first;
           cheque.clear();
           updateChequeAmount();
           isVisibleChequeHeading = false;
           isChequeVisible = false;
-        }
-        else
-        {
-          if(bills.isNotEmpty)
-          {
-            if(cheque.isNotEmpty)
-            {
+        } else {
+          if (bills.isNotEmpty) {
+            if (cheque.isNotEmpty) {
               isPaymentModeVisible = true;
               isChequeVisible = true;
               isVisibleChequeHeading = true;
-            }
-            else
-            {
+            } else {
               isPaymentModeVisible = true;
               _selectedpaymentmode = paymentmode_data.first;
               cheque.clear();
@@ -4239,9 +4400,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
               isVisibleChequeHeading = false;
               isChequeVisible = true;
             }
-          }
-          else
-          {
+          } else {
             isPaymentModeVisible = true;
             _selectedpaymentmode = paymentmode_data.first;
             cheque.clear();
@@ -4288,25 +4447,31 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
     bool hasRepeatedInstNo = isInstNoRepeated(instNo, cheque);
 
-    double remainingchequeamount = roundedtotalBillAmount - roundedtotalChequeAmount;
+    double remainingchequeamount =
+        roundedtotalBillAmount - roundedtotalChequeAmount;
 
-    print('before processing cheque amount $chequeAmount and roundedbillamount $roundedtotalBillAmount and roundedchequeAmount $roundedtotalChequeAmount and entered cheque amount $formattedAmountDouble and remaining cheque amount $remainingchequeamount');
+    print(
+      'before processing cheque amount $chequeAmount and roundedbillamount $roundedtotalBillAmount and roundedchequeAmount $roundedtotalChequeAmount and entered cheque amount $formattedAmountDouble and remaining cheque amount $remainingchequeamount',
+    );
 
-    if (chequeAmount.isNotEmpty && roundedtotalChequeAmount <= roundedtotalBillAmount && roundedtotalChequeAmount !=roundedtotalBillAmount  && !hasRepeatedInstNo && formattedAmountDouble <= roundedtotalBillAmount && formattedAmountDouble <= remainingchequeamount)
-    {
-
+    if (chequeAmount.isNotEmpty &&
+        roundedtotalChequeAmount <= roundedtotalBillAmount &&
+        roundedtotalChequeAmount != roundedtotalBillAmount &&
+        !hasRepeatedInstNo &&
+        formattedAmountDouble <= roundedtotalBillAmount &&
+        formattedAmountDouble <= remainingchequeamount) {
       Navigator.of(context).pop();
 
       final newCheque = Cheque(
-          date: receiptdatestring,
-          paymentFavouring: _selectedparty,
-          bankPartyName: _selectedparty,
+        date: receiptdatestring,
+        paymentFavouring: _selectedparty,
+        bankPartyName: _selectedparty,
 
-          instno: instNo,
-          instdate: instDateString,
-          bankname: bankName,
-          chequeAmount: formattedAmountDouble,
-          paymentMode: paymentMode
+        instno: instNo,
+        instdate: instDateString,
+        bankname: bankName,
+        chequeAmount: formattedAmountDouble,
+        paymentMode: paymentMode,
       );
 
       // Add the new bill to the list and update the total bill amount
@@ -4316,7 +4481,9 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
         isVisibleChequeHeading = cheque.isNotEmpty;
         updateChequeAmount();
       });
-      print('after processing cheque amount $chequeAmount and roundedbillamount $roundedtotalBillAmount and roundedchequeAmount $roundedtotalChequeAmount and entered cheque amount $formattedAmountDouble and remaining cheque amount $remainingchequeamount');
+      print(
+        'after processing cheque amount $chequeAmount and roundedbillamount $roundedtotalBillAmount and roundedchequeAmount $roundedtotalChequeAmount and entered cheque amount $formattedAmountDouble and remaining cheque amount $remainingchequeamount',
+      );
 
       // Reset selected bill and visibility of due date and bill number
       setState(() {
@@ -4329,102 +4496,106 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
         _banknameController.text = selectedbankname;
         chequeAmountController.clear();
       });
-    }
-    else if (formattedAmountDouble > remainingchequeamount)
-    {
+    } else if (formattedAmountDouble > remainingchequeamount) {
       showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-                title: Text("Alert"),
-                content: Text("Entered $_selectedpaymentmode amount exceeds remaining total amount"),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text("OK",
-                          style: GoogleFonts.poppins(
-                              color: app_color
-                          )))]);});
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Alert"),
+            content: Text(
+              "Entered $_selectedpaymentmode amount exceeds remaining total amount",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK", style: GoogleFonts.poppins(color: app_color)),
+              ),
+            ],
+          );
+        },
+      );
       return;
-    }
-    else if (hasRepeatedInstNo)
-    {
+    } else if (hasRepeatedInstNo) {
       showDialog(
-          context: context,
-          builder: (context)
-          {
-            return AlertDialog(
-                title: Text("Alert"),
-                content: Text("A cheque with the inst no '$instNo' already exists."),
-                actions: [
-                  TextButton (
-                      onPressed: ()
-                      {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text("OK",
-                          style: GoogleFonts.poppins(
-                              color: app_color
-                          )))]);});
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Alert"),
+            content: Text(
+              "A cheque with the inst no '$instNo' already exists.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK", style: GoogleFonts.poppins(color: app_color)),
+              ),
+            ],
+          );
+        },
+      );
       return;
-    }
-    else if (roundedtotalBillAmount < 0 || roundedtotalBillAmount == 0)
-    {
+    } else if (roundedtotalBillAmount < 0 || roundedtotalBillAmount == 0) {
       showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-                title: Text("Alert"),
-                content: Text("First add bills then proceed for payment details"),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text("OK",
-                          style: GoogleFonts.poppins(
-                              color: app_color
-                          )))]);});
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Alert"),
+            content: Text("First add bills then proceed for payment details"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK", style: GoogleFonts.poppins(color: app_color)),
+              ),
+            ],
+          );
+        },
+      );
       return;
-    }
-    else if (roundedtotalChequeAmount ==roundedtotalBillAmount)
-    {
+    } else if (roundedtotalChequeAmount == roundedtotalBillAmount) {
       showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-                title: Text("Alert"),
-                content: Text("Cheques for the total amount already added"),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text("OK",
-                          style: GoogleFonts.poppins(
-                              color: app_color
-                          )))]);});
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Alert"),
+            content: Text("Cheques for the total amount already added"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK", style: GoogleFonts.poppins(color: app_color)),
+              ),
+            ],
+          );
+        },
+      );
       return; // Exit the function without adding the bill
-    }
-    else if (formattedAmountDouble > roundedtotalBillAmount)
-    {
+    } else if (formattedAmountDouble > roundedtotalBillAmount) {
       showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-                title: Text("Alert"),
-                content: Text("Entered $_selectedpaymentmode amount should not be greater than total amount"),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text("OK",
-                          style: GoogleFonts.poppins(
-                              color: app_color
-                          )))]);});
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Alert"),
+            content: Text(
+              "Entered $_selectedpaymentmode amount should not be greater than total amount",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK", style: GoogleFonts.poppins(color: app_color)),
+              ),
+            ],
+          );
+        },
+      );
       return;
     }
   } // add cheque function
@@ -4477,13 +4648,16 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
 
       /*print('hostname: $hostname');*/
 
-      HttpURL_loadData = '$hostname/api/entry/getReceiptData/$company_lowercase/$serial_no';
+      HttpURL_loadData =
+          '$hostname/api/entry/getReceiptData/$company_lowercase/$serial_no';
       /*HttpURL_loadData = 'http://192.168.2.110:4999/api/entry/getReceiptData/$company_lowercase/$serial_no';*/
 
-      HttpURL_receiptEntry = '$hostname/api/entry/updateEntry/$company_lowercase/$serial_no';
+      HttpURL_receiptEntry =
+          '$hostname/api/entry/updateEntry/$company_lowercase/$serial_no';
       /*HttpURL_receiptEntry = 'http://192.168.2.110:4999/api/entry/create/demonewformobilepp/767060064';*/
 
-      HttpURL_fetchvchnos = '$hostname/api/entry/nos/$company_lowercase/$serial_no';
+      HttpURL_fetchvchnos =
+          '$hostname/api/entry/nos/$company_lowercase/$serial_no';
       /*HttpURL_fetchvchnos = 'http://192.168.2.110:4999/api/entry/nos/$company_lowercase/$serial_no';*/
 
       controller_totalamt.text = 0.toString();
@@ -4492,16 +4666,14 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
         name = name_nav;
         email = email_nav;
       }
-      if (SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         isRolesVisible = true;
         isUserVisible = true;
-      }
-      else
-      {
+      } else {
         isRolesVisible = false;
         isUserVisible = false;
-      }});
+      }
+    });
     await loadData();
   }
 
@@ -4514,21 +4686,19 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
   @override
   Widget build(BuildContext context) {
     final NumberFormat currencyFormat = NumberFormat(
-      "#,##0.${'0' * decimal!}",  // 👈 dynamically repeat '0' for decimal places
+      "#,##0.${'0' * decimal!}", // 👈 dynamically repeat '0' for decimal places
     );
-    
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       key: _scaffoldKey,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
         child: AppBar(
-          backgroundColor:  app_color,
+          backgroundColor: app_color,
           elevation: 6,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
           automaticallyImplyLeading: false,
           leading: IconButton(
@@ -4542,9 +4712,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
           ),
           centerTitle: true,
           title: GestureDetector(
-            onTap: () {
-
-            },
+            onTap: () {},
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -4564,642 +4732,1326 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
         ),
       ),
       drawer: Sidebar(
-          isDashEnable: isDashEnable,
-          isRolesVisible: isRolesVisible,
-          isRolesEnable: isRolesEnable,
-          isUserEnable: isUserEnable,
-          isUserVisible: isUserVisible,
-          Username: name,
-          Email: email,
-          tickerProvider: this
+        isDashEnable: isDashEnable,
+        isRolesVisible: isRolesVisible,
+        isRolesEnable: isRolesEnable,
+        isUserEnable: isUserEnable,
+        isUserVisible: isUserVisible,
+        Username: name,
+        Email: email,
+        tickerProvider: this,
       ),
-      body:WillPopScope(
-          onWillPop: () async {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => Dashboard()),
-            );
-            return true;
-          },
-          child: Stack(children: [
-
-            ListView(children: [
-
-              GestureDetector(
-                onTap: () => _selectDateRangeVchNo(context),
-                child: Container(
-                  margin: const EdgeInsets.only(top:8,bottom:4, left: 12, right : 12),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                    border: Border.all(
-                      color: app_color.withOpacity(0.3),
-                      width: 1,
+      body: WillPopScope(
+        onWillPop: () async {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => Dashboard()),
+          );
+          return true;
+        },
+        child: Stack(
+          children: [
+            ListView(
+              children: [
+                GestureDetector(
+                  onTap: () => _selectDateRangeVchNo(context),
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                      top: 8,
+                      bottom: 4,
+                      left: 12,
+                      right: 12,
                     ),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // calendar icon with gradient style
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [app_color, app_color.withOpacity(0.7)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          shape: BoxShape.circle,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
                         ),
-                        child: const Icon(Icons.calendar_today, color: Colors.white, size: 20),
+                      ],
+                      border: Border.all(
+                        color: app_color.withOpacity(0.3),
+                        width: 1,
                       ),
-                      const SizedBox(width: 14),
-
-                      // text column
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Voucher No. Range",
-                              style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey[800],
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "${DateFormat('dd-MMM-yyyy').format(yearStartDate)} → ${DateFormat('dd-MMM-yyyy').format(yearEndDate)}",
-                              style: GoogleFonts.poppins(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w600,
-                                color: app_color,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Icon(Icons.keyboard_arrow_down, color: Colors.grey[600]),
-                    ],
-                  ),
-                ),
-              ),
-
-
-              Container(
-                  child: Column(
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Form(
-                          key: _formKey,
+                        // calendar icon with gradient style
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [app_color, app_color.withOpacity(0.7)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.calendar_today,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+
+                        // text column
+                        Expanded(
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                                child: TextFormField(
-                                  controller: _dateController,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black87,
-                                  ),
-                                  decoration: InputDecoration(
-                                    labelText: "Date",
-                                    labelStyle: GoogleFonts.poppins(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey[700],
-                                    ),
-                                    filled: true,
-                                    fillColor: Colors.white.withOpacity(0.95),
-
-                                    // 🌈 Gradient Calendar Icon
-                                    prefixIcon: GestureDetector(
-                                      onTap: () => _selectreceiptDate(context),
-                                      child: Container(
-                                        margin: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [app_color, app_color.withOpacity(0.7)],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        child: const Icon(Icons.calendar_today, color: Colors.white, size: 20),
-                                      ),
-                                    ),
-
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(
-                                        color: Colors.grey.shade300,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(
-                                        color: app_color,
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
-                                  ),
-                                  readOnly: true,
-                                  onTap: () => _selectreceiptDate(context),
+                              Text(
+                                "Voucher No. Range",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                 ),
                               ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "${DateFormat('dd-MMM-yyyy').format(yearStartDate)} → ${DateFormat('dd-MMM-yyyy').format(yearEndDate)}",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: app_color,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
 
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                                child: TextFormField(
-                                  controller: _vchnoController,
-                                  enableInteractiveSelection: isVchEditable, // 👈 ADD THIS
-                                  readOnly: !isVchEditable, // 👈 MAIN CHANGE
+                        Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
-                                  onChanged: (value) {
-                                    if (isVchEditable) {
-                                      checkVchNoExistence(value);
+                Container(
+                  child: Column(
+                    children: [
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 8,
+                              ),
+                              child: TextFormField(
+                                controller: _dateController,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: "Date",
+                                  labelStyle: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                                  filled: true,
+                                  fillColor:
+                                      Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.fillColor ??
+                                      (Theme.of(
+                                            context,
+                                          ).inputDecorationTheme.fillColor ??
+                                          Theme.of(
+                                            context,
+                                          ).cardColor.withOpacity(0.95)),
+
+                                  // 🌈 Gradient Calendar Icon
+                                  prefixIcon: GestureDetector(
+                                    onTap: () => _selectreceiptDate(context),
+                                    child: Container(
+                                      margin: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            app_color,
+                                            app_color.withOpacity(0.7),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Icon(
+                                        Icons.calendar_today,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context).dividerColor,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide(
+                                      color: app_color,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 14,
+                                  ),
+                                ),
+                                readOnly: true,
+                                onTap: () => _selectreceiptDate(context),
+                              ),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 6,
+                              ),
+                              child: TextFormField(
+                                controller: _vchnoController,
+                                enableInteractiveSelection:
+                                    isVchEditable, // 👈 ADD THIS
+                                readOnly: !isVchEditable, // 👈 MAIN CHANGE
+
+                                onChanged: (value) {
+                                  if (isVchEditable) {
+                                    checkVchNoExistence(value);
+                                  }
+                                },
+
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: isVchEditable
+                                      ? Theme.of(context).colorScheme.onSurface
+                                      : Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant, // 👈 visual hint
+                                ),
+
+                                decoration: InputDecoration(
+                                  labelText: "Voucher No.",
+                                  labelStyle: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+
+                                  errorText: errorMessageVchNo.isNotEmpty
+                                      ? errorMessageVchNo
+                                      : null,
+
+                                  filled: true,
+                                  fillColor:
+                                      Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.fillColor ??
+                                      (Theme.of(
+                                            context,
+                                          ).inputDecorationTheme.fillColor ??
+                                          Theme.of(
+                                            context,
+                                          ).cardColor.withOpacity(0.95)),
+
+                                  prefixIcon: Container(
+                                    margin: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Colors.deepOrangeAccent,
+                                          Colors.orangeAccent,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(12),
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.confirmation_num_outlined,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                  ),
+
+                                  // 👇 EDIT BUTTON
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      Icons.lock_outline,
+                                      color: app_color,
+                                    ),
+                                    onPressed: () {},
+                                  ),
+
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context).dividerColor,
+                                      width: 1,
+                                    ),
+                                  ),
+
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: app_color,
+                                      width: 1.5,
+                                    ),
+                                  ),
+
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: const BorderSide(
+                                      color: Colors.redAccent,
+                                      width: 1.5,
+                                    ),
+                                  ),
+
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: const BorderSide(
+                                      color: Colors.redAccent,
+                                      width: 1.5,
+                                    ),
+                                  ),
+
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 14,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            Padding(
+                              padding: EdgeInsets.only(
+                                top: 0,
+                                left: 20,
+                                right: 20,
+                                bottom: 0,
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: Colors.grey.withOpacity(0.2),
+                                ),
+                                padding: EdgeInsets.all(10),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.info_outline_rounded,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        'Duplicate voucher numbers in Tally will trigger automatic assignment of a new number.',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 12,
+                                left: 20,
+                                right: 20,
+                                bottom: 0,
+                              ),
+                              child: DropdownButtonFormField<String>(
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor:
+                                      Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.fillColor ??
+                                      (Theme.of(
+                                            context,
+                                          ).inputDecorationTheme.fillColor ??
+                                          Theme.of(
+                                            context,
+                                          ).cardColor.withOpacity(0.95)),
+                                  labelText: "Voucher Type",
+                                  labelStyle: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+
+                                  // 🌈 Gradient Icon
+                                  prefixIcon: Container(
+                                    margin: const EdgeInsets.all(8),
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.purpleAccent,
+                                          Colors.deepPurple,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(12),
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.discount_outlined,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                  ),
+
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context).dividerColor,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: app_color,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 14,
+                                  ),
+                                ),
+                                hint: const Text("Voucher Type Name"),
+                                value: _selectedvchtypename,
+                                items: vchtypenamedata.map((item) {
+                                  return DropdownMenuItem<String>(
+                                    value: item,
+                                    child: Text(
+                                      item,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) async {
+                                  setState(() {
+                                    _selectedvchtypename = value!;
+                                    fetchvchnos(_selectedvchtypename);
+                                  });
+                                },
+                              ),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 12,
+                                left: 20,
+                                right: 20,
+                                bottom: 0,
+                              ),
+                              child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                child: TypeAheadField<String>(
+                                  suggestionsCallback: (pattern) {
+                                    return partydata.where((item) {
+                                      final name = item
+                                          .toString()
+                                          .toLowerCase();
+                                      return name.contains(
+                                        pattern.toLowerCase(),
+                                      );
+                                    }).toList();
+                                  },
+
+                                  builder: (context, controller, focusNode) {
+                                    _partyController = controller;
+
+                                    return TextField(
+                                      controller: controller,
+                                      focusNode: focusNode,
+                                      decoration: InputDecoration(
+                                        labelText: "Party",
+                                        hintText: 'Search',
+                                        hintStyle: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                        labelStyle: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Theme.of(
+                                              context,
+                                            ).inputDecorationTheme.fillColor ??
+                                            (Theme.of(context)
+                                                    .inputDecorationTheme
+                                                    .fillColor ??
+                                                Theme.of(
+                                                  context,
+                                                ).cardColor.withOpacity(0.95)),
+
+                                        // 🌈 Gradient Prefix Icon
+                                        prefixIcon: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.purple,
+                                                Colors.deepOrange,
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(12),
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.person_outline,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+
+                                        // ✖️ Cross + ⬇ Dropdown in suffix
+                                        suffixIcon: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (controller.text.isNotEmpty)
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    controller.clear();
+                                                    _selectedparty = "";
+                                                  });
+                                                },
+                                                child: Icon(
+                                                  Icons.close,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                            const SizedBox(width: 4),
+                                            Icon(
+                                              Icons.arrow_drop_down,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface,
+                                            ),
+                                            const SizedBox(width: 8),
+                                          ],
+                                        ),
+
+                                        // Borders
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 14,
+                                              vertical: 14,
+                                            ),
+                                      ),
+                                    );
+                                  },
+
+                                  itemBuilder: (context, String suggestion) {
+                                    return ListTile(
+                                      title: Text(
+                                        suggestion,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    );
+                                  },
+
+                                  onSelected: (String suggestion) {
+                                    setState(() {
+                                      _selectedparty = suggestion;
+                                      _partyController.text = _selectedparty;
+                                    });
+                                  },
+
+                                  // ✅ new API → emptyBuilder replaces noItemsFoundBuilder
+                                  emptyBuilder: (context) => Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'No matching party found',
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 12,
+                                left: 20,
+                                right: 20,
+                                bottom: 0,
+                              ),
+                              child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                child: TypeAheadField<String>(
+                                  suggestionsCallback: (pattern) {
+                                    return bankcashname_data
+                                        .where((ledger) {
+                                          final name = ledger['name']!
+                                              .toLowerCase();
+                                          return name.contains(
+                                            pattern.toLowerCase(),
+                                          );
+                                        })
+                                        .map(
+                                          (ledger) =>
+                                              '${ledger['name']} (${ledger['type']})',
+                                        )
+                                        .toList();
+                                  },
+
+                                  builder: (context, controller, focusNode) {
+                                    _bankcashnameController = controller;
+
+                                    return TextField(
+                                      controller: controller,
+                                      focusNode: focusNode,
+                                      decoration: InputDecoration(
+                                        labelText: 'Bank / Cash Ledger',
+
+                                        hintText: _selectedbankcashname != null
+                                            ? _selectedbankcashname!['name'] ??
+                                                  ''
+                                            : 'Search',
+                                        hintStyle: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                        labelStyle: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Theme.of(
+                                              context,
+                                            ).inputDecorationTheme.fillColor ??
+                                            (Theme.of(context)
+                                                    .inputDecorationTheme
+                                                    .fillColor ??
+                                                Theme.of(
+                                                  context,
+                                                ).cardColor.withOpacity(0.95)),
+
+                                        // 🌈 Gradient Prefix Icon
+                                        prefixIcon: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.teal,
+                                                Colors.blueAccent,
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(12),
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.account_balance_wallet,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+
+                                        // ✖️ Clear + ⬇ Dropdown
+                                        suffixIcon: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (controller.text.isNotEmpty)
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    controller.clear();
+                                                    _selectedbankcashname =
+                                                        null;
+                                                  });
+                                                },
+                                                child: Icon(
+                                                  Icons.close,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                            const SizedBox(width: 4),
+                                            Icon(
+                                              Icons.arrow_drop_down,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface,
+                                            ),
+                                            const SizedBox(width: 8),
+                                          ],
+                                        ),
+
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 14,
+                                              vertical: 14,
+                                            ),
+                                      ),
+                                    );
+                                  },
+
+                                  itemBuilder: (context, String suggestion) {
+                                    return ListTile(
+                                      title: Text(
+                                        suggestion,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    );
+                                  },
+
+                                  onSelected: (String suggestion) {
+                                    setState(() {
+                                      _selectedbankcashname = bankcashname_data
+                                          .firstWhere(
+                                            (ledger) =>
+                                                '${ledger['name']} (${ledger['type']})' ==
+                                                suggestion,
+                                          );
+                                      _bankcashnameController.text =
+                                          _selectedbankcashname!['name'] ?? '';
+                                    });
+
+                                    // 👇 your original cheque/payment logic preserved
+                                    if (_selectedbankcashname != null &&
+                                        _selectedbankcashname!['type'] ==
+                                            'Cash-in-Hand') {
+                                      isPaymentModeVisible = false;
+                                      _selectedpaymentmode =
+                                          paymentmode_data.first;
+                                      cheque.clear();
+                                      updateChequeAmount();
+                                      isVisibleChequeHeading = false;
+                                      isChequeVisible = false;
+                                    } else {
+                                      if (bills.isNotEmpty) {
+                                        if (cheque.isNotEmpty) {
+                                          isPaymentModeVisible = true;
+                                          isChequeVisible = true;
+                                          isVisibleChequeHeading = true;
+                                        } else {
+                                          isPaymentModeVisible = true;
+                                          _selectedpaymentmode =
+                                              paymentmode_data.first;
+                                          cheque.clear();
+                                          updateChequeAmount();
+                                          isVisibleChequeHeading = false;
+                                          isChequeVisible = true;
+                                        }
+                                      } else {
+                                        isPaymentModeVisible = true;
+                                        _selectedpaymentmode =
+                                            paymentmode_data.first;
+                                        cheque.clear();
+                                        updateChequeAmount();
+                                        isVisibleChequeHeading = false;
+                                        isChequeVisible = false;
+                                      }
                                     }
                                   },
 
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: isVchEditable ? Colors.black87 : Colors.grey, // 👈 visual hint
-                                  ),
-
-                                  decoration: InputDecoration(
-                                    labelText: "Voucher No.",
-                                    labelStyle: GoogleFonts.poppins(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey[700],
-                                    ),
-
-                                    errorText:
-                                    errorMessageVchNo.isNotEmpty ? errorMessageVchNo : null,
-
-                                    filled: true,
-                                    fillColor: Colors.white.withOpacity(0.95),
-
-                                    prefixIcon: Container(
-                                      margin: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          colors: [Colors.deepOrangeAccent, Colors.orangeAccent],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.all(Radius.circular(12)),
-                                      ),
-                                      child: const Icon(
-                                        Icons.confirmation_num_outlined,
-                                        color: Colors.white,
-                                        size: 20,
+                                  // ✅ Replaces old `noItemsFoundBuilder`
+                                  emptyBuilder: (context) => Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'No matching Bank/Cash name found',
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                       ),
                                     ),
-
-                                    // 👇 EDIT BUTTON
-                                    suffixIcon: IconButton(
-                                      icon: Icon(
-                                        Icons.lock_outline,
-                                        color: app_color,
-                                      ),
-                                      onPressed: () {
-
-                                      },
-                                    ),
-
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
-                                        color: Colors.grey.shade300,
-                                        width: 1,
-                                      ),
-                                    ),
-
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
-                                        color: app_color,
-                                        width: 1.5,
-                                      ),
-                                    ),
-
-                                    errorBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: const BorderSide(
-                                        color: Colors.redAccent,
-                                        width: 1.5,
-                                      ),
-                                    ),
-
-                                    focusedErrorBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: const BorderSide(
-                                        color: Colors.redAccent,
-                                        width: 1.5,
-                                      ),
-                                    ),
-
-                                    contentPadding:
-                                    const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
                                   ),
                                 ),
                               ),
+                            ),
 
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    top: 0, left: 20, right: 20, bottom: 0),
-                                child:
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    color: Colors.grey.withOpacity(0.2),
-
+                            Container(
+                              margin: const EdgeInsets.only(
+                                left: 20,
+                                right: 20,
+                                top: 12,
+                                bottom: 5,
+                              ),
+                              padding: const EdgeInsets.only(bottom: 0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: app_color.withOpacity(0.07),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.06),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
                                   ),
-                                  padding: EdgeInsets.all(10),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.info_outline_rounded,
-                                        color: Colors.grey,
-                                      ),
-                                      SizedBox(width: 10),
-                                      Expanded(
-                                        child: Text(
-                                          'Duplicate voucher numbers in Tally will trigger automatic assignment of a new number.',
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.grey,
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  // 🔹 Header Row
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 7,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        // Gradient start icon
+                                        Container(
+                                          width: 34,
+                                          height: 34,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            gradient: const LinearGradient(
+                                              colors: [
+                                                Colors.blueGrey,
+                                                Colors.grey,
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.blue.withOpacity(
+                                                  0.3,
+                                                ),
+                                                blurRadius: 6,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ],
+                                          ),
+                                          child: const Icon(
+                                            Icons.receipt_long,
+                                            color: Colors.white,
+                                            size: 20,
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                                        const SizedBox(width: 12),
 
-                              Padding(
+                                        // Title
+                                        Expanded(
+                                          child: Text(
+                                            "Bills",
+                                            style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                              color: app_color,
+                                            ),
+                                          ),
+                                        ),
+
+                                        // Gradient add icon
+                                        GestureDetector(
+                                          onTap: () {
+                                            _selectedbill = billsdata.first;
+                                            if (_selectedbill == 'New Ref' ||
+                                                _selectedbill == 'Agst Ref') {
+                                              setState(() {
+                                                isVisibleDueDate = true;
+                                                isVisibleBillNo = true;
+                                              });
+                                            } else {
+                                              setState(() {
+                                                isVisibleDueDate = false;
+                                                isVisibleBillNo = false;
+                                              });
+                                            }
+
+                                            billAmountController.clear();
+                                            billNoController.clear();
+                                            _billduedateController.clear();
+                                            _showBillsDetailsPopup(context);
+                                          },
+                                          child: Container(
+                                            width: 34,
+                                            height: 34,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: const LinearGradient(
+                                                colors: [
+                                                  Colors.orange,
+                                                  Colors.deepOrange,
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.orange
+                                                      .withOpacity(0.3),
+                                                  blurRadius: 6,
+                                                  offset: const Offset(0, 3),
+                                                ),
+                                              ],
+                                            ),
+                                            child: const Icon(
+                                              Icons.add,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // 🔹 Bills List (Ledger style cards)
+                                  ListView.builder(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemCount: bills.length,
+                                    itemBuilder: (context, index) {
+                                      final bill = bills[index];
+                                      final bool showBillNo =
+                                          (bill.billName == "Agst Ref" ||
+                                              bill.billName == "New Ref") &&
+                                          bill.billNo != 'null' &&
+                                          bill.billNo != '';
+
+                                      return Dismissible(
+                                        key: UniqueKey(),
+                                        direction: DismissDirection.endToStart,
+                                        background: Container(
+                                          alignment: Alignment.centerRight,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 20,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.redAccent,
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.delete,
+                                            color: Colors.white,
+                                            size: 22,
+                                          ),
+                                        ),
+                                        onDismissed: (direction) {
+                                          _deleteBill(index);
+                                        },
+                                        child: Container(
+                                          margin: const EdgeInsets.only(
+                                            left: 16,
+                                            right: 16,
+                                            bottom: 6,
+                                            top: 2,
+                                          ),
+                                          padding: const EdgeInsets.all(14),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).cardColor,
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.grey.shade200,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(
+                                                  0.03,
+                                                ),
+                                                blurRadius: 6,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Expanded(
+                                                    flex: 5,
+                                                    child: Text(
+                                                      bill.billName,
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color:
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .colorScheme
+                                                                    .onSurface,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 5,
+                                                    child: Text(
+                                                      "Bill No: ${showBillNo ? bill.billNo ?? "N/A" : "N/A"}",
+                                                      textAlign: TextAlign.end,
+                                                      style: GoogleFonts.poppins(
+                                                        fontSize: 13,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurfaceVariant,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 10),
+
+                                              // Amount Row (Gradient currency icon + Amount)
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  Container(
+                                                    width: 26,
+                                                    height: 26,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      gradient:
+                                                          const LinearGradient(
+                                                            colors: [
+                                                              Colors.teal,
+                                                              Colors.cyan,
+                                                            ],
+                                                            begin: Alignment
+                                                                .topLeft,
+                                                            end: Alignment
+                                                                .bottomRight,
+                                                          ),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.cyan
+                                                              .withOpacity(0.3),
+                                                          blurRadius: 6,
+                                                          offset: const Offset(
+                                                            0,
+                                                            3,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                      getCurrencySymbol(
+                                                        currencycode,
+                                                      ),
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 11,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    currencyFormat.format(
+                                                      bill.billAmount,
+                                                    ),
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 15,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).colorScheme.onSurface,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            Visibility(
+                              visible: isPaymentModeVisible,
+                              child: Padding(
                                 padding: const EdgeInsets.only(
-                                    top: 12, left: 20, right: 20, bottom: 0),
+                                  top: 8,
+                                  left: 20,
+                                  right: 20,
+                                  bottom: 0,
+                                ),
                                 child: DropdownButtonFormField<String>(
                                   isExpanded: true,
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white.withOpacity(0.95),
-                                    labelText: "Voucher Type",
-                                    labelStyle: GoogleFonts.poppins(
+                                  value: _selectedpaymentmode,
+                                  hint: Text(
+                                    'Select Payment Mode',
+                                    style: GoogleFonts.poppins(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,
-                                      color: Colors.grey[700],
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                     ),
-
-                                    // 🌈 Gradient Icon
-                                    prefixIcon: Container(
-                                      margin: const EdgeInsets.all(8),
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [Colors.purpleAccent, Colors.deepPurple],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.all(Radius.circular(12)),
-                                      ),
-                                      child: const Icon(
-                                        Icons.discount_outlined,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: app_color, width: 1.5),
-                                    ),
-                                    contentPadding:
-                                    const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                                   ),
-                                  hint: const Text("Voucher Type Name"),
-                                  value: _selectedvchtypename,
-                                  items: vchtypenamedata.map((item) {
+
+                                  items: paymentmode_data.map((item) {
                                     return DropdownMenuItem<String>(
-                                      value: item,
+                                      value: item.toString(),
                                       child: Text(
-                                        item,
+                                        item.toString(),
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.black87,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                         ),
                                       ),
                                     );
                                   }).toList(),
                                   onChanged: (value) async {
                                     setState(() {
-                                      _selectedvchtypename = value!;
-                                      fetchvchnos(_selectedvchtypename);
+                                      _selectedpaymentmode = value!;
                                     });
+
+                                    if (bills.isEmpty) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('At least add 1 bill'),
+                                        ),
+                                      );
+
+                                      isChequeVisible = false;
+                                      selectedbankname = bankname_data.first;
+                                      _banknameController.text =
+                                          selectedbankname;
+                                      instNoController.clear();
+                                      instdate = DateTime.now();
+                                      instdatestring = _dateFormat.format(
+                                        instdate,
+                                      );
+                                      instdatetxt = formatlastsaledate(
+                                        instdatestring,
+                                      );
+                                      instDateController.text = instdatetxt;
+                                      chequeAmountController.clear();
+                                      cheque.clear();
+                                      updateChequeAmount();
+                                    } else {
+                                      setState(() {
+                                        isChequeVisible = true;
+                                      });
+                                    }
                                   },
-                                ),
-                              ),
+                                  decoration: InputDecoration(
+                                    labelText: "Payment Mode",
+                                    labelStyle: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                                    filled: true,
+                                    fillColor:
+                                        Theme.of(
+                                          context,
+                                        ).inputDecorationTheme.fillColor ??
+                                        (Theme.of(
+                                              context,
+                                            ).inputDecorationTheme.fillColor ??
+                                            Theme.of(
+                                              context,
+                                            ).cardColor.withOpacity(0.95)),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 14,
+                                    ),
 
-                              Padding(
-                                padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 0),
-                                child: Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    child: TypeAheadField<String>(
-                                      suggestionsCallback: (pattern) {
-                                        return partydata.where((item) {
-                                          final name = item.toString().toLowerCase();
-                                          return name.contains(pattern.toLowerCase());
-                                        }).toList();
-                                      },
-
-                                      builder: (context, controller, focusNode) {
-                                        _partyController = controller;
-
-                                        return TextField(
-                                          controller: controller,
-                                          focusNode: focusNode,
-                                          decoration: InputDecoration(
-                                            labelText: "Party",
-                                            hintText: 'Search',
-                                            hintStyle: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                              color: Colors.grey.shade500,
-                                            ),
-                                            labelStyle: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.grey[700],
-                                            ),
-                                            filled: true,
-                                            fillColor: Colors.white.withOpacity(0.95),
-
-                                            // 🌈 Gradient Prefix Icon
-                                            prefixIcon: Container(
-                                              margin: const EdgeInsets.all(8),
-                                              decoration: const BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: [Colors.purple, Colors.deepOrange],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                borderRadius: BorderRadius.all(Radius.circular(12)),
-                                              ),
-                                              child: const Icon(Icons.person_outline,
-                                                  color: Colors.white, size: 20),
-                                            ),
-
-                                            // ✖️ Cross + ⬇ Dropdown in suffix
-                                            suffixIcon: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                if (controller.text.isNotEmpty)
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        controller.clear();
-                                                        _selectedparty = "";
-                                                      });
-                                                    },
-                                                    child:
-                                                    const Icon(Icons.close, color: Colors.grey, size: 20),
-                                                  ),
-                                                const SizedBox(width: 4),
-                                                const Icon(Icons.arrow_drop_down, color: Colors.black87),
-                                                const SizedBox(width: 8),
-                                              ],
-                                            ),
-
-                                            // Borders
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(16),
-                                              borderSide:
-                                              BorderSide(color: Colors.grey.shade300, width: 1),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(16),
-                                              borderSide:
-                                              BorderSide(color: app_color, width: 1.5),
-                                            ),
-                                            contentPadding:
-                                            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                          ),
-                                        );
-                                      },
-
-                                      itemBuilder: (context, String suggestion) {
-                                        return ListTile(
-                                          title: Text(
-                                            suggestion,
-                                            style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
-                                          ),
-                                        );
-                                      },
-
-                                      onSelected: (String suggestion) {
-                                        setState(() {
-                                          _selectedparty = suggestion;
-                                          _partyController.text = _selectedparty;
-                                        });
-                                      },
-
-                                      // ✅ new API → emptyBuilder replaces noItemsFoundBuilder
-                                      emptyBuilder: (context) => const Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Text(
-                                          'No matching party found',
-                                          style: TextStyle(color: Colors.grey),
+                                    // 🌈 Gradient Prefix Icon
+                                    prefixIcon: Container(
+                                      margin: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [Colors.teal, Colors.indigo],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
                                         ),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
-                                    )
+                                      child: const Icon(
+                                        Icons.payment_outlined,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
 
+                                    // Borders
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(
+                                        color: Theme.of(context).dividerColor,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide(
+                                        color: app_color,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
+                            ),
 
-                              Padding(
-                                padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 0),
-                                child: Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    child: TypeAheadField<String>(
-                                      suggestionsCallback: (pattern) {
-                                        return bankcashname_data
-                                            .where((ledger) {
-                                          final name = ledger['name']!.toLowerCase();
-                                          return name.contains(pattern.toLowerCase());
-                                        })
-                                            .map((ledger) => '${ledger['name']} (${ledger['type']})')
-                                            .toList();
-                                      },
-
-                                      builder: (context, controller, focusNode) {
-                                        _bankcashnameController = controller;
-
-                                        return TextField(
-                                          controller: controller,
-                                          focusNode: focusNode,
-                                          decoration: InputDecoration(
-                                            labelText: 'Bank / Cash Ledger',
-
-                                            hintText: _selectedbankcashname != null
-                                                ? _selectedbankcashname!['name'] ?? ''
-                                                : 'Search',
-                                            hintStyle: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                              color: Colors.grey.shade500,
-                                            ),
-                                            labelStyle: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.grey[700],
-                                            ),
-                                            filled: true,
-                                            fillColor: Colors.white.withOpacity(0.95),
-
-                                            // 🌈 Gradient Prefix Icon
-                                            prefixIcon: Container(
-                                              margin: const EdgeInsets.all(8),
-                                              decoration: const BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: [Colors.teal, Colors.blueAccent],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                borderRadius: BorderRadius.all(Radius.circular(12)),
-                                              ),
-                                              child: const Icon(
-                                                Icons.account_balance_wallet,
-                                                color: Colors.white,
-                                                size: 20,
-                                              ),
-                                            ),
-
-                                            // ✖️ Clear + ⬇ Dropdown
-                                            suffixIcon: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                if (controller.text.isNotEmpty)
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        controller.clear();
-                                                        _selectedbankcashname = null;
-                                                      });
-                                                    },
-                                                    child: const Icon(Icons.close, color: Colors.grey, size: 20),
-                                                  ),
-                                                const SizedBox(width: 4),
-                                                const Icon(Icons.arrow_drop_down, color: Colors.black87),
-                                                const SizedBox(width: 8),
-                                              ],
-                                            ),
-
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(16),
-                                              borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(16),
-                                              borderSide: BorderSide(color: app_color, width: 1.5),
-                                            ),
-                                            contentPadding:
-                                            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                          ),
-                                        );
-                                      },
-
-                                      itemBuilder: (context, String suggestion) {
-                                        return ListTile(
-                                          title: Text(
-                                            suggestion,
-                                            style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
-                                          ),
-                                        );
-                                      },
-
-                                      onSelected: (String suggestion) {
-                                        setState(() {
-                                          _selectedbankcashname = bankcashname_data.firstWhere(
-                                                (ledger) =>
-                                            '${ledger['name']} (${ledger['type']})' == suggestion,
-                                          );
-                                          _bankcashnameController.text =
-                                              _selectedbankcashname!['name'] ?? '';
-                                        });
-
-                                        // 👇 your original cheque/payment logic preserved
-                                        if (_selectedbankcashname != null &&
-                                            _selectedbankcashname!['type'] == 'Cash-in-Hand') {
-                                          isPaymentModeVisible = false;
-                                          _selectedpaymentmode = paymentmode_data.first;
-                                          cheque.clear();
-                                          updateChequeAmount();
-                                          isVisibleChequeHeading = false;
-                                          isChequeVisible = false;
-                                        } else {
-                                          if (bills.isNotEmpty) {
-                                            if (cheque.isNotEmpty) {
-                                              isPaymentModeVisible = true;
-                                              isChequeVisible = true;
-                                              isVisibleChequeHeading = true;
-                                            } else {
-                                              isPaymentModeVisible = true;
-                                              _selectedpaymentmode = paymentmode_data.first;
-                                              cheque.clear();
-                                              updateChequeAmount();
-                                              isVisibleChequeHeading = false;
-                                              isChequeVisible = true;
-                                            }
-                                          } else {
-                                            isPaymentModeVisible = true;
-                                            _selectedpaymentmode = paymentmode_data.first;
-                                            cheque.clear();
-                                            updateChequeAmount();
-                                            isVisibleChequeHeading = false;
-                                            isChequeVisible = false;
-                                          }
-                                        }
-                                      },
-
-                                      // ✅ Replaces old `noItemsFoundBuilder`
-                                      emptyBuilder: (context) => const Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Text(
-                                          'No matching Bank/Cash name found',
-                                          style: TextStyle(color: Colors.grey),
-                                        ),
-                                      ),
-                                    )
-
+                            Visibility(
+                              visible: isChequeVisible,
+                              child: Container(
+                                margin: const EdgeInsets.only(
+                                  left: 20,
+                                  right: 20,
+                                  top: 10,
+                                  bottom: 0,
                                 ),
-                              ),
-
-
-                              Container(
-                                margin: const EdgeInsets.only(left: 20, right: 20, top: 12, bottom: 5),
                                 padding: const EdgeInsets.only(bottom: 0),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
                                   color: app_color.withOpacity(0.07),
+                                  borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.06),
@@ -5211,38 +6063,47 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    // 🔹 Header Row
+                                    // 🔹 Header Row with PaymentMode + Add Icon
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 7,
+                                      ),
                                       child: Row(
                                         children: [
-                                          // Gradient start icon
                                           Container(
                                             width: 34,
                                             height: 34,
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
-                                              gradient: const LinearGradient(
-                                                colors: [Colors.blueGrey, Colors.grey],
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  Colors.purpleAccent,
+                                                  Colors.deepPurple,
+                                                ],
                                                 begin: Alignment.topLeft,
                                                 end: Alignment.bottomRight,
                                               ),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: Colors.blue.withOpacity(0.3),
+                                                  color: Colors.teal
+                                                      .withOpacity(0.3),
                                                   blurRadius: 6,
                                                   offset: const Offset(0, 3),
-                                                )
+                                                ),
                                               ],
                                             ),
-                                            child: const Icon(Icons.receipt_long, color: Colors.white, size: 20),
+                                            child: const Icon(
+                                              Icons.payment,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
                                           ),
                                           const SizedBox(width: 12),
 
-                                          // Title
                                           Expanded(
                                             child: Text(
-                                              "Bills",
+                                              _selectedpaymentmode,
                                               style: GoogleFonts.poppins(
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: 16,
@@ -5251,168 +6112,245 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                             ),
                                           ),
 
-                                          // Gradient add icon
                                           GestureDetector(
-                                            onTap: () {
-                                              _selectedbill = billsdata.first;
-                                              if (_selectedbill == 'New Ref' || _selectedbill == 'Agst Ref') {
-                                                setState(() {
-                                                  isVisibleDueDate = true;
-                                                  isVisibleBillNo = true;
-                                                });
-                                              } else {
-                                                setState(() {
-                                                  isVisibleDueDate = false;
-                                                  isVisibleBillNo = false;
-                                                });
-                                              }
-
-                                              billAmountController.clear();
-                                              billNoController.clear();
-                                              _billduedateController.clear();
-                                              _showBillsDetailsPopup(context);
-                                            },
+                                            onTap: () =>
+                                                _showChequeDetailsPopup(
+                                                  context,
+                                                ),
                                             child: Container(
                                               width: 34,
                                               height: 34,
                                               decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
                                                 gradient: const LinearGradient(
-                                                  colors: [Colors.orange, Colors.deepOrange],
+                                                  colors: [
+                                                    Colors.orange,
+                                                    Colors.deepOrangeAccent,
+                                                  ],
                                                   begin: Alignment.topLeft,
                                                   end: Alignment.bottomRight,
                                                 ),
                                                 boxShadow: [
                                                   BoxShadow(
-                                                    color: Colors.orange.withOpacity(0.3),
+                                                    color: Colors.orange
+                                                        .withOpacity(0.3),
                                                     blurRadius: 6,
                                                     offset: const Offset(0, 3),
-                                                  )
+                                                  ),
                                                 ],
                                               ),
-                                              child: const Icon(Icons.add, color: Colors.white, size: 20),
+                                              child: const Icon(
+                                                Icons.add,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
 
-
-                                    // 🔹 Bills List (Ledger style cards)
+                                    // 🔹 Cheque List
                                     ListView.builder(
-                                      physics: const NeverScrollableScrollPhysics(),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
-                                      itemCount: bills.length,
+                                      itemCount: cheque.length,
                                       itemBuilder: (context, index) {
-                                        final bill = bills[index];
-                                        final bool showBillNo = (bill.billName == "Agst Ref" ||
-                                            bill.billName == "New Ref") &&
-                                            bill.billNo != 'null' &&
-                                            bill.billNo != '';
+                                        final cheques = cheque[index];
+                                        final bool showInstNo =
+                                            !(cheques.instno == "null" ||
+                                                cheques.instno.isEmpty ||
+                                                cheques.instno == "");
 
                                         return Dismissible(
                                           key: UniqueKey(),
-                                          direction: DismissDirection.endToStart,
+                                          direction:
+                                              DismissDirection.endToStart,
                                           background: Container(
                                             alignment: Alignment.centerRight,
-                                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 20,
+                                            ),
                                             decoration: BoxDecoration(
                                               color: Colors.redAccent,
-                                              borderRadius: BorderRadius.circular(14),
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
                                             ),
-                                            child: const Icon(Icons.delete, color: Colors.white, size: 22),
+                                            child: const Icon(
+                                              Icons.delete,
+                                              color: Colors.white,
+                                              size: 22,
+                                            ),
                                           ),
                                           onDismissed: (direction) {
-                                            _deleteBill(index);
+                                            setState(() {
+                                              cheque.removeAt(index);
+                                              updateChequeAmount();
+                                              isVisibleChequeHeading =
+                                                  cheque.isNotEmpty;
+                                            });
                                           },
                                           child: Container(
-                                            margin: const EdgeInsets.only(left: 16,right:16, bottom: 6,top:2),
-                                            padding: const EdgeInsets.all(14),
+                                            margin: const EdgeInsets.only(
+                                              left: 16,
+                                              right: 16,
+                                              bottom: 6,
+                                              top: 2,
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 14,
+                                              vertical: 12,
+                                            ),
                                             decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(14),
-                                              border: Border.all(color: Colors.grey.shade200),
+                                              color: Theme.of(
+                                                context,
+                                              ).cardColor,
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                              border: Border.all(
+                                                color: Colors.grey.shade200,
+                                              ),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: Colors.black.withOpacity(0.03),
+                                                  color: Colors.black
+                                                      .withOpacity(0.03),
                                                   blurRadius: 6,
                                                   offset: const Offset(0, 2),
                                                 ),
                                               ],
                                             ),
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
+                                                // 🔹 First row → Inst No + Inst Date
                                                 Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
                                                   children: [
-                                                    Expanded(
-                                                      flex: 5,
-                                                      child: Text(
-                                                        bill.billName,
-                                                        style: GoogleFonts.poppins(
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight.w600,
-                                                          color: Colors.black87,
+                                                    Row(
+                                                      children: [
+                                                        const Icon(
+                                                          Icons
+                                                              .confirmation_num_outlined,
+                                                          color:
+                                                              Colors.deepPurple,
+                                                          size: 18,
                                                         ),
-                                                      ),
+                                                        const SizedBox(
+                                                          width: 6,
+                                                        ),
+                                                        Text(
+                                                          "Inst No: ${showInstNo ? cheques.instno : "N/A"}",
+                                                          style: GoogleFonts.poppins(
+                                                            fontSize: 13,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            color:
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .colorScheme
+                                                                    .onSurface,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                    Expanded(
-                                                      flex: 5,
-                                                      child: Text(
-                                                        "Bill No: ${showBillNo ? bill.billNo ?? "N/A" : "N/A"}",
-                                                        textAlign: TextAlign.end,
-                                                        style: GoogleFonts.poppins(
-                                                          fontSize: 13,
-                                                          fontWeight: FontWeight.w500,
-                                                          color: Colors.black54,
+                                                    Row(
+                                                      children: [
+                                                        const Icon(
+                                                          Icons.date_range,
+                                                          color: Colors.teal,
+                                                          size: 18,
                                                         ),
-                                                      ),
+                                                        const SizedBox(
+                                                          width: 6,
+                                                        ),
+                                                        Text(
+                                                          formatdate(
+                                                            cheques.instdate ??
+                                                                '',
+                                                          ),
+                                                          style: GoogleFonts.poppins(
+                                                            fontSize: 13,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            color:
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .colorScheme
+                                                                    .onSurface,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),
-                                                const SizedBox(height: 10),
 
-                                                // Amount Row (Gradient currency icon + Amount)
+                                                const SizedBox(height: 8),
+
+                                                // 🔹 Amount row
                                                 Row(
-                                                  crossAxisAlignment: CrossAxisAlignment.center,
                                                   children: [
                                                     Container(
                                                       width: 26,
                                                       height: 26,
                                                       decoration: BoxDecoration(
                                                         shape: BoxShape.circle,
-                                                        gradient: const LinearGradient(
-                                                          colors: [Colors.teal, Colors.cyan],
-                                                          begin: Alignment.topLeft,
-                                                          end: Alignment.bottomRight,
-                                                        ),
-                                                        boxShadow: [
-                                                          BoxShadow(
-                                                            color: Colors.cyan.withOpacity(0.3),
-                                                            blurRadius: 6,
-                                                            offset: const Offset(0, 3),
-                                                          )
-                                                        ],
+                                                        gradient:
+                                                            LinearGradient(
+                                                              colors: [
+                                                                Colors
+                                                                    .deepPurple
+                                                                    .shade400,
+                                                                Colors
+                                                                    .blue
+                                                                    .shade600,
+                                                              ],
+
+                                                              begin: Alignment
+                                                                  .topLeft,
+                                                              end: Alignment
+                                                                  .bottomRight,
+                                                            ),
                                                       ),
-                                                      alignment: Alignment.center,
-                                                      child: Text(
-                                                        getCurrencySymbol(currencycode),
-                                                        style: GoogleFonts.poppins(
-                                                          color: Colors.white,
-                                                          fontWeight: FontWeight.bold,
-                                                          fontSize: 11,
+                                                      child: Center(
+                                                        child: Text(
+                                                          getCurrencySymbol(
+                                                            currencycode,
+                                                          ),
+                                                          style:
+                                                              GoogleFonts.poppins(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 11,
+                                                              ),
                                                         ),
                                                       ),
                                                     ),
                                                     const SizedBox(width: 8),
                                                     Text(
-                                                      currencyFormat.format(bill.billAmount),
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 15,
-                                                        fontWeight: FontWeight.w600,
-                                                        color: Colors.black87,
+                                                      currencyFormat.format(
+                                                        cheques.chequeAmount,
                                                       ),
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color:
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .colorScheme
+                                                                    .onSurface,
+                                                          ),
                                                     ),
                                                   ],
                                                 ),
@@ -5422,513 +6360,277 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry> with Ticker
                                         );
                                       },
                                     ),
-
                                   ],
                                 ),
                               ),
+                            ),
+                          ],
+                        ),
+                      ),
 
-                              Visibility(
-                                visible: isPaymentModeVisible,
-                                child:  Padding(
-                                  padding: const EdgeInsets.only(top: 8, left: 20, right: 20, bottom: 0),
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    value: _selectedpaymentmode,
-                                    hint: Text(
-                                      'Select Payment Mode',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 8,
+                          left: 20,
+                          right: 20,
+                          bottom: 0,
+                        ),
+                        child: TextFormField(
+                          controller: controller_narration,
+                          focusNode: _textFieldFocusNodeNarration,
+                          validator: (value) => null,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: 'Narration',
+                            hintText: 'Enter narration',
 
-                                    items: paymentmode_data.map((item) {
-                                      return DropdownMenuItem<String>(
-                                        value: item.toString(),
-                                        child: Text(
-                                          item.toString(),
-                                          style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) async {
-                                      setState(() {
-                                        _selectedpaymentmode = value!;
-                                      });
-
-                                      if (bills.isEmpty) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('At least add 1 bill')),
-                                        );
-
-                                        isChequeVisible = false;
-                                        selectedbankname = bankname_data.first;
-                                        _banknameController.text = selectedbankname;
-                                        instNoController.clear();
-                                        instdate = DateTime.now();
-                                        instdatestring = _dateFormat.format(instdate);
-                                        instdatetxt = formatlastsaledate(instdatestring);
-                                        instDateController.text = instdatetxt;
-                                        chequeAmountController.clear();
-                                        cheque.clear();
-                                        updateChequeAmount();
-                                      } else {
-                                        setState(() {
-                                          isChequeVisible = true;
-                                        });
-                                      }
-                                    },
-                                    decoration: InputDecoration(
-                                      labelText: "Payment Mode",
-                                      labelStyle: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[700],
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.white.withOpacity(0.95),
-                                      contentPadding:
-                                      const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-
-                                      // 🌈 Gradient Prefix Icon
-                                      prefixIcon: Container(
-                                        margin: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [Colors.teal, Colors.indigo],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        child: const Icon(Icons.payment_outlined,
-                                            color: Colors.white, size: 20),
-                                      ),
-
-                                      // Borders
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(color: app_color, width: 1.5),
-                                      ),
-                                    ),
-                                  ),
+                            // 🌈 Gradient Icon (different decent color from vchtype)
+                            prefixIcon: Container(
+                              margin: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Colors.deepPurple,
+                                    Colors.indigo,
+                                  ], // decent gradient
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-
-                              Visibility(
-                                visible: isChequeVisible,
-                                child: Container(
-                                  margin: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 0),
-                                  padding: const EdgeInsets.only(bottom: 0),
-                                  decoration: BoxDecoration(
-                                    color: app_color.withOpacity(0.07),
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.06),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      // 🔹 Header Row with PaymentMode + Add Icon
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-                                        child: Row(
-                                          children: [
-                                            Container(
-                                              width: 34,
-                                              height: 34,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                gradient:  LinearGradient(
-                                                  colors: [Colors.purpleAccent, Colors.deepPurple],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.teal.withOpacity(0.3),
-                                                    blurRadius: 6,
-                                                    offset: const Offset(0, 3),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: const Icon(Icons.payment, color: Colors.white, size: 20),
-                                            ),
-                                            const SizedBox(width: 12),
-
-                                            Expanded(
-                                              child: Text(
-                                                _selectedpaymentmode,
-                                                style: GoogleFonts.poppins(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 16,
-                                                  color: app_color,
-                                                ),
-                                              ),
-                                            ),
-
-                                            GestureDetector(
-                                              onTap: () => _showChequeDetailsPopup(context),
-                                              child: Container(
-                                                width: 34,
-                                                height: 34,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  gradient: const LinearGradient(
-                                                    colors: [Colors.orange, Colors.deepOrangeAccent],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.orange.withOpacity(0.3),
-                                                      blurRadius: 6,
-                                                      offset: const Offset(0, 3),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: const Icon(Icons.add, color: Colors.white, size: 20),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-
-                                      // 🔹 Cheque List
-                                      ListView.builder(
-                                        physics: const NeverScrollableScrollPhysics(),
-                                        shrinkWrap: true,
-                                        itemCount: cheque.length,
-                                        itemBuilder: (context, index) {
-                                          final cheques = cheque[index];
-                                          final bool showInstNo = !(cheques.instno == "null" ||
-                                              cheques.instno.isEmpty ||
-                                              cheques.instno == "");
-
-                                          return Dismissible(
-                                            key: UniqueKey(),
-                                            direction: DismissDirection.endToStart,
-                                            background: Container(
-                                              alignment: Alignment.centerRight,
-                                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                                              decoration: BoxDecoration(
-                                                color: Colors.redAccent,
-                                                borderRadius: BorderRadius.circular(14),
-                                              ),
-                                              child: const Icon(Icons.delete, color: Colors.white, size: 22),
-                                            ),
-                                            onDismissed: (direction) {
-                                              setState(() {
-                                                cheque.removeAt(index);
-                                                updateChequeAmount();
-                                                isVisibleChequeHeading = cheque.isNotEmpty;
-                                              });
-                                            },
-                                            child: Container(
-                                              margin: const EdgeInsets.only(left: 16,right:16, bottom: 6,top:2),
-                                              padding:
-                                              const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: BorderRadius.circular(14),
-                                                border: Border.all(color: Colors.grey.shade200),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black.withOpacity(0.03),
-                                                    blurRadius: 6,
-                                                    offset: const Offset(0, 2),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  // 🔹 First row → Inst No + Inst Date
-                                                  Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          const Icon(Icons.confirmation_num_outlined,
-                                                              color: Colors.deepPurple, size: 18),
-                                                          const SizedBox(width: 6),
-                                                          Text(
-                                                            "Inst No: ${showInstNo ? cheques.instno : "N/A"}",
-                                                            style: GoogleFonts.poppins(
-                                                              fontSize: 13,
-                                                              fontWeight: FontWeight.w500,
-                                                              color: Colors.black87,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          const Icon(Icons.date_range,
-                                                              color: Colors.teal, size: 18),
-                                                          const SizedBox(width: 6),
-                                                          Text(
-                                                            formatdate(cheques.instdate ?? ''),
-                                                            style: GoogleFonts.poppins(
-                                                              fontSize: 13,
-                                                              fontWeight: FontWeight.w500,
-                                                              color: Colors.black87,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ),
-
-                                                  const SizedBox(height: 8),
-
-                                                  // 🔹 Amount row
-                                                  Row(
-                                                    children: [
-                                                      Container(
-                                                        width: 26,
-                                                        height: 26,
-                                                        decoration: BoxDecoration(
-                                                          shape: BoxShape.circle,
-                                                          gradient:  LinearGradient(
-                                                            colors: [Colors.deepPurple.shade400, Colors.blue.shade600],
-
-                                                            begin: Alignment.topLeft,
-                                                            end: Alignment.bottomRight,
-                                                          ),
-                                                        ),
-                                                        child: Center(
-                                                          child: Text(
-                                                            getCurrencySymbol(currencycode),
-                                                            style: GoogleFonts.poppins(
-                                                                color: Colors.white,
-                                                                fontWeight: FontWeight.bold,
-                                                                fontSize: 11),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 8),
-                                                      Text(
-                                                        currencyFormat.format(cheques.chequeAmount),
-                                                        style: GoogleFonts.poppins(
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight.w600,
-                                                          color: Colors.black87,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                              child: const Icon(
+                                Icons.notes_rounded,
+                                color: Colors.white,
+                                size: 20,
                               ),
+                            ),
 
+                            filled: true,
+                            fillColor:
+                                Theme.of(
+                                  context,
+                                ).inputDecorationTheme.fillColor ??
+                                (Theme.of(
+                                      context,
+                                    ).inputDecorationTheme.fillColor ??
+                                    Theme.of(
+                                      context,
+                                    ).cardColor.withOpacity(0.95)),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 14,
+                            ),
 
-                            ],),),
+                            // Borders
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).dividerColor,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).dividerColor,
+                                width: 1,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: app_color,
+                                width: 1.5,
+                              ),
+                            ),
 
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8, left: 20, right: 20, bottom: 0),
-                          child: TextFormField(
-                            controller: controller_narration,
-                            focusNode: _textFieldFocusNodeNarration,
-                            validator: (value) => null,
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
+                            labelStyle: GoogleFonts.poppins(
+                              fontSize: 13,
                               fontWeight: FontWeight.w500,
-                              color: Colors.black87,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
-                            decoration: InputDecoration(
-                              labelText: 'Narration',
-                              hintText: 'Enter narration',
+                          ),
+                        ),
+                      ),
 
-                              // 🌈 Gradient Icon (different decent color from vchtype)
-                              prefixIcon: Container(
-                                margin: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [Colors.deepPurple, Colors.indigo], // decent gradient
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 10,
+                          left: 20,
+                          right: 20,
+                          bottom: 0,
+                        ),
+                        child: TextFormField(
+                          enabled: false,
+                          controller: controller_totalamt,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d+\.?\d{0,4}'),
+                            ),
+                          ],
+                          keyboardType: TextInputType.number,
+                          validator: (value) => null,
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: 'Amount',
+                            hintText: 'Enter Amount',
+
+                            // 🌈 Gradient Currency Symbol
+                            prefix: Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.grey,
+                                    Colors.brown,
+                                  ], // 🔵 unique from narration
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-                                child: const Icon(
-                                  Icons.notes_rounded,
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(8),
+                                ),
+                              ),
+                              child: Text(
+                                getCurrencySymbol(
+                                  currencycode,
+                                ), // e.g. AED, $, ₹
+                                style: GoogleFonts.poppins(
                                   color: Colors.white,
-                                  size: 20,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
+                            ),
 
-                              filled: true,
-                              fillColor: Colors.white.withOpacity(0.95),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-
-                              // Borders
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Colors.black),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: app_color, width: 1.5),
-                              ),
-
-                              labelStyle: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey[700],
+                            // Borders
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).dividerColor,
                               ),
                             ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: app_color,
+                                width: 1.5,
+                              ),
+                            ),
+
+                            // Label
+                            labelStyle: GoogleFonts.poppins(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                              horizontal: 12,
+                            ),
+                            filled: true,
+                            fillColor:
+                                Theme.of(
+                                  context,
+                                ).inputDecorationTheme.fillColor ??
+                                Colors.white,
                           ),
                         ),
+                      ),
 
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 0),
-                          child: TextFormField(
-                            enabled: false,
-                            controller: controller_totalamt,
-                            inputFormatters: <TextInputFormatter>[
-                              FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,4}')),
-                            ],
-                            keyboardType: TextInputType.number,
-                            validator: (value) => null,
-                            style: GoogleFonts.poppins(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
+                      Container(
+                        padding: const EdgeInsets.only(top: 20),
+                        margin: const EdgeInsets.only(
+                          bottom: 30,
+                          left: 20,
+                          right: 20,
+                        ),
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: errorMessageVchNo.isNotEmpty
+                              ? null
+                              : () {
+                                  if (_formKey.currentState != null &&
+                                      _formKey.currentState!.validate()) {
+                                    _formKey.currentState!.save();
+                                    updateEntry(id);
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                              horizontal: 20,
                             ),
-                            decoration: InputDecoration(
-                              labelText: 'Amount',
-                              hintText: 'Enter Amount',
-
-                              // 🌈 Gradient Currency Symbol
-                              prefix: Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [Colors.grey, Colors.brown], // 🔵 unique from narration
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                30,
+                              ), // pill shape
+                            ),
+                            elevation: 8,
+                            backgroundColor:
+                                app_color, // ✅ always full app_color
+                            disabledBackgroundColor:
+                                Colors.grey.shade300, // disabled state
+                            shadowColor: app_color.withOpacity(0.4),
+                          ),
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.white,
+                                  size: 22,
                                 ),
-                                child: Text(
-                                  getCurrencySymbol(currencycode), // e.g. AED, $, ₹
+                                const SizedBox(width: 10),
+                                Text(
+                                  "Save",
                                   style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
                                     color: Colors.white,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1,
                                   ),
                                 ),
-                              ),
-
-                              // Borders
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Colors.black),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.black54),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: app_color, width: 1.5),
-                              ),
-
-                              // Label
-                              labelStyle: GoogleFonts.poppins(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-                              filled: true,
-                              fillColor: Colors.white,
+                              ],
                             ),
                           ),
                         ),
-
-
-                        Container(
-                          padding: const EdgeInsets.only(top: 20),
-                          margin: const EdgeInsets.only(bottom: 30, left: 20, right: 20),
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: errorMessageVchNo.isNotEmpty
-                                ? null
-                                : () {
-                              if (_formKey.currentState != null &&
-                                  _formKey.currentState!.validate()) {
-                                _formKey.currentState!.save();
-                                updateEntry(id);
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30), // pill shape
-                              ),
-                              elevation: 8,
-                              backgroundColor: app_color, // ✅ always full app_color
-                              disabledBackgroundColor: Colors.grey.shade300, // disabled state
-                              shadowColor: app_color.withOpacity(0.4),
-                            ),
-                            child: Container(
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.check_circle,
-                                    color: Colors.white,
-                                    size: 22,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    "Save",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                      letterSpacing: 1,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                      ]
-
-                  ))],),
-
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
 
             Visibility(
               visible: _isLoading,
-              child: Center(
-                  child: AppLogoLoader())
-            )
-          ],)
+              child: Center(child: AppLogoLoader()),
+            ),
+          ],
+        ),
       ),
-    );}}
+    );
+  }
+}

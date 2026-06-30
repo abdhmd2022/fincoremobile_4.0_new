@@ -34,7 +34,7 @@ class AnalyticsScreen extends StatefulWidget {
     required this.yearColors,
     required this.pieSalesList,
     required this.piePurchaseList,
-    required this.isVisibleLineChart ,
+    required this.isVisibleLineChart,
     required this.isVisiblePieChart,
     required this.isSalesPieChartVisible,
     required this.isPurchasePieChartVisible,
@@ -51,13 +51,16 @@ class AnalyticsScreen extends StatefulWidget {
   State<AnalyticsScreen> createState() => _AnalyticsScreenState();
 }
 
-
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
-
   late NumberScale selectedScale;
   bool showPercentage = false;
 
-  String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",SecuritybtnAcessHolder= "";
+  String? hostname = "",
+      company = "",
+      company_lowercase = "",
+      serial_no = "",
+      username = "",
+      SecuritybtnAcessHolder = "";
   late SharedPreferences prefs;
   final NumberFormat commaFormat = NumberFormat("#,##0.00");
 
@@ -81,8 +84,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
     // Calculate the final container width
     double containerWidth = totalLabelWidth + extraWidth;
-    if(containerWidth < screensize)
-    {
+    if (containerWidth < screensize) {
       containerWidth = screensize;
     }
 
@@ -97,7 +99,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       DateTime endDate = DateTime.parse(widget.endDateString);
 
       // Ensure valid date range
-      while (startDate.isBefore(endDate) || startDate.isAtSameMomentAs(endDate)) {
+      while (startDate.isBefore(endDate) ||
+          startDate.isAtSameMomentAs(endDate)) {
         String monthLabel = DateFormat('MMM-yy').format(startDate);
         months.add(monthLabel);
 
@@ -138,8 +141,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     prefs = await SharedPreferences.getInstance();
 
     setState(() {
-
-      company  = prefs.getString('company_name');
+      company = prefs.getString('company_name');
       company_lowercase = company!.replaceAll(' ', '').toLowerCase();
       serial_no = prefs.getString('serial_no');
       username = prefs.getString('username');
@@ -154,16 +156,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
         child: AppBar(
-          backgroundColor:  app_color,
+          backgroundColor: app_color,
           elevation: 6,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
           automaticallyImplyLeading: false,
           leading: IconButton(
@@ -186,24 +186,24 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   ),
                 ),
               ),
-
             ],
           ),
         ),
       ),
 
-
       body: SingleChildScrollView(
         child: Column(
           children: [
-
             Visibility(
               visible: widget.isBarChartVisible,
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
@@ -224,7 +224,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           height: 38,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [Colors.teal.shade400, Colors.teal.shade700],
+                              colors: [
+                                Colors.teal.shade400,
+                                Colors.teal.shade700,
+                              ],
                             ),
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
@@ -235,8 +238,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               ),
                             ],
                           ),
-                          child: const Icon(Icons.bar_chart_rounded,
-                              color: Colors.white, size: 20),
+                          child: const Icon(
+                            Icons.bar_chart_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Text(
@@ -244,7 +250,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           style: GoogleFonts.poppins(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
-                            color: Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
@@ -264,7 +270,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           selectedScale: widget.selectedScale,
                           decimalPlaces: widget.decimalPlaces,
                           months: getMonthsList(), // ✅ pass months
-
                         ),
                       ),
                     ),
@@ -284,14 +289,20 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 ),
               ),
             ),
+
             /// 📈 Line Chart Section
             Visibility(
               visible: widget.isVisibleLineChart,
               child: Container(
-                margin: EdgeInsets.only(left: 16,right:16, bottom: 0,top:10),
+                margin: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  bottom: 0,
+                  top: 10,
+                ),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
@@ -309,14 +320,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 16),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Container(
-                        width: MediaQuery.of(context).size.width -40,
+                        width: MediaQuery.of(context).size.width - 40,
                         height: MediaQuery.of(context).size.height / 3.5,
                         padding: const EdgeInsets.only(top: 5),
                         child: LineChart(
@@ -324,75 +335,92 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             extraLinesData: ExtraLinesData(horizontalLines: []),
                             gridData: FlGridData(show: true),
                             titlesData: FlTitlesData(
-                                leftTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    reservedSize: MediaQuery.of(context).size.width/8,
-                                    getTitlesWidget: (value, meta) {
-                                      return Text(
-                                        formatNumberAbbreviation(
-                                          value,
-                                          scale: selectedScale,
-                                          decimalPlaces: widget.decimalPlaces,
-                                          showSuffix: false,
-                                        ),
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.black54,
+                              leftTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize:
+                                      MediaQuery.of(context).size.width / 8,
+                                  getTitlesWidget: (value, meta) {
+                                    return Text(
+                                      formatNumberAbbreviation(
+                                        value,
+                                        scale: selectedScale,
+                                        decimalPlaces: widget.decimalPlaces,
+                                        showSuffix: false,
+                                      ),
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  getTitlesWidget: (value, meta) {
+                                    final index = value.toInt();
+                                    if (index >= 0 &&
+                                        index < widget.months.length) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(top: 8),
+                                        child: Text(
+                                          widget.months[index],
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
+                                          ),
                                         ),
                                       );
-                                    },
-                                  ),
+                                    }
+                                    return const SizedBox.shrink();
+                                  },
                                 ),
-                                bottomTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    getTitlesWidget: (value, meta) {
-                                      final index = value.toInt();
-                                      if (index >= 0 && index < widget.months.length) {
-                                        return Padding(
-                                          padding: const EdgeInsets.only(top: 8),
-                                          child: Text(
-                                            widget.months[index],
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                      return const SizedBox.shrink();
-                                    },
-                                  ),
-                                ),
-                                rightTitles: AxisTitles(sideTitles: SideTitles(
-                                  showTitles: false,)),
-                                topTitles: AxisTitles(sideTitles: SideTitles(
-                                  showTitles: false,))
+                              ),
+                              rightTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                              topTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
                             ),
 
                             borderData: FlBorderData(show: false),
                             minX: 0,
                             maxX: widget.months.length.toDouble() - 1,
                             lineBarsData: widget.lineChartData.map((yearData) {
-                              final yearIndex = widget.lineChartData.indexOf(yearData);
-                              final spots = yearData['value'].map<FlSpot>((monthEntry) {
-                                final monthIndex = widget.months
-                                    .indexOf(monthEntry['month']);
+                              final yearIndex = widget.lineChartData.indexOf(
+                                yearData,
+                              );
+                              final spots = yearData['value'].map<FlSpot>((
+                                monthEntry,
+                              ) {
+                                final monthIndex = widget.months.indexOf(
+                                  monthEntry['month'],
+                                );
                                 final monthSales = monthEntry['sales'] as int;
-                                return FlSpot(monthIndex.toDouble(), -monthSales.toDouble());
+                                return FlSpot(
+                                  monthIndex.toDouble(),
+                                  -monthSales.toDouble(),
+                                );
                               }).toList();
 
                               final color = widget.yearColors.putIfAbsent(
                                 yearIndex,
-                                    () => getRandomColor(),
+                                () => getRandomColor(),
                               );
                               return LineChartBarData(
                                 spots: spots,
                                 isCurved: true,
-                                color: color, // ✅ single color instead of 'colors: [color]'
+                                color:
+                                    color, // ✅ single color instead of 'colors: [color]'
                                 dotData: FlDotData(show: true),
                                 belowBarData: BarAreaData(
                                   show: true,
@@ -406,12 +434,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                   ),
                                 ),
                               );
-
                             }).toList(),
                             lineTouchData: LineTouchData(
                               enabled: true,
                               touchTooltipData: LineTouchTooltipData(
-
                                 getTooltipItems: (touchedSpots) {
                                   return touchedSpots.map((LineBarSpot spot) {
                                     return LineTooltipItem(
@@ -441,10 +467,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: widget.lineChartData.map((yearData) {
-                            final yearIndex = widget.lineChartData.indexOf(yearData);
-                            final color = widget.yearColors[yearIndex] ?? Colors.black;
+                            final yearIndex = widget.lineChartData.indexOf(
+                              yearData,
+                            );
+                            final color =
+                                widget.yearColors[yearIndex] ?? Colors.black;
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                              ),
                               child: Row(
                                 children: [
                                   Container(
@@ -476,10 +507,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             Visibility(
               visible: widget.isVisiblePieChart,
               child: Container(
-                margin: EdgeInsets.only(left: 16,right:16, bottom: 0,top:10),
+                margin: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  bottom: 0,
+                  top: 10,
+                ),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
@@ -499,7 +535,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
                               gradient: LinearGradient(
@@ -515,28 +554,32 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                   offset: const Offset(0, 4),
                                 ),
                               ],
-                              border: Border.all(color: Colors.grey.withOpacity(0.08)),
+                              border: Border.all(
+                                color: Colors.grey.withOpacity(0.08),
+                              ),
                             ),
                             child: Column(
                               children: [
-
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     /// LEFT SIDE — Title + subtitle feel
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           "Sales",
                                           style: GoogleFonts.poppins(
                                             fontSize: 18,
                                             fontWeight: FontWeight.w700,
-                                            color: Colors.black87,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
                                             letterSpacing: 0.2,
                                           ),
                                         ),
-
                                       ],
                                     ),
 
@@ -544,11 +587,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                     Container(
                                       padding: const EdgeInsets.all(3),
                                       decoration: BoxDecoration(
-                                        color: Colors.grey.shade100,
+                                        color:
+                                            Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainerHighest
+                                            : Colors.grey.shade100,
                                         borderRadius: BorderRadius.circular(30),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(0.05),
+                                            color: Colors.black.withOpacity(
+                                              0.05,
+                                            ),
                                             blurRadius: 6,
                                             offset: const Offset(0, 2),
                                           ),
@@ -556,8 +607,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                       ),
                                       child: Row(
                                         children: [
-                                          _buildModernToggle("123", !showPercentage),
-                                          _buildModernToggle("%", showPercentage),
+                                          _buildModernToggle(
+                                            "123",
+                                            !showPercentage,
+                                          ),
+                                          _buildModernToggle(
+                                            "%",
+                                            showPercentage,
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -571,13 +628,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                     children: [
                                       Flexible(
                                         flex: 1,
-                                        child: _buildPieChart_Sales(widget.pieSalesList),
+                                        child: _buildPieChart_Sales(
+                                          widget.pieSalesList,
+                                        ),
                                       ),
                                       const SizedBox(width: 10),
                                       Flexible(
                                         flex: 1,
                                         child: SingleChildScrollView(
-                                          child: _buildLegend_Sales(widget.pieSalesList),
+                                          child: _buildLegend_Sales(
+                                            widget.pieSalesList,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -585,12 +646,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                 ),
                               ],
                             ),
-
                           ),
-
-
-
-
 
                           const SizedBox(height: 20),
                         ],
@@ -605,7 +661,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
                               gradient: LinearGradient(
@@ -621,7 +680,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                   offset: const Offset(0, 4),
                                 ),
                               ],
-                              border: Border.all(color: Colors.grey.withOpacity(0.08)),
+                              border: Border.all(
+                                color: Colors.grey.withOpacity(0.08),
+                              ),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -632,7 +693,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                   style: GoogleFonts.poppins(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
-                                    color: Colors.black87,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
                                     letterSpacing: 0.2,
                                   ),
                                 ),
@@ -644,13 +707,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                     children: [
                                       Flexible(
                                         flex: 1,
-                                        child: _buildPieChart_Purchase(widget.piePurchaseList),
+                                        child: _buildPieChart_Purchase(
+                                          widget.piePurchaseList,
+                                        ),
                                       ),
                                       const SizedBox(width: 10),
                                       Flexible(
                                         flex: 1,
                                         child: SingleChildScrollView(
-                                          child: _buildLegend_Purchase(widget.piePurchaseList),
+                                          child: _buildLegend_Purchase(
+                                            widget.piePurchaseList,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -658,10 +725,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                 ),
                               ],
                             ),
-
-
                           ),
-
                         ],
                       ),
                     ),
@@ -704,21 +768,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             borderRadius: BorderRadius.circular(26),
             gradient: active
                 ? LinearGradient(
-              colors: [
-                app_color,
-                app_color.withOpacity(0.8),
-              ],
-            )
+                    colors: [app_color, app_color.withOpacity(0.8)],
+                  )
                 : null,
             color: active ? null : Colors.transparent,
             boxShadow: active
                 ? [
-              BoxShadow(
-                color: app_color.withOpacity(0.35),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ]
+                    BoxShadow(
+                      color: app_color.withOpacity(0.35),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
                 : [],
           ),
           child: Row(
@@ -732,7 +793,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 child: Icon(
                   text == "%" ? Icons.percent_rounded : Icons.payments,
                   size: 14,
-                  color: active ? Colors.white : Colors.black54,
+                  color: active ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),*/
 
@@ -742,13 +803,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: active ? Colors.white : Colors.black54,
+                  color: active
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 child: Text(text),
               ),
             ],
           ),
-
         ),
       ),
     );
@@ -763,10 +825,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
         padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-
-        ),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
         child: AspectRatio(
           aspectRatio: 1,
           child: PieChart(
@@ -786,7 +845,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   List<PieChartSectionData> _generateChartData_Sales(List<dynamic> salesData) {
     final total = salesData.fold<double>(
       0,
-          (sum, item) => sum + (item['amount'] ?? 0).toDouble().abs(),
+      (sum, item) => sum + (item['amount'] ?? 0).toDouble().abs(),
     );
 
     return List.generate(salesData.length, (i) {
@@ -806,11 +865,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             : showPercentage
             ? "${((value / total) * 100).toStringAsFixed(1)}%"
             : formatNumberAbbreviation(
-          value,
-          scale: selectedScale,
-          decimalPlaces: widget.decimalPlaces,
-          showSuffix: false,
-        ),
+                value,
+                scale: selectedScale,
+                decimalPlaces: widget.decimalPlaces,
+                showSuffix: false,
+              ),
 
         titleStyle: const TextStyle(
           fontSize: 10,
@@ -820,17 +879,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
         radius: 85,
 
-
-
         color: color,
         borderSide: BorderSide.none,
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            color.withOpacity(0.95),
-            color.withOpacity(0.65),
-          ],
+          colors: [color.withOpacity(0.95), color.withOpacity(0.65)],
         ),
       );
     });
@@ -838,9 +892,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   Widget _buildLegend_Sales(List<dynamic> data) {
     return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxHeight: 180,
-      ),
+      constraints: const BoxConstraints(maxHeight: 180),
       child: SingleChildScrollView(
         child: Wrap(
           spacing: 10,
@@ -852,13 +904,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             Color color = pieChartColors_sales[i];
             final total = data.fold<double>(
               0,
-                  (sum, e) => sum + (e['amount'] ?? 0).toDouble().abs(),
+              (sum, e) => sum + (e['amount'] ?? 0).toDouble().abs(),
             );
 
             return Container(
-              constraints: const BoxConstraints(
-                maxWidth: 220,
-              ),
+              constraints: const BoxConstraints(maxWidth: 220),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
@@ -915,7 +965,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           style: GoogleFonts.poppins(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w500,
-                            color: Colors.black.withOpacity(0.75),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -926,10 +978,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black54,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
-
                       ],
                     ),
                   ),
@@ -950,10 +1003,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-
-        ),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
         child: AspectRatio(
           aspectRatio: 1,
           child: PieChart(
@@ -970,10 +1020,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     );
   }
 
-  List<PieChartSectionData> _generateChartData_Purchase(List<dynamic> purchaseData) {
+  List<PieChartSectionData> _generateChartData_Purchase(
+    List<dynamic> purchaseData,
+  ) {
     final total = purchaseData.fold<double>(
       0,
-          (sum, item) => sum + (item['amount'] ?? 0).toDouble().abs(),
+      (sum, item) => sum + (item['amount'] ?? 0).toDouble().abs(),
     );
 
     return List.generate(purchaseData.length, (i) {
@@ -989,15 +1041,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         /// 🔥 Same abbreviation logic as Sales
         title: ratio > 0.12
             ? showPercentage
-            ? "${(ratio * 100).toStringAsFixed(1)}%"
-            : formatNumberAbbreviation(
-          value,
-          scale: selectedScale,
-          decimalPlaces: widget.decimalPlaces,
-          showSuffix: false,
-        )
+                  ? "${(ratio * 100).toStringAsFixed(1)}%"
+                  : formatNumberAbbreviation(
+                      value,
+                      scale: selectedScale,
+                      decimalPlaces: widget.decimalPlaces,
+                      showSuffix: false,
+                    )
             : "",
-
 
         titleStyle: const TextStyle(
           fontSize: 10,
@@ -1011,10 +1062,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            color.withOpacity(0.95),
-            color.withOpacity(0.65),
-          ],
+          colors: [color.withOpacity(0.95), color.withOpacity(0.65)],
         ),
       );
     });
@@ -1022,9 +1070,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   Widget _buildLegend_Purchase(List<dynamic> data) {
     return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxHeight: 180,
-      ),
+      constraints: const BoxConstraints(maxHeight: 180),
       child: SingleChildScrollView(
         child: Wrap(
           spacing: 10,
@@ -1036,13 +1082,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             Color color = pieChartColors_purchase[i];
             final total = data.fold<double>(
               0,
-                  (sum, e) => sum + (e['amount'] ?? 0).toDouble().abs(),
+              (sum, e) => sum + (e['amount'] ?? 0).toDouble().abs(),
             );
 
             return Container(
-              constraints: const BoxConstraints(
-                maxWidth: 220,
-              ),
+              constraints: const BoxConstraints(maxWidth: 220),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
@@ -1100,7 +1144,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           style: GoogleFonts.poppins(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w500,
-                            color: Colors.black.withOpacity(0.75),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -1113,10 +1159,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black54,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
-
                       ],
                     ),
                   ),
@@ -1128,7 +1175,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       ),
     );
   }
-
 }
 
 Widget _buildLegend(Color color, String title) {
@@ -1149,7 +1195,7 @@ Widget _buildLegend(Color color, String title) {
 }
 
 List<Color> pieChartColors_sales = [];
-List<Color> pieChartColors_purchase =[];
+List<Color> pieChartColors_purchase = [];
 
 List<Color> generateRandomColors(int count) {
   List<Color> colors = [];
@@ -1162,6 +1208,7 @@ List<Color> generateRandomColors(int count) {
   }
   return colors;
 }
+
 Color getRandomColor() {
   final random = Random();
   return Color.fromARGB(
@@ -1171,6 +1218,7 @@ Color getRandomColor() {
     random.nextInt(255),
   );
 }
+
 class BarChartWidget extends StatelessWidget {
   final List<double> salesData;
   final List<double> receiptData;
@@ -1190,115 +1238,109 @@ class BarChartWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.only(left: 0, right: 0, top: 12, bottom: 0), // 👈 added bottom space
-        child: BarChart(
-          BarChartData(
-            alignment: BarChartAlignment.spaceAround,
-            maxY: getMaxValue() + (getMaxValue() * 0.1),
-            groupsSpace: 18,
-            barGroups: generateBars(),
+      padding: const EdgeInsets.only(
+        left: 0,
+        right: 0,
+        top: 12,
+        bottom: 0,
+      ), // 👈 added bottom space
+      child: BarChart(
+        BarChartData(
+          alignment: BarChartAlignment.spaceAround,
+          maxY: getMaxValue() + (getMaxValue() * 0.1),
+          groupsSpace: 18,
+          barGroups: generateBars(),
 
-            // 🔹 Tooltip
-            barTouchData: BarTouchData(
-              enabled: true,
-              touchTooltipData: BarTouchTooltipData(
-                tooltipPadding: const EdgeInsets.all(8),
-                tooltipMargin: 8,
-                getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                  final label = rodIndex == 0 ? "Sales" : "Receipt";
-                  return BarTooltipItem(
-                    '$label\n${formatNumberAbbreviation(
-                      rod.toY,
-                      scale: selectedScale,
-                      decimalPlaces: decimalPlaces,
-                      showSuffix: false,
-                    )}',
-                    GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
+          // 🔹 Tooltip
+          barTouchData: BarTouchData(
+            enabled: true,
+            touchTooltipData: BarTouchTooltipData(
+              tooltipPadding: const EdgeInsets.all(8),
+              tooltipMargin: 8,
+              getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                final label = rodIndex == 0 ? "Sales" : "Receipt";
+                return BarTooltipItem(
+                  '$label\n${formatNumberAbbreviation(rod.toY, scale: selectedScale, decimalPlaces: decimalPlaces, showSuffix: false)}',
+                  GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                );
+              },
+            ),
+          ),
+
+          // 🔹 Axis Titles
+          titlesData: FlTitlesData(
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 40, // 👈 ensures full visibility
+                getTitlesWidget: (value, meta) {
+                  int index = value.toInt();
+                  if (index >= 0 && index < months.length) {
+                    return Transform.rotate(
+                      // 👈 tilt for readability
+                      angle: -0.0, // about -30 degrees
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 14),
+                        child: Text(
+                          months[index],
+                          style: GoogleFonts.poppins(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 62, // 👈 more room for long values
+                maxIncluded: false,
+                minIncluded: true,
+                getTitlesWidget: (value, meta) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Text(
+                      formatNumberAbbreviation(
+                        value,
+                        scale: selectedScale,
+                        decimalPlaces: decimalPlaces,
+                        showSuffix: false,
+                      ),
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   );
                 },
               ),
             ),
 
-            // 🔹 Axis Titles
-            titlesData: FlTitlesData(
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 40, // 👈 ensures full visibility
-                  getTitlesWidget: (value, meta) {
-                    int index = value.toInt();
-                    if (index >= 0 && index < months.length) {
-                      return Transform.rotate( // 👈 tilt for readability
-                        angle: -0.0, // about -30 degrees
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 14),
-                          child: Text(
-                            months[index],
-                            style: GoogleFonts.poppins(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ),
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 62, // 👈 more room for long values
-                  maxIncluded: false,
-                  minIncluded: true,
-                  getTitlesWidget: (value, meta) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: Text(
-                        formatNumberAbbreviation(
-                          value,
-                          scale: selectedScale,
-                          decimalPlaces: decimalPlaces,
-                          showSuffix: false,
-                        ),
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-
-              topTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: false,
-                ),
-
-              ),
-              rightTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-            ),
-
-            // 🔹 Grid & Border
-            borderData: FlBorderData(show: false),
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: false,
-              getDrawingHorizontalLine: (value) => FlLine(
-                color: Colors.grey.shade200,
-                strokeWidth: 1,
-              ),
-            ),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
-        ));
+
+          // 🔹 Grid & Border
+          borderData: FlBorderData(show: false),
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            getDrawingHorizontalLine: (value) =>
+                FlLine(color: Colors.grey.shade200, strokeWidth: 1),
+          ),
+        ),
+      ),
+    );
   }
 
   double getMaxValue() {
@@ -1320,10 +1362,7 @@ class BarChartWidget extends StatelessWidget {
             width: 14,
             borderRadius: BorderRadius.circular(8),
             gradient: LinearGradient(
-              colors: [
-                app_color.withOpacity(0.9),
-                app_color.withOpacity(0.6),
-              ],
+              colors: [app_color.withOpacity(0.9), app_color.withOpacity(0.6)],
             ),
             backDrawRodData: BackgroundBarChartRodData(
               show: true,
@@ -1337,10 +1376,7 @@ class BarChartWidget extends StatelessWidget {
             width: 14,
             borderRadius: BorderRadius.circular(8),
             gradient: LinearGradient(
-              colors: [
-                Colors.deepOrange,
-                Colors.deepOrangeAccent,
-              ],
+              colors: [Colors.deepOrange, Colors.deepOrangeAccent],
             ),
 
             backDrawRodData: BackgroundBarChartRodData(

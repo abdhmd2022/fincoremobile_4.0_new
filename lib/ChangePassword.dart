@@ -20,7 +20,6 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
   bool showNewPassValidation = false;
   bool showConfirmValidation = false;
 
-
   dynamic _formKey = GlobalKey<FormState>();
 
   bool hasLower = false;
@@ -54,15 +53,14 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
   }
 
   Widget _modernField(
-      String label,
-      TextEditingController controller,
-      IconData icon,
-      bool isVisible,
-      VoidCallback toggleVisibility, {
-        Function(String)? onChanged,
-        String? Function(String?)? validator,
-
-      }) {
+    String label,
+    TextEditingController controller,
+    IconData icon,
+    bool isVisible,
+    VoidCallback toggleVisibility, {
+    Function(String)? onChanged,
+    String? Function(String?)? validator,
+  }) {
     return TextFormField(
       controller: controller,
       obscureText: !isVisible,
@@ -77,14 +75,14 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
         suffixIcon: IconButton(
           icon: Icon(
             isVisible ? Icons.visibility : Icons.visibility_off,
-            color: Colors.grey.shade600,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           onPressed: toggleVisibility,
         ),
 
         labelText: label,
         labelStyle: GoogleFonts.poppins(
-          color: Colors.grey.shade600, // default
+          color: Theme.of(context).colorScheme.onSurfaceVariant, // default
         ),
 
         floatingLabelStyle: GoogleFonts.poppins(
@@ -93,18 +91,20 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
         ),
 
         filled: true,
-        fillColor: Colors.white, // ✅ white background
+        fillColor:
+            Theme.of(context).inputDecorationTheme.fillColor ??
+            Colors.white, // ✅ white background
 
         contentPadding: EdgeInsets.symmetric(vertical: 14),
 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
 
         focusedBorder: OutlineInputBorder(
@@ -112,10 +112,8 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
           borderSide: BorderSide(color: app_color, width: 1.3),
         ),
       ),
-
     );
   }
-
 
   Future<void> handleChangePassword() async {
     if (!_formKey.currentState!.validate()) return;
@@ -163,7 +161,6 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
       _showMessage(message);
 
       if (response.statusCode == 200) {
-
         // 🔥 SAVE
         await prefs.setString('password', newPassController.text);
 
@@ -174,8 +171,6 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
 
         // 🔥 RESET FORM
         _formKey.currentState?.reset();
-
-
 
         // 🔥 RESET FLAGS
         setState(() {
@@ -193,11 +188,9 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
           isMatch = false;
           isLoading = false; // ✅ MOVE HERE
         });
-
       } else {
         setState(() => isLoading = false);
       }
-
     } catch (e) {
       setState(() => isLoading = false);
       _showMessage("Network error. Please try again.");
@@ -205,9 +198,7 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
   }
 
   void _showMessage(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   Widget _buildRule(String text, bool valid) {
@@ -236,7 +227,7 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: app_color,
         elevation: 6,
@@ -245,9 +236,7 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
         centerTitle: true,
 
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
-          ),
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
 
         title: Text(
@@ -265,7 +254,6 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-
               // 🔐 Top Icon
               Container(
                 padding: EdgeInsets.all(16),
@@ -293,7 +281,7 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 13,
-                  color: Colors.grey.shade600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
 
@@ -304,7 +292,7 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                 child: Container(
                   padding: EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -320,26 +308,23 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-
                         // 👇 Wrap fields in scroll (only fields scroll)
                         Expanded(
                           child: SingleChildScrollView(
                             child: Column(
                               children: [
-
                                 _modernField(
                                   "Old Password",
                                   oldPassController,
                                   Icons.lock_outline,
                                   isOldPassVisible,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Old password required";
-                          }
-                          return null;
-
-                        },
-                                      () {
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "Old password required";
+                                    }
+                                    return null;
+                                  },
+                                  () {
                                     setState(() {
                                       isOldPassVisible = !isOldPassVisible;
                                     });
@@ -353,16 +338,18 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                                   newPassController,
                                   Icons.lock_reset,
                                   isNewPassVisible,
-                                      () {
-
-                                    setState(() => isNewPassVisible = !isNewPassVisible);
+                                  () {
+                                    setState(
+                                      () =>
+                                          isNewPassVisible = !isNewPassVisible,
+                                    );
                                   },
                                   onChanged: validateNewPassword,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return "New Password required";
                                     }
-                                    if (value.length < 5 ) {
+                                    if (value.length < 5) {
                                       return "Password must be greater than 4 characters";
                                     }
                                     if (!hasLower || !hasUpper || !hasNumber) {
@@ -372,7 +359,7 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                                     if (value == oldPassController.text) {
                                       return "New password must be different from old password.";
                                     }
-                                   /* if (!RegExp(r'[a-z]').hasMatch(value)) {
+                                    /* if (!RegExp(r'[a-z]').hasMatch(value)) {
                                       return "Must contain lowercase letter";
                                     }
                                     if (!RegExp(r'[A-Z]').hasMatch(value)) {
@@ -399,14 +386,17 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                                   confirmPassController,
                                   Icons.check_circle_outline,
                                   isConfirmPassVisible,
-                                      () {
-                                    setState(() => isConfirmPassVisible = !isConfirmPassVisible);
+                                  () {
+                                    setState(
+                                      () => isConfirmPassVisible =
+                                          !isConfirmPassVisible,
+                                    );
                                   },
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return "Confirm your password";
                                     }
-                                    if (value.length < 5 ) {
+                                    if (value.length < 5) {
                                       return "Password must be greater than 4 characters";
                                     }
                                     if (value != newPassController.text) {
@@ -420,7 +410,11 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                                   SizedBox(height: 8),
                                   Row(
                                     children: [
-                                      Icon(Icons.cancel, color: Colors.red, size: 18),
+                                      Icon(
+                                        Icons.cancel,
+                                        color: Colors.red,
+                                        size: 18,
+                                      ),
                                       SizedBox(width: 8),
                                       Text(
                                         "Passwords do not match",
@@ -437,7 +431,11 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                                   SizedBox(height: 8),
                                   Row(
                                     children: [
-                                      Icon(Icons.check_circle, color: Colors.green, size: 18),
+                                      Icon(
+                                        Icons.check_circle,
+                                        color: Colors.green,
+                                        size: 18,
+                                      ),
                                       SizedBox(width: 8),
                                       Text(
                                         "Passwords Matched",
@@ -456,10 +454,14 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                                 SizedBox(
                                   width: double.infinity,
                                   child: GestureDetector(
-                                    onTap: isLoading ? null : handleChangePassword,
+                                    onTap: isLoading
+                                        ? null
+                                        : handleChangePassword,
                                     child: Container(
                                       margin: EdgeInsets.only(top: 20),
-                                      padding: EdgeInsets.symmetric(vertical: 15),
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 15,
+                                      ),
                                       decoration: BoxDecoration(
                                         gradient: LinearGradient(
                                           colors: [
@@ -476,40 +478,42 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                                           ),
                                         ],
                                       ),
-                                      child:
-                                    Center(
-                                      child: isLoading
-                                      ? SizedBox(
-                                      height: 22,
-                                      width: 22,
-                                      child: Platform.isIOS
-                                          ? CupertinoTheme(
-                                        data: const CupertinoThemeData(
-                                          brightness: Brightness.dark, // 🔥 forces white spinner
-                                        ),
-                                        child: const CupertinoActivityIndicator(
-                                          radius: 11,
-                                        ),
-                                      )
-                                          : SizedBox(
-                                        height: 28,
-                                        width: 28,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 3,
-                                          color: Colors.white,
-                                          backgroundColor: Colors.white24, // 🔥 makes rotation visible
-                                        ),
+                                      child: Center(
+                                        child: isLoading
+                                            ? SizedBox(
+                                                height: 22,
+                                                width: 22,
+                                                child: Platform.isIOS
+                                                    ? CupertinoTheme(
+                                                        data: const CupertinoThemeData(
+                                                          brightness: Brightness
+                                                              .dark, // 🔥 forces white spinner
+                                                        ),
+                                                        child:
+                                                            const CupertinoActivityIndicator(
+                                                              radius: 11,
+                                                            ),
+                                                      )
+                                                    : SizedBox(
+                                                        height: 28,
+                                                        width: 28,
+                                                        child: CircularProgressIndicator(
+                                                          strokeWidth: 3,
+                                                          color: Colors.white,
+                                                          backgroundColor: Colors
+                                                              .white24, // 🔥 makes rotation visible
+                                                        ),
+                                                      ),
+                                              )
+                                            : Text(
+                                                "Update Password",
+                                                style: GoogleFonts.poppins(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 15,
+                                                ),
+                                              ),
                                       ),
-                                    )
-                                        : Text(
-                                    "Update Password",
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                )
                                     ),
                                   ),
                                 ),
@@ -517,12 +521,9 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
                             ),
                           ),
                         ),
-
-
                       ],
                     ),
                   ),
-
                 ),
               ),
             ],

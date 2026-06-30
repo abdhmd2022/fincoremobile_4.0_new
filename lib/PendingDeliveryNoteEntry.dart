@@ -41,13 +41,14 @@ class SalesModel {
 }
 
 class PendingDeliveryNoteEntry extends StatefulWidget {
-
   const PendingDeliveryNoteEntry({Key? key}) : super(key: key);
   @override
-  _PendingDeliveryNoteEntryPageState createState() => _PendingDeliveryNoteEntryPageState();
+  _PendingDeliveryNoteEntryPageState createState() =>
+      _PendingDeliveryNoteEntryPageState();
 }
 
-class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry> with TickerProviderStateMixin {
+class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
+    with TickerProviderStateMixin {
   bool isDashEnable = true,
       isRolesVisible = true,
       isUserEnable = true,
@@ -59,7 +60,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
   DateTime? selectedSingleDate;
   DateTimeRange? selectedDateRange;
 
-  String? HttpURL_loadData,HttpURL_deleteEntry,token = '';
+  String? HttpURL_loadData, HttpURL_deleteEntry, token = '';
 
   String rolename_fetched = "";
 
@@ -69,7 +70,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
 
   List<SalesModel> filteredDeliveryNoteEntries = [];
 
-  String name = "",email = "";
+  String name = "", email = "";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -77,21 +78,23 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
 
   final Set<int> expandedCards = {};
 
-  String? hostname = "", company = "",company_lowercase = "",serial_no= "",username= "",HttpURL= "",SecuritybtnAcessHolder= "";
+  String? hostname = "",
+      company = "",
+      company_lowercase = "",
+      serial_no = "",
+      username = "",
+      HttpURL = "",
+      SecuritybtnAcessHolder = "";
 
   String formatAmount(String amount) {
     String amount_string = "";
-    if(amount.contains("-"))
-    {
+    if (amount.contains("-")) {
       amount = amount.replaceAll("-", "");
       double amount_double = double.parse(amount);
       amount_string = CurrencyFormatter.formatCurrency_double(amount_double);
       amount_string = amount_string;
-    }
-    else
-    {
-      if(amount == "null")
-      {
+    } else {
+      if (amount == "null") {
         amount = "0";
       }
       double amount_double = double.parse(amount);
@@ -107,7 +110,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
 
     setState(() {
       hostname = prefs.getString('hostname');
-      company  = prefs.getString('company_name');
+      company = prefs.getString('company_name');
       company_lowercase = company!.replaceAll(' ', '').toLowerCase();
       serial_no = prefs.getString('serial_no');
       username = prefs.getString('username');
@@ -119,33 +122,30 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
       String? name_nav = prefs.getString('name_nav');
 
       // full list
-      HttpURL_loadData = '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=delivery note';
+      HttpURL_loadData =
+          '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=delivery note';
 
       // not synced only list
       // HttpURL_loadData = '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=sales&&isSynced=false';
 
-      HttpURL_deleteEntry = '$hostname/api/entry/deleteEntry/$company_lowercase/$serial_no';
-      if (email_nav!=null && name_nav!= null)
-      {
+      HttpURL_deleteEntry =
+          '$hostname/api/entry/deleteEntry/$company_lowercase/$serial_no';
+      if (email_nav != null && name_nav != null) {
         name = name_nav;
 
         email = email_nav;
       }
 
-      if(SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         isRolesVisible = true;
         isUserVisible = true;
-      }
-      else
-      {
+      } else {
         isRolesVisible = false;
         isUserVisible = false;
       }
     });
     fetchDeliveryNoteEntries();
   }
-
 
   Widget _buildSyncChip(int isSynced) {
     String text;
@@ -169,7 +169,6 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(colors: colors),
         boxShadow: [
@@ -198,7 +197,10 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
     );
   }
 
-  Future<void> _showConfirmationDialogAndNavigate(BuildContext context, int id) async {
+  Future<void> _showConfirmationDialogAndNavigate(
+    BuildContext context,
+    int id,
+  ) async {
     await showGeneralDialog(
       context: context,
       barrierDismissible: false,
@@ -216,7 +218,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(22),
             ),
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             elevation: 8,
             titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
             contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
@@ -240,7 +242,11 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.delete_outline, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -248,7 +254,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -258,7 +264,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
               "Do you really want to delete this entry?",
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
 
@@ -266,7 +272,10 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
               // ❌ Cancel Button
               TextButton(
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                 ),
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
@@ -274,7 +283,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -282,7 +291,10 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
               // ✅ Confirm Button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -315,46 +327,31 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
     });
     final url = Uri.parse(HttpURL_deleteEntry!);
 
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $token',
-      "Content-Type": "application/json"
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      "Content-Type": "application/json",
     };
 
-    var body = jsonEncode( {
-      'id': id.toString(),
-    });
+    var body = jsonEncode({'id': id.toString()});
 
-    final response = await http.post(
-        url,
-        body: body,
-        headers:headers
-    );
+    final response = await http.post(url, body: body, headers: headers);
 
-    if (response.statusCode == 200)
-    {
+    if (response.statusCode == 200) {
       final response_data = response.body;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response_data),
-        ),
-      );
-      if (response_data == "Entry deleted successfully")
-      {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(response_data)));
+      if (response_data == "Entry deleted successfully") {
         setState(() {
           _isLoading = true;
           fetchDeliveryNoteEntries();
         });
-      }
-      else
-      {
+      } else {
         setState(() {
           _isLoading = false;
         });
       }
-
-    }
-    else
-    {
+    } else {
       Map<String, dynamic> data = json.decode(response.body);
       String error = '';
 
@@ -362,9 +359,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
         setState(() {
           error = data['error'];
         });
-      }
-      else
-      {
+      } else {
         error = 'Server Error!!!';
       }
 
@@ -383,10 +378,15 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
 
     String? voucherTypeName;
 
-    final String? spectraAllocationsString = prefs.getString('spectra_allocations');
+    final String? spectraAllocationsString = prefs.getString(
+      'spectra_allocations',
+    );
 
-    if (spectraAllocationsString != null && spectraAllocationsString.isNotEmpty) {
-      final List<dynamic> spectraAllocations = jsonDecode(spectraAllocationsString);
+    if (spectraAllocationsString != null &&
+        spectraAllocationsString.isNotEmpty) {
+      final List<dynamic> spectraAllocations = jsonDecode(
+        spectraAllocationsString,
+      );
 
       if (spectraAllocations.isNotEmpty) {
         voucherTypeName = spectraAllocations.first['voucher_type'];
@@ -394,39 +394,36 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
     }
     dynamic url;
     if (voucherTypeName != null && voucherTypeName.trim().isNotEmpty) {
-      url = Uri.parse('$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=delivery note&vchName=$voucherTypeName');
-    }
-    else
-    {
-      url = Uri.parse('$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=delivery note');
+      url = Uri.parse(
+        '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=delivery note&vchName=$voucherTypeName',
+      );
+    } else {
+      url = Uri.parse(
+        '$hostname/api/entry/getEntries/$company_lowercase/$serial_no?type=delivery note',
+      );
     }
     print('delivery note voucher type -> $voucherTypeName');
     print('getting delivery note from url -> $url');
 
-
-    Map<String,String> headers = {
-      'Authorization' : 'Bearer $token',
-      "Content-Type": "application/json"
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      "Content-Type": "application/json",
     };
 
-    final response = await http.post(
-        url,
-        headers:headers
-    );
+    final response = await http.post(url, headers: headers);
 
-    if (response.statusCode == 200)
-    {
+    if (response.statusCode == 200) {
       deliverynoteentries.clear();
       filteredDeliveryNoteEntries.clear();
       print(response.body);
-      try
-      {
-        final List<dynamic> jsonList = json.decode(response.body) ;
+      try {
+        final List<dynamic> jsonList = json.decode(response.body);
 
         isVisibleNoDeliveryNoteEntryFound = false;
-        deliverynoteentries.addAll(jsonList.map((json) => SalesModel.fromJson(json)).toList());
+        deliverynoteentries.addAll(
+          jsonList.map((json) => SalesModel.fromJson(json)).toList(),
+        );
         deliverynoteentries.sort((a, b) {
-
           DateTime dateA = DateTime.parse(a.data['DATE']);
           DateTime dateB = DateTime.parse(b.data['DATE']);
 
@@ -450,20 +447,15 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
         });
 
         setState(() {
-          if(filteredDeliveryNoteEntries.isEmpty)
-          {
+          if (filteredDeliveryNoteEntries.isEmpty) {
             isVisibleNoDeliveryNoteEntryFound = true;
           }
           _isLoading = false;
         });
-      }
-      catch (e)
-      {
+      } catch (e) {
         print(e);
       }
-    }
-    else
-    {
+    } else {
       Map<String, dynamic> data = json.decode(response.body);
       String error = '';
 
@@ -471,9 +463,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
         setState(() {
           error = data['error'];
         });
-      }
-      else
-      {
+      } else {
         error = 'Server Error!!!';
       }
 
@@ -481,12 +471,12 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
     }
 
     setState(() {
-      if(filteredDeliveryNoteEntries.isEmpty)
-      {
+      if (filteredDeliveryNoteEntries.isEmpty) {
         isVisibleNoDeliveryNoteEntryFound = true;
       }
       _isLoading = false;
-    });}
+    });
+  }
 
   @override
   void initState() {
@@ -507,13 +497,16 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
 
         final party = (data['PARTYLEDGERNAME'] ?? '').toString().toLowerCase();
         final vchno = (data['VOUCHERNUMBER'] ?? '').toString().toLowerCase();
-        final vchtype = (data['VOUCHERTYPENAME'] ?? '').toString().toLowerCase();
+        final vchtype = (data['VOUCHERTYPENAME'] ?? '')
+            .toString()
+            .toLowerCase();
         // final amount = (data['totalAmount'] ?? '').toString().toLowerCase();
 
-        final bool matchesSearch = query.isEmpty ||
+        final bool matchesSearch =
+            query.isEmpty ||
             party.contains(query) ||
             vchno.contains(query) ||
-            vchtype.contains(query) ;
+            vchtype.contains(query);
 
         final bool matchesDate = _matchesDateFilter(entry);
 
@@ -538,12 +531,10 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
             colorScheme: ColorScheme.light(
               primary: app_color,
               onPrimary: Colors.white,
-              onSurface: Colors.black87,
+              onSurface: Theme.of(context).colorScheme.onSurface,
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: app_color,
-              ),
+              style: TextButton.styleFrom(foregroundColor: app_color),
             ),
           ),
           child: child!,
@@ -573,14 +564,14 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: app_color,              // selected start/end circle
-              onPrimary: Colors.white,         // selected date number color
-              surface: Colors.white,
-              onSurface: Colors.black87,
+              primary: app_color, // selected start/end circle
+              onPrimary: Colors.white, // selected date number color
+              surface: Theme.of(context).colorScheme.surface,
+              onSurface: Theme.of(context).colorScheme.onSurface,
             ),
 
             datePickerTheme: DatePickerThemeData(
-              backgroundColor: Colors.white,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
               // Header
               headerBackgroundColor: app_color,
@@ -590,64 +581,62 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
               rangeSelectionBackgroundColor: app_color.withOpacity(0.14),
 
               // Shape of selected dates
-              dayShape: WidgetStateProperty.resolveWith<OutlinedBorder?>(
-                    (states) {
-                  if (states.contains(WidgetState.selected)) {
-                    return const CircleBorder();
-                  }
-                  return null;
-                },
-              ),
+              dayShape: WidgetStateProperty.resolveWith<OutlinedBorder?>((
+                states,
+              ) {
+                if (states.contains(WidgetState.selected)) {
+                  return const CircleBorder();
+                }
+                return null;
+              }),
 
               // Date number color
-              dayForegroundColor: WidgetStateProperty.resolveWith<Color?>(
-                    (states) {
-                  if (states.contains(WidgetState.selected)) {
-                    return Colors.white; // selected date text white
-                  }
+              dayForegroundColor: WidgetStateProperty.resolveWith<Color?>((
+                states,
+              ) {
+                if (states.contains(WidgetState.selected)) {
+                  return Colors.white; // selected date text white
+                }
 
-                  if (states.contains(WidgetState.disabled)) {
-                    return Colors.grey.shade400;
-                  }
+                if (states.contains(WidgetState.disabled)) {
+                  return Colors.grey.shade400;
+                }
 
-                  return Colors.black87;
-                },
-              ),
+                return Theme.of(context).colorScheme.onSurface;
+              }),
 
               // Selected date circle color
-              dayBackgroundColor: WidgetStateProperty.resolveWith<Color?>(
-                    (states) {
-                  if (states.contains(WidgetState.selected)) {
-                    return app_color; // app color on selected dates
-                  }
+              dayBackgroundColor: WidgetStateProperty.resolveWith<Color?>((
+                states,
+              ) {
+                if (states.contains(WidgetState.selected)) {
+                  return app_color; // app color on selected dates
+                }
 
-                  return null;
-                },
-              ),
+                return null;
+              }),
 
-              todayForegroundColor: WidgetStateProperty.resolveWith<Color?>(
-                    (states) {
-                  if (states.contains(WidgetState.selected)) {
-                    return Colors.white;
-                  }
+              todayForegroundColor: WidgetStateProperty.resolveWith<Color?>((
+                states,
+              ) {
+                if (states.contains(WidgetState.selected)) {
+                  return Colors.white;
+                }
+                return app_color;
+              }),
+
+              todayBackgroundColor: WidgetStateProperty.resolveWith<Color?>((
+                states,
+              ) {
+                if (states.contains(WidgetState.selected)) {
                   return app_color;
-                },
-              ),
-
-              todayBackgroundColor: WidgetStateProperty.resolveWith<Color?>(
-                    (states) {
-                  if (states.contains(WidgetState.selected)) {
-                    return app_color;
-                  }
-                  return Colors.transparent;
-                },
-              ),
+                }
+                return Colors.transparent;
+              }),
             ),
 
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: app_color,
-              ),
+              style: TextButton.styleFrom(foregroundColor: app_color),
             ),
           ),
           child: child!,
@@ -664,6 +653,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
       _applyFilters();
     }
   }
+
   void _clearDateFilter() {
     setState(() {
       selectedSingleDate = null;
@@ -696,7 +686,11 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
 
     if (entryDate == null) return false;
 
-    final onlyEntryDate = DateTime(entryDate.year, entryDate.month, entryDate.day);
+    final onlyEntryDate = DateTime(
+      entryDate.year,
+      entryDate.month,
+      entryDate.day,
+    );
 
     if (selectedSingleDate != null) {
       final selected = DateTime(
@@ -757,8 +751,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
   }*/
 
   Future<void> _refresh() async {
-    setState(()
-    {
+    setState(() {
       fetchDeliveryNoteEntries();
     });
   }
@@ -772,9 +765,9 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: Theme.of(context).dividerColor),
           boxShadow: [
             BoxShadow(
               color: app_color.withOpacity(0.07),
@@ -792,10 +785,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [
-                        app_color.withOpacity(0.8),
-                        app_color,
-                      ],
+                      colors: [app_color.withOpacity(0.8), app_color],
                     ),
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -812,7 +802,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                     style: GoogleFonts.poppins(
                       fontSize: 13.5,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -878,14 +868,13 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
           gradient: isSelected
-              ? LinearGradient(
-            colors: [
-              app_color.withOpacity(0.85),
-              app_color,
-            ],
-          )
+              ? LinearGradient(colors: [app_color.withOpacity(0.85), app_color])
               : null,
-          color: isSelected ? null : Colors.grey.shade50,
+          color: isSelected
+              ? null
+              : (Theme.of(context).brightness == Brightness.dark
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                    : Colors.grey.shade50),
           border: Border.all(
             color: isSelected ? app_color : Colors.grey.shade200,
           ),
@@ -893,11 +882,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 17,
-              color: isSelected ? Colors.white : app_color,
-            ),
+            Icon(icon, size: 17, color: isSelected ? Colors.white : app_color),
             const SizedBox(width: 7),
             Flexible(
               child: Text(
@@ -905,7 +890,9 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                 style: GoogleFonts.poppins(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : Colors.black87,
+                  color: isSelected
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.onSurface,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -918,571 +905,663 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
 
   @override
   Widget build(BuildContext context) {
-
     return WillPopScope(
-        onWillPop: () async {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => Dashboard()),
-          );
-          return true;
-        },
-        child: Scaffold(
-          key: _scaffoldKey,
-          backgroundColor: Colors.white,
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(50),
-            child: AppBar(
-              backgroundColor:  app_color,
-              elevation: 6,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(20),
-                ),
+      onWillPop: () async {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Dashboard()),
+        );
+        return true;
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: AppBar(
+            backgroundColor: app_color,
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+            ),
+            automaticallyImplyLeading: false,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            centerTitle: true,
+            title: GestureDetector(
+              onTap: () {},
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      "Delivery Note Entries",
+                      style: GoogleFonts.poppins(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              automaticallyImplyLeading: false,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              centerTitle: true,
-              title: GestureDetector(
-                onTap: () {
+            ),
+          ),
+        ),
+        drawer: Sidebar(
+          isDashEnable: isDashEnable,
+          isRolesVisible: isRolesVisible,
+          isRolesEnable: isRolesEnable,
+          isUserEnable: isUserEnable,
+          isUserVisible: isUserVisible,
+          Username: name,
+          Email: email,
+          tickerProvider: this,
+        ),
+        body: RefreshIndicator(
+          onRefresh: _refresh,
+          child: Column(
+            children: [
+              if (deliverynoteentries.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(18),
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).cardColor,
+                          Theme.of(context).cardColor.withOpacity(0.95),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: app_color.withOpacity(0.08),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                      border: Border.all(color: Theme.of(context).dividerColor),
+                    ),
+                    child: Row(
+                      children: [
+                        // 🔍 Gradient Search Icon
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [app_color.withOpacity(0.8), app_color],
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.search,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
 
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                        const SizedBox(width: 12),
+
+                        // ✏️ Input Field
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: searchSales,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: "Search delivery note...",
+                              hintStyle: GoogleFonts.poppins(
+                                fontSize: 13,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              focusedErrorBorder: InputBorder.none,
+                            ),
+                          ),
+                        ),
+
+                        // ❌ Clear Button
+                        if (_searchController.text.isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              _searchController.clear();
+                              _applyFilters();
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainerHighest
+                                    : Colors.grey.shade200,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.close,
+                                size: 16,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              if (deliverynoteentries.isNotEmpty) _buildDateFilterSection(),
+
+              Expanded(
+                child: Stack(
                   children: [
-                    Flexible(
-                      child: Text(
-                        "Delivery Note Entries",
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                    if (isVisibleNoDeliveryNoteEntryFound)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.receipt_long,
+                                size: 64,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No Delivery Note Found',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                    if (!isVisibleNoDeliveryNoteEntryFound)
+                      ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                        itemCount: filteredDeliveryNoteEntries.length,
+                        itemBuilder: (context, index) {
+                          final card = filteredDeliveryNoteEntries[index];
+                          final partyLedger = card.data['PARTYLEDGERNAME'];
+                          final dateStr = card.data['DATE'];
+                          final totalAmount = card.data['totalAmount'];
+                          final vchno = card.data['VOUCHERNUMBER'];
+                          final vchtype = card.data['VOUCHERTYPENAME'] ?? 'N/A';
+
+                          final bool isExpanded = expandedCards.contains(
+                            card.id,
+                          );
+
+                          DateTime date = DateTime.parse(dateStr);
+                          String formattedDate = DateFormat(
+                            "dd-MMM-yyyy",
+                          ).format(date);
+
+                          return GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              setState(() {
+                                isExpanded
+                                    ? expandedCards.remove(card.id)
+                                    : expandedCards.add(card.id);
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 9),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                gradient: LinearGradient(
+                                  colors: [Colors.white, Colors.white],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // 🔹 Top Row: Invoice + Action Icons
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                      ),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          // LEFT SIDE (ICON + INVOICE)
+                                          Expanded(
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                // Gradient Icon
+                                                Container(
+                                                  width: 32,
+                                                  height: 32,
+                                                  decoration: BoxDecoration(
+                                                    gradient:
+                                                        const LinearGradient(
+                                                          colors: [
+                                                            Color(0xFF42A5F5),
+                                                            Color(0xFF1E88E5),
+                                                          ],
+                                                          begin:
+                                                              Alignment.topLeft,
+                                                          end: Alignment
+                                                              .bottomRight,
+                                                        ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          10,
+                                                        ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.blue
+                                                            .withOpacity(0.25),
+                                                        blurRadius: 6,
+                                                        offset: const Offset(
+                                                          0,
+                                                          3,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.receipt_long,
+                                                    size: 18,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 10),
+
+                                                // Invoice Text
+                                                Expanded(
+                                                  child: Text(
+                                                    "$vchno",
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 15,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).colorScheme.onSurface,
+                                                    ),
+                                                    softWrap: true,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+
+                                          const SizedBox(width: 8),
+
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 0,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                _buildSyncChip(card.isSynced),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    if (card.isSynced == 2 &&
+                                        card.message != null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 16,
+                                          right: 16,
+                                          top: 16,
+                                        ),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red.shade50,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.red.shade200,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.error_outline,
+                                                color: Colors.red.shade700,
+                                                size: 18,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  card.message!,
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 12,
+                                                    color: Colors.red.shade700,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+
+                                    const SizedBox(height: 12),
+                                    // 🔹 Detail Rows
+                                    DetailRowTile(
+                                      label: "Party Ledger",
+                                      value: partyLedger ?? '',
+                                    ),
+                                    DetailRowTile(
+                                      label: "Date",
+                                      value: formattedDate,
+                                    ),
+
+                                    AnimatedSize(
+                                      duration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      curve: Curves.easeInOutCubic,
+                                      alignment: Alignment.topCenter,
+                                      child: isExpanded
+                                          ? Column(
+                                              children: [
+                                                DetailRowTile(
+                                                  label: "Voucher Type",
+                                                  value: vchtype,
+                                                ),
+
+                                                if (serial_no !=
+                                                    uniGasSerialNumber)
+                                                  DetailRowTile(
+                                                    label: "Total Amount",
+                                                    value: formatAmount(
+                                                      totalAmount.toString(),
+                                                    ),
+                                                  ),
+                                              ],
+                                            )
+                                          : const SizedBox.shrink(),
+                                    ),
+
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 14,
+                                          top: 6,
+                                        ),
+                                        child: AnimatedContainer(
+                                          duration: const Duration(
+                                            milliseconds: 250,
+                                          ),
+                                          curve: Curves.easeInOut,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 6,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: isExpanded
+                                                ? (Theme.of(
+                                                            context,
+                                                          ).brightness ==
+                                                          Brightness.dark
+                                                      ? Theme.of(context)
+                                                            .colorScheme
+                                                            .surfaceContainerHighest
+                                                      : Colors.grey.shade100)
+                                                : app_color.withOpacity(0.08),
+                                            borderRadius: BorderRadius.circular(
+                                              30,
+                                            ),
+                                            border: Border.all(
+                                              color: isExpanded
+                                                  ? Colors.grey.shade300
+                                                  : app_color.withOpacity(0.18),
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.touch_app_rounded,
+                                                size: 15,
+                                                color: isExpanded
+                                                    ? Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurfaceVariant
+                                                    : app_color,
+                                              ),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                isExpanded
+                                                    ? "Show less"
+                                                    : "Tap to show more",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: isExpanded
+                                                      ? Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurfaceVariant
+                                                      : app_color,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 3),
+                                              AnimatedRotation(
+                                                turns: isExpanded ? 0.5 : 0,
+                                                duration: const Duration(
+                                                  milliseconds: 250,
+                                                ),
+                                                child: Icon(
+                                                  Icons
+                                                      .keyboard_arrow_down_rounded,
+                                                  size: 16,
+                                                  color: isExpanded
+                                                      ? Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurfaceVariant
+                                                      : app_color,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    if (card.isSynced != 1 &&
+                                        (serial_no != uniGasSerialNumber))
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 16),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            if (card.isSynced != 1) ...[
+                                              _buildGradientAction(
+                                                icon: Icons.edit,
+                                                text: "Modify",
+
+                                                colors: [
+                                                  Color(0xFF42A5F5),
+                                                  Color(0xFF1E88E5),
+                                                ],
+                                                onTap: () {
+                                                  Navigator.pushReplacement(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          ModifySalesEntry(
+                                                            type: card.type,
+                                                            id: card.id,
+                                                            isSynced:
+                                                                card.isSynced,
+                                                            data: card.data,
+                                                          ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                              const SizedBox(width: 10),
+                                              _buildGradientAction(
+                                                icon: Icons.delete_outline,
+                                                text: "Delete",
+
+                                                colors: [
+                                                  Color(0xFFEF5350),
+                                                  Color(0xFFD32F2F),
+                                                ],
+                                                onTap: () {
+                                                  _showConfirmationDialogAndNavigate(
+                                                    context,
+                                                    card.id,
+                                                  );
+                                                },
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
+                    // Loading spinner
+                    Visibility(
+                      visible: _isLoading,
+                      child: const Center(child: AppLogoLoader()),
+                    ),
+
+                    // Floating Action Button
+                    Positioned(
+                      bottom: 40,
+                      right: 30,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Deliverynoteregistration(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 22,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            gradient: LinearGradient(
+                              colors: [app_color.withOpacity(0.9), app_color],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: app_color.withOpacity(0.4),
+                                blurRadius: 12,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.add_rounded,
+                                color: Colors.white,
+                                size: 26,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                "Create Entry",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
-          drawer: Sidebar(
-              isDashEnable: isDashEnable,
-              isRolesVisible: isRolesVisible,
-              isRolesEnable: isRolesEnable,
-              isUserEnable: isUserEnable,
-              isUserVisible: isUserVisible,
-              Username: name,
-              Email: email,
-              tickerProvider: this
-          ),
-          body: RefreshIndicator(
-            onRefresh: _refresh,
-            child:
-
-            Column(
-              children: [
-                if(deliverynoteentries.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.white,
-                            Colors.white.withOpacity(0.95),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: app_color.withOpacity(0.08),
-                            blurRadius: 18,
-                            offset: const Offset(0, 8),
-                          ),
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                        border: Border.all(
-                          color: Colors.grey.shade200,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-
-                          // 🔍 Gradient Search Icon
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  app_color.withOpacity(0.8),
-                                  app_color,
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Icon(
-                              Icons.search,
-                              color: Colors.white,
-                              size: 18,
-                            ),
-                          ),
-
-                          const SizedBox(width: 12),
-
-                          // ✏️ Input Field
-                          Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              onChanged: searchSales,
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black87,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: "Search delivery note...",
-                                hintStyle: GoogleFonts.poppins(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade500,
-                                ),
-                                border: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                                focusedBorder: InputBorder.none,
-                                disabledBorder: InputBorder.none,
-                                errorBorder: InputBorder.none,
-                                focusedErrorBorder: InputBorder.none,
-
-                              ),
-                            ),
-                          ),
-
-                          // ❌ Clear Button
-                          if (_searchController.text.isNotEmpty)
-                            GestureDetector(
-                              onTap: () {
-                                _searchController.clear();
-                                _applyFilters();
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade200,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.close,
-                                  size: 16,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                if (deliverynoteentries.isNotEmpty)
-                  _buildDateFilterSection(),
-
-                Expanded(
-                  child:
-
-                  Stack(
-                    children: [
-
-
-
-
-                      if(isVisibleNoDeliveryNoteEntryFound)
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.receipt_long, size: 64, color: Colors.grey[300]),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No Delivery Note Found',
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                      if (!isVisibleNoDeliveryNoteEntryFound)
-                        ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                          itemCount: filteredDeliveryNoteEntries.length,
-                          itemBuilder: (context, index) {
-                            final card = filteredDeliveryNoteEntries[index];
-                            final partyLedger = card.data['PARTYLEDGERNAME'];
-                            final dateStr = card.data['DATE'];
-                            final totalAmount = card.data['totalAmount'];
-                            final vchno = card.data['VOUCHERNUMBER'];
-                            final vchtype = card.data['VOUCHERTYPENAME'] ?? 'N/A';
-
-                            final bool isExpanded = expandedCards.contains(card.id);
-
-                            DateTime date = DateTime.parse(dateStr);
-                            String formattedDate = DateFormat("dd-MMM-yyyy").format(date);
-
-
-                            return GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () {
-                                setState(() {
-                                  isExpanded
-                                      ? expandedCards.remove(card.id)
-                                      : expandedCards.add(card.id);
-                                });
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(bottom: 9),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  gradient: LinearGradient(
-                                    colors: [Colors.white, Colors.white],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 15,
-                                      offset: const Offset(0, 8),
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      // 🔹 Top Row: Invoice + Action Icons
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-
-                                            // LEFT SIDE (ICON + INVOICE)
-                                            Expanded(
-                                              child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                children: [
-                                                  // Gradient Icon
-                                                  Container(
-                                                    width: 32,
-                                                    height: 32,
-                                                    decoration: BoxDecoration(
-                                                      gradient: const LinearGradient(
-                                                        colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
-                                                        begin: Alignment.topLeft,
-                                                        end: Alignment.bottomRight,
-                                                      ),
-                                                      borderRadius: BorderRadius.circular(10),
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                          color: Colors.blue.withOpacity(0.25),
-                                                          blurRadius: 6,
-                                                          offset: const Offset(0, 3),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    child: const Icon(Icons.receipt_long, size: 18, color: Colors.white),
-                                                  ),
-                                                  const SizedBox(width: 10),
-
-                                                  // Invoice Text
-                                                  Expanded(
-                                                    child: Text(
-                                                      "$vchno",
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 15,
-                                                        fontWeight: FontWeight.w700,
-                                                        color: Colors.black87,
-                                                      ),
-                                                      softWrap: true,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-
-                                            const SizedBox(width: 8),
-
-                                            Padding(
-                                              padding: const EdgeInsets.symmetric(horizontal: 0),
-                                              child: Row(
-                                                children: [
-                                                  _buildSyncChip(card.isSynced),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-
-                                      if (card.isSynced == 2 && card.message != null)
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 16,right:16, top:16 ),
-                                          child: Container(
-                                            padding: const EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              color: Colors.red.shade50,
-                                              borderRadius: BorderRadius.circular(12),
-                                              border: Border.all(color: Colors.red.shade200),
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.error_outline, color: Colors.red.shade700, size: 18),
-                                                const SizedBox(width: 8),
-                                                Expanded(
-                                                  child: Text(
-                                                    card.message!,
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 12,
-                                                      color: Colors.red.shade700,
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-
-                                      const SizedBox(height: 12),
-                                      // 🔹 Detail Rows
-                                      DetailRowTile(
-                                        label: "Party Ledger",
-                                        value: partyLedger ?? '',
-                                      ),
-                                      DetailRowTile(
-                                        label: "Date",
-                                        value: formattedDate,
-                                      ),
-
-                                      AnimatedSize(
-                                        duration: const Duration(milliseconds: 300),
-                                        curve: Curves.easeInOutCubic,
-                                        alignment: Alignment.topCenter,
-                                        child: isExpanded
-                                            ? Column(
-                                          children: [
-                                            DetailRowTile(
-                                              label: "Voucher Type",
-                                              value: vchtype,
-                                            ),
-
-                                            if (serial_no != uniGasSerialNumber)
-                                              DetailRowTile(
-                                                label: "Total Amount",
-                                                value: formatAmount(totalAmount.toString()),
-                                              ),
-                                          ],
-                                        )
-                                            : const SizedBox.shrink(),
-                                      ),
-
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(right: 14, top: 6),
-                                          child: AnimatedContainer(
-                                            duration: const Duration(milliseconds: 250),
-                                            curve: Curves.easeInOut,
-                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                            decoration: BoxDecoration(
-                                              color: isExpanded ? Colors.grey.shade100 : app_color.withOpacity(0.08),
-                                              borderRadius: BorderRadius.circular(30),
-                                              border: Border.all(
-                                                color: isExpanded ? Colors.grey.shade300 : app_color.withOpacity(0.18),
-                                              ),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(
-                                                  Icons.touch_app_rounded,
-                                                  size: 15,
-                                                  color: isExpanded ? Colors.grey.shade700 : app_color,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  isExpanded ? "Show less" : "Tap to show more",
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: isExpanded ? Colors.grey.shade700 : app_color,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 3),
-                                                AnimatedRotation(
-                                                  turns: isExpanded ? 0.5 : 0,
-                                                  duration: const Duration(milliseconds: 250),
-                                                  child: Icon(
-                                                    Icons.keyboard_arrow_down_rounded,
-                                                    size: 16,
-                                                    color: isExpanded ? Colors.grey.shade700 : app_color,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-
-
-                                      if(card.isSynced != 1 && (serial_no != uniGasSerialNumber))
-                                        Padding(padding: EdgeInsets.only(top: 16),
-                                          child:  Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              if (card.isSynced != 1) ...[
-                                                _buildGradientAction(
-                                                  icon: Icons.edit,
-                                                  text: "Modify",
-
-                                                  colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
-                                                  onTap: () {
-                                                    Navigator.pushReplacement(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) => ModifySalesEntry(
-                                                          type: card.type,
-                                                          id: card.id,
-                                                          isSynced: card.isSynced,
-                                                          data: card.data,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                                const SizedBox(width: 10),
-                                                _buildGradientAction(
-                                                  icon: Icons.delete_outline,
-                                                  text: "Delete",
-
-                                                  colors: [Color(0xFFEF5350), Color(0xFFD32F2F)],
-                                                  onTap: () {
-                                                    _showConfirmationDialogAndNavigate(context, card.id);
-                                                  },
-                                                ),
-                                              ]
-                                            ],
-                                          ),)
-
-                                    ],
-                                  ),
-                                ),
-                              ));
-
-
-
-
-
-                          },
-                        ),
-
-
-
-
-
-
-
-
-
-
-                      // Loading spinner
-                      Visibility(
-                        visible: _isLoading,
-                        child: const Center(
-                            child: AppLogoLoader()),
-                      ),
-
-                      // Floating Action Button
-                      Positioned(
-                        bottom: 40,
-                        right: 30,
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => Deliverynoteregistration()),
-                            );
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(50),
-                              gradient: LinearGradient(
-                                colors: [app_color.withOpacity(0.9), app_color],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: app_color.withOpacity(0.4),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 6),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.add_rounded, color: Colors.white, size: 26),
-                                const SizedBox(width: 10),
-                                Text(
-                                  "Create Entry",
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-
-                    ],
-                  ),
-                )
-
-              ],
-            ),
-
-
-          ),
-        ));
+        ),
+      ),
+    );
     // TODO: implement build
   }
+
   Widget _buildGradientAction({
     required IconData icon,
-    required String text,   // ✅ ADD TEXT
+    required String text, // ✅ ADD TEXT
     required List<Color> colors,
     required VoidCallback onTap,
   }) {
@@ -1519,8 +1598,6 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
       ),
     );
   }
-
-
 }
 
 class DetailRowTile extends StatelessWidget {
@@ -1539,13 +1616,21 @@ class DetailRowTile extends StatelessWidget {
   LinearGradient _getGradient(String label) {
     final lower = label.toLowerCase();
     if (lower.contains('date')) {
-      return LinearGradient(colors: [Colors.indigo.shade400, Colors.indigo.shade700]);
+      return LinearGradient(
+        colors: [Colors.indigo.shade400, Colors.indigo.shade700],
+      );
     } else if (lower.contains('voucher')) {
-      return LinearGradient(colors: [Colors.orange.shade400, Colors.deepOrange.shade600]);
+      return LinearGradient(
+        colors: [Colors.orange.shade400, Colors.deepOrange.shade600],
+      );
     } else if (lower.contains('amount')) {
-      return LinearGradient(colors: [Colors.green.shade400, Colors.green.shade700]);
+      return LinearGradient(
+        colors: [Colors.green.shade400, Colors.green.shade700],
+      );
     } else if (lower.contains('party')) {
-      return LinearGradient(colors: [Colors.blue.shade400, Colors.blue.shade700]);
+      return LinearGradient(
+        colors: [Colors.blue.shade400, Colors.blue.shade700],
+      );
     }
     return LinearGradient(colors: [Colors.grey.shade400, Colors.grey.shade600]);
   }
@@ -1566,7 +1651,7 @@ class DetailRowTile extends StatelessWidget {
   }
 
   // Amount color logic
-  Color _getValueColor() {
+  Color _getValueColor(BuildContext context) {
     if (label.toLowerCase().contains('amount')) {
       if (value.toLowerCase().contains("dr") || value.startsWith("-")) {
         return Colors.red.shade700; // Debit
@@ -1574,7 +1659,7 @@ class DetailRowTile extends StatelessWidget {
         return Colors.green.shade700; // Credit
       }
     }
-    return Colors.black87; // Normal
+    return Theme.of(context).colorScheme.onSurface; // Normal
   }
 
   @override
@@ -1583,63 +1668,67 @@ class DetailRowTile extends StatelessWidget {
     final icon = _getIcon(label);
 
     final row = Container(
-        margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // 🔹 Gradient Icon
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                gradient: gradient,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: gradient.colors.last.withOpacity(0.25),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Icon(icon, size: 16, color: Colors.white),
-            ),
-            const SizedBox(width: 12),
-
-            // 🔹 Label (Left Half)
-            Expanded(
-              flex: 1,
-              child: Text(
-                label,
-                style: GoogleFonts.poppins(fontSize: 13.5, color: Colors.black87),
-                softWrap: true,
-                overflow: TextOverflow.visible,
-              ),
-            ),
-
-            // 🔹 Value (Right Half)
-            Expanded(
-              flex: 1,
-              child: Text(
-                value,
-                style: GoogleFonts.poppins(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w600,
-                  color: _getValueColor(),
+      margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surfaceContainerHighest
+            : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // 🔹 Gradient Icon
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              gradient: gradient,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: gradient.colors.last.withOpacity(0.25),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
                 ),
-                textAlign: TextAlign.right,
-                softWrap: true,
-                overflow: TextOverflow.visible,
-              ),
+              ],
             ),
-          ],
-        )
+            child: Icon(icon, size: 16, color: Colors.white),
+          ),
+          const SizedBox(width: 12),
 
+          // 🔹 Label (Left Half)
+          Expanded(
+            flex: 1,
+            child: Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 13.5,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+          ),
+
+          // 🔹 Value (Right Half)
+          Expanded(
+            flex: 1,
+            child: Text(
+              value,
+              style: GoogleFonts.poppins(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+                color: _getValueColor(context),
+              ),
+              textAlign: TextAlign.right,
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+          ),
+        ],
+      ),
     );
 
     return onTap != null ? GestureDetector(onTap: onTap, child: row) : row;

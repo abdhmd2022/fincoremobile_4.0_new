@@ -27,12 +27,10 @@ class LedgerGroup {
   final double amount;
   final double opening;
 
-
   LedgerGroup({
     required this.ledger,
     required this.amount,
     required this.opening,
-
   });
 
   factory LedgerGroup.fromJson(Map<String, dynamic> json) {
@@ -40,11 +38,9 @@ class LedgerGroup {
       ledger: json['ledger']?.toString() ?? '',
       amount: double.tryParse(json['amount'].toString()) ?? 0.0,
       opening: double.tryParse(json['opening'].toString()) ?? 0.0, // ✅ NEW
-
     );
   }
 }
-
 
 class Sale_purc_cash {
   final String vchname;
@@ -60,7 +56,6 @@ class Sale_purc_cash {
   final List<LedgerEntry> ledgers;
 
   Sale_purc_cash({
-
     required this.vchname,
     required this.vchno,
     required this.amount,
@@ -72,16 +67,15 @@ class Sale_purc_cash {
     required this.refdate,
     required this.masterid,
     required this.ledgers,
-
   });
-
-
 
   factory Sale_purc_cash.fromJson(Map<String, dynamic> json) {
     return Sale_purc_cash(
       vchname: json['vchname'].toString(),
       vchno: json['vchno'].toString(),
-      amount: json['received'] != null ? double.tryParse(json['received'].toString()) ?? 0.0 : double.tryParse(json['amount'].toString()) ?? 0.0,
+      amount: json['received'] != null
+          ? double.tryParse(json['received'].toString()) ?? 0.0
+          : double.tryParse(json['amount'].toString()) ?? 0.0,
       vchdate: json['vchdate'].toString(),
       ledger: json['ledger'].toString(),
       isoptional: json['isoptional'].toString(),
@@ -89,24 +83,20 @@ class Sale_purc_cash {
       refno: json['refno'].toString(),
       refdate: json['refdate'].toString(),
       masterid: json['masterid'].toString(),
-      ledgers: (json['ledgers'] as List<dynamic>?)
-          ?.map((e) => LedgerEntry.fromJson(e as Map<String, dynamic>))
-          .toList() ??
+      ledgers:
+          (json['ledgers'] as List<dynamic>?)
+              ?.map((e) => LedgerEntry.fromJson(e as Map<String, dynamic>))
+              .toList() ??
           [],
-
     );
   }
-
- }
+}
 
 class LedgerEntry {
   final String ledgername;
   final double amount;
 
-  LedgerEntry({
-    required this.ledgername,
-    required this.amount,
-  });
+  LedgerEntry({required this.ledgername, required this.amount});
 
   factory LedgerEntry.fromJson(Map<String, dynamic> json) {
     return LedgerEntry(
@@ -117,20 +107,16 @@ class LedgerEntry {
 }
 
 class Receivable_payable {
-
-  final String ledger,billno,billdate,billtype,duedate;
+  final String ledger, billno, billdate, billtype, duedate;
   double outstanding;
 
   Receivable_payable({
-
     required this.ledger,
     required this.billno,
     required this.billdate,
     required this.billtype,
     required this.duedate,
     required this.outstanding,
-
-
   });
 
   factory Receivable_payable.fromJson(Map<String, dynamic> json) {
@@ -153,22 +139,15 @@ class _SalesTotalParsed {
   final String opening;
   final List<Sale_purc_cash> items;
 
-  _SalesTotalParsed({
-    required this.opening,
-    required this.items,
-  });
+  _SalesTotalParsed({required this.opening, required this.items});
 }
 
 class _ReceivableTotalParsed {
   final String opening;
   final List<Receivable_payable> items;
 
-  _ReceivableTotalParsed({
-    required this.opening,
-    required this.items,
-  });
+  _ReceivableTotalParsed({required this.opening, required this.items});
 }
-
 
 // ✅ Must be top-level/static for compute()
 _SalesTotalParsed _parseSalesTotalResponse(String body) {
@@ -205,25 +184,28 @@ List<Sale_purc_cash> _parseReceiptPaymentResponse(String body) {
 }
 
 class DashboardClicked extends StatefulWidget {
-  final String startdate_string,enddate_string,vchtypes;
+  final String startdate_string, enddate_string, vchtypes;
 
-  const DashboardClicked(
-      {
-        required this.startdate_string,
-        required this.enddate_string,
-        required this.vchtypes
-      }
-      );
+  const DashboardClicked({
+    required this.startdate_string,
+    required this.enddate_string,
+    required this.vchtypes,
+  });
   @override
-  _DashboardClickedPageState createState() => _DashboardClickedPageState(startDateString: startdate_string,endDateString: enddate_string,vchtypes: vchtypes);
+  _DashboardClickedPageState createState() => _DashboardClickedPageState(
+    startDateString: startdate_string,
+    endDateString: enddate_string,
+    vchtypes: vchtypes,
+  );
 }
 
-class _DashboardClickedPageState extends State<DashboardClicked> with TickerProviderStateMixin{
+class _DashboardClickedPageState extends State<DashboardClicked>
+    with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String startDateString = "",endDateString = "",vchtypes = "";
+  String startDateString = "", endDateString = "", vchtypes = "";
 
-  String selectedSortOption = '',token = '';
-  
+  String selectedSortOption = '', token = '';
+
   int counter = 0;
 
   bool _isVisibleduedate = false;
@@ -232,7 +214,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   String? _selectedLedgerGroup;
   List<LedgerGroup> ledgerGroupList = [];
 
-  List<Receivable_payable> filteredItems_receivable_payable = []; // Initialize an empty list to hold the filtered items
+  List<Receivable_payable> filteredItems_receivable_payable =
+      []; // Initialize an empty list to hold the filtered items
   List<Sale_purc_cash> filteredItems_sale_purc_cash = [];
 
   List<LedgerGroup> filteredLedgerGroupList = [];
@@ -240,24 +223,30 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   ScrollController _scrollController_receivablellist = ScrollController();
   TextEditingController _voucherController = TextEditingController();
 
-  _DashboardClickedPageState(
-      {required this.startDateString,
-        required this.endDateString,
-        required this.vchtypes,}
-      );
+  _DashboardClickedPageState({
+    required this.startDateString,
+    required this.endDateString,
+    required this.vchtypes,
+  });
 
   String? SecuritybtnAcessHolder;
-  bool isDashEnable = true,isRolesEnable = true,isUserEnable = true,isRolesVisible = true,
-      isUserVisible = true,_isSearchViewVisible = false,_isSalesListVisible = false,_isOutstandingListVisible = false;
+  bool isDashEnable = true,
+      isRolesEnable = true,
+      isUserEnable = true,
+      isRolesVisible = true,
+      isUserVisible = true,
+      _isSearchViewVisible = false,
+      _isSalesListVisible = false,
+      _isOutstandingListVisible = false;
 
   String email = "";
   String name = "";
 
-  String? opening_value = "0",openingheading = "";
+  String? opening_value = "0", openingheading = "";
 
   TextEditingController searchController = TextEditingController();
 
-  bool isVisibleNoDataFound = false,_isopeningVisible = true;
+  bool isVisibleNoDataFound = false, _isopeningVisible = true;
 
   bool isSortVisible = false;
 
@@ -269,7 +258,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         .length;
   }
 
-// 🔍 SEARCH LOGIC
+  // 🔍 SEARCH LOGIC
   void _onSearchChanged(String query) {
     final q = query.toLowerCase();
 
@@ -280,70 +269,61 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         }).toList();
       });
     }
-
     // 🟢 STEP 2: SELECTED LEDGER VOUCHERS SEARCH
     else if (vchtypes == "Cash" && !_isLedgerGroupVisible) {
       setState(() {
-        filteredItems_sale_purc_cash =
-            sales_purc_cash_list.where((item) {
-              return item.ledger.toLowerCase() == _selectedLedgerGroup?.toLowerCase() &&
-                  (
-                      item.vchno.toLowerCase().contains(q) ||
-                          item.vchname.toLowerCase().contains(q) ||
-                          item.ledger.toLowerCase().contains(q)
-                  );
-            }).toList();
+        filteredItems_sale_purc_cash = sales_purc_cash_list.where((item) {
+          return item.ledger.toLowerCase() ==
+                  _selectedLedgerGroup?.toLowerCase() &&
+              (item.vchno.toLowerCase().contains(q) ||
+                  item.vchname.toLowerCase().contains(q) ||
+                  item.ledger.toLowerCase().contains(q));
+        }).toList();
       });
-    }
-    else if (vchtypes == "Receivable" || vchtypes == "Payable") {
+    } else if (vchtypes == "Receivable" || vchtypes == "Payable") {
       setState(() {
-        filteredItems_receivable_payable =
-            receivable_payable_list.where((item) {
-              return item.ledger.toLowerCase().contains(q) ||
-                  item.billno.toLowerCase().contains(q) ||
-                  item.billtype.toLowerCase().contains(q);
-            }).toList();
+        filteredItems_receivable_payable = receivable_payable_list.where((
+          item,
+        ) {
+          return item.ledger.toLowerCase().contains(q) ||
+              item.billno.toLowerCase().contains(q) ||
+              item.billtype.toLowerCase().contains(q);
+        }).toList();
       });
-    }
-    else if (vchtypes == "Cash") {
+    } else if (vchtypes == "Cash") {
       setState(() {
         filteredLedgerGroupList = ledgerGroupList.where((item) {
           return item.ledger.toLowerCase().contains(q);
         }).toList();
       });
-    }
-    else {
+    } else {
       setState(() {
-        filteredItems_sale_purc_cash =
-            sales_purc_cash_list.where((item) {
-              return item.vchno.toLowerCase().contains(q) ||
-                  item.vchname.toLowerCase().contains(q) ||
-                  item.ledger.toLowerCase().contains(q);
-            }).toList();
+        filteredItems_sale_purc_cash = sales_purc_cash_list.where((item) {
+          return item.vchno.toLowerCase().contains(q) ||
+              item.vchname.toLowerCase().contains(q) ||
+              item.ledger.toLowerCase().contains(q);
+        }).toList();
       });
     }
   }
 
-// 🔄 RESET SEARCH
+  // 🔄 RESET SEARCH
   void _resetSearch() {
     setState(() {
       if (vchtypes == "Receivable" || vchtypes == "Payable") {
-        filteredItems_receivable_payable =
-            List.from(receivable_payable_list);
-      }
-      else if (vchtypes == "Cash" && _isLedgerGroupVisible) {
+        filteredItems_receivable_payable = List.from(receivable_payable_list);
+      } else if (vchtypes == "Cash" && _isLedgerGroupVisible) {
         filteredLedgerGroupList = List.from(ledgerGroupList);
-      }
-      else if (vchtypes == "Cash" && !_isLedgerGroupVisible) {
+      } else if (vchtypes == "Cash" && !_isLedgerGroupVisible) {
         filteredItems_sale_purc_cash = sales_purc_cash_list
-            .where((item) =>
-        item.ledger.toLowerCase() ==
-            _selectedLedgerGroup?.toLowerCase())
+            .where(
+              (item) =>
+                  item.ledger.toLowerCase() ==
+                  _selectedLedgerGroup?.toLowerCase(),
+            )
             .toList();
-      }
-      else {
-        filteredItems_sale_purc_cash =
-            List.from(sales_purc_cash_list);
+      } else {
+        filteredItems_sale_purc_cash = List.from(sales_purc_cash_list);
       }
     });
   }
@@ -356,9 +336,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   double getCashDebitTotal() {
     return filteredItems_sale_purc_cash.fold(0.0, (sum, item) {
-      return item.amount < 0 ? sum -  item.amount.abs() : sum;
+      return item.amount < 0 ? sum - item.amount.abs() : sum;
     });
-
   }
 
   double getCashCreditTotal() {
@@ -367,13 +346,13 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     });
   }
 
-/*
+  /*
   Widget buildDebitCreditSummary() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
@@ -388,10 +367,12 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   }
 */
 
-
   double getTotalAmount() {
     if (vchtypes == "Receivable" || vchtypes == "Payable") {
-      double billsTotal = filteredItems_receivable_payable.fold(0.0, (sum, item) {
+      double billsTotal = filteredItems_receivable_payable.fold(0.0, (
+        sum,
+        item,
+      ) {
         print("Adding Outstanding: ${item.outstanding}");
         return sum + item.outstanding;
       });
@@ -400,17 +381,16 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         // print("Opening value $opening_value");
 
         opening = double.tryParse(opening_value ?? "0") ?? 0.0;
-
       });
-
 
       print("Opening (On Account): $opening");
 
       return billsTotal + opening;
-    }
-    else if (vchtypes == "Cash" && _isLedgerGroupVisible) {
+    } else if (vchtypes == "Cash" && _isLedgerGroupVisible) {
       double voucherTotal = filteredLedgerGroupList.fold(0.0, (sum, item) {
-        print("Adding Amount+Opening (Ledger): ${(item.amount + item.opening)}");
+        print(
+          "Adding Amount+Opening (Ledger): ${(item.amount + item.opening)}",
+        );
         return sum + (item.amount + item.opening);
       });
       /*double opening = 0.0;
@@ -422,32 +402,26 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
       });*/
 
-     //  print("Opening (Cash): $opening");
-
+      //  print("Opening (Cash): $opening");
 
       return voucherTotal;
-    }
-    else if (vchtypes == "Cash" && !_isLedgerGroupVisible)
-      {
-        double voucherTotal = filteredItems_sale_purc_cash.fold(0.0, (sum, item) {
-          print("Adding Amount (Ledger): ${item.amount}");
-          return sum + item.amount;
-        });
-        double opening = 0.0;
-        setState(() {
-          // print("Opening value $opening_value");
+    } else if (vchtypes == "Cash" && !_isLedgerGroupVisible) {
+      double voucherTotal = filteredItems_sale_purc_cash.fold(0.0, (sum, item) {
+        print("Adding Amount (Ledger): ${item.amount}");
+        return sum + item.amount;
+      });
+      double opening = 0.0;
+      setState(() {
+        // print("Opening value $opening_value");
 
-          opening = double.tryParse(opening_value ?? "0") ?? 0.0;
+        opening = double.tryParse(opening_value ?? "0") ?? 0.0;
+      });
 
-        });
+      print("Opening (Cash): $opening");
 
-        print("Opening (Cash): $opening");
-
-        return voucherTotal + opening;
-        // return voucherTotal;
-
-      }
-    else {
+      return voucherTotal + opening;
+      // return voucherTotal;
+    } else {
       return filteredItems_sale_purc_cash.fold(0.0, (sum, item) {
         print("Adding Amount: ${item.amount}");
         return sum + item.amount;
@@ -469,8 +443,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
       _isSalesListVisible = false;
     });
 
-    if(_selectedvoucher == "All Voucher Types")
-    {
+    if (_selectedvoucher == "All Voucher Types") {
       _selectedvoucher = "";
     }
 
@@ -487,8 +460,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         'enddate': endDateString,
         'vchtypes': '',
         'opening': 'true',
-        'vchname': _selectedvoucher,  // parent dropdown
-        'isGroupByLedger': true,    // key to trigger group mode
+        'vchname': _selectedvoucher, // parent dropdown
+        'isGroupByLedger': true, // key to trigger group mode
       });
 
       final response = await http.post(url, body: body, headers: headers);
@@ -503,8 +476,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
         setState(() {
           opening_value = opening; // reuse your existing method
-          ledgerGroupList =
-              values.map((e) => LedgerGroup.fromJson(e)).toList();
+          ledgerGroupList = values.map((e) => LedgerGroup.fromJson(e)).toList();
           filteredLedgerGroupList = ledgerGroupList;
           print('led group list -> ${ledgerGroupList[0]}');
 
@@ -547,19 +519,31 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     ];
 
     // Replace this list with your actual list data
-    final List<String> itemList = ['Default', 'Newest to Oldest', 'Oldest to Newest', 'A->Z', 'Z->A', 'Amount High to Low', 'Amount Low to High'];
+    final List<String> itemList = [
+      'Default',
+      'Newest to Oldest',
+      'Oldest to Newest',
+      'A->Z',
+      'Z->A',
+      'Amount High to Low',
+      'Amount Low to High',
+    ];
 
-    double totalHeight = itemList.length * 50.0 + 30.0 + 50.0; // Assuming each item has a height of 50 and adding padding height
+    double totalHeight =
+        itemList.length * 50.0 +
+        30.0 +
+        50.0; // Assuming each item has a height of 50 and adding padding height
 
     showModalBottomSheet<void>(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       context: context,
       builder: (BuildContext context) {
         return Container(
           constraints: BoxConstraints(
-            maxHeight: totalHeight, // Set the maximum height of the selection window with additional padding
+            maxHeight:
+                totalHeight, // Set the maximum height of the selection window with additional padding
           ),
-          color: Colors.white, // Set the background color of the selection window
+          color: Theme.of(context).colorScheme.surface,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -570,10 +554,12 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
-              Expanded( // Wrap the ListView.builder with Expanded
+              Expanded(
+                // Wrap the ListView.builder with Expanded
                 child: ListView.builder(
                   itemCount: itemList.length,
                   itemExtent: 50, // Set the height of each item in the list
@@ -582,7 +568,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                     return GestureDetector(
                       onTap: () {
                         setState(() {
-                          selectedSortOption = itemList[index]; // Update the selected index
+                          selectedSortOption =
+                              itemList[index]; // Update the selected index
                         });
                         switch (selectedSortOption) {
                           case 'Default':
@@ -608,19 +595,31 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                             break;
                         }
                         print('Tile $index selected');
-                        Navigator.pop(context); // Close the selection window after a tile is selected
+                        Navigator.pop(
+                          context,
+                        ); // Close the selection window after a tile is selected
                       },
                       child: Container(
                         child: ListTile(
-                          leading: Icon(icons[index]), // Add the icon to each list tile
+                          leading: Icon(
+                            icons[index],
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ), // Add the icon to each list tile
                           title: Text(
                             itemList[index],
                             style: GoogleFonts.poppins(
-                              fontWeight: itemList[index] == selectedSortOption ? FontWeight.bold : FontWeight.normal, // Apply bold style to the text if the tile is selected
+                              fontWeight: itemList[index] == selectedSortOption
+                                  ? FontWeight.bold
+                                  : FontWeight
+                                        .normal, // Apply bold style to the text if the tile is selected
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
-                          trailing: itemList[index] == selectedSortOption ? Icon(Icons.check,
-                          color: app_color,) : null, // Show arrow icon if the tile is selected
+                          trailing: itemList[index] == selectedSortOption
+                              ? Icon(Icons.check, color: app_color)
+                              : null, // Show arrow icon if the tile is selected
                         ),
                       ),
                     );
@@ -636,105 +635,97 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   void sortByDefault() {
     setState(() {
-      if(filteredItems_sale_purc_cash.isNotEmpty)
-        {
-          if(vchtypes == "Cash")
-            {
-              setState(() {
-                filteredItems_sale_purc_cash = sales_purc_cash_list
-                    .where((e) =>
-                e.ledger.toLowerCase() ==
-                    _selectedLedgerGroup!.toLowerCase())
-                    .toList();
-              });
-            }
-          else
-            {
-
-              filteredItems_sale_purc_cash = List.from(sales_purc_cash_list);
-              _scrollController_salelist.animateTo(
-                0.0,
-                duration: Duration(milliseconds: 500),
-                curve: Curves.easeInOut,
-              );
-            }
-
-        }
-      else if (filteredItems_receivable_payable.isNotEmpty)
-        {
-          filteredItems_receivable_payable = List.from(receivable_payable_list);
-          _scrollController_receivablellist.animateTo(
+      if (filteredItems_sale_purc_cash.isNotEmpty) {
+        if (vchtypes == "Cash") {
+          setState(() {
+            filteredItems_sale_purc_cash = sales_purc_cash_list
+                .where(
+                  (e) =>
+                      e.ledger.toLowerCase() ==
+                      _selectedLedgerGroup!.toLowerCase(),
+                )
+                .toList();
+          });
+        } else {
+          filteredItems_sale_purc_cash = List.from(sales_purc_cash_list);
+          _scrollController_salelist.animateTo(
             0.0,
             duration: Duration(milliseconds: 500),
             curve: Curves.easeInOut,
           );
         }
-
+      } else if (filteredItems_receivable_payable.isNotEmpty) {
+        filteredItems_receivable_payable = List.from(receivable_payable_list);
+        _scrollController_receivablellist.animateTo(
+          0.0,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
     });
   }
 
   void sortByAlphabetAtoZ() {
     setState(() {
-      if(filteredItems_sale_purc_cash.isNotEmpty)
-        {
-          if(vchtypes == 'Sales' || vchtypes == 'Purchase')
-            {
-              filteredItems_sale_purc_cash.sort((a, b) => a.vchname.compareTo(b.vchname));
-              _scrollController_salelist.animateTo(
-                0.0,
-                duration: Duration(milliseconds: 500),
-                curve: Curves.easeInOut,
-              );
-            }
-          else
-            {
-              filteredItems_sale_purc_cash.sort((a, b) => a.ledger.compareTo(b.ledger));
-              _scrollController_salelist.animateTo(
-                0.0,
-                duration: Duration(milliseconds: 500),
-                curve: Curves.easeInOut,
-              );
-            }
-
-        }
-      else if (filteredItems_receivable_payable.isNotEmpty)
-        {
-          filteredItems_receivable_payable.sort((a, b) => a.ledger.compareTo(b.ledger));
-          _scrollController_receivablellist.animateTo(
+      if (filteredItems_sale_purc_cash.isNotEmpty) {
+        if (vchtypes == 'Sales' || vchtypes == 'Purchase') {
+          filteredItems_sale_purc_cash.sort(
+            (a, b) => a.vchname.compareTo(b.vchname),
+          );
+          _scrollController_salelist.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else {
+          filteredItems_sale_purc_cash.sort(
+            (a, b) => a.ledger.compareTo(b.ledger),
+          );
+          _scrollController_salelist.animateTo(
             0.0,
             duration: Duration(milliseconds: 500),
             curve: Curves.easeInOut,
           );
         }
+      } else if (filteredItems_receivable_payable.isNotEmpty) {
+        filteredItems_receivable_payable.sort(
+          (a, b) => a.ledger.compareTo(b.ledger),
+        );
+        _scrollController_receivablellist.animateTo(
+          0.0,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
     });
   }
 
   void sortByAlphabetZtoA() {
     setState(() {
-      if(filteredItems_sale_purc_cash.isNotEmpty)
-      {
-        if(vchtypes == 'Sales' || vchtypes == 'Purchase')
-          {
-            filteredItems_sale_purc_cash.sort((a, b) => b.vchname.compareTo(a.vchname));
-            _scrollController_salelist.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-        else
-          {
-            filteredItems_sale_purc_cash.sort((a, b) => b.ledger.compareTo(a.ledger));
-            _scrollController_salelist.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-          }
-      else if (filteredItems_receivable_payable.isNotEmpty)
-      {
-        filteredItems_receivable_payable.sort((a, b) => b.ledger.compareTo(a.ledger));
+      if (filteredItems_sale_purc_cash.isNotEmpty) {
+        if (vchtypes == 'Sales' || vchtypes == 'Purchase') {
+          filteredItems_sale_purc_cash.sort(
+            (a, b) => b.vchname.compareTo(a.vchname),
+          );
+          _scrollController_salelist.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else {
+          filteredItems_sale_purc_cash.sort(
+            (a, b) => b.ledger.compareTo(a.ledger),
+          );
+          _scrollController_salelist.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
+      } else if (filteredItems_receivable_payable.isNotEmpty) {
+        filteredItems_receivable_payable.sort(
+          (a, b) => b.ledger.compareTo(a.ledger),
+        );
         _scrollController_receivablellist.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
@@ -746,19 +737,20 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   void sortByDateLowtoHigh() {
     setState(() {
-
-      if(filteredItems_sale_purc_cash.isNotEmpty)
-      {
-        filteredItems_sale_purc_cash.sort((a, b) => a.vchdate.compareTo(b.vchdate));
+      if (filteredItems_sale_purc_cash.isNotEmpty) {
+        filteredItems_sale_purc_cash.sort(
+          (a, b) => a.vchdate.compareTo(b.vchdate),
+        );
         _scrollController_salelist.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
-      }
-      else if (filteredItems_receivable_payable.isNotEmpty) {
-        filteredItems_receivable_payable.sort((a, b) =>
-            DateTime.parse(a.billdate).compareTo(DateTime.parse(b.billdate)));
+      } else if (filteredItems_receivable_payable.isNotEmpty) {
+        filteredItems_receivable_payable.sort(
+          (a, b) =>
+              DateTime.parse(a.billdate).compareTo(DateTime.parse(b.billdate)),
+        );
 
         _scrollController_receivablellist.animateTo(
           0.0,
@@ -771,18 +763,20 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   void sortByDateHightoLow() {
     setState(() {
-      if(filteredItems_sale_purc_cash.isNotEmpty)
-      {
-        filteredItems_sale_purc_cash.sort((a, b) => b.vchdate.compareTo(a.vchdate));
+      if (filteredItems_sale_purc_cash.isNotEmpty) {
+        filteredItems_sale_purc_cash.sort(
+          (a, b) => b.vchdate.compareTo(a.vchdate),
+        );
         _scrollController_salelist.animateTo(
           0.0,
           duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
-      }
-      else if (filteredItems_receivable_payable.isNotEmpty) {
-        filteredItems_receivable_payable.sort((a, b) =>
-            DateTime.parse(b.billdate).compareTo(DateTime.parse(a.billdate)));
+      } else if (filteredItems_receivable_payable.isNotEmpty) {
+        filteredItems_receivable_payable.sort(
+          (a, b) =>
+              DateTime.parse(b.billdate).compareTo(DateTime.parse(a.billdate)),
+        );
 
         _scrollController_receivablellist.animateTo(
           0.0,
@@ -795,123 +789,127 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   void sortByAmountLowtoHigh() {
     setState(() {
-      if(filteredItems_sale_purc_cash.isNotEmpty)
-      {
-        if(vchtypes == 'Payment')
-          {
-            filteredItems_sale_purc_cash.sort((a, b) => b.amount.compareTo(a.amount));
-            _scrollController_salelist.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-        else
-          {
-            filteredItems_sale_purc_cash.sort((a, b) => a.amount.compareTo(b.amount));
-            _scrollController_salelist.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-
-      }
-      else if (filteredItems_receivable_payable.isNotEmpty)
-      {
-        if(vchtypes == "Receivable")
-          {
-            filteredItems_receivable_payable.sort((a, b) => b.outstanding.compareTo(a.outstanding));
-            _scrollController_receivablellist.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-        else
-          {
-            filteredItems_receivable_payable.sort((a, b) => a.outstanding.compareTo(b.outstanding));
-            _scrollController_receivablellist.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-
+      if (filteredItems_sale_purc_cash.isNotEmpty) {
+        if (vchtypes == 'Payment') {
+          filteredItems_sale_purc_cash.sort(
+            (a, b) => b.amount.compareTo(a.amount),
+          );
+          _scrollController_salelist.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else {
+          filteredItems_sale_purc_cash.sort(
+            (a, b) => a.amount.compareTo(b.amount),
+          );
+          _scrollController_salelist.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
+      } else if (filteredItems_receivable_payable.isNotEmpty) {
+        if (vchtypes == "Receivable") {
+          filteredItems_receivable_payable.sort(
+            (a, b) => b.outstanding.compareTo(a.outstanding),
+          );
+          _scrollController_receivablellist.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else {
+          filteredItems_receivable_payable.sort(
+            (a, b) => a.outstanding.compareTo(b.outstanding),
+          );
+          _scrollController_receivablellist.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
       }
     });
   }
 
   void sortByAmountHightoLow() {
     setState(() {
-      if(filteredItems_sale_purc_cash.isNotEmpty)
-      {
-        if(vchtypes == "Payment")
-          {
-            filteredItems_sale_purc_cash.sort((a, b) => a.amount.compareTo(b.amount));
-            _scrollController_salelist.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-        else
-          {
-            filteredItems_sale_purc_cash.sort((a, b) => b.amount.compareTo(a.amount));
-            _scrollController_salelist.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-      }
-      else if (filteredItems_receivable_payable.isNotEmpty)
-      {
-        if(vchtypes == "Receivable")
-          {
-            filteredItems_receivable_payable.sort((a, b) => a.outstanding.compareTo(b.outstanding));
-            _scrollController_receivablellist.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-        else
-          {
-            filteredItems_receivable_payable.sort((a, b) => b.outstanding.compareTo(a.outstanding));
-            _scrollController_receivablellist.animateTo(
-              0.0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          }
-
+      if (filteredItems_sale_purc_cash.isNotEmpty) {
+        if (vchtypes == "Payment") {
+          filteredItems_sale_purc_cash.sort(
+            (a, b) => a.amount.compareTo(b.amount),
+          );
+          _scrollController_salelist.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else {
+          filteredItems_sale_purc_cash.sort(
+            (a, b) => b.amount.compareTo(a.amount),
+          );
+          _scrollController_salelist.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
+      } else if (filteredItems_receivable_payable.isNotEmpty) {
+        if (vchtypes == "Receivable") {
+          filteredItems_receivable_payable.sort(
+            (a, b) => a.outstanding.compareTo(b.outstanding),
+          );
+          _scrollController_receivablellist.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else {
+          filteredItems_receivable_payable.sort(
+            (a, b) => b.outstanding.compareTo(a.outstanding),
+          );
+          _scrollController_receivablellist.animateTo(
+            0.0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
       }
     });
   }
 
   void showToast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  String allparties = 'All Parties',allvchtypes = 'All Voucher Types';
+  String allparties = 'All Parties', allvchtypes = 'All Voucher Types';
 
   late GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey;
   late SharedPreferences prefs;
   late String startdate_text = "", enddate_text = "";
-  late DateTime _startDate ;
-  late DateTime _endDate  ;
+  late DateTime _startDate;
+  late DateTime _endDate;
   String? datetype;
 
   late String? startdate_pref, enddate_pref;
 
   String HttpURL = "";
 
-  String? hostname = "",company = "",serial_no = "",company_lowercase = "",username = "";
+  String? hostname = "",
+      company = "",
+      serial_no = "",
+      company_lowercase = "",
+      username = "";
   List<dynamic> myData = [];
   bool _isLoading = false;
 
-  String? HttpURL_sale_purc_cash,HttpURL_receipt_payment,HttpURL_receivable_payable ,HttpURL_sale_purc_cash_parent,
+  String? HttpURL_sale_purc_cash,
+      HttpURL_receipt_payment,
+      HttpURL_receivable_payable,
+      HttpURL_sale_purc_cash_parent,
       HttpURL_receivable_payable_parent;
 
   dynamic _selectedvoucher = "";
@@ -923,7 +921,13 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   // csv of all
   Future<void> generateAndShareCSV_SalesList() async {
     final List<List<dynamic>> csvData = [];
-    final headersRow = ['Vch No', 'Vch Name', 'Vch Date', 'Party Name', 'Amount'];
+    final headersRow = [
+      'Vch No',
+      'Vch Name',
+      'Vch Date',
+      'Party Name',
+      'Amount',
+    ];
     csvData.add(headersRow);
 
     for (final item in filteredItems_sale_purc_cash) {
@@ -956,7 +960,13 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   Future<void> generateAndShareCSV_Outstanding() async {
     final List<List<dynamic>> csvData = [];
-    final headersRow = ['Bill No', 'Bill Type', 'Due Date', 'Party Name', 'Amount'];
+    final headersRow = [
+      'Bill No',
+      'Bill Type',
+      'Due Date',
+      'Party Name',
+      'Amount',
+    ];
     csvData.add(headersRow);
 
     for (final item in filteredItems_receivable_payable) {
@@ -989,7 +999,9 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   // pdf of all
   Future<void> generateAndSharePDF_SalesList() async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+    final font = pw.Font.ttf(
+      await rootBundle.load("assets/fonts/NotoSans.ttf"),
+    );
 
     final pdf = pw.Document();
 
@@ -997,17 +1009,26 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     final reportname = '$vchtypes Summary';
     final parentname = _selectedvoucher;
 
-    final headersRow3 = ['Vch No', 'Vch Name', 'Vch Date', 'Party Name', 'Amount'];
+    final headersRow3 = [
+      'Vch No',
+      'Vch Name',
+      'Vch Date',
+      'Party Name',
+      'Amount',
+    ];
 
     final itemsPerPage = 8; // Adjust this value as needed
-    final pageCount = (filteredItems_sale_purc_cash.length / itemsPerPage).ceil();
+    final pageCount = (filteredItems_sale_purc_cash.length / itemsPerPage)
+        .ceil();
 
     for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       final startIndex = pageNumber * itemsPerPage;
       final endIndex = (pageNumber + 1) * itemsPerPage;
       final itemsSubset = filteredItems_sale_purc_cash.sublist(
         startIndex,
-        endIndex > filteredItems_sale_purc_cash.length ? filteredItems_sale_purc_cash.length : endIndex,
+        endIndex > filteredItems_sale_purc_cash.length
+            ? filteredItems_sale_purc_cash.length
+            : endIndex,
       );
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -1036,8 +1057,14 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           3: const pw.FractionColumnWidth(0.4),
           4: const pw.FractionColumnWidth(0.4),
         },
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font), // ✅ Use your font
-        cellStyle: pw.TextStyle(fontSize: 12, font: font), // ✅ Use your font here too
+        headerStyle: pw.TextStyle(
+          fontWeight: pw.FontWeight.bold,
+          font: font,
+        ), // ✅ Use your font
+        cellStyle: pw.TextStyle(
+          fontSize: 12,
+          font: font,
+        ), // ✅ Use your font here too
         rowDecoration: pw.BoxDecoration(
           border: pw.Border(
             top: pw.BorderSide(width: 1),
@@ -1055,25 +1082,49 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.center,
                 children: [
-                  pw.Text(companyName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    companyName,
+                    style: pw.TextStyle(
+                      fontSize: 20,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                   pw.SizedBox(height: 10),
-                  pw.Text(reportname, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    reportname,
+                    style: pw.TextStyle(
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                   pw.SizedBox(height: 10),
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.center,
                     children: [
-                      pw.Text(convertDateFormat(startDateString), style: pw.TextStyle(fontSize: 16)),
+                      pw.Text(
+                        convertDateFormat(startDateString),
+                        style: pw.TextStyle(fontSize: 16),
+                      ),
                       pw.SizedBox(width: 5),
                       pw.Text('to', style: pw.TextStyle(fontSize: 16)),
                       pw.SizedBox(width: 5),
-                      pw.Text(convertDateFormat(endDateString), style: pw.TextStyle(fontSize: 16)),
+                      pw.Text(
+                        convertDateFormat(endDateString),
+                        style: pw.TextStyle(fontSize: 16),
+                      ),
                     ],
                   ),
                   pw.SizedBox(height: 10),
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.center,
                     children: [
-                      pw.Text('Vch Name:', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                      pw.Text(
+                        'Vch Name:',
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
                       pw.SizedBox(width: 5),
                       pw.Text(parentname, style: pw.TextStyle(fontSize: 16)),
                     ],
@@ -1106,7 +1157,9 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   }
 
   Future<void> generateAndSharePDF_Outstanding() async {
-    final font = pw.Font.ttf(await rootBundle.load("assets/fonts/NotoSans.ttf"));
+    final font = pw.Font.ttf(
+      await rootBundle.load("assets/fonts/NotoSans.ttf"),
+    );
 
     final pdf = pw.Document();
 
@@ -1114,16 +1167,25 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     final reportname = '$vchtypes Summary';
     final parentname = _selectedvoucher;
 
-    final headersRow3 = ['Bill No', 'Bill Type', 'Due Date', 'Party Name', 'Amount'];
+    final headersRow3 = [
+      'Bill No',
+      'Bill Type',
+      'Due Date',
+      'Party Name',
+      'Amount',
+    ];
     final itemsPerPage = 8;
-    final pageCount = (filteredItems_receivable_payable.length / itemsPerPage).ceil();
+    final pageCount = (filteredItems_receivable_payable.length / itemsPerPage)
+        .ceil();
 
     for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       final startIndex = pageNumber * itemsPerPage;
       final endIndex = (pageNumber + 1) * itemsPerPage;
       final itemsSubset = filteredItems_receivable_payable.sublist(
         startIndex,
-        endIndex > filteredItems_receivable_payable.length ? filteredItems_receivable_payable.length : endIndex,
+        endIndex > filteredItems_receivable_payable.length
+            ? filteredItems_receivable_payable.length
+            : endIndex,
       );
 
       final tableSubsetRows = itemsSubset.map((item) {
@@ -1152,8 +1214,14 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           3: const pw.FractionColumnWidth(0.4),
           4: const pw.FractionColumnWidth(0.4),
         },
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: font), // ✅ Use your font
-        cellStyle: pw.TextStyle(fontSize: 12, font: font), // ✅ Use your font here too
+        headerStyle: pw.TextStyle(
+          fontWeight: pw.FontWeight.bold,
+          font: font,
+        ), // ✅ Use your font
+        cellStyle: pw.TextStyle(
+          fontSize: 12,
+          font: font,
+        ), // ✅ Use your font here too
         rowDecoration: pw.BoxDecoration(
           border: pw.Border(
             top: pw.BorderSide(width: 1),
@@ -1171,27 +1239,54 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.center,
                 children: [
-                  pw.Text(companyName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    companyName,
+                    style: pw.TextStyle(
+                      fontSize: 20,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                   pw.SizedBox(height: 10),
-                  pw.Text(reportname, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                    reportname,
+                    style: pw.TextStyle(
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                   pw.SizedBox(height: 10),
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.center,
                     children: [
-                      pw.Text(convertDateFormat(startDateString), style: const pw.TextStyle(fontSize: 16)),
+                      pw.Text(
+                        convertDateFormat(startDateString),
+                        style: const pw.TextStyle(fontSize: 16),
+                      ),
                       pw.SizedBox(width: 5),
                       pw.Text('to', style: const pw.TextStyle(fontSize: 16)),
                       pw.SizedBox(width: 5),
-                      pw.Text(convertDateFormat(endDateString), style: const pw.TextStyle(fontSize: 16)),
+                      pw.Text(
+                        convertDateFormat(endDateString),
+                        style: const pw.TextStyle(fontSize: 16),
+                      ),
                     ],
                   ),
                   pw.SizedBox(height: 10),
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.center,
                     children: [
-                      pw.Text('Ledger:', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                      pw.Text(
+                        'Ledger:',
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
                       pw.SizedBox(width: 5),
-                      pw.Text(parentname, style: const pw.TextStyle(fontSize: 16)),
+                      pw.Text(
+                        parentname,
+                        style: const pw.TextStyle(fontSize: 16),
+                      ),
                     ],
                   ),
                   pw.SizedBox(height: 20),
@@ -1222,82 +1317,73 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   }
 
   void fetchParentData() {
-    if(vchtypes == "Sales" || vchtypes == "Purchase" || vchtypes == "Receipt" || vchtypes == "Payment" || vchtypes == "Cash")
-    {
-
-      if(vchtypes == "Sales" || vchtypes == "Purchase" || vchtypes == "Cash")
-      {
-        _isopeningVisible= true;
-        if(vchtypes == "Sales")
-        {
-          _isopeningVisible= false;
+    if (vchtypes == "Sales" ||
+        vchtypes == "Purchase" ||
+        vchtypes == "Receipt" ||
+        vchtypes == "Payment" ||
+        vchtypes == "Cash") {
+      if (vchtypes == "Sales" || vchtypes == "Purchase" || vchtypes == "Cash") {
+        _isopeningVisible = true;
+        if (vchtypes == "Sales") {
+          _isopeningVisible = false;
+          fetchParent("");
+        } else if (vchtypes == "Purchase") {
+          _isopeningVisible = false;
+          fetchParent("");
+        } else if (vchtypes == "Cash") {
+          _isopeningVisible = true;
           fetchParent("");
         }
-        else if (vchtypes == "Purchase")
-        {
-          _isopeningVisible= false;
-          fetchParent("");
-        }
-        else if (vchtypes =="Cash")
-        {
-          _isopeningVisible= true;
-          fetchParent("");
-        }
-
-      }
-      else if (vchtypes == "Receipt" || vchtypes == "Payment")
-      {_isopeningVisible = false;
+      } else if (vchtypes == "Receipt" || vchtypes == "Payment") {
+        _isopeningVisible = false;
         fetchParent(vchtypes);
       }
       setState(() {
-        if(vchtypes == "Cash")
-          {
-            _isSalesListVisible = false;
-          }
-        else
-          {
-            _isSalesListVisible = true;
-          }
+        if (vchtypes == "Cash") {
+          _isSalesListVisible = false;
+        } else {
+          _isSalesListVisible = true;
+        }
 
         _isOutstandingListVisible = false;
       });
-    }
-    else if(vchtypes == "Receivable" || vchtypes == "Payable")
-    {
-      if(vchtypes == "Receivable")
-        {
-          fetchParent_Receivable_Payable("ledger","true","true","true");
-
-        }
-      else if (vchtypes == "Payable")
-        {
-          fetchParent_Receivable_Payable("ledger","","true","true");
-
-        }
+    } else if (vchtypes == "Receivable" || vchtypes == "Payable") {
+      if (vchtypes == "Receivable") {
+        fetchParent_Receivable_Payable("ledger", "true", "true", "true");
+      } else if (vchtypes == "Payable") {
+        fetchParent_Receivable_Payable("ledger", "", "true", "true");
+      }
       setState(() {
         _isSalesListVisible = false;
         _isOutstandingListVisible = true;
       });
-
     }
   }
 
   void fetchListData() {
-
-    if(_selectedvoucher == "All Voucher Types")
-    {
-      if(vchtypes == "Sales" || vchtypes == "Purchase" || vchtypes == "Cash")
-      {
-        if(vchtypes == "Sales")
-        {
-          fetchSales_purchase_cash("Sales Accounts", startDateString, endDateString, "","true","","");
-        }
-        else if (vchtypes == "Purchase")
-        {
-          fetchSales_purchase_cash("Purchase Accounts", startDateString, endDateString, "","true","","");
-        }
-        else if (vchtypes == "Cash") {
-
+    if (_selectedvoucher == "All Voucher Types") {
+      if (vchtypes == "Sales" || vchtypes == "Purchase" || vchtypes == "Cash") {
+        if (vchtypes == "Sales") {
+          fetchSales_purchase_cash(
+            "Sales Accounts",
+            startDateString,
+            endDateString,
+            "",
+            "true",
+            "",
+            "",
+          );
+        } else if (vchtypes == "Purchase") {
+          fetchSales_purchase_cash(
+            "Purchase Accounts",
+            startDateString,
+            endDateString,
+            "",
+            "true",
+            "",
+            "",
+          );
+        } else if (vchtypes == "Cash") {
           // Then load ledger groups for this period
           WidgetsBinding.instance.addPostFrameCallback((_) {
             fetchLedgerGroups();
@@ -1307,145 +1393,149 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         {
           fetchSales_purchase_cash("cash-in-hand,bank accounts", startDateString, endDateString, "","true","");
         }*/
-
-      }
-      else if (vchtypes == "Receipt" || vchtypes == "Payment")
-      {
-        fetchReceipt_Payment(startDateString,endDateString,vchtypes,"");
-      }
-      else if (vchtypes == "Receivable" || vchtypes == "Payable")
-        {
-          if(vchtypes == "Receivable")
-            {
-              fetchReceivable_payable("billno",startDateString,endDateString,"true","");
-
-            }
-          else if (vchtypes == "Payable")
-            {
-              fetchReceivable_payable("billno",startDateString,endDateString,"","");
-
-            }
+      } else if (vchtypes == "Receipt" || vchtypes == "Payment") {
+        fetchReceipt_Payment(startDateString, endDateString, vchtypes, "");
+      } else if (vchtypes == "Receivable" || vchtypes == "Payable") {
+        if (vchtypes == "Receivable") {
+          fetchReceivable_payable(
+            "billno",
+            startDateString,
+            endDateString,
+            "true",
+            "",
+          );
+        } else if (vchtypes == "Payable") {
+          fetchReceivable_payable(
+            "billno",
+            startDateString,
+            endDateString,
+            "",
+            "",
+          );
         }
-    }
-    else
-    {
-      if(_selectedvoucher == "All Parties" )
-        {
-          if(vchtypes == "Receivable")
-          {
-            fetchReceivable_payable("billdate",startDateString,endDateString,"true","");
-
-          }
-          else if (vchtypes == "Payable")
-          {
-            fetchReceivable_payable("billdate",startDateString,endDateString,"","");
-
-          }
+      }
+    } else {
+      if (_selectedvoucher == "All Parties") {
+        if (vchtypes == "Receivable") {
+          fetchReceivable_payable(
+            "billdate",
+            startDateString,
+            endDateString,
+            "true",
+            "",
+          );
+        } else if (vchtypes == "Payable") {
+          fetchReceivable_payable(
+            "billdate",
+            startDateString,
+            endDateString,
+            "",
+            "",
+          );
         }
-      else
-        {
-          if(vchtypes == "Sales" || vchtypes == "Purchase" || vchtypes == "Cash")
-          {
-            if(vchtypes == "Sales")
-            {
-              fetchSales_purchase_cash("Sales Accounts", startDateString, endDateString, "","true",_selectedvoucher,"");
-            }
-            else if (vchtypes == "Purchase")
-            {
-              fetchSales_purchase_cash("Purchase Accounts", startDateString, endDateString, "","true",_selectedvoucher,"");
-            }
-
-          else if (vchtypes =="Cash")
-          {
+      } else {
+        if (vchtypes == "Sales" ||
+            vchtypes == "Purchase" ||
+            vchtypes == "Cash") {
+          if (vchtypes == "Sales") {
+            fetchSales_purchase_cash(
+              "Sales Accounts",
+              startDateString,
+              endDateString,
+              "",
+              "true",
+              _selectedvoucher,
+              "",
+            );
+          } else if (vchtypes == "Purchase") {
+            fetchSales_purchase_cash(
+              "Purchase Accounts",
+              startDateString,
+              endDateString,
+              "",
+              "true",
+              _selectedvoucher,
+              "",
+            );
+          } else if (vchtypes == "Cash") {
             // Then load ledger groups for this period
             WidgetsBinding.instance.addPostFrameCallback((_) {
               fetchLedgerGroups();
             });
-
           }
-            /*else if (vchtypes =="Cash")
+          /*else if (vchtypes =="Cash")
             {
               fetchSales_purchase_cash("cash-in-hand,bank accounts", startDateString, endDateString, "","true",_selectedvoucher);
             }*/
-
-          }
-          else if (vchtypes == "Receipt" || vchtypes == "Payment")
-          {
-            fetchReceipt_Payment(startDateString,endDateString,vchtypes,_selectedvoucher);
-          }
-          else if (vchtypes == "Receivable" || vchtypes == "Payable")
-          {
-            if(vchtypes == "Receivable")
-            {
-              fetchReceivable_payable("billdate",startDateString,endDateString,"true",_selectedvoucher);
-
-            }
-            else if (vchtypes == "Payable")
-            {
-              fetchReceivable_payable("billdate",startDateString,endDateString,"",_selectedvoucher);
-
-            }
+        } else if (vchtypes == "Receipt" || vchtypes == "Payment") {
+          fetchReceipt_Payment(
+            startDateString,
+            endDateString,
+            vchtypes,
+            _selectedvoucher,
+          );
+        } else if (vchtypes == "Receivable" || vchtypes == "Payable") {
+          if (vchtypes == "Receivable") {
+            fetchReceivable_payable(
+              "billdate",
+              startDateString,
+              endDateString,
+              "true",
+              _selectedvoucher,
+            );
+          } else if (vchtypes == "Payable") {
+            fetchReceivable_payable(
+              "billdate",
+              startDateString,
+              endDateString,
+              "",
+              _selectedvoucher,
+            );
           }
         }
+      }
     }
   }
 
   Future<void> fetchParent(final String type) async {
-
     setState(() {
       _isLoading = true;
     });
 
     spinner_list.clear();
 
-    try
-    {
+    try {
       final url = Uri.parse(HttpURL_sale_purc_cash_parent!);
 
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
-        'vchtypes': type,
-        'orderby' : 'vchname'
-      });
+      var body = jsonEncode({'vchtypes': type, 'orderby': 'vchname'});
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-      if (response.statusCode == 200)
-      {
-        if(vchtypes == "Receivable"|| vchtypes == "Payable")
-          {
-            spinner_list.add(allparties);
-            _selectedvoucher = allparties;
-          }
-        else
-          {
-            spinner_list.add(allvchtypes);
-            _selectedvoucher = allvchtypes;
-          }
+      if (response.statusCode == 200) {
+        if (vchtypes == "Receivable" || vchtypes == "Payable") {
+          spinner_list.add(allparties);
+          _selectedvoucher = allparties;
+        } else {
+          spinner_list.add(allvchtypes);
+          _selectedvoucher = allvchtypes;
+        }
         List<dynamic> data = jsonDecode(response.body);
-        for (var item in data)
-        {
+        for (var item in data) {
           String vchname = item['vchname'];
           spinner_list.add(vchname);
         }
-        setState(()
-        {
+        setState(() {
           _selectedvoucher = spinner_list[0];
           _voucherController.text = _selectedvoucher;
           fetchListData();
         });
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
@@ -1453,43 +1543,39 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     }
   }
 
-  Future<void> fetchParent_Receivable_Payable(final String orderby,final String isdebit, final String select,final String parent) async {
+  Future<void> fetchParent_Receivable_Payable(
+    final String orderby,
+    final String isdebit,
+    final String select,
+    final String parent,
+  ) async {
     setState(() {
       _isLoading = true;
     });
 
     spinner_list.clear();
 
-    try
-    {
+    try {
       final url = Uri.parse(HttpURL_receivable_payable_parent!);
-      Map<String,String> headers = {
-        'Authorization' : 'Bearer $token',
-        "Content-Type": "application/json"
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
       };
 
-      var body = jsonEncode( {
+      var body = jsonEncode({
         'orderby': orderby,
         'isDebit': isdebit,
         'select': select,
         'parent': parent,
       });
 
-      final response = await http.post(
-          url,
-          body: body,
-          headers:headers
-      );
+      final response = await http.post(url, body: body, headers: headers);
 
-      if (response.statusCode == 200)
-      {
-        if(vchtypes == "Receivable"|| vchtypes == "Payable")
-        {
+      if (response.statusCode == 200) {
+        if (vchtypes == "Receivable" || vchtypes == "Payable") {
           spinner_list.add(allparties);
           _selectedvoucher = allparties;
-        }
-        else
-        {
+        } else {
           spinner_list.add(allvchtypes);
           _selectedvoucher = allvchtypes;
         }
@@ -1505,9 +1591,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           fetchListData();
         });
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
@@ -1517,15 +1601,14 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
   // new function fetchSales_purchase_cash
   Future<void> fetchSales_purchase_cash(
-      final String ledgroup,
-      final String startdate,
-      final String enddate,
-      final String vchtypes,
-      final String opening,
-      final String vchname,
-      final String ledger
-      )
-  async {
+    final String ledgroup,
+    final String startdate,
+    final String enddate,
+    final String vchtypes,
+    final String opening,
+    final String vchname,
+    final String ledger,
+  ) async {
     // ✅ keep same behavior: start loading + reset sort visibility
     setState(() {
       _isLoading = true;
@@ -1553,7 +1636,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         'vchtypes': vchtypes,
         'opening': opening,
         'vchname': vchname,
-        'ledger' : ledger
+        'ledger': ledger,
       });
 
       final response = await http.post(url, body: body, headers: headers);
@@ -1631,7 +1714,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   }
 
   // old function fetchSales_purchase_cash
-/*
+  /*
   Future<void> fetchSales_purchase_cash(final String ledgroup, final String startdate, final String enddate, final String vchtypes,final String opening,final String vchname) async {
     setState(()
     {
@@ -1746,12 +1829,12 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   // new function fetchReceivable_payable
 
   Future<void> fetchReceivable_payable(
-      final String orderby,
-      final String startdate,
-      final String enddate,
-      final String isdebit,
-      final String ledger,
-      ) async {
+    final String orderby,
+    final String startdate,
+    final String enddate,
+    final String isdebit,
+    final String ledger,
+  ) async {
     setState(() {
       _isLoading = true;
       isSortVisible = false;
@@ -1781,7 +1864,10 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
       final response = await http.post(url, body: body, headers: headers);
 
       if (response.statusCode == 200) {
-        final parsed = await compute(_parseReceivableTotalResponse, response.body);
+        final parsed = await compute(
+          _parseReceivableTotalResponse,
+          response.body,
+        );
 
         if (!mounted) return;
 
@@ -1961,11 +2047,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   // new function fetchReceipt_Payment
 
   Future<void> fetchReceipt_Payment(
-      final String startdate,
-      final String enddate,
-      final String vchtypes,
-      final String vchname,
-      ) async {
+    final String startdate,
+    final String enddate,
+    final String vchtypes,
+    final String vchname,
+  ) async {
     setState(() {
       _isLoading = true;
       isSortVisible = false;
@@ -1999,7 +2085,10 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
       if (response.statusCode == 200) {
         // ✅ heavy parsing moved off UI thread
-        final items = await compute(_parseReceiptPaymentResponse, response.body);
+        final items = await compute(
+          _parseReceiptPaymentResponse,
+          response.body,
+        );
 
         if (!mounted) return;
 
@@ -2172,16 +2261,13 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   String formatOpening(String opening) {
     String opening_string = "";
 
-    if(opening.contains("-"))
-    {
+    if (opening.contains("-")) {
       opening = opening.replaceAll("-", "");
       double opening_double = double.parse(opening);
       // int opening_int = opening_double.round();
       opening_string = CurrencyFormatter.formatCurrency_double(opening_double);
       opening_string = opening_string + " DR";
-    }
-    else
-    {
+    } else {
       double opening_double = double.parse(opening);
       // int opening_int = opening_double.round();
       opening_string = CurrencyFormatter.formatCurrency_double(opening_double);
@@ -2200,89 +2286,64 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     return formattedDate;
   }
 
-  String formatDueDate(String billdate,String type, String duedate) {
+  String formatDueDate(String billdate, String type, String duedate) {
     String formattedDate = '';
 
-    if(type == 'On Account')
-      {
-            _isVisibleduedate = false;
-      }
-    else if (type == 'Advance')
-      {
-          _isVisibleduedate = false;
-      }
-    else if (type == 'Agst Ref' || type == 'New Ref')
-      {
-          _isVisibleduedate = true;
+    if (type == 'On Account') {
+      _isVisibleduedate = false;
+    } else if (type == 'Advance') {
+      _isVisibleduedate = false;
+    } else if (type == 'Agst Ref' || type == 'New Ref') {
+      _isVisibleduedate = true;
 
-        if(duedate == 'null')
-          {
-            formattedDate = 'N/A';
-          }
-        else
-          {
-            try
-            {
-              if(duedate.contains("Days"))
-              {
-                String pattern = r'(\d+)';
-                RegExp regex = RegExp(pattern);
-                Match? match = regex.firstMatch(duedate);
+      if (duedate == 'null') {
+        formattedDate = 'N/A';
+      } else {
+        try {
+          if (duedate.contains("Days")) {
+            String pattern = r'(\d+)';
+            RegExp regex = RegExp(pattern);
+            Match? match = regex.firstMatch(duedate);
 
-                if (match != null) {
-                  String numberString = match.group(0)!;
-                  int nodays = int.parse(numberString);
+            if (match != null) {
+              String numberString = match.group(0)!;
+              int nodays = int.parse(numberString);
 
-                  DateTime billdate_date = DateTime.parse(billdate);
-                  DateTime futureDate = billdate_date.add(Duration(days: nodays));
+              DateTime billdate_date = DateTime.parse(billdate);
+              DateTime futureDate = billdate_date.add(Duration(days: nodays));
 
-                  formattedDate = DateFormat('dd-MMM-yy').format(futureDate);
-                }
-              }
-              else
-                {
-                  // Parse the input date string
-                  DateTime date = DateTime.parse(duedate);
-                  // Format the date to the desired output format
-                  formattedDate = DateFormat("dd-MMM-yy").format(date);
-                }
+              formattedDate = DateFormat('dd-MMM-yy').format(futureDate);
             }
-            catch (e)
-            {
-              formattedDate = duedate;
-              print(e);
-            }
+          } else {
+            // Parse the input date string
+            DateTime date = DateTime.parse(duedate);
+            // Format the date to the desired output format
+            formattedDate = DateFormat("dd-MMM-yy").format(date);
           }
+        } catch (e) {
+          formattedDate = duedate;
+          print(e);
+        }
       }
+    }
     return formattedDate;
   }
 
-  DateTime formatDueDate_Sort(String billdate,String type, String duedate) {
-    DateTime formattedDate = DateTime.now() ;
+  DateTime formatDueDate_Sort(String billdate, String type, String duedate) {
+    DateTime formattedDate = DateTime.now();
 
-    if(type == 'On Account')
-    {
+    if (type == 'On Account') {
       _isVisibleduedate = false;
-    }
-    else if (type == 'Advance')
-    {
+    } else if (type == 'Advance') {
       _isVisibleduedate = false;
-    }
-    else if (type == 'Agst Ref' || type == 'New Ref')
-    {
+    } else if (type == 'Agst Ref' || type == 'New Ref') {
       _isVisibleduedate = true;
 
-      if(duedate == 'null')
-      {
-
+      if (duedate == 'null') {
         formattedDate = DateTime.now();
-      }
-      else
-      {
-        try
-        {
-          if(duedate.contains("Days"))
-          {
+      } else {
+        try {
+          if (duedate.contains("Days")) {
             String pattern = r'(\d+)';
             RegExp regex = RegExp(pattern);
             Match? match = regex.firstMatch(duedate);
@@ -2293,18 +2354,13 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
               DateTime billdate_date = DateTime.parse(billdate);
               formattedDate = billdate_date.add(Duration(days: nodays));
-
             }
-          }
-          else
-          {
+          } else {
             // Parse the input date string
             formattedDate = DateTime.parse(duedate);
             // Format the date to the desired output format
           }
-        }
-        catch (e)
-        {
+        } catch (e) {
           formattedDate = DateTime.parse(duedate);
           print(e);
         }
@@ -2315,67 +2371,57 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   }
 
   Future<void> _initSharedPreferences() async {
-
     prefs = await SharedPreferences.getInstance();
 
     setState(() {
       hostname = prefs.getString('hostname');
-      company  = prefs.getString('company_name');
+      company = prefs.getString('company_name');
       company_lowercase = company!.replaceAll(' ', '').toLowerCase();
       serial_no = prefs.getString('serial_no');
       username = prefs.getString('username');
       token = prefs.getString('token')!;
     });
 
-    try
-    {
+    try {
       selectedSortOption = prefs.getString('sort')!;
-      if(selectedSortOption == null || selectedSortOption == 'null')
-      {
+      if (selectedSortOption == null || selectedSortOption == 'null') {
         selectedSortOption = 'Default';
       }
-    }
-    catch (e)
-    {
+    } catch (e) {
       selectedSortOption = 'Default';
     }
 
-    HttpURL_sale_purc_cash_parent = '$hostname/api/voucher/getvoucherNames/$company_lowercase/$serial_no';
-    HttpURL_receivable_payable_parent = '$hostname/api/ledger/getOutstandingList/$company_lowercase/$serial_no';
+    HttpURL_sale_purc_cash_parent =
+        '$hostname/api/voucher/getvoucherNames/$company_lowercase/$serial_no';
+    HttpURL_receivable_payable_parent =
+        '$hostname/api/ledger/getOutstandingList/$company_lowercase/$serial_no';
 
-    HttpURL_sale_purc_cash = '$hostname/api/ledger/getTotal/$company_lowercase/$serial_no';
-    HttpURL_receipt_payment = '$hostname/api/voucher/getVouchers/$company_lowercase/$serial_no';
-    HttpURL_receivable_payable = '$hostname/api/ledger/getOutstandingOpening/$company_lowercase/$serial_no';
+    HttpURL_sale_purc_cash =
+        '$hostname/api/ledger/getTotal/$company_lowercase/$serial_no';
+    HttpURL_receipt_payment =
+        '$hostname/api/voucher/getVouchers/$company_lowercase/$serial_no';
+    HttpURL_receivable_payable =
+        '$hostname/api/ledger/getOutstandingOpening/$company_lowercase/$serial_no';
     SecuritybtnAcessHolder = prefs.getString('secbtnaccess');
 
     String? email_nav = prefs.getString('email_nav');
     String? name_nav = prefs.getString('name_nav');
 
-    if (email_nav!=null && name_nav!= null)
-    {
+    if (email_nav != null && name_nav != null) {
       name = name_nav;
       email = email_nav;
-    }
-    else
-    {
+    } else {
       String val = "";
-      if (SecuritybtnAcessHolder == "True")
-      {
+      if (SecuritybtnAcessHolder == "True") {
         val = SecuritybtnAcessHolder!;
-      }
-      else if (SecuritybtnAcessHolder == "False")
-      {
+      } else if (SecuritybtnAcessHolder == "False") {
         val = "";
       }
-
     }
-    if(SecuritybtnAcessHolder == "True")
-    {
+    if (SecuritybtnAcessHolder == "True") {
       isRolesVisible = true;
       isUserVisible = true;
-    }
-    else
-    {
+    } else {
       isRolesVisible = false;
       isUserVisible = false;
     }
@@ -2389,7 +2435,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     DateTime start = _startDate;
     DateTime end = _endDate;
 
-
     String startMonth = DateFormat('MMM').format(start);
     String startDay = DateFormat('dd').format(start);
     int startYear = start.year;
@@ -2399,92 +2444,86 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     int endYear = end.year;
 
     startdate_text = startDay + "-" + startMonth + "-" + startYear.toString();
-    enddate_text = endDay + "-" + endMonth  + "-" + endYear.toString();
+    enddate_text = endDay + "-" + endMonth + "-" + endYear.toString();
 
     fetchParentData();
 
-    if (vchtypes == "Receivable" || vchtypes == "Payable")
-    {
+    if (vchtypes == "Receivable" || vchtypes == "Payable") {
       setState(() {
         openingheading = 'OnAccount';
-
       });
-    }
-    else
-    {
+    } else {
       setState(() {
         openingheading = 'Opening Balance';
-
-      });    }
-
-
+      });
+    }
   }
 
   Future<void> _selectDateRange(BuildContext context) async {
+    final initialDateRange = DateTimeRange(start: _startDate, end: _endDate);
+    String? startfrom = prefs.getString('startfrom');
+    DateTime earliestDate = DateTime.parse(startfrom!);
 
-        final initialDateRange = DateTimeRange(start: _startDate, end: _endDate);
-        String? startfrom = prefs.getString('startfrom');
-        DateTime earliestDate = DateTime.parse(startfrom!);
-
-        DateTimeRange? selectedDateRange = await showDateRangePicker(
-          context: context,
-          initialDateRange: initialDateRange,
-          firstDate: earliestDate,
-          lastDate: DateTime(2100),
-          builder: (BuildContext context, Widget? child) {
-            return Theme(
-              data: ThemeData.light().copyWith(
-                colorScheme: ColorScheme.light().copyWith(
-                  primary: app_color, // main accent color
-                  onPrimary: Colors.white,
-                  surface: Colors.white,
-                  onSurface: Colors.black87,
-                ),
-                datePickerTheme: DatePickerThemeData(
-                  rangeSelectionBackgroundColor: app_color.withOpacity(0.15), // 🔹 light shade of your app_color
-                  rangeSelectionOverlayColor:
-                  MaterialStatePropertyAll(app_color.withOpacity(0.15)),
-                ),
+    DateTimeRange? selectedDateRange = await showDateRangePicker(
+      context: context,
+      initialDateRange: initialDateRange,
+      firstDate: earliestDate,
+      lastDate: DateTime(2100),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: app_color, // main accent color
+              onPrimary: Colors.white,
+              surface: Theme.of(context).colorScheme.surface,
+              onSurface: Theme.of(context).colorScheme.onSurface,
+            ),
+            datePickerTheme: DatePickerThemeData(
+              rangeSelectionBackgroundColor: app_color.withOpacity(
+                0.15,
+              ), // 🔹 light shade of your app_color
+              rangeSelectionOverlayColor: MaterialStatePropertyAll(
+                app_color.withOpacity(0.15),
               ),
-              child: child!,
-            );
-          },
+            ),
+          ),
+          child: child!,
         );
+      },
+    );
 
+    if (selectedDateRange != null) {
+      setState(() {
+        _startDate = selectedDateRange.start;
+        _endDate = selectedDateRange.end;
 
+        DateTime start = _startDate;
+        DateTime end = _endDate;
 
-        if (selectedDateRange != null) {
-          setState(() {
-            _startDate = selectedDateRange.start;
-            _endDate = selectedDateRange.end;
+        String startMonth = DateFormat('MMM').format(start);
+        String sdf = DateFormat(
+          'MM',
+        ).format(start); // converting month into string
+        String startDay = DateFormat('dd').format(start);
+        int startYear = start.year;
 
-            DateTime start = _startDate;
-            DateTime end = _endDate;
+        String endMonth = DateFormat('MMM').format(end);
+        String sdfEnd = DateFormat('MM').format(end);
+        String endDay = DateFormat('dd').format(end);
+        int endYear = end.year;
 
+        startDateString = '$startYear$sdf$startDay';
+        endDateString = '$endYear$sdfEnd$endDay';
 
-            String startMonth = DateFormat('MMM').format(start);
-            String sdf = DateFormat('MM').format(start); // converting month into string
-            String startDay = DateFormat('dd').format(start);
-            int startYear = start.year;
+        startdate_text =
+            startDay + "-" + startMonth + "-" + startYear.toString();
+        enddate_text = endDay + "-" + endMonth + "-" + endYear.toString();
 
-            String endMonth = DateFormat('MMM').format(end);
-            String sdfEnd = DateFormat('MM').format(end);
-            String endDay = DateFormat('dd').format(end);
-            int endYear = end.year;
+        fetchListData();
 
-            startDateString = '$startYear$sdf$startDay';
-            endDateString = '$endYear$sdfEnd$endDay';
-
-            startdate_text = startDay + "-" + startMonth + "-" + startYear.toString();
-            enddate_text = endDay + "-" + endMonth  + "-" + endYear.toString();
-
-            fetchListData();
-
-
-            /*fetchDashData(startDateString,endDateString);*/
-
-          });
-        }
+        /*fetchDashData(startDateString,endDateString);*/
+      });
+    }
   }
 
   @override
@@ -2505,41 +2544,33 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
     return SafeArea(
       child: Container(
-        height: (vchtypes == "Cash" && !_isLedgerGroupVisible && _isSalesListVisible) ? 90 : 60, // 🔥 dynamic height
+        height:
+            (vchtypes == "Cash" &&
+                !_isLedgerGroupVisible &&
+                _isSalesListVisible)
+            ? 90
+            : 60, // 🔥 dynamic height
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         margin: const EdgeInsets.only(bottom: 8, left: 12, right: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Colors.white,
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 8,
-            )
-          ],
+          color: Theme.of(context).cardColor,
+          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8)],
         ),
 
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
-
-
             // 🔥 Credit
-            if (vchtypes == "Cash" && !_isLedgerGroupVisible && _isSalesListVisible)
-              _buildCompactLine(
-                "Credit",
-                getCashCreditTotal(),
-                Colors.green,
-              ),
+            if (vchtypes == "Cash" &&
+                !_isLedgerGroupVisible &&
+                _isSalesListVisible)
+              _buildCompactLine("Credit", getCashCreditTotal(), Colors.green),
             // 🔥 Debit
-            if (vchtypes == "Cash" && !_isLedgerGroupVisible&& _isSalesListVisible)
-              _buildCompactLine(
-                "Debit",
-                getCashDebitTotal(),
-                Colors.red,
-              ),
-
+            if (vchtypes == "Cash" &&
+                !_isLedgerGroupVisible &&
+                _isSalesListVisible)
+              _buildCompactLine("Debit", getCashDebitTotal(), Colors.red),
 
             // 🔥 Total (always)
             Row(
@@ -2569,10 +2600,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     );
   }
 
-
   Widget _buildCompactLine(String title, double amount, Color color) {
     final bool isDebit = title.toLowerCase().contains("debit");
-
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
@@ -2590,9 +2619,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           Row(
             children: [
               Icon(
-                isDebit
-                    ? Icons.south_west_rounded
-                    : Icons.north_east_rounded,
+                isDebit ? Icons.south_west_rounded : Icons.north_east_rounded,
                 size: 14,
                 color: color,
               ),
@@ -2608,8 +2635,6 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
             ],
           ),
         ],
-
-
       ),
     );
   }
@@ -2619,17 +2644,15 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     return Scaffold(
       bottomNavigationBar: _buildTotalBar(),
       key: _scaffoldKey,
-      backgroundColor: Colors.white,
-      appBar:PreferredSize(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
         child: AppBar(
-          backgroundColor:  app_color,
+          backgroundColor: app_color,
           elevation: 6,
           automaticallyImplyLeading: false,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -2656,8 +2679,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                       fontWeight: FontWeight.w600,
                     ),
                     overflow: TextOverflow.ellipsis, // ✅ shows "..."
-                    maxLines: 1,                      // ✅ keeps single line
-                    softWrap: false,                  // ✅ prevents wrapping
+                    maxLines: 1, // ✅ keeps single line
+                    softWrap: false, // ✅ prevents wrapping
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -2688,12 +2711,18 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
             ),*/
             IconButton(
               onPressed: () {
-                final RenderBox button = context.findRenderObject() as RenderBox;
-                final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-                final Offset buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
+                final RenderBox button =
+                    context.findRenderObject() as RenderBox;
+                final RenderBox overlay =
+                    Overlay.of(context).context.findRenderObject() as RenderBox;
+                final Offset buttonPosition = button.localToGlobal(
+                  Offset.zero,
+                  ancestor: overlay,
+                );
 
                 showMenu(
                   context: context,
+                  color: Theme.of(context).colorScheme.surface,
                   position: RelativeRect.fromLTRB(
                     overlay.size.width - buttonPosition.dx,
                     buttonPosition.dy - button.size.height,
@@ -2705,9 +2734,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                       child: GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
-                          if (_isSalesListVisible && filteredItems_sale_purc_cash.isNotEmpty) {
+                          if (_isSalesListVisible &&
+                              filteredItems_sale_purc_cash.isNotEmpty) {
                             generateAndSharePDF_SalesList();
-                          } else if (_isOutstandingListVisible && filteredItems_receivable_payable.isNotEmpty) {
+                          } else if (_isOutstandingListVisible &&
+                              filteredItems_receivable_payable.isNotEmpty) {
                             generateAndSharePDF_Outstanding();
                           } else {
                             showToast('Data Not Found');
@@ -2715,9 +2746,19 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                         },
                         child: Row(
                           children: [
-                            Icon(Icons.picture_as_pdf, size: 16, color: app_color),
+                            Icon(
+                              Icons.picture_as_pdf,
+                              size: 16,
+                              color: app_color,
+                            ),
                             SizedBox(width: 6),
-                            Text('Share as PDF', style: GoogleFonts.poppins(fontSize: 16, color: app_color)),
+                            Text(
+                              'Share as PDF',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                color: app_color,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -2726,9 +2767,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                       child: GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
-                          if (_isSalesListVisible && filteredItems_sale_purc_cash.isNotEmpty) {
+                          if (_isSalesListVisible &&
+                              filteredItems_sale_purc_cash.isNotEmpty) {
                             generateAndShareCSV_SalesList();
-                          } else if (_isOutstandingListVisible && filteredItems_receivable_payable.isNotEmpty) {
+                          } else if (_isOutstandingListVisible &&
+                              filteredItems_receivable_payable.isNotEmpty) {
                             generateAndShareCSV_Outstanding();
                           } else {
                             showToast('Data Not Found');
@@ -2736,9 +2779,19 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                         },
                         child: Row(
                           children: [
-                            Icon(Icons.add_chart_outlined, size: 16, color: app_color),
+                            Icon(
+                              Icons.add_chart_outlined,
+                              size: 16,
+                              color: app_color,
+                            ),
                             SizedBox(width: 6),
-                            Text('Share as CSV', style: GoogleFonts.poppins(fontSize: 16, color: app_color)),
+                            Text(
+                              'Share as CSV',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                color: app_color,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -2748,22 +2801,23 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
               },
               icon: Icon(Icons.share, color: Colors.white, size: 26),
             ),
-            SizedBox(width:5)
+            SizedBox(width: 5),
           ],
         ),
       ),
 
       drawer: Sidebar(
-          isDashEnable: isDashEnable,
-          isRolesVisible: isRolesVisible,
-          isRolesEnable: isRolesEnable,
-          isUserEnable: isUserEnable,
-          isUserVisible: isUserVisible,
-          Username: name,
-          Email: email,
-          tickerProvider: this), // add the Sidebar widget here
+        isDashEnable: isDashEnable,
+        isRolesVisible: isRolesVisible,
+        isRolesEnable: isRolesEnable,
+        isUserEnable: isUserEnable,
+        isUserVisible: isUserVisible,
+        Username: name,
+        Email: email,
+        tickerProvider: this,
+      ), // add the Sidebar widget here
 
-      body:WillPopScope(
+      body: WillPopScope(
         onWillPop: () async {
           Navigator.pushReplacement(
             context,
@@ -2776,10 +2830,15 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
             Column(
               children: [
                 Container(
-                  margin: EdgeInsets.only(left: 16,right:16, top: 10,bottom:10),
+                  margin: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 10,
+                    bottom: 10,
+                  ),
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -2791,127 +2850,190 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                   ),
                   child: Column(
                     children: [
-
-                  Container(
-                  margin: const EdgeInsets.only(left: 0, right: 0, bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.grey.shade300, width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: TypeAheadField<String>(
-          controller: _voucherController,
-          suggestionsCallback: (pattern) {
-            return spinner_list
-                .where((item) => item.toLowerCase().contains(pattern.toLowerCase()))
-                .toList();
-          },
-
-          builder: (context, controller, focusNode) {
-            return TextField(
-              controller: controller,
-              focusNode: focusNode,
-              decoration: InputDecoration(
-                labelStyle: GoogleFonts.poppins(color: Colors.black),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 6),
-                hintText: 'Search',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Colors.transparent),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Colors.transparent),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Colors.transparent),
-                ),
-                suffixIcon: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (_voucherController.text.isNotEmpty)
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _voucherController.clear();
-                            _selectedvoucher = spinner_list.first;
-                          });
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 6),
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 4,
-                                offset: const Offset(0, 1),
-                              ),
-                            ],
+                      Container(
+                        margin: const EdgeInsets.only(
+                          left: 0,
+                          right: 0,
+                          bottom: 8,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: Theme.of(context).dividerColor,
+                            width: 1,
                           ),
-                          child: Icon(
-                            Icons.close_rounded,
-                            size: 16,
-                            color: Colors.grey.shade700,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: TypeAheadField<String>(
+                          controller: _voucherController,
+                          suggestionsCallback: (pattern) {
+                            return spinner_list
+                                .where(
+                                  (item) => item.toLowerCase().contains(
+                                    pattern.toLowerCase(),
+                                  ),
+                                )
+                                .toList();
+                          },
+
+                          builder: (context, controller, focusNode) {
+                            return TextField(
+                              controller: controller,
+                              focusNode: focusNode,
+                              style: GoogleFonts.poppins(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                              decoration: InputDecoration(
+                                labelStyle: GoogleFonts.poppins(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 0,
+                                  vertical: 6,
+                                ),
+                                hintText: 'Search',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.transparent,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(
+                                    color: Colors.transparent,
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.transparent,
+                                  ),
+                                ),
+                                suffixIcon: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (_voucherController.text.isNotEmpty)
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _voucherController.clear();
+                                            _selectedvoucher =
+                                                spinner_list.first;
+                                          });
+                                        },
+                                        child: Container(
+                                          margin: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                          ),
+                                          padding: const EdgeInsets.all(6),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .surfaceContainerHighest
+                                                .withOpacity(
+                                                  Theme.of(
+                                                            context,
+                                                          ).brightness ==
+                                                          Brightness.dark
+                                                      ? 0.88
+                                                      : 0.58,
+                                                ),
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black12,
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 1),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Icon(
+                                            Icons.close_rounded,
+                                            size: 16,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ),
+                                    Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                    ),
+                                  ],
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.receipt_long_outlined,
+                                  color: app_color,
+                                ),
+                              ),
+                            );
+                          },
+                          itemBuilder: (context, suggestion) {
+                            return ListTile(
+                              leading: Icon(
+                                Icons.receipt_long_outlined,
+                                color: app_color,
+                              ),
+                              title: Text(
+                                suggestion,
+                                style: GoogleFonts.poppins(
+                                  // 👈 Apply Poppins style to menu items
+                                  fontSize: 15,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          },
+                          onSelected: (suggestion) {
+                            setState(() {
+                              _selectedvoucher = suggestion;
+                              _voucherController.text = suggestion;
+                              fetchListData();
+                            });
+                          },
+                          emptyBuilder: (context) => Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "No voucher found",
+                              style: GoogleFonts.poppins(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    const Icon(Icons.arrow_drop_down, color: Colors.black87),
-                  ],
-                ),
-                prefixIcon: Icon(Icons.receipt_long_outlined, color: app_color),
-              ),
-            );
-          },
-          itemBuilder: (context, suggestion) {
-            return ListTile(
-              leading: Icon(Icons.receipt_long_outlined, color: app_color),
-              title: Text(
-                suggestion,
-                  style: GoogleFonts.poppins( // 👈 Apply Poppins style to menu items
-                    fontSize: 15,
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w500,
-                  )
-              ),
-            );
-          },
-          onSelected: (suggestion) {
-            setState(() {
-              _selectedvoucher = suggestion;
-              _voucherController.text = suggestion;
-              fetchListData();
-            });
-          },
-          emptyBuilder: (context) => Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "No voucher found",
-              style: GoogleFonts.poppins(color: Colors.grey),
-            ),
-          ),
-        )
 
-
-                  ),
-
-         SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                         margin: EdgeInsets.only(bottom: 5),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
@@ -2920,14 +3042,20 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                               offset: Offset(0, 4),
                             ),
                           ],
-                          border: Border.all(color: Colors.grey.shade200),
+                          border: Border.all(
+                            color: Theme.of(context).dividerColor,
+                          ),
                         ),
                         child: GestureDetector(
                           onTap: () => _selectDateRange(context),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.calendar_month_outlined, size: 18, color: Colors.teal.shade600),
+                              Icon(
+                                Icons.calendar_month_outlined,
+                                size: 18,
+                                color: Colors.teal.shade600,
+                              ),
                               SizedBox(width: 8),
                               Flexible(
                                 child: Text(
@@ -2935,29 +3063,39 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                   style: GoogleFonts.poppins(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.black87,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
                                   ),
                                   overflow: TextOverflow.visible,
                                 ),
                               ),
                               SizedBox(width: 8),
 
-                              Icon(Icons.calendar_month_outlined, size: 18, color: Colors.teal.shade600),
+                              Icon(
+                                Icons.calendar_month_outlined,
+                                size: 18,
+                                color: Colors.teal.shade600,
+                              ),
                             ],
                           ),
                         ),
                       ),
-
                     ],
                   ),
                 ),
 
                 Expanded(
                   child: Container(
-                    margin: EdgeInsets.only(left: 16,right:16, bottom: 12),
-                    padding: EdgeInsets.only(top: 12, left: 12, right: 12, bottom: 4),
+                    margin: EdgeInsets.only(left: 16, right: 16, bottom: 12),
+                    padding: EdgeInsets.only(
+                      top: 12,
+                      left: 12,
+                      right: 12,
+                      bottom: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
@@ -2971,7 +3109,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                       children: [
                         if (_isopeningVisible)
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 12,left:10,right:10),
+                            padding: const EdgeInsets.only(
+                              bottom: 12,
+                              left: 10,
+                              right: 10,
+                            ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -2981,18 +3123,22 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
                                     ),
                                   ),
                                 ),
                                 Expanded(
                                   child: Text(
-                                   formatOpening(opening_value!),
+                                    formatOpening(opening_value!),
                                     textAlign: TextAlign.right,
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: Colors.black87,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
                                     ),
                                   ),
                                 ),
@@ -3001,10 +3147,17 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                           ),
 
                         // if (_isSearchViewVisible)
-
-                        if(sales_purc_cash_list.isNotEmpty || receivable_payable_list.isNotEmpty || ledgerGroupList.isNotEmpty)
-                          Padding( padding:  EdgeInsets.only(left: 12,right:12, top:5,bottom:5),
-                            child:  Material(
+                        if (sales_purc_cash_list.isNotEmpty ||
+                            receivable_payable_list.isNotEmpty ||
+                            ledgerGroupList.isNotEmpty)
+                          Padding(
+                            padding: EdgeInsets.only(
+                              left: 12,
+                              right: 12,
+                              top: 5,
+                              bottom: 5,
+                            ),
+                            child: Material(
                               elevation: 2,
                               borderRadius: BorderRadius.circular(14),
                               shadowColor: Colors.black12,
@@ -3012,37 +3165,59 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                 controller: searchController,
                                 onChanged: _onSearchChanged,
 
-                                style:  GoogleFonts.poppins(fontSize: 15),
+                                style: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
                                 decoration: InputDecoration(
                                   hintText: 'Search...',
-                                  prefixIcon: const Icon(Icons.search, color: Colors.black54),
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
                                   suffixIcon: searchController.text.isNotEmpty
                                       ? IconButton(
-                                    icon: const Icon(Icons.close),
-                                    onPressed: () {
-                                      searchController.clear();
-                                      _resetSearch();
-                                      setState(() {});
-                                    },
-                                  )
+                                          icon: const Icon(Icons.close),
+                                          onPressed: () {
+                                            searchController.clear();
+                                            _resetSearch();
+                                            setState(() {});
+                                          },
+                                        )
                                       : null,
                                   filled: true,
-                                  fillColor: Colors.white,
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                                  fillColor:
+                                      Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.fillColor ??
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainerHighest,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                    horizontal: 16,
+                                  ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(color: Colors.grey.shade400),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context).dividerColor,
+                                    ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
-                                    borderSide: const BorderSide(color: app_color, width: 1.5),
+                                    borderSide: const BorderSide(
+                                      color: app_color,
+                                      width: 1.5,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-
-
 
                         if (_isLedgerGroupVisible)
                           Expanded(
@@ -3050,7 +3225,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                               itemCount: filteredLedgerGroupList.length,
                               itemBuilder: (context, index) {
                                 final group = filteredLedgerGroupList[index];
-                                double amount = group.amount+group.opening;
+                                double amount = group.amount + group.opening;
 
                                 if (amount.abs() < 0.0001) {
                                   amount = 0.0;
@@ -3072,7 +3247,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                       "",
                                       "true",
                                       _selectedvoucher ?? "",
-                                        _selectedLedgerGroup!
+                                      _selectedLedgerGroup!,
                                     );
                                     /*.then((_) {
                                       // Filter only matching ledger
@@ -3086,10 +3261,13 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                     });*/
                                   },
                                   child: Container(
-                                    margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 6,
+                                      horizontal: 8,
+                                    ),
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      color: Theme.of(context).cardColor,
                                       borderRadius: BorderRadius.circular(18),
                                       boxShadow: [
                                         BoxShadow(
@@ -3100,7 +3278,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                       ],
                                     ),
                                     child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
                                         // 🌈 Gradient Icon (same as other layouts)
                                         Container(
@@ -3108,21 +3287,28 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                           height: 38,
                                           decoration: BoxDecoration(
                                             gradient: LinearGradient(
-                                              colors: [Colors.indigo.shade400, Colors.indigo.shade700],
+                                              colors: [
+                                                Colors.indigo.shade400,
+                                                Colors.indigo.shade700,
+                                              ],
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                             ),
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.indigo.withOpacity(0.25),
+                                                color: Colors.indigo
+                                                    .withOpacity(0.25),
                                                 blurRadius: 6,
                                                 offset: const Offset(0, 3),
                                               ),
                                             ],
                                           ),
                                           child: const Icon(
-                                            Icons.account_balance_wallet_rounded,
+                                            Icons
+                                                .account_balance_wallet_rounded,
                                             color: Colors.white,
                                             size: 20,
                                           ),
@@ -3132,7 +3318,8 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               // ✅ Ledger full width (no restriction)
                                               Text(
@@ -3140,6 +3327,9 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                                 style: GoogleFonts.poppins(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w600,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).colorScheme.onSurface,
                                                 ),
                                               ),
 
@@ -3147,10 +3337,13 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
 
                                               // ✅ Amount below, right aligned
                                               Align(
-                                                alignment: Alignment.centerRight,
+                                                alignment:
+                                                    Alignment.centerRight,
                                                 child: Text(
                                                   textAlign: TextAlign.end,
-                                                  formatAmount(amount.toString()),
+                                                  formatAmount(
+                                                    amount.toString(),
+                                                  ),
                                                   style: GoogleFonts.poppins(
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.w700,
@@ -3167,7 +3360,9 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                         // ➡️ Chevron icon
                                         Icon(
                                           Icons.chevron_right_rounded,
-                                          color: Colors.grey.shade600,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                           size: 22,
                                         ),
                                       ],
@@ -3182,9 +3377,15 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                           Expanded(
                             child: Column(
                               children: [
-                                if (vchtypes == "Cash" && !_isLedgerGroupVisible)
+                                if (vchtypes == "Cash" &&
+                                    !_isLedgerGroupVisible)
                                   Container(
-                                    margin: const EdgeInsets.only(left: 16, right: 16, top: 0, bottom: 0),
+                                    margin: const EdgeInsets.only(
+                                      left: 16,
+                                      right: 16,
+                                      top: 0,
+                                      bottom: 0,
+                                    ),
                                     alignment: Alignment.centerLeft,
                                     child: TextButton.icon(
                                       onPressed: () {
@@ -3200,22 +3401,30 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                       icon: const Icon(
                                         Icons.arrow_back_ios_new_rounded,
                                         size: 16,
-                                        color: app_color, // use your theme color
+                                        color:
+                                            app_color, // use your theme color
                                       ),
                                       label: Text(
                                         "Previous",
                                         style: GoogleFonts.poppins(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
-                                          color: app_color, // your app’s accent color
+                                          color:
+                                              app_color, // your app’s accent color
                                         ),
                                       ),
                                       style: TextButton.styleFrom(
-                                        backgroundColor: Colors.transparent, // no fill color
+                                        backgroundColor:
+                                            Colors.transparent, // no fill color
                                         elevation: 0,
-                                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 4,
+                                          vertical: 6,
+                                        ),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -3226,11 +3435,20 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                     child: Column(
                                       children: [
                                         SizedBox(height: 20),
-                                        Icon(Icons.inbox_rounded, size: 40, color: Colors.grey),
+                                        Icon(
+                                          Icons.inbox_rounded,
+                                          size: 40,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
                                         SizedBox(height: 10),
                                         Text(
                                           "No records found",
-                                          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -3240,9 +3458,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                 Expanded(
                                   child: ListView.builder(
                                     controller: _scrollController_salelist,
-                                    itemCount: filteredItems_sale_purc_cash.length,
+                                    itemCount:
+                                        filteredItems_sale_purc_cash.length,
                                     itemBuilder: (context, index) {
-                                      final card = filteredItems_sale_purc_cash[index];
+                                      final card =
+                                          filteredItems_sale_purc_cash[index];
                                       return buildModernVoucherCard(card);
                                     },
                                   ),
@@ -3255,9 +3475,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                           Expanded(
                             child: ListView.builder(
                               controller: _scrollController_receivablellist,
-                              itemCount: filteredItems_receivable_payable.length,
+                              itemCount:
+                                  filteredItems_receivable_payable.length,
                               itemBuilder: (context, index) {
-                                final card = filteredItems_receivable_payable[index];
+                                final card =
+                                    filteredItems_receivable_payable[index];
                                 return buildReceivableCard(card);
                               },
                             ),
@@ -3266,30 +3488,33 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                     ),
                   ),
                 ),
-
-
               ],
             ),
 
             Visibility(
               visible: isSortVisible,
-              child: Padding(padding: EdgeInsets.only(bottom: 50),
-              child: Align(
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 50),
+                child: Align(
                   alignment: Alignment.bottomCenter,
                   child: SizedBox(
                     width: 85,
                     height: 35,
-                    child:
-                    FloatingActionButton.extended(
+                    child: FloatingActionButton.extended(
                       onPressed: () => _showSelectionWindow(context),
-                      backgroundColor: app_color, // 🔹 Center filled with your app theme color
+                      backgroundColor:
+                          app_color, // 🔹 Center filled with your app theme color
                       elevation: 8, // 🔹 Strong elevation for floating effect
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                       label: Row(
                         children: [
-                          Icon(Icons.sort, color: Colors.white, size: 20), // white icon
+                          Icon(
+                            Icons.sort,
+                            color: Colors.white,
+                            size: 20,
+                          ), // white icon
                           const SizedBox(width: 6),
                           Text(
                             "Sort",
@@ -3301,22 +3526,41 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                           ),
                         ],
                       ),
-                    )
-
-                    ,)
+                    ),
+                  ),
+                ),
               ),
-            ),),
+            ),
 
             Visibility(
-
               visible: _isLoading,
-              child: Center(
-                  child: AppLogoLoader()))
+              child: Center(child: AppLogoLoader()),
+            ),
           ],
         ),
       ),
-
     );
+  }
+
+  List<Color> _dashboardCardGradientColors() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return [
+      colorScheme.surface.withOpacity(isDark ? 0.96 : 1),
+      colorScheme.surfaceContainerHighest.withOpacity(isDark ? 0.72 : 0.38),
+    ];
+  }
+
+  Color _dashboardCardBorderColor() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Theme.of(context).dividerColor.withOpacity(isDark ? 0.7 : 0.55);
+  }
+
+  Color _dashboardDetailSurfaceColor() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Theme.of(
+      context,
+    ).colorScheme.surfaceContainerHighest.withOpacity(isDark ? 0.34 : 0.42);
   }
 
   Widget buildModernVoucherCard(Sale_purc_cash card) {
@@ -3350,10 +3594,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
             gradient: LinearGradient(
-              colors: [
-                Colors.white.withOpacity(0.9),
-                Colors.white.withOpacity(0.7),
-              ],
+              colors: _dashboardCardGradientColors(),
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -3364,27 +3605,25 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                 offset: const Offset(0, 8),
               ),
             ],
-            border: Border.all(
-              color: Colors.grey.shade200.withOpacity(0.6),
-              width: 1,
-            ),
+            border: Border.all(color: _dashboardCardBorderColor(), width: 1),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 /// 🔹 Ledger + Gradient Icon
                 Row(
-
                   children: [
                     Container(
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Colors.indigo.shade400, Colors.indigo.shade800],
+                          colors: [
+                            Colors.indigo.shade400,
+                            Colors.indigo.shade800,
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -3397,8 +3636,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.account_balance_wallet_rounded,
-                          color: Colors.white, size: 20),
+                      child: const Icon(
+                        Icons.account_balance_wallet_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -3413,16 +3655,19 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                             style: GoogleFonts.poppins(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: Colors.black87,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
 
                           // 🔹 +X more badge
                           if (extraCount > 0)
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade200,
+                                color: _dashboardDetailSurfaceColor(),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -3430,7 +3675,9 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                                 style: GoogleFonts.poppins(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.grey.shade700,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ),
@@ -3442,7 +3689,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
+                        color: _dashboardDetailSurfaceColor(),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
@@ -3452,31 +3699,46 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                           ),
                         ],
                       ),
-                      child: Icon(Icons.chevron_right_rounded,
-                          size: 20, color: Colors.grey.shade600),
+                      child: Icon(
+                        Icons.chevron_right_rounded,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
 
                 const SizedBox(height: 14),
-                Divider(height: 1, color: Colors.grey.shade300),
+                Divider(height: 1, color: Theme.of(context).dividerColor),
                 const SizedBox(height: 14),
 
                 /// 🔹 Voucher No
-                _modernDetailRow(Icons.receipt_long_outlined, "Voucher No",
-                    card.vchno.isNotEmpty ? card.vchno : "-"),
+                _modernDetailRow(
+                  Icons.receipt_long_outlined,
+                  "Voucher No",
+                  card.vchno.isNotEmpty ? card.vchno : "-",
+                ),
 
                 /// 🔹 Voucher Name
-                _modernDetailRow(Icons.bookmark_border, "Voucher Name",
-                    card.vchname.isNotEmpty ? card.vchname : "-"),
+                _modernDetailRow(
+                  Icons.bookmark_border,
+                  "Voucher Name",
+                  card.vchname.isNotEmpty ? card.vchname : "-",
+                ),
 
                 /// 🔹 Date
-                _modernDetailRow(Icons.calendar_today_outlined, "Date",
-                    convertDateFormat(card.vchdate)),
+                _modernDetailRow(
+                  Icons.calendar_today_outlined,
+                  "Date",
+                  convertDateFormat(card.vchdate),
+                ),
 
                 /// 🔹 Amount
-                _modernDetailRow(Icons.payments_outlined, "Amount",
-                    formatAmount(card.amount.toString())),
+                _modernDetailRow(
+                  Icons.payments_outlined,
+                  "Amount",
+                  formatAmount(card.amount.toString()),
+                ),
 
                 /// 🔹 Tags
                 if (card.ispostdated == "1" || card.isoptional == "1") ...[
@@ -3504,24 +3766,33 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   Widget _modernDetailRow(IconData icon, String title, String value) {
     LinearGradient getGradient(String title) {
       if (title.contains("Voucher No")) {
-        return LinearGradient(colors: [Colors.teal.shade400, Colors.teal.shade700]);
+        return LinearGradient(
+          colors: [Colors.teal.shade400, Colors.teal.shade700],
+        );
       } else if (title.contains("Voucher Name")) {
-        return LinearGradient(colors: [Colors.deepPurple.shade400, Colors.deepPurple.shade700]);
+        return LinearGradient(
+          colors: [Colors.deepPurple.shade400, Colors.deepPurple.shade700],
+        );
       } else if (title.contains("Date")) {
-        return LinearGradient(colors: [Colors.blueGrey.shade400, Colors.blueGrey.shade700]);
+        return LinearGradient(
+          colors: [Colors.blueGrey.shade400, Colors.blueGrey.shade700],
+        );
       } else if (title.contains("Amount")) {
-        return LinearGradient(colors: [Colors.green.shade400, Colors.green.shade700]);
+        return LinearGradient(
+          colors: [Colors.green.shade400, Colors.green.shade700],
+        );
       }
-      return LinearGradient(colors: [Colors.grey.shade400, Colors.grey.shade600]);
+      return LinearGradient(
+        colors: [Colors.grey.shade400, Colors.grey.shade600],
+      );
     }
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
       decoration: BoxDecoration(
-        color: Colors.grey.shade400.withOpacity(0.1),
+        color: _dashboardDetailSurfaceColor(),
         borderRadius: BorderRadius.circular(16),
-
       ),
       child: Row(
         children: [
@@ -3548,7 +3819,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey.shade700,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -3562,7 +3833,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
                 overflow: TextOverflow.visible,
                 softWrap: true,
@@ -3579,9 +3850,15 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withOpacity(
+          Theme.of(context).brightness == Brightness.dark ? 0.18 : 0.08,
+        ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(
+          color: color.withOpacity(
+            Theme.of(context).brightness == Brightness.dark ? 0.42 : 0.3,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.15),
@@ -3595,13 +3872,15 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
         style: GoogleFonts.poppins(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: color.withOpacity(0.7),
+          color: color.withOpacity(
+            Theme.of(context).brightness == Brightness.dark ? 0.95 : 0.7,
+          ),
         ),
       ),
     );
   }
 
-// 🔹 Receivable/Payable Card
+  // 🔹 Receivable/Payable Card
   Widget buildReceivableCard(Receivable_payable card) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
@@ -3615,10 +3894,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
             gradient: LinearGradient(
-              colors: [
-                Colors.white.withOpacity(0.9),
-                Colors.white.withOpacity(0.7),
-              ],
+              colors: _dashboardCardGradientColors(),
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -3629,7 +3905,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                 offset: const Offset(0, 6),
               ),
             ],
-            border: Border.all(color: Colors.grey.shade200.withOpacity(0.5)),
+            border: Border.all(color: _dashboardCardBorderColor()),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -3644,7 +3920,10 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                       height: 36,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Colors.indigo.shade400, Colors.indigo.shade700],
+                          colors: [
+                            Colors.indigo.shade400,
+                            Colors.indigo.shade700,
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -3657,8 +3936,11 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.account_balance_outlined,
-                          color: Colors.white, size: 18),
+                      child: const Icon(
+                        Icons.account_balance_outlined,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -3667,7 +3949,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                         style: GoogleFonts.poppins(
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
-                          color: Colors.black87,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         overflow: TextOverflow.visible,
                       ),
@@ -3676,59 +3958,80 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                 ),
 
                 const SizedBox(height: 14),
-                Divider(height: 1, color: Colors.grey.shade300),
+                Divider(height: 1, color: Theme.of(context).dividerColor),
                 const SizedBox(height: 12),
 
                 // 🔹 Bill No row (Blue)
-                _modernDetailRowReceivable(Icons.confirmation_number_outlined, "Bill No.",
-                    card.billno != "null" ? card.billno : "-",
-                    gradient: LinearGradient(
-                      colors: [Colors.blue.shade400, Colors.blue.shade700],
-                    )),
+                _modernDetailRowReceivable(
+                  Icons.confirmation_number_outlined,
+                  "Bill No.",
+                  card.billno != "null" ? card.billno : "-",
+                  gradient: LinearGradient(
+                    colors: [Colors.blue.shade400, Colors.blue.shade700],
+                  ),
+                ),
 
                 // 🔹 Bill No row (Blue)
-                _modernDetailRowReceivable(Icons.date_range, "Bill Date",
+                _modernDetailRowReceivable(
+                  Icons.date_range,
+                  "Bill Date",
                   card.billdate != "null" ? formatdate(card.billdate) : "-",
-                    gradient: LinearGradient(
-                      colors: [Colors.brown.shade400, Colors.brown.shade500],
-                    )),
+                  gradient: LinearGradient(
+                    colors: [Colors.brown.shade400, Colors.brown.shade500],
+                  ),
+                ),
 
                 // 🔹 Bill Type row (Purple)
-                _modernDetailRowReceivable(Icons.description_outlined, "Bill Type",
-                    card.billtype != "null" ? card.billtype : "-",
-                    gradient: LinearGradient(
-                      colors: [Colors.purple.shade400, Colors.purple.shade700],
-                    )),
-
+                _modernDetailRowReceivable(
+                  Icons.description_outlined,
+                  "Bill Type",
+                  card.billtype != "null" ? card.billtype : "-",
+                  gradient: LinearGradient(
+                    colors: [Colors.purple.shade400, Colors.purple.shade700],
+                  ),
+                ),
 
                 // 🔹 Due Date (conditional, dynamic color)
                 if (_isVisibleduedate &&
                     (card.billtype == 'Agst Ref' || card.billtype == 'New Ref'))
-                  _modernDetailRowReceivable(Icons.calendar_today_rounded, "Due Date",
-                      formatDueDate(card.billdate, card.billtype, card.duedate),
-                      gradient: LinearGradient(
-                        colors: [
-                          getDueDateColor(
-                              formatDueDate(card.billdate, card.billtype, card.duedate),
-                              vchtypes)
-                              .withOpacity(0.7),
-                          getDueDateColor(
-                              formatDueDate(card.billdate, card.billtype, card.duedate),
-                              vchtypes)
-                              .withOpacity(0.9),
-                        ],
-                      )),
-
-                // 🔹 Outstanding Amount (Receivable = Green / Payable = Red)
-                _modernDetailRowReceivable(Icons.payments_rounded, "Outstanding",
-                    "${formatAmount(card.outstanding.toString())}",
+                  _modernDetailRowReceivable(
+                    Icons.calendar_today_rounded,
+                    "Due Date",
+                    formatDueDate(card.billdate, card.billtype, card.duedate),
                     gradient: LinearGradient(
                       colors: [
-                        getAmountColor(vchtypes).withOpacity(0.7),
-                        getAmountColor(vchtypes).withOpacity(0.9),
-
+                        getDueDateColor(
+                          formatDueDate(
+                            card.billdate,
+                            card.billtype,
+                            card.duedate,
+                          ),
+                          vchtypes,
+                        ).withOpacity(0.7),
+                        getDueDateColor(
+                          formatDueDate(
+                            card.billdate,
+                            card.billtype,
+                            card.duedate,
+                          ),
+                          vchtypes,
+                        ).withOpacity(0.9),
                       ],
-                    )),
+                    ),
+                  ),
+
+                // 🔹 Outstanding Amount (Receivable = Green / Payable = Red)
+                _modernDetailRowReceivable(
+                  Icons.payments_rounded,
+                  "Outstanding",
+                  "${formatAmount(card.outstanding.toString())}",
+                  gradient: LinearGradient(
+                    colors: [
+                      getAmountColor(vchtypes).withOpacity(0.7),
+                      getAmountColor(vchtypes).withOpacity(0.9),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -3738,8 +4041,12 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
   }
 
   /// 🔹 Modern detail row (reusable)
-  Widget _modernDetailRowReceivable(IconData icon, String title, String value,
-      {required LinearGradient gradient}) {
+  Widget _modernDetailRowReceivable(
+    IconData icon,
+    String title,
+    String value, {
+    required LinearGradient gradient,
+  }) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
@@ -3772,7 +4079,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey.shade700,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -3786,7 +4093,7 @@ class _DashboardClickedPageState extends State<DashboardClicked> with TickerProv
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
                 overflow: TextOverflow.visible,
                 softWrap: true,
@@ -3827,7 +4134,3 @@ Color getAmountColor(String type) {
       return Colors.blueGrey;
   }
 }
-
-
-
-

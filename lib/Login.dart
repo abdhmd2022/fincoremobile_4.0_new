@@ -1227,6 +1227,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
                 
                 </div>
                 </div>''';
+
     try {
       // await send(message, smtpServer);
 

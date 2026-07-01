@@ -10,7 +10,6 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Sidebar.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
@@ -18,6 +17,7 @@ import 'package:pdf/widgets.dart' as pw;
 
 import 'constants.dart';
 import 'theme_controller.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 
 class ReceiptRegistration extends StatefulWidget {
   const ReceiptRegistration({Key? key}) : super(key: key);
@@ -5605,6 +5605,10 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
         SecuritybtnAcessHolder.toString().toLowerCase() == 'true';
 
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.entries,
+        activeEntryType: AppEntryType.receipt,
+      ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       key: _scaffoldKey,
       appBar: PreferredSize(
@@ -5665,16 +5669,6 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
         ),
       ),
 
-      drawer: Sidebar(
-        isDashEnable: isDashEnable,
-        isRolesVisible: isRolesVisible,
-        isRolesEnable: isRolesEnable,
-        isUserEnable: isUserEnable,
-        isUserVisible: isUserVisible,
-        Username: name,
-        Email: email,
-        tickerProvider: this,
-      ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
@@ -6757,7 +6751,9 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
                                               borderRadius:
                                                   BorderRadius.circular(14),
                                               border: Border.all(
-                                                color: Theme.of(context).dividerColor,
+                                                color: Theme.of(
+                                                  context,
+                                                ).dividerColor,
                                               ),
                                               boxShadow: [
                                                 BoxShadow(
@@ -7602,9 +7598,10 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
                               backgroundColor:
                                   app_color, // ✅ always full app_color
                               disabledBackgroundColor:
-                                  Theme.of(context).brightness == Brightness.dark
-                                      ? Colors.grey.shade700
-                                      : Colors.grey.shade300, // disabled state
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.grey.shade700
+                                  : Colors.grey.shade300, // disabled state
                               shadowColor: app_color.withOpacity(0.4),
                             ),
                             child: Container(

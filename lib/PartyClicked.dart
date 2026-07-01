@@ -11,7 +11,6 @@ import 'PartyClickedSalePurcOrder.dart';
 import 'PartyClickedSoldPurchaseClicked.dart';
 import 'PartyDrillDown.dart';
 import 'PartyTotalClickedRest.dart';
-import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -21,6 +20,8 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'constants.dart';
 import 'theme_controller.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
 
 class Summary {
   final String vchtype, totalInvoice, averageAmount, lastdate, totalAmount;
@@ -2430,6 +2431,7 @@ class _PartyClickedPageState extends State<PartyClicked>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(activeTab: AppBottomNavTab.party),
       key: _scaffoldKey,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
@@ -2444,21 +2446,27 @@ class _PartyClickedPageState extends State<PartyClicked>
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pop(context);
+              AppNavigation.backOrDashboard(context);
             },
           ),
-          title: GestureDetector(
-            onTap: () {},
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    partyname,
-                    style: GoogleFonts.poppins(color: Colors.white),
+          title: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth:
+                  MediaQuery.of(context).size.width - (kToolbarHeight * 5.2),
+            ),
+            child: GestureDetector(
+              onTap: () {},
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      partyname,
+                      style: GoogleFonts.poppins(color: Colors.white),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           centerTitle: true,
@@ -2622,20 +2630,10 @@ class _PartyClickedPageState extends State<PartyClicked>
         ),
       ),
 
-      drawer: Sidebar(
-        isDashEnable: isDashEnable,
-        isRolesVisible: isRolesVisible,
-        isRolesEnable: isRolesEnable,
-        isUserEnable: isUserEnable,
-        isUserVisible: isUserVisible,
-        Username: name,
-        Email: email,
-        tickerProvider: this,
-      ), // add the Sidebar widget here
 
       body: Stack(
         children: [
-          Column(
+          SizedBox.expand(child: Column(
             children: [
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -2874,7 +2872,11 @@ class _PartyClickedPageState extends State<PartyClicked>
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (isVisibleNoDataFound && !ReceivableVisibility && !PayableVisibility && !SalesOrderVisibility && !PurchaseOrderVisibility)
+                              if (isVisibleNoDataFound &&
+                                  !ReceivableVisibility &&
+                                  !PayableVisibility &&
+                                  !SalesOrderVisibility &&
+                                  !PurchaseOrderVisibility)
                                 Padding(
                                   padding: EdgeInsets.only(top: 40),
                                   child: Center(
@@ -3695,7 +3697,7 @@ class _PartyClickedPageState extends State<PartyClicked>
                 ),
               ),
             ],
-          ),
+          )),
 
           Visibility(
             visible: _isLoading,
@@ -3726,13 +3728,13 @@ class _PartyClickedPageState extends State<PartyClicked>
                 : LinearGradient(
                     colors: Theme.of(context).brightness == Brightness.dark
                         ? [
-                            Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.7),
+                            Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest
+                                .withOpacity(0.7),
                             Theme.of(context).cardColor.withOpacity(0.95),
                           ]
-                        : [
-                            Colors.grey.shade200,
-                            Colors.grey.shade100,
-                          ],
+                        : [Colors.grey.shade200, Colors.grey.shade100],
                   ),
             borderRadius: BorderRadius.circular(50),
             boxShadow: [
@@ -3742,7 +3744,8 @@ class _PartyClickedPageState extends State<PartyClicked>
                   blurRadius: 10,
                   offset: Offset(0, 4),
                 ),
-              if (!isSelected && Theme.of(context).brightness == Brightness.light)
+              if (!isSelected &&
+                  Theme.of(context).brightness == Brightness.light)
                 BoxShadow(
                   color: Colors.black.withOpacity(0.06),
                   blurRadius: 4,
@@ -4293,8 +4296,12 @@ class SummaryExpansionCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(14),
-                          border: Theme.of(context).brightness == Brightness.dark
-                              ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+                          border:
+                              Theme.of(context).brightness == Brightness.dark
+                              ? Border.all(
+                                  color: Colors.white.withOpacity(0.10),
+                                  width: 1,
+                                )
                               : null,
                           boxShadow: [
                             BoxShadow(

@@ -7,10 +7,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'ModifyRole.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'SerialSelect.dart';
-import 'Sidebar.dart';
 import 'constants.dart';
 import 'theme_controller.dart';
 import 'package:http/http.dart' as http;
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
 
 class RoleModel {
   final String role_name;
@@ -362,6 +363,10 @@ class _RolesViewPageState extends State<RolesView>
         return true;
       },
       child: Scaffold(
+        bottomNavigationBar: const AppBottomNav(
+          activeTab: AppBottomNavTab.more,
+          activeMoreItem: AppMoreItem.roles,
+        ),
         key: _scaffoldKey,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: PreferredSize(
@@ -376,7 +381,7 @@ class _RolesViewPageState extends State<RolesView>
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () {
-                Navigator.pop(context);
+                AppNavigation.backOrDashboard(context);
               },
             ),
             title: GestureDetector(
@@ -428,16 +433,6 @@ class _RolesViewPageState extends State<RolesView>
           ),
         ),
 
-        drawer: Sidebar(
-          isDashEnable: isDashEnable,
-          isRolesVisible: isRolesVisible,
-          isRolesEnable: isRolesEnable,
-          isUserEnable: isUserEnable,
-          isUserVisible: isUserVisible,
-          Username: name,
-          Email: email,
-          tickerProvider: this,
-        ),
         body: RefreshIndicator(
           onRefresh: _refresh,
           child: Stack(
@@ -504,23 +499,27 @@ class _RolesViewPageState extends State<RolesView>
                             : null,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(18),
-                          borderSide: BorderSide.none,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(18),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(18),
                           borderSide: BorderSide(
-                            color: app_color.withOpacity(0.4),
+                            color: Theme.of(context).dividerColor,
                             width: 1.2,
                           ),
                         ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white.withOpacity(0.18)
+                                : Theme.of(context).dividerColor,
+                            width: 1.2,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(color: app_color, width: 1.5),
+                        ),
                         filled: true,
-                        fillColor:
-                            Theme.of(context).inputDecorationTheme.fillColor ??
-                            Colors.white,
+                        fillColor: Theme.of(context).cardColor,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 16,
@@ -539,8 +538,12 @@ class _RolesViewPageState extends State<RolesView>
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
                             color: Theme.of(context).cardColor,
-                            border: Theme.of(context).brightness == Brightness.dark
-                                ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+                            border:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Border.all(
+                                    color: Colors.white.withOpacity(0.10),
+                                    width: 1,
+                                  )
                                 : null,
                             boxShadow: [
                               BoxShadow(
@@ -590,7 +593,12 @@ class _RolesViewPageState extends State<RolesView>
                                   child: Tooltip(
                                     message: 'Edit Role',
                                     child: CircleAvatar(
-                                      backgroundColor: Colors.blue.shade50,
+                                      backgroundColor: Colors.blue.withOpacity(
+                                        Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? 0.2
+                                            : 0.1,
+                                      ),
                                       child: Icon(
                                         Icons.edit,
                                         size: 18,
@@ -608,7 +616,12 @@ class _RolesViewPageState extends State<RolesView>
                                   child: Tooltip(
                                     message: 'Delete Role',
                                     child: CircleAvatar(
-                                      backgroundColor: Colors.red.shade50,
+                                      backgroundColor: Colors.red.withOpacity(
+                                        Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? 0.2
+                                            : 0.1,
+                                      ),
                                       child: Icon(
                                         Icons.delete_outline,
                                         size: 18,

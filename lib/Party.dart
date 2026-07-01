@@ -12,7 +12,6 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'PartyClicked.dart';
 import 'SerialSelect.dart';
-import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -20,6 +19,9 @@ import 'package:share_plus/share_plus.dart';
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
+import 'widgets/scroll_fab.dart';
 
 class party {
   final String partyname;
@@ -54,6 +56,7 @@ class Party extends StatefulWidget {
 
 class _PartyPageState extends State<Party> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final ScrollController _scrollFabController = ScrollController();
 
   bool isClicked_parties = true;
 
@@ -809,8 +812,15 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin {
   }
 
   @override
+  void dispose() {
+    _scrollFabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(activeTab: AppBottomNavTab.party),
       key: _scaffoldKey,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
@@ -826,34 +836,40 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin {
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pop(context);
+              AppNavigation.backOrDashboard(context);
             },
           ),
-          title: GestureDetector(
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => SerialSelect()),
-              );
-            },
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    company ?? '',
+          title: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth:
+                  MediaQuery.of(context).size.width - (kToolbarHeight * 2.4),
+            ),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => SerialSelect()),
+                );
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      company ?? '',
 
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                SizedBox(width: 4),
-                Icon(Icons.arrow_drop_down, color: Colors.white),
-              ],
+                  SizedBox(width: 4),
+                  Icon(Icons.arrow_drop_down, color: Colors.white),
+                ],
+              ),
             ),
           ),
           centerTitle: true,
@@ -1000,16 +1016,6 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin {
         ),
       ),
 
-      drawer: Sidebar(
-        isDashEnable: isDashEnable,
-        isRolesVisible: isRolesVisible,
-        isRolesEnable: isRolesEnable,
-        isUserEnable: isUserEnable,
-        isUserVisible: isUserVisible,
-        Username: name,
-        Email: email,
-        tickerProvider: this,
-      ), // add the Sidebar widget here
 
       body: WillPopScope(
         onWillPop: () async {
@@ -1021,9 +1027,10 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin {
         },
         child: Stack(
           children: [
-            Column(
-              children: [
-                Container(
+            CustomScrollView(
+              controller: _scrollFabController,
+              slivers: [
+                SliverToBoxAdapter(child: Container(
                   width: MediaQuery.of(context).size.width,
                   margin: const EdgeInsets.only(left: 12, right: 12, top: 12),
                   padding: const EdgeInsets.symmetric(
@@ -1200,11 +1207,10 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin {
                       ),
                     ],
                   ),
-                ),
+                )),
 
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
+                SliverToBoxAdapter(child: Container(
+                  width: double.infinity,
                     margin: EdgeInsets.only(
                       left: 12,
                       right: 12,
@@ -1424,11 +1430,12 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin {
                         // 📋 Party List
                         Visibility(
                           visible: _isAllList,
-                          child: Expanded(
-                            child: ListView.builder(
-                              itemCount: filteredItems_parties.length,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: filteredItems_parties.length,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
                                 vertical: 10,
                               ),
                               itemBuilder: (context, index) {
@@ -1627,7 +1634,6 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin {
                                 );
                               },
                             ),
-                          ),
                         ),
                       ],
                     ),
@@ -1639,6 +1645,7 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin {
               visible: _isLoading,
               child: Center(child: AppLogoLoader()),
             ),
+            ScrollFab(controller: _scrollFabController),
           ],
         ),
       ),

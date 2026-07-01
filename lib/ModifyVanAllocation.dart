@@ -8,6 +8,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants.dart';
+import 'theme_controller.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 
 class ModifyVanAllocationScreen extends StatefulWidget {
   final Map<String, dynamic> allocation;
@@ -66,7 +68,7 @@ class _ModifyVanAllocationScreenState extends State<ModifyVanAllocationScreen> {
           style: GoogleFonts.poppins(
             fontSize: 12.5,
             fontWeight: FontWeight.w600,
-            color: textColor,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
 
@@ -100,7 +102,7 @@ class _ModifyVanAllocationScreenState extends State<ModifyVanAllocationScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    color: textColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
 
                   decoration: InputDecoration(
@@ -133,7 +135,11 @@ class _ModifyVanAllocationScreenState extends State<ModifyVanAllocationScreen> {
                         : null,
 
                     filled: true,
-                    fillColor: backgroundColor,
+                    fillColor: Theme.of(context).brightness == Brightness.dark
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest.withOpacity(0.5)
+                        : const Color(0xFFF5F7FA),
 
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 14,
@@ -208,7 +214,13 @@ class _ModifyVanAllocationScreenState extends State<ModifyVanAllocationScreen> {
                           padding: const EdgeInsets.all(12),
 
                           decoration: BoxDecoration(
-                            color: backgroundColor,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest
+                                      .withOpacity(0.5)
+                                : const Color(0xFFF5F7FA),
                             borderRadius: BorderRadius.circular(14),
                           ),
 
@@ -240,7 +252,9 @@ class _ModifyVanAllocationScreenState extends State<ModifyVanAllocationScreen> {
                                   style: GoogleFonts.poppins(
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w600,
-                                    color: textColor,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
                                   ),
                                 ),
                               ),
@@ -548,10 +562,15 @@ class _ModifyVanAllocationScreenState extends State<ModifyVanAllocationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.more,
+        activeMoreItem: AppMoreItem.vanAllocation,
+      ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: AppBar(
         elevation: 0,
+        centerTitle: true,
         backgroundColor: primaryColor,
         automaticallyImplyLeading: false,
 
@@ -566,6 +585,25 @@ class _ModifyVanAllocationScreenState extends State<ModifyVanAllocationScreen> {
           },
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
         ),
+
+        actions: [
+          IconButton(
+            tooltip: 'Toggle theme',
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              themeController.setThemeMode(
+                Theme.of(context).brightness == Brightness.dark
+                    ? ThemeMode.light
+                    : ThemeMode.dark,
+              );
+            },
+          ),
+        ],
 
         title: Row(
           children: [
@@ -783,7 +821,7 @@ class _ModifyVanAllocationScreenState extends State<ModifyVanAllocationScreen> {
           style: GoogleFonts.poppins(
             fontSize: 12.5,
             fontWeight: FontWeight.w600,
-            color: textColor,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
 
@@ -795,7 +833,9 @@ class _ModifyVanAllocationScreenState extends State<ModifyVanAllocationScreen> {
 
           icon: Icon(Icons.keyboard_arrow_down, color: primaryColor),
 
-          style: GoogleFonts.poppins(color: textColor),
+          style: GoogleFonts.poppins(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
 
           decoration: InputDecoration(
             hintText: 'Select $title',
@@ -803,7 +843,11 @@ class _ModifyVanAllocationScreenState extends State<ModifyVanAllocationScreen> {
             prefixIcon: Icon(icon, color: primaryColor),
 
             filled: true,
-            fillColor: backgroundColor,
+            fillColor: Theme.of(context).brightness == Brightness.dark
+                ? Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withOpacity(0.5)
+                : const Color(0xFFF5F7FA),
 
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
@@ -850,7 +894,7 @@ class _ModifyVanAllocationScreenState extends State<ModifyVanAllocationScreen> {
           style: GoogleFonts.poppins(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            color: textColor,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ],
@@ -861,6 +905,9 @@ class _ModifyVanAllocationScreenState extends State<ModifyVanAllocationScreen> {
     return BoxDecoration(
       color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(24),
+      border: Theme.of(context).brightness == Brightness.dark
+          ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+          : null,
       boxShadow: [
         BoxShadow(
           color: Colors.black.withOpacity(0.04),

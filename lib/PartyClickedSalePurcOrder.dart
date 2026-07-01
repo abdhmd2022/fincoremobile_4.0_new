@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'widgets/scroll_fab.dart';
 import 'package:FincoreGo/PartyClickedSalePurcOrderClicked.dart';
 import 'package:FincoreGo/currencyFormat.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -15,6 +15,8 @@ import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'constants.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
 
 class Data {
   final String item;
@@ -67,6 +69,7 @@ class _PartyClickedSalePurcOrderPageState
     extends State<PartyClickedSalePurcOrder>
     with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final ScrollController _scrollFabController = ScrollController();
   String startDateString = "",
       endDateString = "",
       type = "",
@@ -782,8 +785,15 @@ class _PartyClickedSalePurcOrderPageState
   }
 
   @override
+  void dispose() {
+    _scrollFabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(activeTab: AppBottomNavTab.party),
       key: _scaffoldKey,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
@@ -798,65 +808,71 @@ class _PartyClickedSalePurcOrderPageState
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pop(context);
+              AppNavigation.backOrDashboard(context);
             },
           ),
-          centerTitle: false,
-          title: Align(
-            alignment: Alignment.centerLeft,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min, // prevent forcing full height
-              children: [
-                SizedBox(
-                  height: 32,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DropdownButton<Data_Top>(
-                      value: selectedTopValue,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 17,
-                      ),
-                      dropdownColor: Colors.grey[800],
-                      icon: Icon(Icons.arrow_drop_down, color: Colors.white),
-                      underline: SizedBox(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedTopValue = newValue!;
-                          fetchData(
-                            vchtype,
-                            newValue?.Partyledger ?? '',
-                            type,
-                            endDateString,
-                            "item",
-                            "true",
+          centerTitle: true,
+          title: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth:
+                  MediaQuery.of(context).size.width - (kToolbarHeight * 2.4),
+            ),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min, // prevent forcing full height
+                children: [
+                  SizedBox(
+                    height: 32,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DropdownButton<Data_Top>(
+                        value: selectedTopValue,
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 17,
+                        ),
+                        dropdownColor: Colors.grey[800],
+                        icon: Icon(Icons.arrow_drop_down, color: Colors.white),
+                        underline: SizedBox(),
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedTopValue = newValue!;
+                            fetchData(
+                              vchtype,
+                              newValue?.Partyledger ?? '',
+                              type,
+                              endDateString,
+                              "item",
+                              "true",
+                            );
+                          });
+                        },
+                        items: dropdownItems.map((Data_Top value) {
+                          return DropdownMenuItem<Data_Top>(
+                            value: value,
+                            child: Text(
+                              value.Partyledger,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           );
-                        });
-                      },
-                      items: dropdownItems.map((Data_Top value) {
-                        return DropdownMenuItem<Data_Top>(
-                          value: value,
-                          child: Text(
-                            value.Partyledger,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        );
-                      }).toList(),
+                        }).toList(),
+                      ),
                     ),
                   ),
-                ),
 
-                Text(
-                  formatTypeTitle(type),
-                  style: GoogleFonts.poppins(
-                    color: Colors.white70,
-                    fontSize: 13,
-                    fontWeight: FontWeight.normal,
+                  Text(
+                    formatTypeTitle(type),
+                    style: GoogleFonts.poppins(
+                      color: Colors.white70,
+                      fontSize: 13,
+                      fontWeight: FontWeight.normal,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
@@ -965,30 +981,20 @@ class _PartyClickedSalePurcOrderPageState
         ),
       ),
 
-      drawer: Sidebar(
-        isDashEnable: isDashEnable,
-        isRolesVisible: isRolesVisible,
-        isRolesEnable: isRolesEnable,
-        isUserEnable: isUserEnable,
-        isUserVisible: isUserVisible,
-        Username: name,
-        Email: email,
-        tickerProvider: this,
-      ), // add the Sidebar widget here
 
       body: Stack(
         children: [
-          Column(
-            children: [
-              Expanded(
+          CustomScrollView(
+            controller: _scrollFabController,
+            slivers: [
+              SliverToBoxAdapter(
                 child: Container(
                   width: double.infinity,
                   color: Theme.of(context).scaffoldBackgroundColor,
                   child: Column(
                     children: [
-                      Expanded(
-                        child: Container(
-                          color: Theme.of(context).scaffoldBackgroundColor,
+                      Container(
+                        color: Theme.of(context).scaffoldBackgroundColor,
                           child: Column(
                             children: [
                               if (_isSearchViewVisible) ...[
@@ -1107,9 +1113,9 @@ class _PartyClickedSalePurcOrderPageState
 
                               Visibility(
                                 visible: _isListVisible,
-                                child: Expanded(
-                                  child: ListView.builder(
-                                    controller: _scrollController,
+                                child: ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 16,
                                       vertical: 12,
@@ -1331,12 +1337,10 @@ class _PartyClickedSalePurcOrderPageState
                                       );
                                     },
                                   ),
-                                ),
                               ),
                             ],
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -1391,6 +1395,7 @@ class _PartyClickedSalePurcOrderPageState
             visible: _isLoading,
             child: Center(child: AppLogoLoader()),
           ),
+          ScrollFab(controller: _scrollFabController),
         ],
       ),
     );

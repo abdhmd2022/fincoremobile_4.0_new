@@ -1,11 +1,11 @@
 import 'dart:convert';
+import 'widgets/scroll_fab.dart';
 import 'package:FincoreGo/currencyFormat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -15,6 +15,8 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'constants.dart';
 import 'theme_controller.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
 
 class Data {
   final String vchno;
@@ -66,6 +68,7 @@ class PartyTotalClickedRest extends StatefulWidget {
 class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
     with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final ScrollController _scrollFabController = ScrollController();
   String startDateString = "",
       endDateString = "",
       type = "",
@@ -700,8 +703,15 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
   }
 
   @override
+  void dispose() {
+    _scrollFabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(activeTab: AppBottomNavTab.party),
       key: _scaffoldKey,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
@@ -717,31 +727,37 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pop(context);
+              AppNavigation.backOrDashboard(context);
             },
           ),
-          centerTitle: false,
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                ledger,
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+          centerTitle: true,
+          title: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth:
+                  MediaQuery.of(context).size.width - (kToolbarHeight * 5.2),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  ledger,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              Text(
-                type,
-                style: GoogleFonts.poppins(
-                  color: Colors.white70,
-                  fontSize: 13,
-                  fontWeight: FontWeight.normal,
+                Text(
+                  type,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white70,
+                    fontSize: 13,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+              ],
+            ),
           ),
           actions: [
             IconButton(
@@ -865,23 +881,13 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
         ),
       ),
 
-      drawer: Sidebar(
-        isDashEnable: isDashEnable,
-        isRolesVisible: isRolesVisible,
-        isRolesEnable: isRolesEnable,
-        isUserEnable: isUserEnable,
-        isUserVisible: isUserVisible,
-        Username: name,
-        Email: email,
-        tickerProvider: this,
-      ), // add the Sidebar widget here
 
       body: Stack(
         children: [
-          Column(
-            children: [
-              // Top summary section
-              Container(
+          CustomScrollView(
+            controller: _scrollFabController,
+            slivers: [
+              SliverToBoxAdapter(child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor.withOpacity(0.9),
@@ -966,10 +972,10 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
                     ),
                   ],
                 ),
-              ),
+              )),
 
               // Content Section
-              Expanded(
+              SliverToBoxAdapter(
                 child: Container(
                   margin: const EdgeInsets.only(
                     left: 16,
@@ -1102,9 +1108,9 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
                       // List
                       Visibility(
                         visible: _isListVisible,
-                        child: Expanded(
-                          child: ListView.builder(
-                            controller: _scrollController,
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 12,
@@ -1118,8 +1124,13 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).cardColor,
                                   borderRadius: BorderRadius.circular(18),
-                                  border: Theme.of(context).brightness == Brightness.dark
-                                      ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+                                  border:
+                                      Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Border.all(
+                                          color: Colors.white.withOpacity(0.10),
+                                          width: 1,
+                                        )
                                       : null,
                                   boxShadow: [
                                     BoxShadow(
@@ -1325,7 +1336,6 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
                               );
                             },
                           ),
-                        ),
                       ),
                     ],
                   ),
@@ -1395,6 +1405,7 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
             visible: _isLoading,
             child: Center(child: AppLogoLoader()),
           ),
+          ScrollFab(controller: _scrollFabController),
         ],
       ),
     );

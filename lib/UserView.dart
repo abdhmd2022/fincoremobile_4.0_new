@@ -10,6 +10,8 @@ import 'SerialSelect.dart';
 import 'constants.dart';
 import 'theme_controller.dart';
 import 'package:http/http.dart' as http;
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
 
 class UserModel {
   final String role_name;
@@ -360,6 +362,10 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
         return true;
       },
       child: Scaffold(
+        bottomNavigationBar: const AppBottomNav(
+          activeTab: AppBottomNavTab.more,
+          activeMoreItem: AppMoreItem.users,
+        ),
         key: _scaffoldKey,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: PreferredSize(
@@ -374,7 +380,7 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () {
-                Navigator.pop(context);
+                AppNavigation.backOrDashboard(context);
               },
             ),
             title: GestureDetector(
@@ -497,23 +503,27 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                             : null,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(18),
-                          borderSide: BorderSide.none,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(18),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(18),
                           borderSide: BorderSide(
-                            color: app_color.withOpacity(0.4),
+                            color: Theme.of(context).dividerColor,
                             width: 1.2,
                           ),
                         ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white.withOpacity(0.18)
+                                : Theme.of(context).dividerColor,
+                            width: 1.2,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(color: app_color, width: 1.5),
+                        ),
                         filled: true,
-                        fillColor:
-                            Theme.of(context).inputDecorationTheme.fillColor ??
-                            Colors.white,
+                        fillColor: Theme.of(context).cardColor,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 16,
@@ -536,8 +546,12 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                               context,
                             ).cardColor.withOpacity(0.95),
                             borderRadius: BorderRadius.circular(20),
-                            border: Theme.of(context).brightness == Brightness.dark
-                                ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+                            border:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Border.all(
+                                    color: Colors.white.withOpacity(0.10),
+                                    width: 1,
+                                  )
                                 : null,
                             boxShadow: [
                               BoxShadow(
@@ -667,8 +681,15 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                                         child: Tooltip(
                                           message: 'Edit User',
                                           child: CircleAvatar(
-                                            backgroundColor:
-                                                Colors.blue.shade50,
+                                            backgroundColor: Colors.blue
+                                                .withOpacity(
+                                                  Theme.of(
+                                                            context,
+                                                          ).brightness ==
+                                                          Brightness.dark
+                                                      ? 0.2
+                                                      : 0.1,
+                                                ),
                                             radius: 16,
                                             child: Icon(
                                               Icons.edit,
@@ -689,10 +710,18 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                                         child: Tooltip(
                                           message: 'Delete User',
                                           child: CircleAvatar(
-                                            backgroundColor: Colors.red.shade50,
+                                            backgroundColor: Colors.red
+                                                .withOpacity(
+                                                  Theme.of(
+                                                            context,
+                                                          ).brightness ==
+                                                          Brightness.dark
+                                                      ? 0.2
+                                                      : 0.1,
+                                                ),
                                             radius: 16,
                                             child: Icon(
-                                              Icons.delete_outline,
+                                              Icons.delete_outline_rounded,
                                               size: 18,
                                               color: Colors.red,
                                             ),

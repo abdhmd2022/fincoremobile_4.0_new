@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
 
 class FastMovingInactiveItemsCriteria extends StatefulWidget {
   final bool fastmoving_visible, slowmoving_visible, inactive_visible;
@@ -204,6 +206,10 @@ class _FastMovingInactiveItemsState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.more,
+        activeMoreItem: AppMoreItem.settings,
+      ),
       backgroundColor: _pageColor,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
@@ -217,7 +223,7 @@ class _FastMovingInactiveItemsState
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.of(context).pop();
+              AppNavigation.backOrDashboard(context);
             },
           ),
           title: GestureDetector(

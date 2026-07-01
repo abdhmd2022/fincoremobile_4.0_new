@@ -1,3 +1,4 @@
+/*
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
@@ -194,7 +195,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
     'Custom Date',
   ];
 
-  /*
+  */
+/*
   void showProgressDialog_LoadData(BuildContext context, bool _isLoading) {
     ProgressDialog progressDialog;
     progressDialog = ProgressDialog(context,
@@ -211,7 +213,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       progressDialog.hide();
     }
   }
-*/
+*//*
+
 
   late int? decimal = 2;
 
@@ -1107,7 +1110,9 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       setState(() {
         _isLoading = true;
       });
-      /*showProgressDialog_LoadData(context, _isLoading);*/
+      */
+/*showProgressDialog_LoadData(context, _isLoading);*//*
+
 
       final url = Uri.parse(HttpURL);
 
@@ -1228,7 +1233,9 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                   isVisibleLineChart = false;
                   _isLoading = false;
                 });
-                /*showProgressDialog_LoadData(context, _isLoading);*/
+                */
+/*showProgressDialog_LoadData(context, _isLoading);*//*
+
               } else {
                 lineBars.clear();
                 salesDataList.clear();
@@ -1260,7 +1267,9 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                             monthData['receipt'].toString(),
                           );
 
-                          /*print(response_charts.body);*/
+                          */
+/*print(response_charts.body);*//*
+
 
                           salesDataList.add(-sales);
                           recDataList.add(receipt);
@@ -1419,7 +1428,9 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       setState(() {
         _isLoading = false;
       });
-      /*showProgressDialog_LoadData(context, _isLoading);*/
+      */
+/*showProgressDialog_LoadData(context, _isLoading);*//*
+
     }
   }
 
@@ -1520,13 +1531,15 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
           ).showSnackBar(SnackBar(content: Text("Swipe Down to Refresh Data")));
         }
 
-        /*String? sales = prefs.getString('sales');
+        */
+/*String? sales = prefs.getString('sales');
         String? purchase = prefs.getString('purchase');
         String? receipt = prefs.getString('receipt');
         String? payment = prefs.getString('payment');
         String? receivable = prefs.getString('receivable');
         String? payable = prefs.getString('payable');
-        String? cash = prefs.getString('cash');*/
+        String? cash = prefs.getString('cash');*//*
+
 
         DateTime start = DateTime.parse(startdate_pref!);
         DateTime end = DateTime.parse(enddate_pref!);
@@ -1553,7 +1566,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         print(startDateString);
         print(endDateString);
 
-        /*if(sales!=null)
+        */
+/*if(sales!=null)
         {
           sales_value = sales;
           purchase_value = purchase!;
@@ -1562,7 +1576,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
           outstandingreceivable_value = receivable!;
           outstandingpayable_value = payable!;
           cash_value = cash!;
-        }*/
+        }*//*
+
 
         fetchDashData(startDateString, endDateString);
 
@@ -1711,7 +1726,9 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
           outstandingpayable_value = payable!;
           cash_value = cash!;
         }
-        /*fetchDashData(startDateString,endDateString);*/
+        */
+/*fetchDashData(startDateString,endDateString);*//*
+
 
         prefs.setString('startdate', startDateString);
         prefs.setString('enddate', endDateString);
@@ -1809,13 +1826,15 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
         prefs.setString('startdate', startDateString);
         prefs.setString('enddate', endDateString);
       } else {
-        /*String? sales = prefs.getString('sales');
+        */
+/*String? sales = prefs.getString('sales');
         String? purchase = prefs.getString('purchase');
         String? receipt = prefs.getString('receipt');
         String? payment = prefs.getString('payment');
         String? receivable = prefs.getString('receivable');
         String? payable = prefs.getString('payable');
-        String? cash = prefs.getString('cash');*/
+        String? cash = prefs.getString('cash');*//*
+
 
         _startDate = DateTime.parse(startdate_pref!);
         _endDate = DateTime.parse(enddate_pref!);
@@ -1888,7 +1907,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                 startDay + "-" + startMonth + "-" + startYear.toString();
             enddate_text = endDay + "-" + endMonth + "-" + endYear.toString();
 
-            /*if(sales!=null)
+            */
+/*if(sales!=null)
               {
                 sales_value = sales;
                 purchase_value = purchase!;
@@ -1897,7 +1917,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                 outstandingreceivable_value = receivable!;
                 outstandingpayable_value = payable!;
                 cash_value = cash!;
-              }*/
+              }*//*
+
             fetchDashData(startDateString, endDateString);
           });
         }
@@ -2018,8 +2039,10 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
       isDeliveryNoteEntryVisible = true;
     }
 
-    /*print('token : $token');
-    print('hostname : $hostname');*/
+    */
+/*print('token : $token');
+    print('hostname : $hostname');*//*
+
 
     expire_date = DateTime.parse(license_expiry!);
     isExpired = DateTime.now().isAfter(expire_date!);
@@ -2619,12 +2642,14 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
             ),
             automaticallyImplyLeading: false,
-            /*leading: IconButton(
+            */
+/*leading: IconButton(
                 icon: Icon(Icons.menu, color: Colors.white),
                 onPressed: () {
                   _scaffoldKey.currentState!.openDrawer();
                 },
-              ),*/
+              ),*//*
+
             centerTitle: true,
             title: GestureDetector(
               onTap: () {
@@ -2634,12 +2659,15 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                 );
               },
               child: Row(
-                mainAxisSize: MainAxisSize.max,
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Flexible(
                     child: Text(
                       company ?? '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -2648,14 +2676,15 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  Icon(Icons.arrow_drop_down, color: Colors.white),
+                  const Icon(Icons.arrow_drop_down, color: Colors.white),
                 ],
               ),
             ),
           ),
         ),
 
-        /*drawer: Sidebar(
+        */
+/*drawer: Sidebar(
               isDashEnable: isDashEnable,
               isRolesVisible: isRolesVisible,
               isRolesEnable: isRolesEnable,
@@ -2663,9 +2692,13 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
               isUserVisible: isUserVisible,
               Username: name,
               Email: email,
-              tickerProvider: this),*/
+              tickerProvider: this),*//*
+
         // add the Sidebar widget here
-        bottomNavigationBar: const AppBottomNav(),
+        bottomNavigationBar: const AppBottomNav(
+          activeTab: AppBottomNavTab.dashboard,
+          activeMoreItem: AppMoreItem.dashboard,
+        ),
 
         body: Stack(
           children: [
@@ -3040,7 +3073,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
               ),
             ),
 
-            /*Align(
+            */
+/*Align(
                   alignment: Alignment.centerRight, // stick to right center
                   child: Padding(
                     padding: const EdgeInsets.only(right: 16.0), // distance from right edge
@@ -3073,7 +3107,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                       ],
                     ),
                   ),
-                ),*/
+                ),*//*
+
             if (isExpired)
               AlertDialog(
                 title: Text('License Expired'),
@@ -3535,3 +3570,4 @@ Widget _buildDecentCard(
     ),
   );
 }
+*/

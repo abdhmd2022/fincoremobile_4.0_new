@@ -5,10 +5,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'RolesView.dart';
-import 'Sidebar.dart';
 import 'constants.dart';
 import 'theme_controller.dart';
 import 'package:http/http.dart' as http;
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 
 class Roles {
   final String serial;
@@ -1331,22 +1331,24 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
           party_customerscheck = "False";
         }
 
-        settingscurrencycheck =
-            isSettingsCurrencyAccess ? "True" : "False";
-        settingsamtdecimalscheck =
-            isSettingsAmtDecimalsAccess ? "True" : "False";
-        settingsvatperccheck =
-            isSettingsVatPercAccess ? "True" : "False";
-        settingsinactivepdayscheck =
-            isSettingsInactivePDaysAccess ? "True" : "False";
-        settingssorttypecheck =
-            isSettingsSortTypeAccess ? "True" : "False";
-        settingsdefdaterangecheck =
-            isSettingsDefDateRangeAccess ? "True" : "False";
-        settingsageingconfigcheck =
-            isSettingsAgeingConfigAccess ? "True" : "False";
-        settingsfastslowinactiveitemcheck =
-            isSettingsFastSlowInactiveItemAccess ? "True" : "False";
+        settingscurrencycheck = isSettingsCurrencyAccess ? "True" : "False";
+        settingsamtdecimalscheck = isSettingsAmtDecimalsAccess
+            ? "True"
+            : "False";
+        settingsvatperccheck = isSettingsVatPercAccess ? "True" : "False";
+        settingsinactivepdayscheck = isSettingsInactivePDaysAccess
+            ? "True"
+            : "False";
+        settingssorttypecheck = isSettingsSortTypeAccess ? "True" : "False";
+        settingsdefdaterangecheck = isSettingsDefDateRangeAccess
+            ? "True"
+            : "False";
+        settingsageingconfigcheck = isSettingsAgeingConfigAccess
+            ? "True"
+            : "False";
+        settingsfastslowinactiveitemcheck = isSettingsFastSlowInactiveItemAccess
+            ? "True"
+            : "False";
       });
       _showConfirmationDialogAndNavigate(context);
     }
@@ -1438,7 +1440,8 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
         SettingsAgeingConfigHolder =
             saved_roles_data_list[0]["is_Settings_AgeingCnfig"] ?? "False";
         SettingsFastSlowInactiveItemHolder =
-            saved_roles_data_list[0]["is_Settings_FastSlowInactiveItem"] ?? "False";
+            saved_roles_data_list[0]["is_Settings_FastSlowInactiveItem"] ??
+            "False";
 
         setState(() {
           _isLoading = true;
@@ -1943,6 +1946,10 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
         return true;
       },
       child: Scaffold(
+        bottomNavigationBar: const AppBottomNav(
+          activeTab: AppBottomNavTab.more,
+          activeMoreItem: AppMoreItem.roles,
+        ),
         key: _scaffoldKey,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: PreferredSize(
@@ -2004,16 +2011,6 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
           ),
         ),
 
-        drawer: Sidebar(
-          isDashEnable: isDashEnable,
-          isRolesVisible: isRolesVisible,
-          isRolesEnable: isRolesEnable,
-          isUserEnable: isUserEnable,
-          isUserVisible: isUserVisible,
-          Username: name,
-          Email: email,
-          tickerProvider: this,
-        ),
         body: Stack(
           children: [
             SingleChildScrollView(
@@ -2021,14 +2018,6 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (_isLoading)
-                    Center(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 5, bottom: 10),
-
-                        child: AppLogoLoader(),
-                      ),
-                    ),
                   // Copy Role Section
                   _buildCopyRoleCard(icon: Icons.import_contacts_outlined),
 
@@ -2135,6 +2124,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
                 ],
               ),
             ),
+            if (_isLoading) Center(child: AppLogoLoader()),
           ],
         ),
       ),
@@ -2147,6 +2137,9 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
+        border: Theme.of(context).brightness == Brightness.dark
+            ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black12,
@@ -2298,6 +2291,9 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
+        border: Theme.of(context).brightness == Brightness.dark
+            ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black12,
@@ -2345,11 +2341,7 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(22),
-                gradient: LinearGradient(
-                  colors: [Colors.white, Colors.grey.shade50],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: Theme.of(context).cardColor,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -2460,8 +2452,11 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
     return Container(
       margin: const EdgeInsets.only(bottom: 0),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor, // 👈 faint grey when off
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
+        border: Theme.of(context).brightness == Brightness.dark
+            ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black12,
@@ -2531,7 +2526,9 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
           color: value
               ? app_color.withOpacity(0.1)
               : Theme.of(context).cardColor,
-          border: Border.all(color: value ? app_color : Colors.grey.shade400),
+          border: Border.all(
+            color: value ? app_color : Theme.of(context).dividerColor,
+          ),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(

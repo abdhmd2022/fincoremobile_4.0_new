@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -15,6 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'constants.dart';
 import 'theme_controller.dart';
+import 'widgets/scroll_fab.dart';
 
 class Data {
   final String billno;
@@ -104,6 +104,7 @@ class _PartyTotalClickedRecPayClickedPageState
 
   bool isSortVisible = false;
   ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollFabController = ScrollController();
   late String currencysymbol = '';
 
   late NumberFormat currencyFormat;
@@ -909,6 +910,12 @@ class _PartyTotalClickedRecPayClickedPageState
   }
 
   @override
+  void dispose() {
+    _scrollFabController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -1082,22 +1089,13 @@ class _PartyTotalClickedRecPayClickedPageState
           ],
         ),
       ),
-      drawer: Sidebar(
-        isDashEnable: isDashEnable,
-        isRolesVisible: isRolesVisible,
-        isRolesEnable: isRolesEnable,
-        isUserEnable: isUserEnable,
-        isUserVisible: isUserVisible,
-        Username: name,
-        Email: email,
-        tickerProvider: this,
-      ), // add the Sidebar widget here
 
       body: Stack(
         children: [
-          Column(
-            children: [
-              Container(
+          CustomScrollView(
+            controller: _scrollFabController,
+            slivers: [
+              SliverToBoxAdapter(child: Container(
                 margin: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 12,
@@ -1277,9 +1275,9 @@ class _PartyTotalClickedRecPayClickedPageState
                     ),
                   ],
                 ),
-              ),
+              )),
 
-              Expanded(
+              SliverToBoxAdapter(
                 child: Container(
                   width: double.infinity,
                   margin: const EdgeInsets.only(
@@ -1411,9 +1409,9 @@ class _PartyTotalClickedRecPayClickedPageState
 
                       Visibility(
                         visible: _isListVisible,
-                        child: Expanded(
-                          child: ListView.builder(
-                            controller: _scrollController,
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 12,
@@ -1604,7 +1602,6 @@ class _PartyTotalClickedRecPayClickedPageState
                               );
                             },
                           ),
-                        ),
                       ),
                     ],
                   ),
@@ -1672,6 +1669,8 @@ class _PartyTotalClickedRecPayClickedPageState
             visible: _isLoading,
             child: Center(child: AppLogoLoader()),
           ),
+
+          ScrollFab(controller: _scrollFabController),
         ],
       ),
     );

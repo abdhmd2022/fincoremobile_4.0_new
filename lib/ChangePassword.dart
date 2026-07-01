@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 
 class ChangePassword extends StatefulWidget {
   @override
@@ -227,6 +228,10 @@ class _ChangePasswordScreenState extends State<ChangePassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.more,
+        activeMoreItem: AppMoreItem.changePassword,
+      ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: app_color,

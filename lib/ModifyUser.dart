@@ -5,10 +5,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'SerialSelect.dart';
-import 'Sidebar.dart';
 import 'UserView.dart';
 import 'constants.dart';
+import 'theme_controller.dart';
 import 'package:http/http.dart' as http;
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 
 class ModifyUser extends StatefulWidget {
   final String user_name, email_address, rolename;
@@ -708,6 +709,10 @@ class _ModifyUserPageState extends State<ModifyUser>
         return true;
       },
       child: Scaffold(
+        bottomNavigationBar: const AppBottomNav(
+          activeTab: AppBottomNavTab.more,
+          activeMoreItem: AppMoreItem.users,
+        ),
         key: _scaffoldKey,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: PreferredSize(
@@ -728,26 +733,33 @@ class _ModifyUserPageState extends State<ModifyUser>
                 );
               },
             ),
-            title: GestureDetector(
-              onTap: () {},
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      "User Modification",
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+            title: Text(
+              "User Modification",
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
               ),
             ),
             centerTitle: true,
+            actions: [
+              IconButton(
+                tooltip: 'Toggle theme',
+                icon: Icon(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Icons.light_mode
+                      : Icons.dark_mode,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  themeController.setThemeMode(
+                    Theme.of(context).brightness == Brightness.dark
+                        ? ThemeMode.light
+                        : ThemeMode.dark,
+                  );
+                },
+              ),
+            ],
           ),
         ),
 
@@ -775,6 +787,13 @@ class _ModifyUserPageState extends State<ModifyUser>
                         decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(16),
+                          border:
+                              Theme.of(context).brightness == Brightness.dark
+                              ? Border.all(
+                                  color: Colors.white.withOpacity(0.10),
+                                  width: 1,
+                                )
+                              : null,
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black12.withOpacity(0.08),
@@ -877,12 +896,10 @@ class _ModifyUserPageState extends State<ModifyUser>
                             const SizedBox(height: 8),
                             DropdownButtonFormField<dynamic>(
                               value: _selectedrole,
-                              dropdownColor: Theme.of(context)
-                                  .colorScheme
-                                  .surface, // 👈 Set dropdown menu background to white
-                              borderRadius: BorderRadius.circular(
-                                14,
-                              ), // 👈 Rounded corners for menu
+                              dropdownColor: Theme.of(
+                                context,
+                              ).colorScheme.surface,
+                              borderRadius: _formFieldBorderRadius,
 
                               isExpanded: true,
                               style: GoogleFonts.poppins(
@@ -926,12 +943,17 @@ class _ModifyUserPageState extends State<ModifyUser>
                                   horizontal: 12,
                                   vertical: 12,
                                 ),
+                                constraints: const BoxConstraints(
+                                  minHeight: 56,
+                                ),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
+                                  color: Theme.of(context).cardColor,
+                                  borderRadius: _formFieldBorderRadius,
                                   border: Border.all(
                                     color: Theme.of(context).dividerColor,
                                   ),
                                 ),
+                                alignment: Alignment.centerLeft,
                                 child: Text(
                                   _selectedCompanies.isNotEmpty
                                       ? _selectedCompanies.join('\n')
@@ -1028,15 +1050,28 @@ class _ModifyUserPageState extends State<ModifyUser>
     // TODO: implement build
   }
 
+  BorderRadius get _formFieldBorderRadius => BorderRadius.circular(22);
+
+  OutlineInputBorder _formFieldBorder(Color color, {double width = 1}) {
+    return OutlineInputBorder(
+      borderRadius: _formFieldBorderRadius,
+      borderSide: BorderSide(color: color, width: width),
+    );
+  }
+
   InputDecoration _modernDropdownDecoration() => InputDecoration(
     filled: true,
-    fillColor: Theme.of(context).inputDecorationTheme.fillColor,
-    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-    focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: app_color),
-      borderRadius: BorderRadius.circular(10),
+    fillColor: Theme.of(context).cardColor,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    border: _formFieldBorder(Theme.of(context).dividerColor),
+    enabledBorder: _formFieldBorder(Theme.of(context).dividerColor),
+    disabledBorder: _formFieldBorder(Theme.of(context).dividerColor),
+    focusedBorder: _formFieldBorder(app_color, width: 1.5),
+    errorBorder: _formFieldBorder(Theme.of(context).colorScheme.error),
+    focusedErrorBorder: _formFieldBorder(
+      Theme.of(context).colorScheme.error,
+      width: 1.5,
     ),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
   );
 
   void _onModifyPressed() {
@@ -1103,7 +1138,7 @@ class _ModifyUserPageState extends State<ModifyUser>
               : Theme.of(context).colorScheme.onSurface,
         ),
         filled: true,
-        fillColor: Theme.of(context).inputDecorationTheme.fillColor,
+        fillColor: Theme.of(context).cardColor,
         prefixIcon: Icon(
           icon,
           color: isFocused
@@ -1121,10 +1156,18 @@ class _ModifyUserPageState extends State<ModifyUser>
                 onPressed: toggleObscure,
               )
             : null,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: app_color, width: 1.5),
-          borderRadius: BorderRadius.circular(10),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        border: _formFieldBorder(Theme.of(context).dividerColor),
+        enabledBorder: _formFieldBorder(Theme.of(context).dividerColor),
+        disabledBorder: _formFieldBorder(Theme.of(context).dividerColor),
+        focusedBorder: _formFieldBorder(app_color, width: 1.5),
+        errorBorder: _formFieldBorder(Theme.of(context).colorScheme.error),
+        focusedErrorBorder: _formFieldBorder(
+          Theme.of(context).colorScheme.error,
+          width: 1.5,
         ),
       ),
     );

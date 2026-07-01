@@ -6,10 +6,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'RolesView.dart';
 import 'SerialSelect.dart';
-import 'Sidebar.dart';
 import 'constants.dart';
 import 'theme_controller.dart';
 import 'package:http/http.dart' as http;
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 
 class ModifyRole extends StatefulWidget {
   final String role_name;
@@ -790,22 +790,24 @@ class _ModifyRolePageState extends State<ModifyRole>
           party_customerscheck = "False";
         }
 
-        settingscurrencycheck =
-            isSettingsCurrencyAccess ? "True" : "False";
-        settingsamtdecimalscheck =
-            isSettingsAmtDecimalsAccess ? "True" : "False";
-        settingsvatperccheck =
-            isSettingsVatPercAccess ? "True" : "False";
-        settingsinactivepdayscheck =
-            isSettingsInactivePDaysAccess ? "True" : "False";
-        settingssorttypecheck =
-            isSettingsSortTypeAccess ? "True" : "False";
-        settingsdefdaterangecheck =
-            isSettingsDefDateRangeAccess ? "True" : "False";
-        settingsageingconfigcheck =
-            isSettingsAgeingConfigAccess ? "True" : "False";
-        settingsfastslowinactiveitemcheck =
-            isSettingsFastSlowInactiveItemAccess ? "True" : "False";
+        settingscurrencycheck = isSettingsCurrencyAccess ? "True" : "False";
+        settingsamtdecimalscheck = isSettingsAmtDecimalsAccess
+            ? "True"
+            : "False";
+        settingsvatperccheck = isSettingsVatPercAccess ? "True" : "False";
+        settingsinactivepdayscheck = isSettingsInactivePDaysAccess
+            ? "True"
+            : "False";
+        settingssorttypecheck = isSettingsSortTypeAccess ? "True" : "False";
+        settingsdefdaterangecheck = isSettingsDefDateRangeAccess
+            ? "True"
+            : "False";
+        settingsageingconfigcheck = isSettingsAgeingConfigAccess
+            ? "True"
+            : "False";
+        settingsfastslowinactiveitemcheck = isSettingsFastSlowInactiveItemAccess
+            ? "True"
+            : "False";
       });
 
       _showConfirmationDialogAndNavigate(context);
@@ -898,7 +900,8 @@ class _ModifyRolePageState extends State<ModifyRole>
         SettingsAgeingConfigHolder =
             saved_roles_data_list[0]["is_Settings_AgeingCnfig"] ?? "False";
         SettingsFastSlowInactiveItemHolder =
-            saved_roles_data_list[0]["is_Settings_FastSlowInactiveItem"] ?? "False";
+            saved_roles_data_list[0]["is_Settings_FastSlowInactiveItem"] ??
+            "False";
 
         setState(() {
           _isLoading = true;
@@ -1910,6 +1913,10 @@ class _ModifyRolePageState extends State<ModifyRole>
         return true;
       },
       child: Scaffold(
+        bottomNavigationBar: const AppBottomNav(
+          activeTab: AppBottomNavTab.more,
+          activeMoreItem: AppMoreItem.roles,
+        ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         key: _scaffoldKey,
         appBar: PreferredSize(
@@ -1982,13 +1989,6 @@ class _ModifyRolePageState extends State<ModifyRole>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (_isLoading)
-                            Center(
-                              child: Padding(
-                                padding: EdgeInsets.only(top: 5, bottom: 10),
-                                child: AppLogoLoader(),
-                              ),
-                            ),
                           _buildTextFieldCard(),
                           const SizedBox(height: 10),
 
@@ -2087,6 +2087,7 @@ class _ModifyRolePageState extends State<ModifyRole>
                 ),
               ],
             ),
+            if (_isLoading) Center(child: AppLogoLoader()),
           ],
         ),
       ),
@@ -2099,6 +2100,9 @@ class _ModifyRolePageState extends State<ModifyRole>
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
+        border: Theme.of(context).brightness == Brightness.dark
+            ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black12,
@@ -2146,11 +2150,7 @@ class _ModifyRolePageState extends State<ModifyRole>
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(22),
-                gradient: LinearGradient(
-                  colors: [Colors.white, Colors.grey.shade50],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: Theme.of(context).cardColor,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -2263,6 +2263,9 @@ class _ModifyRolePageState extends State<ModifyRole>
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
+        border: Theme.of(context).brightness == Brightness.dark
+            ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black12,
@@ -2332,7 +2335,9 @@ class _ModifyRolePageState extends State<ModifyRole>
           color: value
               ? app_color.withOpacity(0.1)
               : Theme.of(context).cardColor,
-          border: Border.all(color: value ? app_color : Colors.grey.shade400),
+          border: Border.all(
+            color: value ? app_color : Theme.of(context).dividerColor,
+          ),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(

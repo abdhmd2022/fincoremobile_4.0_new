@@ -2642,7 +2642,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
             ),
-            automaticallyImplyLeading: false,
+            automaticallyImplyLeading: true,
+            leadingWidth: kToolbarHeight,
             /*leading: IconButton(
                 icon: Icon(Icons.menu, color: Colors.white),
                 onPressed: () {
@@ -2657,41 +2658,54 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                   MaterialPageRoute(builder: (context) => SerialSelect()),
                 );
               },
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                    child: Text(
-                      company ?? '',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth:
+                      MediaQuery.of(context).size.width -
+                      (kToolbarHeight * 2.4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        company ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(Icons.arrow_drop_down, color: Colors.white),
-                ],
+                    const SizedBox(width: 4),
+                    const Icon(Icons.arrow_drop_down, color: Colors.white),
+                  ],
+                ),
               ),
             ),
             actions: [
-              IconButton(
-                tooltip: 'Toggle theme',
-                icon: Icon(
-                  Theme.of(context).brightness == Brightness.dark
-                      ? Icons.light_mode
-                      : Icons.dark_mode,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  themeController.setThemeMode(
+              SizedBox(
+                width: kToolbarHeight,
+                child: IconButton(
+                  tooltip: 'Toggle theme',
+                  icon: Icon(
                     Theme.of(context).brightness == Brightness.dark
-                        ? ThemeMode.light
-                        : ThemeMode.dark,
-                  );
-                },
+                        ? Icons.light_mode
+                        : Icons.dark_mode,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    themeController.setThemeMode(
+                      Theme.of(context).brightness == Brightness.dark
+                          ? ThemeMode.light
+                          : ThemeMode.dark,
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -2707,7 +2721,10 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
               Email: email,
               tickerProvider: this),*/
         // add the Sidebar widget here
-        bottomNavigationBar: const AppBottomNav(),
+        bottomNavigationBar: const AppBottomNav(
+          activeTab: AppBottomNavTab.dashboard,
+          activeMoreItem: AppMoreItem.dashboard,
+        ),
 
         body: Stack(
           children: [
@@ -3189,9 +3206,7 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                 color: Theme.of(context).brightness == Brightness.dark
                     ? Colors.black.withOpacity(0.58)
                     : Colors.white.withOpacity(0.72),
-                child: const Center(
-                  child: AppLogoLoader(),
-                ),
+                child: const Center(child: AppLogoLoader()),
               ),
             ),
           ],

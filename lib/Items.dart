@@ -16,6 +16,9 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'constants.dart';
 import 'theme_controller.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
+import 'widgets/scroll_fab.dart';
 
 class items {
   final String itemname;
@@ -126,6 +129,7 @@ class Items extends StatefulWidget {
 
 class _ItemsPageState extends State<Items> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final ScrollController _scrollFabController = ScrollController();
 
   bool isClicked_allitems = true,
       isClicked_fastmoving = false,
@@ -1331,6 +1335,12 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin {
   }
 
   @override
+  void dispose() {
+    _scrollFabController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -1343,6 +1353,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(activeTab: AppBottomNavTab.items),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: PreferredSize(
@@ -1366,32 +1377,38 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
           ),
-          title: Column(
-            children: [
-              Text(
-                company ?? '',
-                style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+          title: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth:
+                  MediaQuery.of(context).size.width - (kToolbarHeight * 5.2),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  company ?? '',
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-                overflow: TextOverflow.ellipsis,
-              ),
-              SizedBox(height: 4),
-              Text(
-                "Stock Summary",
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white70,
+                SizedBox(height: 4),
+                Text(
+                  "Stock Summary",
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white70,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           centerTitle: true,
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => AppNavigation.backOrDashboard(context),
           ),
           actions: [
             IconButton(
@@ -1541,11 +1558,12 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin {
 
       body: Stack(
         children: [
-          Column(
-            children: [
+          CustomScrollView(
+            controller: _scrollFabController,
+            slivers: [
               // 🔹 Dropdown + Tabs Container
               if (isVisibleParent)
-                Container(
+                SliverToBoxAdapter(child: Container(
                   margin: EdgeInsets.only(
                     top: 10,
                     left: 16,
@@ -1675,32 +1693,37 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin {
                         ),
                     ],
                   ),
-                ),
+                )),
 
               // 🔹 List / Empty State
-              Expanded(
-                child: isVisibleNoDataFound
-                    ? _buildEmptyState()
-                    : ListView.builder(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 0,
-                        ),
-                        itemCount: _getVisibleList().length,
-                        itemBuilder: (context, index) {
-                          final card = _getVisibleList()[index];
-                          return _buildItemCard(card);
-                        },
-                      ),
-              ),
+              if (isVisibleNoDataFound)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _buildEmptyState(),
+                )
+              else
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final card = _getVisibleList()[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: _buildItemCard(card),
+                      );
+                    },
+                    childCount: _getVisibleList().length,
+                  ),
+                ),
             ],
           ),
 
           // 🔹 Loader Overlay
           if (_isLoading) Container(child: Center(child: AppLogoLoader())),
+          ScrollFab(controller: _scrollFabController),
         ],
       ),
     );
+
   }
 
   // ------------------- 🔹 Widgets 🔹 -------------------

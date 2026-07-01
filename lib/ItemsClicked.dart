@@ -6,10 +6,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'SerialSelect.dart';
-import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'constants.dart';
 import 'theme_controller.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
 
 class Sale_Purc {
   final String month, amount;
@@ -1089,18 +1090,9 @@ class _ItemsClickedPageState extends State<ItemsClicked>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(activeTab: AppBottomNavTab.items),
       key: _scaffoldKey,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      drawer: Sidebar(
-        isDashEnable: isDashEnable,
-        isRolesVisible: isRolesVisible,
-        isRolesEnable: isRolesEnable,
-        isUserEnable: isUserEnable,
-        isUserVisible: isUserVisible,
-        Username: name,
-        Email: email,
-        tickerProvider: this,
-      ),
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
         child: AppBar(
@@ -1113,7 +1105,7 @@ class _ItemsClickedPageState extends State<ItemsClicked>
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pop(context);
+              AppNavigation.backOrDashboard(context);
             },
           ),
           title: GestureDetector(

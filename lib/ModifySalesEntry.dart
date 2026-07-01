@@ -12,11 +12,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constants.dart';
-import 'Sidebar.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 
 class ModifySalesEntry extends StatefulWidget {
   final int id, isSynced;
@@ -6582,6 +6582,10 @@ _itemController.text = _selecteditem;
     );
 
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.entries,
+        activeEntryType: AppEntryType.sales,
+      ),
       key: _scaffoldKey,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
@@ -6622,16 +6626,6 @@ _itemController.text = _selecteditem;
             ),
           ),
         ),
-      ),
-      drawer: Sidebar(
-        isDashEnable: isDashEnable,
-        isRolesVisible: isRolesVisible,
-        isRolesEnable: isRolesEnable,
-        isUserEnable: isUserEnable,
-        isUserVisible: isUserVisible,
-        Username: name,
-        Email: email,
-        tickerProvider: this,
       ),
       body: WillPopScope(
         onWillPop: () async {
@@ -7804,7 +7798,9 @@ _itemController.text = _selecteditem;
                                               16,
                                             ),
                                             border: Border.all(
-                                              color: Theme.of(context).dividerColor,
+                                              color: Theme.of(
+                                                context,
+                                              ).dividerColor,
                                             ),
                                             boxShadow: [
                                               BoxShadow(
@@ -8242,7 +8238,9 @@ _itemController.text = _selecteditem;
                                               14,
                                             ),
                                             border: Border.all(
-                                              color: Theme.of(context).dividerColor,
+                                              color: Theme.of(
+                                                context,
+                                              ).dividerColor,
                                             ),
                                             boxShadow: [
                                               BoxShadow(
@@ -8906,8 +8904,8 @@ _itemController.text = _selecteditem;
                                 app_color, // ✅ always full app_color
                             disabledBackgroundColor:
                                 Theme.of(context).brightness == Brightness.dark
-                                    ? Colors.grey.shade700
-                                    : Colors.grey.shade300, // disabled state
+                                ? Colors.grey.shade700
+                                : Colors.grey.shade300, // disabled state
                             shadowColor: app_color.withOpacity(0.4),
                           ),
                           child: Row(

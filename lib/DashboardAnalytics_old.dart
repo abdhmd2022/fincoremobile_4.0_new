@@ -8,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants.dart';
 import 'currencyFormat.dart';
+import 'widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   final List<Map<String, dynamic>> lineChartData;
@@ -169,7 +171,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pop(context);
+              AppNavigation.backOrDashboard(context);
             },
           ),
           centerTitle: true,
@@ -191,6 +193,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         ),
       ),
 
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.dashboard,
+        activeMoreItem: AppMoreItem.dashboard,
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [

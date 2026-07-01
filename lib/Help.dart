@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'constants.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
 
 class Help extends StatefulWidget {
   const Help({Key? key}) : super(key: key);
@@ -89,7 +91,7 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
       path: recipientEmail,
       queryParameters: {
         'subject': subject,
-        'body': '$nameAndEmail$additionalText'
+        'body': '$nameAndEmail$additionalText',
         //'cc': ccEmails.join(','),
       },
     );
@@ -111,6 +113,10 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.more,
+        activeMoreItem: AppMoreItem.help,
+      ),
       key: _scaffoldKey,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
@@ -125,7 +131,7 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pop(context);
+              AppNavigation.backOrDashboard(context);
             },
           ),
           centerTitle: true,
@@ -308,7 +314,6 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
                 ),
                 const SizedBox(height: 8),
                 TextField(
-
                   controller: _textEditingController,
                   decoration: InputDecoration(
                     hintText: "Type your message here...",
@@ -319,11 +324,15 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
                     fillColor: Colors.transparent,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).dividerColor,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).dividerColor,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),

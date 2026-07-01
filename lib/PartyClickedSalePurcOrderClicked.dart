@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -17,6 +16,8 @@ import 'dart:io';
 
 import 'constants.dart';
 import 'theme_controller.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
 
 class Data_List {
   final String orderno;
@@ -714,6 +715,7 @@ class _PartyClickedSalePurcOrderClickedPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(activeTab: AppBottomNavTab.party),
       key: _scaffoldKey,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
@@ -729,17 +731,23 @@ class _PartyClickedSalePurcOrderClickedPageState
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pop(context);
+              AppNavigation.backOrDashboard(context);
             },
           ),
           centerTitle: true,
-          title: Flexible(
-            child: Text(
-              ledger,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
+          title: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth:
+                  MediaQuery.of(context).size.width - (kToolbarHeight * 5.2),
+            ),
+            child: Flexible(
+              child: Text(
+                ledger,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),
@@ -865,16 +873,6 @@ class _PartyClickedSalePurcOrderClickedPageState
           ],
         ),
       ),
-      drawer: Sidebar(
-        isDashEnable: isDashEnable,
-        isRolesVisible: isRolesVisible,
-        isRolesEnable: isRolesEnable,
-        isUserEnable: isUserEnable,
-        isUserVisible: isUserVisible,
-        Username: name,
-        Email: email,
-        tickerProvider: this,
-      ), // add the Sidebar widget here
 
       body: Stack(
         children: [
@@ -1125,8 +1123,14 @@ class _PartyClickedSalePurcOrderClickedPageState
                                             16,
                                           ),
                                           color: Theme.of(context).cardColor,
-                                          border: Theme.of(context).brightness == Brightness.dark
-                                              ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+                                          border:
+                                              Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? Border.all(
+                                                  color: Colors.white
+                                                      .withOpacity(0.10),
+                                                  width: 1,
+                                                )
                                               : null,
                                           boxShadow: [
                                             BoxShadow(

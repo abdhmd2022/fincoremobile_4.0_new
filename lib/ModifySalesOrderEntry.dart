@@ -13,11 +13,11 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constants.dart';
 import 'PendingSalesOrderEntry.dart';
-import 'Sidebar.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 
 class ModifySalesOrderEntry extends StatefulWidget {
   final int id, isSynced;
@@ -5912,6 +5912,10 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
       "#,##0.${'0' * decimal!}", // 👈 dynamically repeat '0' for decimal places
     );
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.entries,
+        activeEntryType: AppEntryType.salesOrder,
+      ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       key: _scaffoldKey,
       appBar: PreferredSize(
@@ -5957,16 +5961,6 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
         ),
       ),
 
-      drawer: Sidebar(
-        isDashEnable: isDashEnable,
-        isRolesVisible: isRolesVisible,
-        isRolesEnable: isRolesEnable,
-        isUserEnable: isUserEnable,
-        isUserVisible: isUserVisible,
-        Username: name,
-        Email: email,
-        tickerProvider: this,
-      ),
       body: WillPopScope(
         onWillPop: () async {
           Navigator.pushReplacement(
@@ -7015,7 +7009,9 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                                               16,
                                             ),
                                             border: Border.all(
-                                              color: Theme.of(context).dividerColor,
+                                              color: Theme.of(
+                                                context,
+                                              ).dividerColor,
                                             ),
                                             boxShadow: [
                                               BoxShadow(
@@ -7453,7 +7449,9 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                                               14,
                                             ),
                                             border: Border.all(
-                                              color: Theme.of(context).dividerColor,
+                                              color: Theme.of(
+                                                context,
+                                              ).dividerColor,
                                             ),
                                             boxShadow: [
                                               BoxShadow(
@@ -8107,8 +8105,8 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                                 app_color, // ✅ always full app_color
                             disabledBackgroundColor:
                                 Theme.of(context).brightness == Brightness.dark
-                                    ? Colors.grey.shade700
-                                    : Colors.grey.shade300, // disabled state
+                                ? Colors.grey.shade700
+                                : Colors.grey.shade300, // disabled state
                             shadowColor: app_color.withOpacity(0.4),
                           ),
                           child: Row(

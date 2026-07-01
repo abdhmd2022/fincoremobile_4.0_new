@@ -6,10 +6,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'SerialSelect.dart';
-import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'constants.dart';
 import 'theme_controller.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
 
 class LedgerEntries {
   final String ledger, amount;
@@ -651,6 +652,9 @@ class _TransactionsClickedPageState extends State<TransactionsClicked>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.transactions,
+      ),
       key: _scaffoldKey,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
@@ -665,7 +669,7 @@ class _TransactionsClickedPageState extends State<TransactionsClicked>
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pop(context);
+              AppNavigation.backOrDashboard(context);
             },
           ),
           title: GestureDetector(
@@ -717,16 +721,6 @@ class _TransactionsClickedPageState extends State<TransactionsClicked>
         ),
       ),
 
-      drawer: Sidebar(
-        isDashEnable: isDashEnable,
-        isRolesVisible: isRolesVisible,
-        isRolesEnable: isRolesEnable,
-        isUserEnable: isUserEnable,
-        isUserVisible: isUserVisible,
-        Username: name,
-        Email: email,
-        tickerProvider: this,
-      ), // add the Sidebar widget here
 
       body: Stack(
         children: [
@@ -1169,8 +1163,8 @@ class _ModernExpandableCardState extends State<ModernExpandableCard>
             color: _isHovered
                 ? borderGradient.colors.last.withOpacity(0.5)
                 : Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white.withOpacity(0.10)
-                    : Colors.transparent,
+                ? Colors.white.withOpacity(0.10)
+                : Colors.transparent,
           ),
         ),
         child: InkWell(

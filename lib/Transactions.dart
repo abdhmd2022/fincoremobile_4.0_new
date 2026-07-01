@@ -10,7 +10,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'SerialSelect.dart';
-import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'TransactionClicked.dart';
 import 'package:pdf/pdf.dart';
@@ -21,6 +20,9 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'constants.dart';
 import 'theme_controller.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
+import 'widgets/scroll_fab.dart';
 
 class transactions {
   final String ledger;
@@ -140,6 +142,7 @@ class _TransactionsPageState extends State<Transactions>
   late SharedPreferences prefs;
 
   ScrollController _scrollController_transactions = ScrollController();
+  final ScrollController _scrollFabController = ScrollController();
 
   void filterPostDatedTransactions() {
     setState(() {
@@ -1412,8 +1415,17 @@ class _TransactionsPageState extends State<Transactions>
   }
 
   @override
+  void dispose() {
+    _scrollFabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.transactions,
+      ),
       key: _scaffoldKey,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
@@ -1428,34 +1440,40 @@ class _TransactionsPageState extends State<Transactions>
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pop(context);
+              AppNavigation.backOrDashboard(context);
             },
           ),
-          title: GestureDetector(
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => SerialSelect()),
-              );
-            },
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    company ?? '',
+          title: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth:
+                  MediaQuery.of(context).size.width - (kToolbarHeight * 2.4),
+            ),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => SerialSelect()),
+                );
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      company ?? '',
 
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                SizedBox(width: 4),
-                Icon(Icons.arrow_drop_down, color: Colors.white),
-              ],
+                  SizedBox(width: 4),
+                  Icon(Icons.arrow_drop_down, color: Colors.white),
+                ],
+              ),
             ),
           ),
           centerTitle: true,
@@ -1583,16 +1601,6 @@ class _TransactionsPageState extends State<Transactions>
         ),
       ),
 
-      drawer: Sidebar(
-        isDashEnable: isDashEnable,
-        isRolesVisible: isRolesVisible,
-        isRolesEnable: isRolesEnable,
-        isUserEnable: isUserEnable,
-        isUserVisible: isUserVisible,
-        Username: name,
-        Email: email,
-        tickerProvider: this,
-      ), // add the Sidebar widget here
 
       body: WillPopScope(
         onWillPop: () async {
@@ -1604,10 +1612,11 @@ class _TransactionsPageState extends State<Transactions>
         },
         child: Stack(
           children: [
-            Column(
-              children: [
+            CustomScrollView(
+              controller: _scrollFabController,
+              slivers: [
                 //top header layout
-                Container(
+                SliverToBoxAdapter(child: Container(
                   margin: EdgeInsets.only(
                     left: 12,
                     right: 12,
@@ -1814,13 +1823,12 @@ class _TransactionsPageState extends State<Transactions>
                       ),
                     ),
                   ),
-                ),
+                )),
 
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.only(
-                      left: 12,
+                SliverToBoxAdapter(child: Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.only(
+                    left: 12,
                       right: 12,
                       top: 8,
                       bottom: 16,
@@ -1843,10 +1851,9 @@ class _TransactionsPageState extends State<Transactions>
                       ],
                     ),
 
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: Container(
+                  child: Column(
+                    children: [
+                        Container(
                             color: Colors.transparent,
                             child: Column(
                               children: [
@@ -2070,10 +2077,11 @@ class _TransactionsPageState extends State<Transactions>
                                     ),
                                   ),
                                 ),*/
-                                Expanded(
-                                  child: isVisibleNoDataFound
-                                      ? _buildEmptyState(context)
-                                      : ListView.builder(
+                                isVisibleNoDataFound
+                                    ? _buildEmptyState(context)
+                                    : ListView.builder(
+                                          shrinkWrap: true,
+                                          physics: NeverScrollableScrollPhysics(),
                                           controller:
                                               _scrollController_transactions,
                                           itemCount:
@@ -2440,11 +2448,9 @@ class _TransactionsPageState extends State<Transactions>
                                             );
                                           },
                                         ),
-                                ),
                               ],
                             ),
                           ),
-                        ),
                       ],
                     ),
                   ),
@@ -2499,6 +2505,7 @@ class _TransactionsPageState extends State<Transactions>
               visible: _isLoading,
               child: Center(child: AppLogoLoader()),
             ),
+            ScrollFab(controller: _scrollFabController),
           ],
         ),
       ),

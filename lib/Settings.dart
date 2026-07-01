@@ -9,6 +9,7 @@ import 'constants.dart';
 import 'Dashboard.dart';
 import 'SerialSelect.dart';
 import 'theme_controller.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 
 class Settings extends StatefulWidget {
   Settings({Key? key}) : super(key: key);
@@ -101,22 +102,25 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
       decimal = 2;
     }
 
-    final bool isAdmin =
-        (prefs.getString('secbtnaccess') ?? 'False') == 'True';
+    final bool isAdmin = (prefs.getString('secbtnaccess') ?? 'False') == 'True';
     _canCurrency =
         isAdmin || (prefs.getString('settings_currency') ?? 'False') == 'True';
     _canAmtDecimals =
-        isAdmin || (prefs.getString('settings_amtdecimals') ?? 'False') == 'True';
+        isAdmin ||
+        (prefs.getString('settings_amtdecimals') ?? 'False') == 'True';
     _canVatPerc =
         isAdmin || (prefs.getString('settings_vatperc') ?? 'False') == 'True';
     _canInactivePDays =
-        isAdmin || (prefs.getString('settings_inactivepdays') ?? 'False') == 'True';
+        isAdmin ||
+        (prefs.getString('settings_inactivepdays') ?? 'False') == 'True';
     _canSortType =
         isAdmin || (prefs.getString('settings_sorttype') ?? 'False') == 'True';
     _canDefDateRange =
-        isAdmin || (prefs.getString('settings_defdaterange') ?? 'False') == 'True';
+        isAdmin ||
+        (prefs.getString('settings_defdaterange') ?? 'False') == 'True';
     _canAgeingConfig =
-        isAdmin || (prefs.getString('settings_ageingconfig') ?? 'False') == 'True';
+        isAdmin ||
+        (prefs.getString('settings_ageingconfig') ?? 'False') == 'True';
     _canFastSlowInactiveItem =
         isAdmin ||
         (prefs.getString('settings_fastslowinactiveitem') ?? 'False') == 'True';
@@ -201,6 +205,10 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.more,
+        activeMoreItem: AppMoreItem.settings,
+      ),
       key: _scaffoldMessengerKey,
       backgroundColor: _pageColor,
       appBar: PreferredSize(
@@ -303,14 +311,23 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
               ),
 
             // ── Defaults ─────────────────────────────────────────────────
-            if ([_canInactivePDays, _canSortType, _canDefDateRange]
-                .any((v) => v))
+            if ([
+              _canInactivePDays,
+              _canSortType,
+              _canDefDateRange,
+            ].any((v) => v))
               const SizedBox(height: 18),
-            if ([_canInactivePDays, _canSortType, _canDefDateRange]
-                .any((v) => v))
+            if ([
+              _canInactivePDays,
+              _canSortType,
+              _canDefDateRange,
+            ].any((v) => v))
               _buildSectionLabel('Defaults'),
-            if ([_canInactivePDays, _canSortType, _canDefDateRange]
-                .any((v) => v))
+            if ([
+              _canInactivePDays,
+              _canSortType,
+              _canDefDateRange,
+            ].any((v) => v))
               _buildSettingsGroup(
                 children: [
                   if (_canInactivePDays)

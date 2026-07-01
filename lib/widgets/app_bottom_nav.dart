@@ -24,8 +24,46 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
+enum AppBottomNavTab {
+  none,
+  dashboard,
+  items,
+  party,
+  transactions,
+  entries,
+  more,
+}
+
+enum AppMoreItem {
+  none,
+  dashboard,
+  roles,
+  users,
+  vanAllocation,
+  settings,
+  changePassword,
+  help,
+}
+
+enum AppEntryType {
+  none,
+  sales,
+  receipt,
+  salesOrder,
+  deliveryNote,
+}
+
 class AppBottomNav extends StatefulWidget {
-  const AppBottomNav({super.key});
+  const AppBottomNav({
+    super.key,
+    this.activeTab = AppBottomNavTab.none,
+    this.activeMoreItem = AppMoreItem.none,
+    this.activeEntryType = AppEntryType.none,
+  });
+
+  final AppBottomNavTab activeTab;
+  final AppMoreItem activeMoreItem;
+  final AppEntryType activeEntryType;
 
   @override
   State<AppBottomNav> createState() => _AppBottomNavState();
@@ -213,6 +251,13 @@ class _AppBottomNavState extends State<AppBottomNav> {
     super.dispose();
   }
 
+  void _replaceWith(Widget page) {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => page),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -233,30 +278,60 @@ class _AppBottomNavState extends State<AppBottomNav> {
         ),
         child: Row(
           children: [
-            _navTile("Items", Icons.inventory_outlined, showItems, () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => Items()),
-              );
-            }),
-            _navTile("Parties", Icons.groups_outlined, showParty, () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => Party()),
-              );
-            }),
-            _navTile("Transactions", Icons.payment_outlined, showRegister, () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => Transactions()),
-              );
-            }),
-            _navTile("Entries", Icons.receipt_long, showEntries, () {
-              _showEntriesBottomSheet(context);
-            }),
-            _navTile("More...", Icons.grid_view_rounded, true, () {
-              _showQuickActionsSheet(context);
-            }),
+            _navTile(
+              "Dashboard",
+              Icons.dashboard_rounded,
+              true,
+              AppBottomNavTab.dashboard,
+              () {
+                _replaceWith(const Dashboard());
+              },
+            ),
+            _navTile(
+              "Items",
+              Icons.inventory_outlined,
+              showItems,
+              AppBottomNavTab.items,
+              () {
+                _replaceWith(Items());
+              },
+            ),
+            _navTile(
+              "Parties",
+              Icons.groups_outlined,
+              showParty,
+              AppBottomNavTab.party,
+              () {
+                _replaceWith(Party());
+              },
+            ),
+            _navTile(
+              "Transactions",
+              Icons.payment_outlined,
+              showRegister,
+              AppBottomNavTab.transactions,
+              () {
+                _replaceWith(Transactions());
+              },
+            ),
+            _navTile(
+              "Entries",
+              Icons.receipt_long,
+              showEntries,
+              AppBottomNavTab.entries,
+              () {
+                _showEntriesBottomSheet(context);
+              },
+            ),
+            _navTile(
+              "More...",
+              Icons.grid_view_rounded,
+              true,
+              AppBottomNavTab.more,
+              () {
+                _showQuickActionsSheet(context);
+              },
+            ),
           ],
         ),
       ),
@@ -267,29 +342,54 @@ class _AppBottomNavState extends State<AppBottomNav> {
     String label,
     IconData icon,
     bool visible,
+    AppBottomNavTab tab,
     VoidCallback onTap,
   ) {
     if (!visible) return const SizedBox.shrink();
 
+    final isCurrentRouteTab = widget.activeTab == tab;
+    final isActive = isCurrentRouteTab;
+    final shouldIgnoreTap = isCurrentRouteTab &&
+        tab != AppBottomNavTab.more &&
+        tab != AppBottomNavTab.entries;
+    final textColor = isActive
+        ? app_color
+        : Theme.of(context).colorScheme.onSurface;
+
     return Expanded(
       child: InkWell(
-        onTap: onTap,
+        onTap: shouldIgnoreTap ? null : onTap,
         borderRadius: BorderRadius.circular(18),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          curve: Curves.easeOut,
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+          decoration: BoxDecoration(
+            color: isActive ? app_color.withOpacity(0.14) : Colors.transparent,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: isActive
+                  ? app_color.withOpacity(0.36)
+                  : Colors.transparent,
+              width: 1,
+            ),
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 22, color: app_color),
+              Icon(icon, size: 22, color: textColor),
               const SizedBox(height: 4),
               Text(
                 label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+                softWrap: true,
+                textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
+                  color: textColor,
+                  height: 1.2,
                 ),
               ),
             ],
@@ -341,29 +441,11 @@ class _AppBottomNavState extends State<AppBottomNav> {
                     childAspectRatio: 1.05,
                     children: [
                       _quickActionTile(
-                        icon: Icons.dashboard_rounded,
-                        title: "Dashboard",
-                        enabled: isDashEnable,
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const Dashboard(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      _quickActionTile(
                         icon: Icons.business_rounded,
                         title: "Companies",
                         onTap: () {
                           Navigator.pop(context);
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (_) => SerialSelect()),
-                          );
+                          _replaceWith(SerialSelect());
                         },
                       ),
 
@@ -371,13 +453,11 @@ class _AppBottomNavState extends State<AppBottomNav> {
                         _quickActionTile(
                           icon: Icons.group_rounded,
                           title: "Roles",
+                          moreItem: AppMoreItem.roles,
                           enabled: isRolesEnable,
                           onTap: () {
                             Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => RolesView()),
-                            );
+                            _replaceWith(RolesView());
                           },
                         ),
 
@@ -385,13 +465,11 @@ class _AppBottomNavState extends State<AppBottomNav> {
                         _quickActionTile(
                           icon: Icons.person_rounded,
                           title: "Users",
+                          moreItem: AppMoreItem.users,
                           enabled: isUserEnable,
                           onTap: () {
                             Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => UserView()),
-                            );
+                            _replaceWith(UserView());
                           },
                         ),
 
@@ -400,51 +478,41 @@ class _AppBottomNavState extends State<AppBottomNav> {
                         _quickActionTile(
                           icon: Icons.local_shipping_outlined,
                           title: "Van Allocation",
+                          moreItem: AppMoreItem.vanAllocation,
                           enabled: isVanAllocationEnable,
                           onTap: () {
                             Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const ViewVanAllocationScreen(),
-                              ),
-                            );
+                            _replaceWith(const ViewVanAllocationScreen());
                           },
                         ),
 
                       _quickActionTile(
                         icon: Icons.settings_rounded,
                         title: "Settings",
+                        moreItem: AppMoreItem.settings,
                         onTap: () {
                           Navigator.pop(context);
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (_) => Settings()),
-                          );
+                          _replaceWith(Settings());
                         },
                       ),
 
                       _quickActionTile(
                         icon: Icons.lock_outline_rounded,
                         title: "Change Password",
+                        moreItem: AppMoreItem.changePassword,
                         onTap: () {
                           Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => ChangePassword()),
-                          );
+                          _replaceWith(ChangePassword());
                         },
                       ),
 
                       _quickActionTile(
                         icon: Icons.help_outline_rounded,
                         title: "Help",
+                        moreItem: AppMoreItem.help,
                         onTap: () {
                           Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => Help()),
-                          );
+                          _replaceWith(Help());
                         },
                       ),
 
@@ -593,11 +661,21 @@ class _AppBottomNavState extends State<AppBottomNav> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
+    AppMoreItem moreItem = AppMoreItem.none,
     bool enabled = true,
     bool isDanger = false,
   }) {
+    final isActive =
+        moreItem != AppMoreItem.none && widget.activeMoreItem == moreItem;
+    final canTap = enabled && !isActive;
+    final tileColor = isDanger
+        ? Colors.redAccent
+        : isActive
+        ? app_color
+        : app_color;
+
     return InkWell(
-      onTap: enabled ? onTap : null,
+      onTap: canTap ? onTap : null,
       borderRadius: BorderRadius.circular(14),
       child: Opacity(
         opacity: enabled ? 1 : 0.45,
@@ -606,34 +684,36 @@ class _AppBottomNavState extends State<AppBottomNav> {
           decoration: BoxDecoration(
             color: isDanger
                 ? Colors.redAccent.withOpacity(0.06)
+                : isActive
+                ? app_color.withOpacity(0.14)
                 : app_color.withOpacity(0.055),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isDanger
                   ? Colors.redAccent.withOpacity(0.18)
+                  : isActive
+                  ? app_color.withOpacity(0.38)
                   : app_color.withOpacity(0.16),
-              width: 0.8,
+              width: isActive ? 1.2 : 0.8,
             ),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 21,
-                color: isDanger ? Colors.redAccent : app_color,
-              ),
-              const SizedBox(height: 4),
+              Icon(icon, size: 24, color: tileColor),
+              const SizedBox(height: 5),
               Text(
                 title,
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.poppins(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 12,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                   color: isDanger
                       ? Colors.redAccent
+                      : isActive
+                      ? app_color
                       : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
@@ -715,12 +795,12 @@ class _AppBottomNavState extends State<AppBottomNav> {
                   icon: Icons.point_of_sale,
                   label: "Sales",
                   gradient: [Colors.blue.shade400, Colors.blue.shade700],
+                  isActive: widget.activeEntryType == AppEntryType.sales,
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => PendingSalesEntry()),
-                    );
+                    if (widget.activeEntryType != AppEntryType.sales) {
+                      _replaceWith(PendingSalesEntry());
+                    }
                   },
                 ),
 
@@ -729,12 +809,12 @@ class _AppBottomNavState extends State<AppBottomNav> {
                   icon: Icons.receipt_long,
                   label: "Receipts",
                   gradient: [Colors.green.shade400, Colors.green.shade700],
+                  isActive: widget.activeEntryType == AppEntryType.receipt,
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => PendingReceiptEntry()),
-                    );
+                    if (widget.activeEntryType != AppEntryType.receipt) {
+                      _replaceWith(PendingReceiptEntry());
+                    }
                   },
                 ),
 
@@ -746,14 +826,12 @@ class _AppBottomNavState extends State<AppBottomNav> {
                     Colors.orange.shade400,
                     Colors.deepOrange.shade600,
                   ],
+                  isActive: widget.activeEntryType == AppEntryType.salesOrder,
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => PendingSalesOrderEntry(),
-                      ),
-                    );
+                    if (widget.activeEntryType != AppEntryType.salesOrder) {
+                      _replaceWith(PendingSalesOrderEntry());
+                    }
                   },
                 ),
 
@@ -763,14 +841,12 @@ class _AppBottomNavState extends State<AppBottomNav> {
                   icon: Icons.local_shipping,
                   label: "Delivery Note",
                   gradient: [Colors.blue.shade400, Colors.indigo.shade600],
+                  isActive: widget.activeEntryType == AppEntryType.deliveryNote,
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => PendingDeliveryNoteEntry(),
-                      ),
-                    );
+                    if (widget.activeEntryType != AppEntryType.deliveryNote) {
+                      _replaceWith(PendingDeliveryNoteEntry());
+                    }
                   },
                 ),
             ],
@@ -785,6 +861,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
     required String label,
     required List<Color> gradient,
     required VoidCallback onTap,
+    bool isActive = false,
   }) {
     return InkWell(
       onTap: onTap,
@@ -793,9 +870,14 @@ class _AppBottomNavState extends State<AppBottomNav> {
         margin: const EdgeInsets.only(bottom: 14),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: isActive
+              ? gradient.first.withOpacity(0.10)
+              : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: gradient.last.withOpacity(0.5), width: 1.2),
+          border: Border.all(
+            color: isActive ? gradient.last.withOpacity(0.8) : gradient.last.withOpacity(0.5),
+            width: isActive ? 1.8 : 1.2,
+          ),
           boxShadow: [
             BoxShadow(
               color: gradient.last.withOpacity(0.15),
@@ -827,16 +909,21 @@ class _AppBottomNavState extends State<AppBottomNav> {
               label,
               style: GoogleFonts.poppins(
                 fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurface,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
+                color: isActive
+                    ? gradient.last
+                    : Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const Spacer(),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 18,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+            if (isActive)
+              Icon(Icons.check_circle_rounded, size: 20, color: gradient.last)
+            else
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
           ],
         ),
       ),

@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'constants.dart';
 import 'theme_controller.dart';
 import 'ModifyVanAllocation.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 
 class ViewVanAllocationScreen extends StatefulWidget {
   const ViewVanAllocationScreen({super.key});
@@ -166,22 +167,6 @@ class _ViewVanAllocationScreenState extends State<ViewVanAllocationScreen> {
           ),
 
           actions: [
-            IconButton(
-              tooltip: 'Toggle theme',
-              icon: Icon(
-                Theme.of(context).brightness == Brightness.dark
-                    ? Icons.light_mode
-                    : Icons.dark_mode,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                themeController.setThemeMode(
-                  Theme.of(context).brightness == Brightness.dark
-                      ? ThemeMode.light
-                      : ThemeMode.dark,
-                );
-              },
-            ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -222,13 +207,35 @@ class _ViewVanAllocationScreenState extends State<ViewVanAllocationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.more,
+        activeMoreItem: AppMoreItem.vanAllocation,
+      ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: AppBar(
         elevation: 0,
+        centerTitle: true,
         backgroundColor: primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
-        titleSpacing: 0,
+        actions: [
+          IconButton(
+            tooltip: 'Toggle theme',
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              themeController.setThemeMode(
+                Theme.of(context).brightness == Brightness.dark
+                    ? ThemeMode.light
+                    : ThemeMode.dark,
+              );
+            },
+          ),
+        ],
         title: Row(
           children: [
             Container(
@@ -363,9 +370,7 @@ class _ViewVanAllocationScreenState extends State<ViewVanAllocationScreen> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
-        gradient: LinearGradient(
-          colors: [Colors.white, Colors.white.withOpacity(0.98)],
-        ),
+        color: Theme.of(context).cardColor,
         boxShadow: [
           BoxShadow(
             color: primaryColor.withOpacity(0.08),
@@ -386,7 +391,7 @@ class _ViewVanAllocationScreenState extends State<ViewVanAllocationScreen> {
         style: GoogleFonts.poppins(
           fontSize: 13.5,
           fontWeight: FontWeight.w500,
-          color: textColor,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
         decoration: InputDecoration(
           hintText: 'Search allocations...',
@@ -516,7 +521,7 @@ class _ViewVanAllocationScreenState extends State<ViewVanAllocationScreen> {
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: textColor,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
 
@@ -562,7 +567,7 @@ class _ViewVanAllocationScreenState extends State<ViewVanAllocationScreen> {
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: textColor,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
 
@@ -747,10 +752,15 @@ class _ViewVanAllocationScreenState extends State<ViewVanAllocationScreen> {
   }
 
   Widget _infoChip(IconData icon, String label, String value) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: isDark
+            ? Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withOpacity(0.5)
+            : const Color(0xFFF5F7FA),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -771,7 +781,7 @@ class _ViewVanAllocationScreenState extends State<ViewVanAllocationScreen> {
             style: GoogleFonts.poppins(
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
-              color: textColor,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ],
@@ -814,7 +824,7 @@ class _ViewVanAllocationScreenState extends State<ViewVanAllocationScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: textColor,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
 
@@ -872,6 +882,9 @@ class _ViewVanAllocationScreenState extends State<ViewVanAllocationScreen> {
     return BoxDecoration(
       color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(24),
+      border: Theme.of(context).brightness == Brightness.dark
+          ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+          : null,
       boxShadow: [
         BoxShadow(
           color: Colors.black.withOpacity(0.04),

@@ -10,6 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'constants.dart';
 import 'theme_controller.dart';
 import 'currencyFormat.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   final List<Map<String, dynamic>> lineChartData;
@@ -328,6 +330,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         widget.isVisiblePieChart;
 
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.dashboard,
+        activeMoreItem: AppMoreItem.dashboard,
+      ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: app_color,
@@ -335,7 +341,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         automaticallyImplyLeading: false,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => AppNavigation.backOrDashboard(context),
         ),
         title: Text(
           "Analytics",

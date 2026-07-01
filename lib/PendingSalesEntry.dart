@@ -8,9 +8,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constants.dart';
-import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'currencyFormat.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
 
 class SalesModel {
   final int id;
@@ -609,6 +610,10 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry>
         return true;
       },
       child: Scaffold(
+        bottomNavigationBar: const AppBottomNav(
+          activeTab: AppBottomNavTab.entries,
+          activeEntryType: AppEntryType.sales,
+        ),
         key: _scaffoldKey,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: PreferredSize(
@@ -623,7 +628,7 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry>
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () {
-                Navigator.pop(context);
+                AppNavigation.backOrDashboard(context);
               },
             ),
             centerTitle: true,
@@ -646,16 +651,6 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry>
               ),
             ),
           ),
-        ),
-        drawer: Sidebar(
-          isDashEnable: isDashEnable,
-          isRolesVisible: isRolesVisible,
-          isRolesEnable: isRolesEnable,
-          isUserEnable: isUserEnable,
-          isUserVisible: isUserVisible,
-          Username: name,
-          Email: email,
-          tickerProvider: this,
         ),
         body: RefreshIndicator(
           onRefresh: _refresh,
@@ -850,12 +845,19 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry>
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
                                   color: Theme.of(context).cardColor,
-                                  border: Theme.of(context).brightness == Brightness.dark
-                                      ? Border.all(color: const Color(0xFF374151), width: 0.8)
+                                  border:
+                                      Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Border.all(
+                                          color: const Color(0xFF374151),
+                                          width: 0.8,
+                                        )
                                       : null,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Theme.of(context).brightness == Brightness.dark
+                                      color:
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark
                                           ? Colors.black.withOpacity(0.3)
                                           : Colors.black.withOpacity(0.05),
                                       blurRadius: 15,
@@ -1097,8 +1099,12 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry>
                                                     BorderRadius.circular(30),
                                                 border: Border.all(
                                                   color: isExpanded
-                                                      ? Theme.of(context).dividerColor
-                                                      : app_color.withOpacity(0.18),
+                                                      ? Theme.of(
+                                                          context,
+                                                        ).dividerColor
+                                                      : app_color.withOpacity(
+                                                          0.18,
+                                                        ),
                                                 ),
                                               ),
                                               child: Row(

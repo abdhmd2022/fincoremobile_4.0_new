@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'widgets/scroll_fab.dart';
 import 'package:FincoreGo/currencyFormat.dart';
 import 'package:FincoreGo/utils/currency_helper.dart';
 import 'package:csv/csv.dart';
@@ -11,7 +12,6 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Dashboard.dart';
 import 'SerialSelect.dart';
-import 'Sidebar.dart';
 import 'TransactionClicked.dart';
 import 'package:http/http.dart' as http;
 import 'package:pdf/pdf.dart';
@@ -22,6 +22,8 @@ import 'dart:io';
 import 'constants.dart';
 import 'theme_controller.dart';
 import 'package:cross_file/cross_file.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'package:FincoreGo/widgets/app_navigation.dart';
 
 class LedgerGroup {
   final String ledger;
@@ -222,6 +224,7 @@ class _DashboardClickedPageState extends State<DashboardClicked>
   List<LedgerGroup> filteredLedgerGroupList = [];
   ScrollController _scrollController_salelist = ScrollController();
   ScrollController _scrollController_receivablellist = ScrollController();
+  final ScrollController _scrollFabController = ScrollController();
   TextEditingController _voucherController = TextEditingController();
 
   _DashboardClickedPageState({
@@ -332,6 +335,7 @@ class _DashboardClickedPageState extends State<DashboardClicked>
   @override
   void dispose() {
     _voucherController.dispose();
+    _scrollFabController.dispose();
     super.dispose();
   }
 
@@ -2543,8 +2547,7 @@ class _DashboardClickedPageState extends State<DashboardClicked>
     double total = getTotalAmount();
     if (total.abs() < 0.0001) total = 0.0;
 
-    return SafeArea(
-      child: Container(
+    return Container(
         height:
             (vchtypes == "Cash" &&
                 !_isLedgerGroupVisible &&
@@ -2597,7 +2600,6 @@ class _DashboardClickedPageState extends State<DashboardClicked>
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -2643,7 +2645,16 @@ class _DashboardClickedPageState extends State<DashboardClicked>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: _buildTotalBar(),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildTotalBar(),
+          const AppBottomNav(
+            activeTab: AppBottomNavTab.dashboard,
+            activeMoreItem: AppMoreItem.dashboard,
+          ),
+        ],
+      ),
       key: _scaffoldKey,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
@@ -2658,35 +2669,41 @@ class _DashboardClickedPageState extends State<DashboardClicked>
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pop(context);
+              AppNavigation.backOrDashboard(context);
             },
           ),
-          title: GestureDetector(
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => SerialSelect()),
-              );
-            },
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    company ?? '',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+          title: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth:
+                  MediaQuery.of(context).size.width - (kToolbarHeight * 2.4),
+            ),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => SerialSelect()),
+                );
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      company ?? '',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis, // ✅ shows "..."
+                      maxLines: 1, // ✅ keeps single line
+                      softWrap: false, // ✅ prevents wrapping
                     ),
-                    overflow: TextOverflow.ellipsis, // ✅ shows "..."
-                    maxLines: 1, // ✅ keeps single line
-                    softWrap: false, // ✅ prevents wrapping
                   ),
-                ),
-                const SizedBox(width: 4),
-                const Icon(Icons.arrow_drop_down, color: Colors.white),
-              ],
+                  const SizedBox(width: 4),
+                  const Icon(Icons.arrow_drop_down, color: Colors.white),
+                ],
+              ),
             ),
           ),
 
@@ -2823,16 +2840,6 @@ class _DashboardClickedPageState extends State<DashboardClicked>
         ),
       ),
 
-      drawer: Sidebar(
-        isDashEnable: isDashEnable,
-        isRolesVisible: isRolesVisible,
-        isRolesEnable: isRolesEnable,
-        isUserEnable: isUserEnable,
-        isUserVisible: isUserVisible,
-        Username: name,
-        Email: email,
-        tickerProvider: this,
-      ), // add the Sidebar widget here
 
       body: WillPopScope(
         onWillPop: () async {
@@ -2844,9 +2851,10 @@ class _DashboardClickedPageState extends State<DashboardClicked>
         },
         child: Stack(
           children: [
-            Column(
-              children: [
-                Container(
+            CustomScrollView(
+              controller: _scrollFabController,
+              slivers: [
+                SliverToBoxAdapter(child: Container(
                   margin: EdgeInsets.only(
                     left: 16,
                     right: 16,
@@ -3100,11 +3108,10 @@ class _DashboardClickedPageState extends State<DashboardClicked>
                       ),
                     ],
                   ),
-                ),
+                )),
 
-                Expanded(
-                  child: Container(
-                    margin: EdgeInsets.only(left: 16, right: 16, bottom: 12),
+                SliverToBoxAdapter(child: Container(
+                  margin: EdgeInsets.only(left: 16, right: 16, bottom: 12),
                     padding: EdgeInsets.only(
                       top: 12,
                       left: 12,
@@ -3237,9 +3244,10 @@ class _DashboardClickedPageState extends State<DashboardClicked>
                           ),
 
                         if (_isLedgerGroupVisible)
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: filteredLedgerGroupList.length,
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: filteredLedgerGroupList.length,
                               itemBuilder: (context, index) {
                                 final group = filteredLedgerGroupList[index];
                                 double amount = group.amount + group.opening;
@@ -3286,8 +3294,15 @@ class _DashboardClickedPageState extends State<DashboardClicked>
                                     decoration: BoxDecoration(
                                       color: Theme.of(context).cardColor,
                                       borderRadius: BorderRadius.circular(18),
-                                      border: Theme.of(context).brightness == Brightness.dark
-                                          ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+                                      border:
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Border.all(
+                                              color: Colors.white.withOpacity(
+                                                0.10,
+                                              ),
+                                              width: 1,
+                                            )
                                           : null,
                                       boxShadow: [
                                         BoxShadow(
@@ -3391,11 +3406,9 @@ class _DashboardClickedPageState extends State<DashboardClicked>
                                 );
                               },
                             ),
-                          ),
 
                         if (_isSalesListVisible)
-                          Expanded(
-                            child: Column(
+                          Column(
                               children: [
                                 if (vchtypes == "Cash" &&
                                     !_isLedgerGroupVisible)
@@ -3475,35 +3488,34 @@ class _DashboardClickedPageState extends State<DashboardClicked>
                                   ),
 
                                 // The existing vouchers list
-                                Expanded(
-                                  child: ListView.builder(
-                                    controller: _scrollController_salelist,
-                                    itemCount:
-                                        filteredItems_sale_purc_cash.length,
-                                    itemBuilder: (context, index) {
-                                      final card =
-                                          filteredItems_sale_purc_cash[index];
-                                      return buildModernVoucherCard(card);
-                                    },
-                                  ),
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  controller: _scrollController_salelist,
+                                  itemCount:
+                                      filteredItems_sale_purc_cash.length,
+                                  itemBuilder: (context, index) {
+                                    final card =
+                                        filteredItems_sale_purc_cash[index];
+                                    return buildModernVoucherCard(card);
+                                  },
                                 ),
                               ],
                             ),
-                          ),
 
                         if (_isOutstandingListVisible)
-                          Expanded(
-                            child: ListView.builder(
-                              controller: _scrollController_receivablellist,
-                              itemCount:
-                                  filteredItems_receivable_payable.length,
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            controller: _scrollController_receivablellist,
+                            itemCount:
+                                filteredItems_receivable_payable.length,
                               itemBuilder: (context, index) {
                                 final card =
                                     filteredItems_receivable_payable[index];
                                 return buildReceivableCard(card);
                               },
                             ),
-                          ),
                       ],
                     ),
                   ),
@@ -3556,6 +3568,7 @@ class _DashboardClickedPageState extends State<DashboardClicked>
               visible: _isLoading,
               child: Center(child: AppLogoLoader()),
             ),
+            ScrollFab(controller: _scrollFabController),
           ],
         ),
       ),
@@ -3811,7 +3824,7 @@ class _DashboardClickedPageState extends State<DashboardClicked>
       margin: const EdgeInsets.symmetric(vertical: 2),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
       decoration: BoxDecoration(
-        color: _dashboardDetailSurfaceColor(),
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -4071,7 +4084,7 @@ class _DashboardClickedPageState extends State<DashboardClicked>
       margin: const EdgeInsets.symmetric(vertical: 2),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
       decoration: BoxDecoration(
-        color: Colors.grey.shade400.withOpacity(0.1),
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(

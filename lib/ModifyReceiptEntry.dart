@@ -13,12 +13,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'Dashboard.dart';
 import 'PendingReceiptEntry.dart';
 import 'SerialSelect.dart';
-import 'Sidebar.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 
 class ModifyReceiptEntry extends StatefulWidget {
   final int id, isSynced;
@@ -4690,6 +4690,10 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry>
     );
 
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.entries,
+        activeEntryType: AppEntryType.receipt,
+      ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       key: _scaffoldKey,
       appBar: PreferredSize(
@@ -4730,16 +4734,6 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry>
             ),
           ),
         ),
-      ),
-      drawer: Sidebar(
-        isDashEnable: isDashEnable,
-        isRolesVisible: isRolesVisible,
-        isRolesEnable: isRolesEnable,
-        isUserEnable: isUserEnable,
-        isUserVisible: isUserVisible,
-        Username: name,
-        Email: email,
-        tickerProvider: this,
       ),
       body: WillPopScope(
         onWillPop: () async {
@@ -5772,7 +5766,9 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry>
                                               14,
                                             ),
                                             border: Border.all(
-                                              color: Theme.of(context).dividerColor,
+                                              color: Theme.of(
+                                                context,
+                                              ).dividerColor,
                                             ),
                                             boxShadow: [
                                               BoxShadow(
@@ -6591,8 +6587,8 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry>
                                 app_color, // ✅ always full app_color
                             disabledBackgroundColor:
                                 Theme.of(context).brightness == Brightness.dark
-                                    ? Colors.grey.shade700
-                                    : Colors.grey.shade300, // disabled state
+                                ? Colors.grey.shade700
+                                : Colors.grey.shade300, // disabled state
                             shadowColor: app_color.withOpacity(0.4),
                           ),
                           child: Container(

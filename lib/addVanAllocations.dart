@@ -8,6 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants.dart';
+import 'theme_controller.dart';
+import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 
 class VanAllocationScreen extends StatefulWidget {
   const VanAllocationScreen({super.key});
@@ -590,11 +592,15 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
     }*/
 
     return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.more,
+        activeMoreItem: AppMoreItem.vanAllocation,
+      ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: primaryColor,
-        centerTitle: false,
+        centerTitle: true,
         automaticallyImplyLeading: false,
 
         leadingWidth: 70,
@@ -624,7 +630,24 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           ),
         ),
 
-        titleSpacing: 0,
+        actions: [
+          IconButton(
+            tooltip: 'Toggle theme',
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              themeController.setThemeMode(
+                Theme.of(context).brightness == Brightness.dark
+                    ? ThemeMode.light
+                    : ThemeMode.dark,
+              );
+            },
+          ),
+        ],
 
         title: Row(
           children: [
@@ -723,7 +746,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
         style: GoogleFonts.poppins(
           fontSize: 13.5,
           fontWeight: FontWeight.w500,
-          color: textColor,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
         decoration: InputDecoration(
           hintText: 'Search user, location, voucher type...',
@@ -1100,7 +1123,14 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                             margin: const EdgeInsets.only(bottom: 8),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: backgroundColor,
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainerHighest
+                                        .withOpacity(0.5)
+                                  : const Color(0xFFF5F7FA),
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: Row(
@@ -1130,7 +1160,9 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                                         style: GoogleFonts.poppins(
                                           fontSize: 12.5,
                                           fontWeight: FontWeight.w600,
-                                          color: textColor,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                         ),
                                       ),
 
@@ -1261,7 +1293,14 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                             margin: const EdgeInsets.only(bottom: 8),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: backgroundColor,
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainerHighest
+                                        .withOpacity(0.5)
+                                  : const Color(0xFFF5F7FA),
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: Row(
@@ -1286,7 +1325,9 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
                                     style: GoogleFonts.poppins(
                                       fontSize: 12.5,
                                       fontWeight: FontWeight.w600,
-                                      color: textColor,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
                                     ),
                                   ),
                                 ),
@@ -1343,7 +1384,10 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           isExpanded: true,
           icon: Icon(Icons.keyboard_arrow_down_rounded, color: primaryColor),
           decoration: _inputDecoration(icon, 'Select $title'),
-          style: GoogleFonts.poppins(fontSize: 13, color: textColor),
+          style: GoogleFonts.poppins(
+            fontSize: 13,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           items: items.map((e) {
             return DropdownMenuItem(
               value: e,
@@ -1366,7 +1410,11 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           height: 54,
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
-            color: backgroundColor,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withOpacity(0.5)
+                : const Color(0xFFF5F7FA),
             borderRadius: BorderRadius.circular(15),
             border: Border.all(color: Theme.of(context).dividerColor),
           ),
@@ -1422,7 +1470,11 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
           : null,
 
       filled: true,
-      fillColor: backgroundColor,
+      fillColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.5)
+          : const Color(0xFFF5F7FA),
 
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
 
@@ -1461,7 +1513,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: textColor,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
@@ -1475,7 +1527,7 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
       style: GoogleFonts.poppins(
         fontSize: 12.5,
         fontWeight: FontWeight.w600,
-        color: textColor,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }
@@ -1579,6 +1631,9 @@ class _VanAllocationScreenState extends State<VanAllocationScreen> {
     return BoxDecoration(
       color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(radius),
+      border: Theme.of(context).brightness == Brightness.dark
+          ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+          : null,
       boxShadow: [
         BoxShadow(
           color: Colors.black.withOpacity(0.045),

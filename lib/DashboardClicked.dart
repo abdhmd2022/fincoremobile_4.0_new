@@ -20,6 +20,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'constants.dart';
+import 'theme_controller.dart';
 import 'package:cross_file/cross_file.dart';
 
 class LedgerGroup {
@@ -2691,6 +2692,22 @@ class _DashboardClickedPageState extends State<DashboardClicked>
 
           centerTitle: true,
           actions: [
+            IconButton(
+              tooltip: 'Toggle theme',
+              icon: Icon(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                themeController.setThemeMode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? ThemeMode.light
+                      : ThemeMode.dark,
+                );
+              },
+            ),
             /*IconButton(
               onPressed: () {
                 counter++;
@@ -3269,6 +3286,9 @@ class _DashboardClickedPageState extends State<DashboardClicked>
                                     decoration: BoxDecoration(
                                       color: Theme.of(context).cardColor,
                                       borderRadius: BorderRadius.circular(18),
+                                      border: Theme.of(context).brightness == Brightness.dark
+                                          ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+                                          : null,
                                       boxShadow: [
                                         BoxShadow(
                                           color: Colors.black12,

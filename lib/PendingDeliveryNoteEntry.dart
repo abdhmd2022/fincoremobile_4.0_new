@@ -526,13 +526,21 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
       builder: (context, child) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: app_color,
-              onPrimary: Colors.white,
-              onSurface: Theme.of(context).colorScheme.onSurface,
-            ),
+            colorScheme: isDark
+                ? ColorScheme.dark(
+                    primary: app_color,
+                    onPrimary: Colors.white,
+                    surface: const Color(0xFF1F2937),
+                    onSurface: Theme.of(context).colorScheme.onSurface,
+                  )
+                : ColorScheme.light(
+                    primary: app_color,
+                    onPrimary: Colors.white,
+                    onSurface: Theme.of(context).colorScheme.onSurface,
+                  ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(foregroundColor: app_color),
             ),
@@ -1036,6 +1044,8 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                                   context,
                                 ).colorScheme.onSurfaceVariant,
                               ),
+                              filled: true,
+                              fillColor: Colors.transparent,
                               border: InputBorder.none,
                               enabledBorder: InputBorder.none,
                               focusedBorder: InputBorder.none,
@@ -1149,14 +1159,15 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                               margin: const EdgeInsets.only(bottom: 9),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
-                                gradient: LinearGradient(
-                                  colors: [Colors.white, Colors.white],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
+                                color: Theme.of(context).cardColor,
+                                border: Theme.of(context).brightness == Brightness.dark
+                                    ? Border.all(color: const Color(0xFF374151), width: 0.8)
+                                    : null,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? Colors.black.withOpacity(0.3)
+                                        : Colors.black.withOpacity(0.05),
                                     blurRadius: 15,
                                     offset: const Offset(0, 8),
                                   ),
@@ -1371,7 +1382,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                                             ),
                                             border: Border.all(
                                               color: isExpanded
-                                                  ? Colors.grey.shade300
+                                                  ? Theme.of(context).dividerColor
                                                   : app_color.withOpacity(0.18),
                                             ),
                                           ),
@@ -1672,7 +1683,7 @@ class DetailRowTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
-            ? Theme.of(context).colorScheme.surfaceContainerHighest
+            ? const Color(0xFF1F2937)
             : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(14),
       ),

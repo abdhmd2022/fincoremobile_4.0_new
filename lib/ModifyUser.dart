@@ -560,14 +560,21 @@ class _ModifyUserPageState extends State<ModifyUser>
 
         if (responsee ==
             "Kindly Modify Atleast 1 Detail Against Selected User") {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(responsee)));
+          Fluttertoast.showToast(
+            msg: "Please modify at least one detail",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.orangeAccent,
+            textColor: Colors.white,
+          );
         } else {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(responsee)));
-
+          Fluttertoast.showToast(
+            msg: "User updated successfully",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+          );
           modifyAllowedCompanies(email, serial_no!, _selectedCompanies);
         }
       } else {

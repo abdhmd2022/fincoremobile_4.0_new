@@ -26,6 +26,14 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
   DateTime? customEndDate;
   int? decimal = 1;
   String sort = 'Default';
+  bool _canCurrency = true,
+      _canAmtDecimals = true,
+      _canVatPerc = true,
+      _canInactivePDays = true,
+      _canSortType = true,
+      _canDefDateRange = true,
+      _canAgeingConfig = true,
+      _canFastSlowInactiveItem = true;
   final TextEditingController vatController = TextEditingController();
   final TextEditingController inactivedaysController = TextEditingController();
 
@@ -92,6 +100,26 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
     } catch (e) {
       decimal = 2;
     }
+
+    final bool isAdmin =
+        (prefs.getString('secbtnaccess') ?? 'False') == 'True';
+    _canCurrency =
+        isAdmin || (prefs.getString('settings_currency') ?? 'False') == 'True';
+    _canAmtDecimals =
+        isAdmin || (prefs.getString('settings_amtdecimals') ?? 'False') == 'True';
+    _canVatPerc =
+        isAdmin || (prefs.getString('settings_vatperc') ?? 'False') == 'True';
+    _canInactivePDays =
+        isAdmin || (prefs.getString('settings_inactivepdays') ?? 'False') == 'True';
+    _canSortType =
+        isAdmin || (prefs.getString('settings_sorttype') ?? 'False') == 'True';
+    _canDefDateRange =
+        isAdmin || (prefs.getString('settings_defdaterange') ?? 'False') == 'True';
+    _canAgeingConfig =
+        isAdmin || (prefs.getString('settings_ageingconfig') ?? 'False') == 'True';
+    _canFastSlowInactiveItem =
+        isAdmin ||
+        (prefs.getString('settings_fastslowinactiveitem') ?? 'False') == 'True';
 
     if (mounted) {
       setState(() {});
@@ -221,6 +249,8 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           children: [
             _buildHeaderCard(),
+
+            // ── Appearance (always visible) ──────────────────────────────
             const SizedBox(height: 18),
             _buildSectionLabel('Appearance'),
             _buildSettingsGroup(
@@ -236,92 +266,118 @@ class _MyHomePageState extends State<Settings> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            const SizedBox(height: 18),
-            _buildSectionLabel('General'),
-            _buildSettingsGroup(
-              children: [
-                _buildTile(
-                  icon: Icons.attach_money_rounded,
-                  title: 'Currency',
-                  subtitle: 'Select currency for the app',
-                  value: groupvalue,
-                  onTap: () => _showCurrencyDialog(context),
-                ),
-                _buildTile(
-                  icon: Icons.numbers_rounded,
-                  title: 'Amount in Decimals',
-                  subtitle: 'Customize number of decimal points',
-                  value: _decimalLabel(),
-                  onTap: () => _showDecimalDialog(context),
-                ),
-                _buildTile(
-                  icon: Icons.percent_rounded,
-                  title: 'VAT Percentage',
-                  subtitle: 'Set VAT percentage for the app',
-                  value: '${vatController.text}%',
-                  onTap: () => _showVatInputDialog(context),
-                ),
-              ],
-            ),
-            const SizedBox(height: 18),
-            _buildSectionLabel('Defaults'),
-            _buildSettingsGroup(
-              children: [
-                _buildTile(
-                  icon: Icons.calendar_today_outlined,
-                  title: 'Inactive Parties Days',
-                  subtitle: 'Set no. of inactive party days',
-                  value: '${inactivedaysController.text} days',
-                  onTap: () => _showInactivedaysInputDialog(context),
-                ),
-                _buildTile(
-                  icon: Icons.sort_rounded,
-                  title: 'Sort Type',
-                  subtitle: 'Default sorting selection for the app',
-                  value: sort,
-                  onTap: () => _showSortDialog(context),
-                ),
-                _buildTile(
-                  icon: Icons.date_range_rounded,
-                  title: 'Default Date Range',
-                  subtitle: 'Select default report period',
-                  value: _dateRangeLabel(),
-                  onTap: () => _showDateRangeDialog(context),
-                ),
-              ],
-            ),
-            const SizedBox(height: 18),
-            _buildSectionLabel('Configurations'),
-            _buildSettingsGroup(
-              children: [
-                _buildTile(
-                  icon: Icons.access_time_rounded,
-                  title: 'Ageing Configuration',
-                  subtitle: 'Customize ageing range',
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => AgeingConfig()),
-                  ),
-                ),
-                _buildTile(
-                  icon: Icons.stacked_bar_chart_rounded,
-                  title: 'Fast/Slow/Inactive Items',
-                  subtitle: 'Customize Fast/Slow/Inactive Items Criteria',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => FastMovingInactiveItemsCriteria(
-                          fastmoving_visible: true,
-                          slowmoving_visible: true,
-                          inactive_visible: true,
-                        ),
+
+            // ── General ──────────────────────────────────────────────────
+            if ([_canCurrency, _canAmtDecimals, _canVatPerc].any((v) => v))
+              const SizedBox(height: 18),
+            if ([_canCurrency, _canAmtDecimals, _canVatPerc].any((v) => v))
+              _buildSectionLabel('General'),
+            if ([_canCurrency, _canAmtDecimals, _canVatPerc].any((v) => v))
+              _buildSettingsGroup(
+                children: [
+                  if (_canCurrency)
+                    _buildTile(
+                      icon: Icons.attach_money_rounded,
+                      title: 'Currency',
+                      subtitle: 'Select currency for the app',
+                      value: groupvalue,
+                      onTap: () => _showCurrencyDialog(context),
+                    ),
+                  if (_canAmtDecimals)
+                    _buildTile(
+                      icon: Icons.numbers_rounded,
+                      title: 'Amount in Decimals',
+                      subtitle: 'Customize number of decimal points',
+                      value: _decimalLabel(),
+                      onTap: () => _showDecimalDialog(context),
+                    ),
+                  if (_canVatPerc)
+                    _buildTile(
+                      icon: Icons.percent_rounded,
+                      title: 'VAT Percentage',
+                      subtitle: 'Set VAT percentage for the app',
+                      value: '${vatController.text}%',
+                      onTap: () => _showVatInputDialog(context),
+                    ),
+                ],
+              ),
+
+            // ── Defaults ─────────────────────────────────────────────────
+            if ([_canInactivePDays, _canSortType, _canDefDateRange]
+                .any((v) => v))
+              const SizedBox(height: 18),
+            if ([_canInactivePDays, _canSortType, _canDefDateRange]
+                .any((v) => v))
+              _buildSectionLabel('Defaults'),
+            if ([_canInactivePDays, _canSortType, _canDefDateRange]
+                .any((v) => v))
+              _buildSettingsGroup(
+                children: [
+                  if (_canInactivePDays)
+                    _buildTile(
+                      icon: Icons.calendar_today_outlined,
+                      title: 'Inactive Parties Days',
+                      subtitle: 'Set no. of inactive party days',
+                      value: '${inactivedaysController.text} days',
+                      onTap: () => _showInactivedaysInputDialog(context),
+                    ),
+                  if (_canSortType)
+                    _buildTile(
+                      icon: Icons.sort_rounded,
+                      title: 'Sort Type',
+                      subtitle: 'Default sorting selection for the app',
+                      value: sort,
+                      onTap: () => _showSortDialog(context),
+                    ),
+                  if (_canDefDateRange)
+                    _buildTile(
+                      icon: Icons.date_range_rounded,
+                      title: 'Default Date Range',
+                      subtitle: 'Select default report period',
+                      value: _dateRangeLabel(),
+                      onTap: () => _showDateRangeDialog(context),
+                    ),
+                ],
+              ),
+
+            // ── Configurations ───────────────────────────────────────────
+            if ([_canAgeingConfig, _canFastSlowInactiveItem].any((v) => v))
+              const SizedBox(height: 18),
+            if ([_canAgeingConfig, _canFastSlowInactiveItem].any((v) => v))
+              _buildSectionLabel('Configurations'),
+            if ([_canAgeingConfig, _canFastSlowInactiveItem].any((v) => v))
+              _buildSettingsGroup(
+                children: [
+                  if (_canAgeingConfig)
+                    _buildTile(
+                      icon: Icons.access_time_rounded,
+                      title: 'Ageing Configuration',
+                      subtitle: 'Customize ageing range',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => AgeingConfig()),
                       ),
-                    );
-                  },
-                ),
-              ],
-            ),
+                    ),
+                  if (_canFastSlowInactiveItem)
+                    _buildTile(
+                      icon: Icons.stacked_bar_chart_rounded,
+                      title: 'Fast/Slow/Inactive Items',
+                      subtitle: 'Customize Fast/Slow/Inactive Items Criteria',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => FastMovingInactiveItemsCriteria(
+                              fastmoving_visible: true,
+                              slowmoving_visible: true,
+                              inactive_visible: true,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                ],
+              ),
           ],
         ),
       ),

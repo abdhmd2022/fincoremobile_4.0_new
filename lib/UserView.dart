@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'CreateUser.dart';
 import 'SerialSelect.dart';
 import 'constants.dart';
+import 'theme_controller.dart';
 import 'package:http/http.dart' as http;
 
 class UserModel {
@@ -403,6 +404,24 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
               ),
             ),
             centerTitle: true,
+            actions: [
+              IconButton(
+                tooltip: 'Toggle theme',
+                icon: Icon(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Icons.light_mode
+                      : Icons.dark_mode,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  themeController.setThemeMode(
+                    Theme.of(context).brightness == Brightness.dark
+                        ? ThemeMode.light
+                        : ThemeMode.dark,
+                  );
+                },
+              ),
+            ],
           ),
         ),
 
@@ -517,6 +536,9 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                               context,
                             ).cardColor.withOpacity(0.95),
                             borderRadius: BorderRadius.circular(20),
+                            border: Theme.of(context).brightness == Brightness.dark
+                                ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+                                : null,
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black12.withOpacity(0.08),

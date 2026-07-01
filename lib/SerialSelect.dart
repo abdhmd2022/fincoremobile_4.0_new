@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:url_launcher/url_launcher.dart';
 import 'constants.dart';
+import 'theme_controller.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class Serial {
@@ -33,7 +34,10 @@ class Serial {
 }
 
 class SerialSelect extends StatefulWidget {
-  const SerialSelect({Key? key}) : super(key: key);
+  /// When true the screen skips rendering the selection UI and navigates
+  /// straight to Dashboard as soon as the auto 1-serial-1-company check passes.
+  final bool autoNavigate;
+  const SerialSelect({Key? key, this.autoNavigate = false}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -114,6 +118,9 @@ class _MyHomePageState extends State<SerialSelect>
   bool _isVisibleCompany = false;
   dynamic _selectedserial, _selectcompany, _selectedadmin, _selectedrole;
   bool _isLoading = false;
+  // True while we're silently attempting auto-navigate (1 serial + 1 company).
+  // Flips to false if auto-navigate doesn't apply, revealing the normal UI.
+  bool _silentMode = false;
   String serial_no = "",
       role_id = "",
       license_expiry = "",
@@ -244,6 +251,22 @@ class _MyHomePageState extends State<SerialSelect>
           ),
 
           actions: [
+            IconButton(
+              tooltip: 'Toggle theme',
+              icon: Icon(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                themeController.setThemeMode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? ThemeMode.light
+                      : ThemeMode.dark,
+                );
+              },
+            ),
             ElevatedButton.icon(
               onPressed: () async {
                 Map<String, dynamic> selected_data = _selectcompany;
@@ -1160,11 +1183,32 @@ class _MyHomePageState extends State<SerialSelect>
     });
     socket.connect();
 
+    _silentMode = widget.autoNavigate;
     _initSharedPreferences();
   }
 
   @override
   Widget build(BuildContext context) {
+    // While silently attempting auto-navigate show a plain loading screen.
+    // _silentMode flips to false if auto-navigate doesn't apply.
+    if (_silentMode) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: Center(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const AppLogoLoader(size: 80),
+            const SizedBox(height: 20),
+            Text('Signing in…',
+                style: GoogleFonts.poppins(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                )),
+          ]),
+        ),
+      );
+    }
+
     return WillPopScope(
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -1875,6 +1919,39 @@ class _MyHomePageState extends State<SerialSelect>
         prefs.setString("vanallocation", VanAllocationHolder);
         prefs.setString("deliverynoteentry", DeliveryNoteEntryHolder);
 
+        prefs.setString(
+          "settings_currency",
+          _selectedrole[0]["is_Settings_Currency"] ?? "False",
+        );
+        prefs.setString(
+          "settings_amtdecimals",
+          _selectedrole[0]["is_Settings_AmtDecimals"] ?? "False",
+        );
+        prefs.setString(
+          "settings_vatperc",
+          _selectedrole[0]["is_Settings_VatPerc"] ?? "False",
+        );
+        prefs.setString(
+          "settings_inactivepdays",
+          _selectedrole[0]["is_Settings_InactivePDays"] ?? "False",
+        );
+        prefs.setString(
+          "settings_sorttype",
+          _selectedrole[0]["is_Settings_SortType"] ?? "False",
+        );
+        prefs.setString(
+          "settings_defdaterange",
+          _selectedrole[0]["is_Settings_DefDateRange"] ?? "False",
+        );
+        prefs.setString(
+          "settings_ageingconfig",
+          _selectedrole[0]["is_Settings_AgeingCnfig"] ?? "False",
+        );
+        prefs.setString(
+          "settings_fastslowinactiveitem",
+          _selectedrole[0]["is_Settings_FastSlowInactiveItem"] ?? "False",
+        );
+
         prefs.setString("salesdash", SalesDashHolder);
         prefs.setString("purchasedash", PurchaseDashHolder);
         prefs.setString("barchartdash", BarChartDashHolder);
@@ -2103,6 +2180,7 @@ class _MyHomePageState extends State<SerialSelect>
 
         // ✅ Auto-navigate when single serial + single company
         if (myData.length == 1 && myData_company.length == 1) {
+
           final company_name = myData_company.first['company_name'].toString();
           startfrom = myData_company.first['startfrom'].toString();
           currency = myData_company.first['base_currency'].toString();
@@ -2122,12 +2200,6 @@ class _MyHomePageState extends State<SerialSelect>
           prefs.setString("company_emirate", result['emirate'] ?? "");
           prefs.setString("company_country", result['country'] ?? "");
 
-          Fluttertoast.showToast(
-            msg: "Auto-login to $company_name (Serial: $serial_no)",
-            backgroundColor: Theme.of(context).colorScheme.onSurface,
-            textColor: Colors.white,
-            fontSize: 14.0,
-          );
 
           if (secbtnaccess == "True") {
             for (String key in [
@@ -2171,6 +2243,14 @@ class _MyHomePageState extends State<SerialSelect>
               "costcentreentries",
               "vanallocation",
               "deliverynoteentry",
+              "settings_currency",
+              "settings_amtdecimals",
+              "settings_vatperc",
+              "settings_inactivepdays",
+              "settings_sorttype",
+              "settings_defdaterange",
+              "settings_ageingconfig",
+              "settings_fastslowinactiveitem",
             ]) {
               prefs.setString(key, "True");
             }
@@ -2197,6 +2277,9 @@ class _MyHomePageState extends State<SerialSelect>
             }
             await getroledata(context, serial_no, role_id);
           }
+        } else {
+          // More than 1 serial or company — reveal the selection UI
+          if (mounted) setState(() => _silentMode = false);
         }
       } else {
         setState(() {
@@ -2341,6 +2424,9 @@ class _MyHomePageState extends State<SerialSelect>
               }
               getroledata(context, serial_no, role_id);
             }
+          } else {
+            // More than 1 serial or company — reveal the selection UI
+            if (mounted) setState(() => _silentMode = false);
           }
         }
       } else {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:ui';
+import 'theme_controller.dart';
 import 'package:FincoreGo/Dashboard.dart';
 import 'package:FincoreGo/constants.dart';
 import 'package:flutter/cupertino.dart';
@@ -857,6 +858,22 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin {
           ),
           centerTitle: true,
           actions: [
+            IconButton(
+              tooltip: 'Toggle theme',
+              icon: Icon(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                themeController.setThemeMode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? ThemeMode.light
+                      : ThemeMode.dark,
+                );
+              },
+            ),
             /*IconButton(
               onPressed: () {
 

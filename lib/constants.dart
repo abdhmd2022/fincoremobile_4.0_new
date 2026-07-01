@@ -206,16 +206,13 @@ class _AppLogoLoaderState extends State<AppLogoLoader>
             child: ScaleTransition(
               scale: _scale,
               child: ClipOval(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(color: Theme.of(context).cardColor),
-                  child: Padding(
-                    padding: EdgeInsets.all(widget.size * 0.02),
-                    child: Image.asset(
-                      widget.logoAsset,
-                      width: logoSize,
-                      height: logoSize,
-                      fit: BoxFit.contain,
-                    ),
+                child: Transform.scale(
+                  scale: 1.05,
+                  child: Image.asset(
+                    widget.logoAsset,
+                    width: logoSize,
+                    height: logoSize,
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),

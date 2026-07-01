@@ -240,10 +240,14 @@ class _CreateUserPageState extends State<CreateUser>
       if (response.statusCode == 200) {
         String responsee = response.body;
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(responsee)));
         if (responsee == "User Registered Successfully") {
+          Fluttertoast.showToast(
+            msg: "User created successfully",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+          );
           addAllowedCompanies(email, serial_no!, _selectedCompanies);
 
           controller_username.clear();

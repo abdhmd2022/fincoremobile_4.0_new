@@ -18,6 +18,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'theme_controller.dart';
 
 class SalesRegistration extends StatefulWidget {
   const SalesRegistration({Key? key}) : super(key: key);
@@ -4833,7 +4834,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                           width: 45,
                           height: 5,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
+                            color: Theme.of(context).dividerColor,
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -5703,7 +5704,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                         width: 45,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
+                          color: Theme.of(context).dividerColor,
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -6636,6 +6637,24 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
               ],
             ),
           ),
+          actions: [
+            IconButton(
+              tooltip: 'Toggle theme',
+              icon: Icon(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                themeController.setThemeMode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? ThemeMode.light
+                      : ThemeMode.dark,
+                );
+              },
+            ),
+          ],
         ),
       ),
       drawer: Sidebar(
@@ -6867,7 +6886,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
 
                                   filled: true,
                                   fillColor: canEditVoucherNo
-                                      ? Colors.white
+                                      ? Theme.of(context).inputDecorationTheme.fillColor
                                       : (Theme.of(context).brightness ==
                                                 Brightness.dark
                                             ? Theme.of(context)
@@ -6920,7 +6939,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                                     borderSide: BorderSide(
                                       color: canEditVoucherNo
                                           ? Colors.teal.shade200
-                                          : Colors.grey.shade300,
+                                          : Theme.of(context).dividerColor,
                                       width: 1,
                                     ),
                                   ),
@@ -6930,7 +6949,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                                     borderSide: BorderSide(
                                       color: canEditVoucherNo
                                           ? Colors.teal
-                                          : Colors.grey.shade300,
+                                          : Theme.of(context).dividerColor,
                                       width: 1.5,
                                     ),
                                   ),
@@ -7074,9 +7093,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(16),
                                         borderSide: BorderSide(
-                                          color: isVoucherTypeLocked
-                                              ? Colors.grey.shade400
-                                              : Colors.grey.shade300,
+                                          color: Theme.of(context).dividerColor,
                                           width: 1,
                                         ),
                                       ),
@@ -7454,9 +7471,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(16),
                                         borderSide: BorderSide(
-                                          color: isSalesLedgerLocked
-                                              ? Colors.grey.shade400
-                                              : Colors.grey.shade300,
+                                          color: Theme.of(context).dividerColor,
                                           width: 1,
                                         ),
                                       ),
@@ -7907,7 +7922,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                                               16,
                                             ),
                                             border: Border.all(
-                                              color: Colors.grey.shade300,
+                                              color: Theme.of(context).dividerColor,
                                             ),
                                             boxShadow: [
                                               BoxShadow(
@@ -8345,7 +8360,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                                               14,
                                             ),
                                             border: Border.all(
-                                              color: Colors.grey.shade200,
+                                              color: Theme.of(context).dividerColor,
                                             ),
                                             boxShadow: [
                                               BoxShadow(
@@ -9008,7 +9023,9 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                             backgroundColor:
                                 app_color, // ✅ always full app_color
                             disabledBackgroundColor:
-                                Colors.grey.shade300, // disabled state
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.grey.shade700
+                                    : Colors.grey.shade300, // disabled state
                             shadowColor: app_color.withOpacity(0.4),
                           ),
                           child: Row(

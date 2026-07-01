@@ -26,7 +26,7 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
 
   final TextEditingController _textEditingController = TextEditingController();
 
-  bool isLengthErrorVisible = true;
+  bool isLengthErrorVisible = false;
 
   String name = "", email = "";
 
@@ -80,7 +80,7 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
         'Fincore Go App Support'; // Replace with your desired subject
     final String recipientEmail =
         'saadan@ca-eim.com'; // Replace with your desired recipient email
-    final List<String> ccEmails = ["praveen@ca-eim.com"];
+    // final List<String> ccEmails = ["praveen@ca-eim.com"];
     final String nameAndEmail = 'Name: $name\nEmail: $email\n\n';
     final String additionalText = _textEditingController.text;
 
@@ -89,14 +89,16 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
       path: recipientEmail,
       queryParameters: {
         'subject': subject,
-        'body': '$nameAndEmail$additionalText',
-        'cc': ccEmails.join(','),
+        'body': '$nameAndEmail$additionalText'
+        //'cc': ccEmails.join(','),
       },
     );
 
-    final String emailUrl = emailUri.toString();
-
-    await launch(emailUrl);
+    if (await canLaunchUrl(emailUri)) {
+      await launchUrl(emailUri);
+    } else {
+      Fluttertoast.showToast(msg: 'Could not open email app');
+    }
   }
 
   @override
@@ -305,29 +307,31 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
+                TextField(
 
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Theme.of(context).dividerColor),
-                  ),
-                  child: TextField(
-                    controller: _textEditingController,
-                    decoration: InputDecoration(
-                      hintText: "Type your message here...",
-                      hintStyle: GoogleFonts.poppins(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      border: InputBorder.none,
+                  controller: _textEditingController,
+                  decoration: InputDecoration(
+                    hintText: "Type your message here...",
+                    hintStyle: GoogleFonts.poppins(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
-                    keyboardType: TextInputType.multiline,
-                    maxLines: 5,
+                    filled: true,
+                    fillColor: Colors.transparent,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: app_color, width: 1.5),
+                    ),
                   ),
+                  keyboardType: TextInputType.multiline,
+                  maxLines: 5,
                 ),
 
                 // Error message

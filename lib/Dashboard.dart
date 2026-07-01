@@ -20,6 +20,7 @@ import 'DashboardAnalytics.dart';
 import 'PendingSalesOrderEntry.dart';
 import 'SerialSelect.dart';
 import 'constants.dart';
+import 'theme_controller.dart';
 import 'package:http/http.dart' as http;
 
 List<String> months_chart = [];
@@ -2675,6 +2676,24 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                 ],
               ),
             ),
+            actions: [
+              IconButton(
+                tooltip: 'Toggle theme',
+                icon: Icon(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Icons.light_mode
+                      : Icons.dark_mode,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  themeController.setThemeMode(
+                    Theme.of(context).brightness == Brightness.dark
+                        ? ThemeMode.light
+                        : ThemeMode.dark,
+                  );
+                },
+              ),
+            ],
           ),
         ),
 
@@ -3170,22 +3189,8 @@ class _MyHomePageState extends State<Dashboard> with TickerProviderStateMixin {
                 color: Theme.of(context).brightness == Brightness.dark
                     ? Colors.black.withOpacity(0.58)
                     : Colors.white.withOpacity(0.72),
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 18,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: AppLogoLoader(),
-                  ),
+                child: const Center(
+                  child: AppLogoLoader(),
                 ),
               ),
             ),

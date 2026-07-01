@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'RolesView.dart';
 import 'Sidebar.dart';
 import 'constants.dart';
+import 'theme_controller.dart';
 import 'package:http/http.dart' as http;
 
 class Roles {
@@ -81,7 +82,15 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       ReceiptEntryHolder,
       SalesOrderEntryHolder,
       DeliveryNoteEntryHolder,
-      VanAllocationSetupHolder;
+      VanAllocationSetupHolder,
+      SettingsCurrencyHolder,
+      SettingsAmtDecimalsHolder,
+      SettingsVatPercHolder,
+      SettingsInactivePDaysHolder,
+      SettingsSortTypeHolder,
+      SettingsDefDateRangeHolder,
+      SettingsAgeingConfigHolder,
+      SettingsFastSlowInactiveItemHolder;
 
   late String salesdashcheck,
       barchartdashcheck,
@@ -122,7 +131,15 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       party_supplierscheck,
       party_customerscheck,
       deliverynoteentrycheck,
-      vanallocationsetupcheck;
+      vanallocationsetupcheck,
+      settingscurrencycheck,
+      settingsamtdecimalscheck,
+      settingsvatperccheck,
+      settingsinactivepdayscheck,
+      settingssorttypecheck,
+      settingsdefdaterangecheck,
+      settingsageingconfigcheck,
+      settingsfastslowinactiveitemcheck;
 
   bool isDashEnable = true,
       isRolesVisible = true,
@@ -175,7 +192,16 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       isReceiptEntryAccess = false,
       isSalesOrderEntryAccess = false,
       isDeliveryNoteEntryAccess = false,
-      isVanAllocationSetupAccess = false;
+      isVanAllocationSetupAccess = false,
+      isSettingsAccessCheck = false,
+      isSettingsCurrencyAccess = false,
+      isSettingsAmtDecimalsAccess = false,
+      isSettingsVatPercAccess = false,
+      isSettingsInactivePDaysAccess = false,
+      isSettingsSortTypeAccess = false,
+      isSettingsDefDateRangeAccess = false,
+      isSettingsAgeingConfigAccess = false,
+      isSettingsFastSlowInactiveItemAccess = false;
 
   String name = "", email = "", selectedRole = "";
   late SharedPreferences prefs;
@@ -646,6 +672,93 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
     }
   }
 
+  List<Map<String, dynamic>> get settingsPermissions => [
+    {
+      'label': 'Currency',
+      'value': isSettingsCurrencyAccess,
+      'onChanged': (v) => _updateSettings('currency', v),
+    },
+    {
+      'label': 'Amount Decimals',
+      'value': isSettingsAmtDecimalsAccess,
+      'onChanged': (v) => _updateSettings('amtdecimals', v),
+    },
+    {
+      'label': 'VAT %',
+      'value': isSettingsVatPercAccess,
+      'onChanged': (v) => _updateSettings('vatperc', v),
+    },
+    {
+      'label': 'Inactive Party Days',
+      'value': isSettingsInactivePDaysAccess,
+      'onChanged': (v) => _updateSettings('inactivepdays', v),
+    },
+    {
+      'label': 'Sort Type',
+      'value': isSettingsSortTypeAccess,
+      'onChanged': (v) => _updateSettings('sorttype', v),
+    },
+    {
+      'label': 'Default Date Range',
+      'value': isSettingsDefDateRangeAccess,
+      'onChanged': (v) => _updateSettings('defdaterange', v),
+    },
+    {
+      'label': 'Ageing Config',
+      'value': isSettingsAgeingConfigAccess,
+      'onChanged': (v) => _updateSettings('ageingconfig', v),
+    },
+    {
+      'label': 'Fast/Slow/Inactive Item',
+      'value': isSettingsFastSlowInactiveItemAccess,
+      'onChanged': (v) => _updateSettings('fastslowinactiveitem', v),
+    },
+  ];
+
+  void _updateSettings(String key, bool? value) {
+    setState(() {
+      switch (key) {
+        case 'currency':
+          isSettingsCurrencyAccess = value!;
+          break;
+        case 'amtdecimals':
+          isSettingsAmtDecimalsAccess = value!;
+          break;
+        case 'vatperc':
+          isSettingsVatPercAccess = value!;
+          break;
+        case 'inactivepdays':
+          isSettingsInactivePDaysAccess = value!;
+          break;
+        case 'sorttype':
+          isSettingsSortTypeAccess = value!;
+          break;
+        case 'defdaterange':
+          isSettingsDefDateRangeAccess = value!;
+          break;
+        case 'ageingconfig':
+          isSettingsAgeingConfigAccess = value!;
+          break;
+        case 'fastslowinactiveitem':
+          isSettingsFastSlowInactiveItemAccess = value!;
+          break;
+      }
+      _syncSettingsMasterToggle();
+    });
+  }
+
+  void _syncSettingsMasterToggle() {
+    isSettingsAccessCheck =
+        isSettingsCurrencyAccess &&
+        isSettingsAmtDecimalsAccess &&
+        isSettingsVatPercAccess &&
+        isSettingsInactivePDaysAccess &&
+        isSettingsSortTypeAccess &&
+        isSettingsDefDateRangeAccess &&
+        isSettingsAgeingConfigAccess &&
+        isSettingsFastSlowInactiveItemAccess;
+  }
+
   Future<void> addrolefunction(
     final String role_namee,
     final String serialno,
@@ -689,6 +802,14 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
     final salesorderentrycheck,
     final deliverynoteentrycheck,
     final vanallocationsetupcheck,
+    final settingscurrencycheck,
+    final settingsamtdecimalscheck,
+    final settingsvatperccheck,
+    final settingsinactivepdayscheck,
+    final settingssorttypecheck,
+    final settingsdefdaterangecheck,
+    final settingsageingconfigcheck,
+    final settingsfastslowinactiveitemcheck,
   ) async {
     setState(() {
       _isLoading = true;
@@ -743,6 +864,14 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
       "salesOrderEntry": salesorderentrycheck,
       "isDeliveryNoteEntry": deliverynoteentrycheck,
       "isVanAllocationSetup": vanallocationsetupcheck,
+      "is_Settings_Currency": settingscurrencycheck,
+      "is_Settings_AmtDecimals": settingsamtdecimalscheck,
+      "is_Settings_VatPerc": settingsvatperccheck,
+      "is_Settings_InactivePDays": settingsinactivepdayscheck,
+      "is_Settings_SortType": settingssorttypecheck,
+      "is_Settings_DefDateRange": settingsdefdaterangecheck,
+      "is_Settings_AgeingCnfig": settingsageingconfigcheck,
+      "is_Settings_FastSlowInactiveItem": settingsfastslowinactiveitemcheck,
     });
 
     final response = await http.post(url, body: body, headers: headers);
@@ -750,12 +879,22 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
     if (response.statusCode == 200) {
       final responseBody = response.body;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(responseBody)));
       if (responseBody == "Role already exists") {
-        // DO NOTHING
+        Fluttertoast.showToast(
+          msg: "Role already exists",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          textColor: Colors.white,
+        );
       } else {
+        Fluttertoast.showToast(
+          msg: "Role added successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
         WidgetsBinding.instance.addPostFrameCallback((_) {
           SchedulerBinding.instance.addPostFrameCallback((_) {
             Navigator.pushReplacement(
@@ -936,6 +1075,14 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
                               salesorderentrycheck,
                               deliverynoteentrycheck,
                               vanallocationsetupcheck,
+                              settingscurrencycheck,
+                              settingsamtdecimalscheck,
+                              settingsvatperccheck,
+                              settingsinactivepdayscheck,
+                              settingssorttypecheck,
+                              settingsdefdaterangecheck,
+                              settingsageingconfigcheck,
+                              settingsfastslowinactiveitemcheck,
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -1183,6 +1330,23 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
         } else {
           party_customerscheck = "False";
         }
+
+        settingscurrencycheck =
+            isSettingsCurrencyAccess ? "True" : "False";
+        settingsamtdecimalscheck =
+            isSettingsAmtDecimalsAccess ? "True" : "False";
+        settingsvatperccheck =
+            isSettingsVatPercAccess ? "True" : "False";
+        settingsinactivepdayscheck =
+            isSettingsInactivePDaysAccess ? "True" : "False";
+        settingssorttypecheck =
+            isSettingsSortTypeAccess ? "True" : "False";
+        settingsdefdaterangecheck =
+            isSettingsDefDateRangeAccess ? "True" : "False";
+        settingsageingconfigcheck =
+            isSettingsAgeingConfigAccess ? "True" : "False";
+        settingsfastslowinactiveitemcheck =
+            isSettingsFastSlowInactiveItemAccess ? "True" : "False";
       });
       _showConfirmationDialogAndNavigate(context);
     }
@@ -1259,6 +1423,22 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
             saved_roles_data_list[0]["isDeliveryNoteEntry"] ?? "False";
         VanAllocationSetupHolder =
             saved_roles_data_list[0]["isVanAllocationSetup"] ?? "False";
+        SettingsCurrencyHolder =
+            saved_roles_data_list[0]["is_Settings_Currency"] ?? "False";
+        SettingsAmtDecimalsHolder =
+            saved_roles_data_list[0]["is_Settings_AmtDecimals"] ?? "False";
+        SettingsVatPercHolder =
+            saved_roles_data_list[0]["is_Settings_VatPerc"] ?? "False";
+        SettingsInactivePDaysHolder =
+            saved_roles_data_list[0]["is_Settings_InactivePDays"] ?? "False";
+        SettingsSortTypeHolder =
+            saved_roles_data_list[0]["is_Settings_SortType"] ?? "False";
+        SettingsDefDateRangeHolder =
+            saved_roles_data_list[0]["is_Settings_DefDateRange"] ?? "False";
+        SettingsAgeingConfigHolder =
+            saved_roles_data_list[0]["is_Settings_AgeingCnfig"] ?? "False";
+        SettingsFastSlowInactiveItemHolder =
+            saved_roles_data_list[0]["is_Settings_FastSlowInactiveItem"] ?? "False";
 
         setState(() {
           _isLoading = true;
@@ -1412,6 +1592,25 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
             isDeliveryNoteEntryAccess = false;
             isVanAllocationSetupAccess = false;
           }
+
+          isSettingsCurrencyAccess = SettingsCurrencyHolder == "True";
+          isSettingsAmtDecimalsAccess = SettingsAmtDecimalsHolder == "True";
+          isSettingsVatPercAccess = SettingsVatPercHolder == "True";
+          isSettingsInactivePDaysAccess = SettingsInactivePDaysHolder == "True";
+          isSettingsSortTypeAccess = SettingsSortTypeHolder == "True";
+          isSettingsDefDateRangeAccess = SettingsDefDateRangeHolder == "True";
+          isSettingsAgeingConfigAccess = SettingsAgeingConfigHolder == "True";
+          isSettingsFastSlowInactiveItemAccess =
+              SettingsFastSlowInactiveItemHolder == "True";
+          isSettingsAccessCheck =
+              isSettingsCurrencyAccess &&
+              isSettingsAmtDecimalsAccess &&
+              isSettingsVatPercAccess &&
+              isSettingsInactivePDaysAccess &&
+              isSettingsSortTypeAccess &&
+              isSettingsDefDateRangeAccess &&
+              isSettingsAgeingConfigAccess &&
+              isSettingsFastSlowInactiveItemAccess;
 
           if (vanSalesSerialNo.contains(serial_no)) {
             isEntryAccessCheck =
@@ -1674,6 +1873,20 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
     });
   }
 
+  void _toggleSettings(bool value) {
+    setState(() {
+      isSettingsAccessCheck = value;
+      isSettingsCurrencyAccess = value;
+      isSettingsAmtDecimalsAccess = value;
+      isSettingsVatPercAccess = value;
+      isSettingsInactivePDaysAccess = value;
+      isSettingsSortTypeAccess = value;
+      isSettingsDefDateRangeAccess = value;
+      isSettingsAgeingConfigAccess = value;
+      isSettingsFastSlowInactiveItemAccess = value;
+    });
+  }
+
   Future<void> _initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
 
@@ -1770,6 +1983,24 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
               ),
             ),
             centerTitle: true,
+            actions: [
+              IconButton(
+                tooltip: 'Toggle theme',
+                icon: Icon(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Icons.light_mode
+                      : Icons.dark_mode,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  themeController.setThemeMode(
+                    Theme.of(context).brightness == Brightness.dark
+                        ? ThemeMode.light
+                        : ThemeMode.dark,
+                  );
+                },
+              ),
+            ],
           ),
         ),
 
@@ -1862,6 +2093,17 @@ class _AddRolePageState extends State<AddRole> with TickerProviderStateMixin {
                     isChecked: isEntryAccessCheck,
                     onToggle: (val) => _toggleEntry(val!),
                     children: _buildPermissionList(entryPermissions),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // Settings Access
+                  _buildPermissionCard(
+                    title: 'Settings Access',
+                    icon: Icons.settings,
+                    isChecked: isSettingsAccessCheck,
+                    onToggle: (val) => _toggleSettings(val!),
+                    children: _buildPermissionList(settingsPermissions),
                   ),
 
                   const SizedBox(height: 22),

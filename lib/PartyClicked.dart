@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'PartyClickedRecPayClicked.dart';
 import 'PartyClickedSalePurcOrder.dart';
 import 'PartyClickedSoldPurchaseClicked.dart';
-import 'PartyTotalClicked.dart';
+import 'PartyDrillDown.dart';
 import 'PartyTotalClickedRest.dart';
 import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
@@ -20,6 +20,7 @@ import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'constants.dart';
+import 'theme_controller.dart';
 
 class Summary {
   final String vchtype, totalInvoice, averageAmount, lastdate, totalAmount;
@@ -819,10 +820,6 @@ class _PartyClickedPageState extends State<PartyClicked>
     final double value = double.tryParse(outstanding) ?? 0.0;
 
     if (value == 0) return;
-
-    setState(() {
-      isVisibleNoDataFound = false;
-    });
 
     if (value < 0) {
       if (receivableparty == 'True') {
@@ -2466,6 +2463,22 @@ class _PartyClickedPageState extends State<PartyClicked>
           ),
           centerTitle: true,
           actions: [
+            IconButton(
+              tooltip: 'Toggle theme',
+              icon: Icon(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                themeController.setThemeMode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? ThemeMode.light
+                      : ThemeMode.dark,
+                );
+              },
+            ),
             Visibility(
               visible: isSearchLayoutVisible,
               child: Align(
@@ -2861,7 +2874,7 @@ class _PartyClickedPageState extends State<PartyClicked>
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (isVisibleNoDataFound)
+                              if (isVisibleNoDataFound && !ReceivableVisibility && !PayableVisibility && !SalesOrderVisibility && !PurchaseOrderVisibility)
                                 Padding(
                                   padding: EdgeInsets.only(top: 40),
                                   child: Center(
@@ -3711,16 +3724,15 @@ class _PartyClickedPageState extends State<PartyClicked>
                     colors: [Colors.teal.shade400, Colors.teal.shade600],
                   )
                 : LinearGradient(
-                    colors: [
-                      Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest.withOpacity(
-                        Theme.of(context).brightness == Brightness.dark
-                            ? 0.7
-                            : 0.45,
-                      ),
-                      Theme.of(context).cardColor.withOpacity(0.95),
-                    ],
+                    colors: Theme.of(context).brightness == Brightness.dark
+                        ? [
+                            Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.7),
+                            Theme.of(context).cardColor.withOpacity(0.95),
+                          ]
+                        : [
+                            Colors.grey.shade200,
+                            Colors.grey.shade100,
+                          ],
                   ),
             borderRadius: BorderRadius.circular(50),
             boxShadow: [
@@ -3729,6 +3741,12 @@ class _PartyClickedPageState extends State<PartyClicked>
                   color: Colors.teal.withOpacity(0.2),
                   blurRadius: 10,
                   offset: Offset(0, 4),
+                ),
+              if (!isSelected && Theme.of(context).brightness == Brightness.light)
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
                 ),
             ],
           ),
@@ -3765,11 +3783,11 @@ class _PartyClickedPageState extends State<PartyClicked>
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PartyTotalClicked(
+        builder: (context) => PartyDrillDown(
           startdate_string: startDateString,
           enddate_string: endDateString,
           type: vchtype,
-          total: amount,
+          total: formatAmount(amount),
           ledger: partyname,
         ),
       ),
@@ -4190,9 +4208,7 @@ class SummaryExpansionCard extends StatelessWidget {
                                 color:
                                     Theme.of(context).brightness ==
                                         Brightness.dark
-                                    ? Theme.of(
-                                        context,
-                                      ).colorScheme.surfaceContainerHighest
+                                    ? Colors.white10
                                     : Colors.grey.shade200,
                                 shape: BoxShape.circle,
                               ),
@@ -4257,11 +4273,11 @@ class SummaryExpansionCard extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PartyTotalClicked(
+                              builder: (context) => PartyDrillDown(
                                 startdate_string: startStr,
                                 enddate_string: endStr,
                                 type: type,
-                                total: rawAmount,
+                                total: formatAmount(rawAmount),
                                 ledger: partyname,
                               ),
                             ),
@@ -4277,6 +4293,9 @@ class SummaryExpansionCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(14),
+                          border: Theme.of(context).brightness == Brightness.dark
+                              ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+                              : null,
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black12.withOpacity(0.05),
@@ -4354,9 +4373,7 @@ class SummaryExpansionCard extends StatelessWidget {
                                     color:
                                         Theme.of(context).brightness ==
                                             Brightness.dark
-                                        ? Theme.of(
-                                            context,
-                                          ).colorScheme.surfaceContainerHighest
+                                        ? Colors.white10
                                         : Colors.grey.shade200,
                                     shape: BoxShape.circle,
                                   ),
@@ -4439,7 +4456,7 @@ class DetailRowTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
-            ? Theme.of(context).colorScheme.surfaceContainerHighest
+            ? Colors.transparent
             : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(14),
       ),
@@ -4610,9 +4627,7 @@ class PendingOrderTile extends StatelessWidget {
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: Theme.of(context).brightness == Brightness.dark
-                          ? Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerHighest
+                          ? Colors.white10
                           : Colors.grey.shade200,
                       shape: BoxShape.circle,
                     ),
@@ -4927,6 +4942,9 @@ Widget _buildSoldPurchaseCard({
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: Theme.of(context).brightness == Brightness.dark
+            ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black12.withOpacity(0.08),

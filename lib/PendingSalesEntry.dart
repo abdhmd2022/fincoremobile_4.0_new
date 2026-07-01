@@ -731,6 +731,8 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry>
                                   context,
                                 ).colorScheme.onSurfaceVariant,
                               ),
+                              filled: true,
+                              fillColor: Colors.transparent,
                               border: InputBorder.none,
                               enabledBorder: InputBorder.none,
                               focusedBorder: InputBorder.none,
@@ -847,14 +849,15 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry>
                                 margin: const EdgeInsets.only(bottom: 9),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
-                                  gradient: const LinearGradient(
-                                    colors: [Colors.white, Colors.white],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
+                                  color: Theme.of(context).cardColor,
+                                  border: Theme.of(context).brightness == Brightness.dark
+                                      ? Border.all(color: const Color(0xFF374151), width: 0.8)
+                                      : null,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
+                                      color: Theme.of(context).brightness == Brightness.dark
+                                          ? Colors.black.withOpacity(0.3)
+                                          : Colors.black.withOpacity(0.05),
                                       blurRadius: 15,
                                       offset: const Offset(0, 8),
                                     ),
@@ -1094,10 +1097,8 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry>
                                                     BorderRadius.circular(30),
                                                 border: Border.all(
                                                   color: isExpanded
-                                                      ? Colors.grey.shade300
-                                                      : app_color.withOpacity(
-                                                          0.18,
-                                                        ),
+                                                      ? Theme.of(context).dividerColor
+                                                      : app_color.withOpacity(0.18),
                                                 ),
                                               ),
                                               child: Row(
@@ -1400,7 +1401,7 @@ class DetailRowTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
-            ? Theme.of(context).colorScheme.surfaceContainerHighest
+            ? const Color(0xFF1F2937)
             : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(14),
       ),

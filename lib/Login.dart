@@ -206,7 +206,9 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
         if (!mounted) return;
 
         navigator.pushReplacement(
-          MaterialPageRoute(builder: (_) => SerialSelect()),
+          MaterialPageRoute(
+            builder: (_) => SerialSelect(autoNavigate: myList.length == 1),
+          ),
         );
       } else {
         if (!mounted) return;
@@ -873,7 +875,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
     });
 
     socket.onDisconnect((_) {
-      print("⚠️ Socket Disconnected");
+      debugPrint("Socket disconnected");
     });
 
     /*socket = IO.io('http://192.168.2.110:5999', <String, dynamic>{
@@ -1510,7 +1512,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor.withOpacity(0.82),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white),
+            border: Border.all(color: Theme.of(context).dividerColor),
             boxShadow: [
               BoxShadow(
                 color: app_color.withOpacity(0.08),
@@ -1530,7 +1532,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
           'Smart Finance. Simplified.',
           textAlign: compact ? TextAlign.center : TextAlign.start,
           style: GoogleFonts.poppins(
-            color: const Color(0xFF121820),
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: compact ? 22 : 32,
             height: 1.14,
             fontWeight: FontWeight.w700,
@@ -1543,7 +1545,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
             'Secure access to your business dashboard, reports, and company data.',
             textAlign: compact ? TextAlign.center : TextAlign.start,
             style: GoogleFonts.poppins(
-              color: const Color(0xFF5F6B76),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: compact ? 13 : 15,
               height: 1.45,
               fontWeight: FontWeight.w400,
@@ -1561,7 +1563,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE9EEF2)),
+        border: Border.all(color: Theme.of(context).dividerColor),
         boxShadow: const [
           BoxShadow(
             color: Color(0x14101828),
@@ -1595,7 +1597,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
           title,
           textAlign: TextAlign.center,
           style: GoogleFonts.poppins(
-            color: const Color(0xFF151B22),
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 22,
             fontWeight: FontWeight.w700,
           ),
@@ -1605,7 +1607,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
           subtitle,
           textAlign: TextAlign.center,
           style: GoogleFonts.poppins(
-            color: const Color(0xFF66727D),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 13.5,
             height: 1.45,
             fontWeight: FontWeight.w400,
@@ -1625,12 +1627,12 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
       suffixIcon: suffixIcon,
       labelText: label,
       labelStyle: GoogleFonts.poppins(
-        color: const Color(0xFF66727D),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
         fontWeight: FontWeight.w500,
         fontSize: 13.5,
       ),
       filled: true,
-      fillColor: const Color(0xFFF7F9FB),
+      fillColor: Theme.of(context).inputDecorationTheme.fillColor ?? const Color(0xFFF7F9FB),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -1656,7 +1658,9 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
       minimumSize: const Size.fromHeight(52),
       backgroundColor: app_color,
       foregroundColor: Colors.white,
-      disabledBackgroundColor: const Color(0xFFCCD3D9),
+      disabledBackgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Colors.grey.shade700
+          : const Color(0xFFCCD3D9),
       disabledForegroundColor: Colors.white,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -1667,8 +1671,10 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
   ButtonStyle _secondaryButtonStyle() {
     return ElevatedButton.styleFrom(
       minimumSize: const Size.fromHeight(50),
-      backgroundColor: const Color(0xFFF1F4F7),
-      foregroundColor: const Color(0xFF27313A),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).colorScheme.surfaceContainerHigh
+          : const Color(0xFFF1F4F7),
+      foregroundColor: Theme.of(context).colorScheme.onSurface,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       textStyle: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700),
@@ -1904,7 +1910,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
               decoration: BoxDecoration(
                 color: Theme.of(context).brightness == Brightness.dark
-                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                    ? const Color(0xFF1F2937)
                     : const Color(0xFFF7F9FB),
                 borderRadius: BorderRadius.circular(999),
                 border: Border.all(color: Theme.of(context).dividerColor),
@@ -1913,7 +1919,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
                 maskedEmail,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.poppins(
-                  color: const Color(0xFF303A43),
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1939,10 +1945,14 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
                 fieldHeight: 58,
                 fieldWidth: 58,
                 activeFillColor: app_color.withOpacity(0.1),
-                inactiveFillColor: const Color(0xFFF7F9FB),
-                selectedFillColor: Colors.white,
+                inactiveFillColor: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF1F2937)
+                    : const Color(0xFFF7F9FB),
+                selectedFillColor: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF1F2937)
+                    : Colors.white,
                 activeColor: app_color,
-                inactiveColor: const Color(0xFFE1E7ED),
+                inactiveColor: Theme.of(context).dividerColor,
                 selectedColor: app_color,
                 borderWidth: 1.2,
               ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'constants.dart';
+import 'theme_controller.dart';
 import 'package:FincoreGo/Items.dart';
 import 'package:FincoreGo/currencyFormat.dart';
 import 'package:flutter/material.dart';
@@ -924,6 +925,22 @@ class _PartyClickedSoldPurchaseClickedPageState
 
           actions: [
             IconButton(
+              tooltip: 'Toggle theme',
+              icon: Icon(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                themeController.setThemeMode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? ThemeMode.light
+                      : ThemeMode.dark,
+                );
+              },
+            ),
+            IconButton(
               onPressed: () {
                 counter++;
                 setState(() {
@@ -1308,6 +1325,9 @@ class _PartyClickedSoldPurchaseClickedPageState
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).cardColor,
                                   borderRadius: BorderRadius.circular(18),
+                                  border: Theme.of(context).brightness == Brightness.dark
+                                      ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+                                      : null,
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.05),

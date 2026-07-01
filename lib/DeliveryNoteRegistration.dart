@@ -17,6 +17,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'constants.dart';
+import 'theme_controller.dart';
 
 class Deliverynoteregistration extends StatefulWidget {
   const Deliverynoteregistration({Key? key}) : super(key: key);
@@ -4778,7 +4779,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                           width: 45,
                           height: 5,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
+                            color: Theme.of(context).dividerColor,
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -6004,7 +6005,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                         width: 45,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
+                          color: Theme.of(context).dividerColor,
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -6998,6 +6999,24 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
               ],
             ),
           ),
+          actions: [
+            IconButton(
+              tooltip: 'Toggle theme',
+              icon: Icon(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                themeController.setThemeMode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? ThemeMode.light
+                      : ThemeMode.dark,
+                );
+              },
+            ),
+          ],
         ),
       ),
       drawer: Sidebar(
@@ -7393,7 +7412,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     borderSide: BorderSide(
                                       color: canEditVoucherNo
                                           ? Colors.teal.shade200
-                                          : Colors.grey.shade300,
+                                          : Theme.of(context).dividerColor,
                                       width: 1,
                                     ),
                                   ),
@@ -7403,7 +7422,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                     borderSide: BorderSide(
                                       color: canEditVoucherNo
                                           ? Colors.teal
-                                          : Colors.grey.shade300,
+                                          : Theme.of(context).dividerColor,
                                       width: 1.5,
                                     ),
                                   ),
@@ -8372,7 +8391,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                               16,
                                             ),
                                             border: Border.all(
-                                              color: Colors.grey.shade300,
+                                              color: Theme.of(context).dividerColor,
                                             ),
                                             boxShadow: [
                                               BoxShadow(
@@ -8810,7 +8829,7 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                                               14,
                                             ),
                                             border: Border.all(
-                                              color: Colors.grey.shade200,
+                                              color: Theme.of(context).dividerColor,
                                             ),
                                             boxShadow: [
                                               BoxShadow(
@@ -9556,7 +9575,9 @@ class _DeliverynoteregistrationPageState extends State<Deliverynoteregistration>
                             backgroundColor:
                                 app_color, // ✅ always full app_color
                             disabledBackgroundColor:
-                                Colors.grey.shade300, // disabled state
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.grey.shade700
+                                    : Colors.grey.shade300, // disabled state
                             shadowColor: app_color.withOpacity(0.4),
                           ),
                           child: Row(

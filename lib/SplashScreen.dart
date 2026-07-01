@@ -228,27 +228,47 @@ class _SplashScreenState extends State<SplashScreen> {
   // -------------------------------
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
+          // subtle radial glow behind the logo
+          Center(
+            child: Container(
+              width: 260,
+              height: 260,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    app_color.withOpacity(isDark ? 0.12 : 0.07),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'assets/fincorego_logo_png.png',
+                  isDark
+                      ? 'assets/fincorego_logo_transparent.png'
+                      : 'assets/fincorego_logo_png.png',
                   width: 200,
                   height: 200,
                 ),
-                const SizedBox(height: 20),
-                SpinKitWave(color: app_color, size: 40.0, itemCount: 5),
+                const SizedBox(height: 32),
+                SpinKitWave(color: app_color, size: 36.0, itemCount: 5),
               ],
             ),
           ),
 
           Positioned(
-            bottom: 20,
+            bottom: 24,
             left: 0,
             right: 0,
             child: Center(

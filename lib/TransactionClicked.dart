@@ -9,6 +9,7 @@ import 'SerialSelect.dart';
 import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'constants.dart';
+import 'theme_controller.dart';
 
 class LedgerEntries {
   final String ledger, amount;
@@ -695,6 +696,24 @@ class _TransactionsClickedPageState extends State<TransactionsClicked>
             ),
           ),
           centerTitle: true,
+          actions: [
+            IconButton(
+              tooltip: 'Toggle theme',
+              icon: Icon(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                themeController.setThemeMode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? ThemeMode.light
+                      : ThemeMode.dark,
+                );
+              },
+            ),
+          ],
         ),
       ),
 
@@ -1149,7 +1168,9 @@ class _ModernExpandableCardState extends State<ModernExpandableCard>
             width: 1.3,
             color: _isHovered
                 ? borderGradient.colors.last.withOpacity(0.5)
-                : Colors.transparent,
+                : Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white.withOpacity(0.10)
+                    : Colors.transparent,
           ),
         ),
         child: InkWell(

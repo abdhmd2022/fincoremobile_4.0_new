@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'SerialSelect.dart';
 import 'Sidebar.dart';
 import 'constants.dart';
+import 'theme_controller.dart';
 import 'package:http/http.dart' as http;
 
 class RoleModel {
@@ -406,6 +407,24 @@ class _RolesViewPageState extends State<RolesView>
               ),
             ),
             centerTitle: true,
+            actions: [
+              IconButton(
+                tooltip: 'Toggle theme',
+                icon: Icon(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Icons.light_mode
+                      : Icons.dark_mode,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  themeController.setThemeMode(
+                    Theme.of(context).brightness == Brightness.dark
+                        ? ThemeMode.light
+                        : ThemeMode.dark,
+                  );
+                },
+              ),
+            ],
           ),
         ),
 
@@ -520,6 +539,9 @@ class _RolesViewPageState extends State<RolesView>
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
                             color: Theme.of(context).cardColor,
+                            border: Theme.of(context).brightness == Brightness.dark
+                                ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+                                : null,
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.05),

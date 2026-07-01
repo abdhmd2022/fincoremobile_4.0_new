@@ -8,6 +8,7 @@ import 'RolesView.dart';
 import 'SerialSelect.dart';
 import 'Sidebar.dart';
 import 'constants.dart';
+import 'theme_controller.dart';
 import 'package:http/http.dart' as http;
 
 class ModifyRole extends StatefulWidget {
@@ -67,7 +68,15 @@ class _ModifyRolePageState extends State<ModifyRole>
       SalesEntryHolder,
       SalesOrderEntryHolder,
       DeliveryNoteEntryHolder,
-      VanAllocationSetupHolder;
+      VanAllocationSetupHolder,
+      SettingsCurrencyHolder,
+      SettingsAmtDecimalsHolder,
+      SettingsVatPercHolder,
+      SettingsInactivePDaysHolder,
+      SettingsSortTypeHolder,
+      SettingsDefDateRangeHolder,
+      SettingsAgeingConfigHolder,
+      SettingsFastSlowInactiveItemHolder;
 
   late String salesdashcheck,
       barchartdashcheck,
@@ -104,6 +113,14 @@ class _ModifyRolePageState extends State<ModifyRole>
       salesorderentrycheck,
       deliverynoteentrycheck,
       vanallocationsetupcheck,
+      settingscurrencycheck,
+      settingsamtdecimalscheck,
+      settingsvatperccheck,
+      settingsinactivepdayscheck,
+      settingssorttypecheck,
+      settingsdefdaterangecheck,
+      settingsageingconfigcheck,
+      settingsfastslowinactiveitemcheck,
       amountcheck,
       item_salescheck,
       item_purchasecheck,
@@ -161,7 +178,16 @@ class _ModifyRolePageState extends State<ModifyRole>
       isReceiptEntryAccess = false,
       isSalesOrderEntryAccess = false,
       isDeliveryNoteEntryAccess = false,
-      isVanAllocationSetupAccess = false;
+      isVanAllocationSetupAccess = false,
+      isSettingsAccessCheck = false,
+      isSettingsCurrencyAccess = false,
+      isSettingsAmtDecimalsAccess = false,
+      isSettingsVatPercAccess = false,
+      isSettingsInactivePDaysAccess = false,
+      isSettingsSortTypeAccess = false,
+      isSettingsDefDateRangeAccess = false,
+      isSettingsAgeingConfigAccess = false,
+      isSettingsFastSlowInactiveItemAccess = false;
 
   String name = "", email = "", selectedRole = "";
   late SharedPreferences prefs;
@@ -227,6 +253,14 @@ class _ModifyRolePageState extends State<ModifyRole>
     final salesorderentrycheck,
     final deliverynoteentrycheck,
     final vanallocationsetupcheck,
+    final settingscurrencycheck,
+    final settingsamtdecimalscheck,
+    final settingsvatperccheck,
+    final settingsinactivepdayscheck,
+    final settingssorttypecheck,
+    final settingsdefdaterangecheck,
+    final settingsageingconfigcheck,
+    final settingsfastslowinactiveitemcheck,
   ) async {
     setState(() {
       _isLoading = true;
@@ -284,6 +318,14 @@ class _ModifyRolePageState extends State<ModifyRole>
       "salesOrderEntry": salesorderentrycheck,
       "isDeliveryNoteEntry": deliverynoteentrycheck,
       "isVanAllocationSetup": vanallocationsetupcheck,
+      "is_Settings_Currency": settingscurrencycheck,
+      "is_Settings_AmtDecimals": settingsamtdecimalscheck,
+      "is_Settings_VatPerc": settingsvatperccheck,
+      "is_Settings_InactivePDays": settingsinactivepdayscheck,
+      "is_Settings_SortType": settingssorttypecheck,
+      "is_Settings_DefDateRange": settingsdefdaterangecheck,
+      "is_Settings_AgeingCnfig": settingsageingconfigcheck,
+      "is_Settings_FastSlowInactiveItem": settingsfastslowinactiveitemcheck,
     });
 
     final response = await http.post(url, body: body, headers: headers);
@@ -291,12 +333,22 @@ class _ModifyRolePageState extends State<ModifyRole>
     if (response.statusCode == 200) {
       final responsee = response.body;
       if (responsee != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(responsee)));
         if (responsee == "Role already exists") {
-          // DO NOTHING
+          Fluttertoast.showToast(
+            msg: "Role already exists",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            textColor: Colors.white,
+          );
         } else {
+          Fluttertoast.showToast(
+            msg: "Role updated successfully",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+          );
           WidgetsBinding.instance.addPostFrameCallback((_) {
             SchedulerBinding.instance.addPostFrameCallback((_) {
               Navigator.pushReplacement(
@@ -482,6 +534,14 @@ class _ModifyRolePageState extends State<ModifyRole>
                               salesorderentrycheck,
                               deliverynoteentrycheck,
                               vanallocationsetupcheck,
+                              settingscurrencycheck,
+                              settingsamtdecimalscheck,
+                              settingsvatperccheck,
+                              settingsinactivepdayscheck,
+                              settingssorttypecheck,
+                              settingsdefdaterangecheck,
+                              settingsageingconfigcheck,
+                              settingsfastslowinactiveitemcheck,
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -729,6 +789,23 @@ class _ModifyRolePageState extends State<ModifyRole>
         } else {
           party_customerscheck = "False";
         }
+
+        settingscurrencycheck =
+            isSettingsCurrencyAccess ? "True" : "False";
+        settingsamtdecimalscheck =
+            isSettingsAmtDecimalsAccess ? "True" : "False";
+        settingsvatperccheck =
+            isSettingsVatPercAccess ? "True" : "False";
+        settingsinactivepdayscheck =
+            isSettingsInactivePDaysAccess ? "True" : "False";
+        settingssorttypecheck =
+            isSettingsSortTypeAccess ? "True" : "False";
+        settingsdefdaterangecheck =
+            isSettingsDefDateRangeAccess ? "True" : "False";
+        settingsageingconfigcheck =
+            isSettingsAgeingConfigAccess ? "True" : "False";
+        settingsfastslowinactiveitemcheck =
+            isSettingsFastSlowInactiveItemAccess ? "True" : "False";
       });
 
       _showConfirmationDialogAndNavigate(context);
@@ -806,6 +883,22 @@ class _ModifyRolePageState extends State<ModifyRole>
             saved_roles_data_list[0]["isDeliveryNoteEntry"] ?? "False";
         VanAllocationSetupHolder =
             saved_roles_data_list[0]["isVanAllocationSetup"] ?? "False";
+        SettingsCurrencyHolder =
+            saved_roles_data_list[0]["is_Settings_Currency"] ?? "False";
+        SettingsAmtDecimalsHolder =
+            saved_roles_data_list[0]["is_Settings_AmtDecimals"] ?? "False";
+        SettingsVatPercHolder =
+            saved_roles_data_list[0]["is_Settings_VatPerc"] ?? "False";
+        SettingsInactivePDaysHolder =
+            saved_roles_data_list[0]["is_Settings_InactivePDays"] ?? "False";
+        SettingsSortTypeHolder =
+            saved_roles_data_list[0]["is_Settings_SortType"] ?? "False";
+        SettingsDefDateRangeHolder =
+            saved_roles_data_list[0]["is_Settings_DefDateRange"] ?? "False";
+        SettingsAgeingConfigHolder =
+            saved_roles_data_list[0]["is_Settings_AgeingCnfig"] ?? "False";
+        SettingsFastSlowInactiveItemHolder =
+            saved_roles_data_list[0]["is_Settings_FastSlowInactiveItem"] ?? "False";
 
         setState(() {
           _isLoading = true;
@@ -1084,6 +1177,25 @@ class _ModifyRolePageState extends State<ModifyRole>
                 isReceiptEntryAccess &&
                 isSalesOrderEntryAccess;
           }
+
+          isSettingsCurrencyAccess = SettingsCurrencyHolder == "True";
+          isSettingsAmtDecimalsAccess = SettingsAmtDecimalsHolder == "True";
+          isSettingsVatPercAccess = SettingsVatPercHolder == "True";
+          isSettingsInactivePDaysAccess = SettingsInactivePDaysHolder == "True";
+          isSettingsSortTypeAccess = SettingsSortTypeHolder == "True";
+          isSettingsDefDateRangeAccess = SettingsDefDateRangeHolder == "True";
+          isSettingsAgeingConfigAccess = SettingsAgeingConfigHolder == "True";
+          isSettingsFastSlowInactiveItemAccess =
+              SettingsFastSlowInactiveItemHolder == "True";
+          isSettingsAccessCheck =
+              isSettingsCurrencyAccess &&
+              isSettingsAmtDecimalsAccess &&
+              isSettingsVatPercAccess &&
+              isSettingsInactivePDaysAccess &&
+              isSettingsSortTypeAccess &&
+              isSettingsDefDateRangeAccess &&
+              isSettingsAgeingConfigAccess &&
+              isSettingsFastSlowInactiveItemAccess;
 
           if (isTransactionLedgerEntryAccess &&
               isTransactionInventoryEntryAccess &&
@@ -1605,6 +1717,93 @@ class _ModifyRolePageState extends State<ModifyRole>
     }
   }
 
+  List<Map<String, dynamic>> get settingsPermissions => [
+    {
+      'label': 'Currency',
+      'value': isSettingsCurrencyAccess,
+      'onChanged': (v) => _updateSettings('currency', v),
+    },
+    {
+      'label': 'Amount Decimals',
+      'value': isSettingsAmtDecimalsAccess,
+      'onChanged': (v) => _updateSettings('amtdecimals', v),
+    },
+    {
+      'label': 'VAT %',
+      'value': isSettingsVatPercAccess,
+      'onChanged': (v) => _updateSettings('vatperc', v),
+    },
+    {
+      'label': 'Inactive Party Days',
+      'value': isSettingsInactivePDaysAccess,
+      'onChanged': (v) => _updateSettings('inactivepdays', v),
+    },
+    {
+      'label': 'Sort Type',
+      'value': isSettingsSortTypeAccess,
+      'onChanged': (v) => _updateSettings('sorttype', v),
+    },
+    {
+      'label': 'Default Date Range',
+      'value': isSettingsDefDateRangeAccess,
+      'onChanged': (v) => _updateSettings('defdaterange', v),
+    },
+    {
+      'label': 'Ageing Config',
+      'value': isSettingsAgeingConfigAccess,
+      'onChanged': (v) => _updateSettings('ageingconfig', v),
+    },
+    {
+      'label': 'Fast/Slow/Inactive Item',
+      'value': isSettingsFastSlowInactiveItemAccess,
+      'onChanged': (v) => _updateSettings('fastslowinactiveitem', v),
+    },
+  ];
+
+  void _updateSettings(String key, bool? value) {
+    setState(() {
+      switch (key) {
+        case 'currency':
+          isSettingsCurrencyAccess = value!;
+          break;
+        case 'amtdecimals':
+          isSettingsAmtDecimalsAccess = value!;
+          break;
+        case 'vatperc':
+          isSettingsVatPercAccess = value!;
+          break;
+        case 'inactivepdays':
+          isSettingsInactivePDaysAccess = value!;
+          break;
+        case 'sorttype':
+          isSettingsSortTypeAccess = value!;
+          break;
+        case 'defdaterange':
+          isSettingsDefDateRangeAccess = value!;
+          break;
+        case 'ageingconfig':
+          isSettingsAgeingConfigAccess = value!;
+          break;
+        case 'fastslowinactiveitem':
+          isSettingsFastSlowInactiveItemAccess = value!;
+          break;
+      }
+      _syncSettingsMasterToggle();
+    });
+  }
+
+  void _syncSettingsMasterToggle() {
+    isSettingsAccessCheck =
+        isSettingsCurrencyAccess &&
+        isSettingsAmtDecimalsAccess &&
+        isSettingsVatPercAccess &&
+        isSettingsInactivePDaysAccess &&
+        isSettingsSortTypeAccess &&
+        isSettingsDefDateRangeAccess &&
+        isSettingsAgeingConfigAccess &&
+        isSettingsFastSlowInactiveItemAccess;
+  }
+
   void _toggleParty(bool value) {
     setState(() {
       isPartyAccessCheck = value;
@@ -1686,6 +1885,20 @@ class _ModifyRolePageState extends State<ModifyRole>
     });
   }
 
+  void _toggleSettings(bool value) {
+    setState(() {
+      isSettingsAccessCheck = value;
+      isSettingsCurrencyAccess = value;
+      isSettingsAmtDecimalsAccess = value;
+      isSettingsVatPercAccess = value;
+      isSettingsInactivePDaysAccess = value;
+      isSettingsSortTypeAccess = value;
+      isSettingsDefDateRangeAccess = value;
+      isSettingsAgeingConfigAccess = value;
+      isSettingsFastSlowInactiveItemAccess = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -1737,6 +1950,24 @@ class _ModifyRolePageState extends State<ModifyRole>
               ),
             ),
             centerTitle: true,
+            actions: [
+              IconButton(
+                tooltip: 'Toggle theme',
+                icon: Icon(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Icons.light_mode
+                      : Icons.dark_mode,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  themeController.setThemeMode(
+                    Theme.of(context).brightness == Brightness.dark
+                        ? ThemeMode.light
+                        : ThemeMode.dark,
+                  );
+                },
+              ),
+            ],
           ),
         ),
 
@@ -1811,6 +2042,16 @@ class _ModifyRolePageState extends State<ModifyRole>
                             isChecked: isEntryAccessCheck,
                             onToggle: (val) => _toggleEntry(val!),
                             children: _buildPermissionList(entryPermissions),
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          _buildPermissionCard(
+                            title: 'Settings Access',
+                            icon: Icons.settings,
+                            isChecked: isSettingsAccessCheck,
+                            onToggle: (val) => _toggleSettings(val!),
+                            children: _buildPermissionList(settingsPermissions),
                           ),
 
                           const SizedBox(height: 22),

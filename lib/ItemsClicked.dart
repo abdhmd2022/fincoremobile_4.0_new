@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:FincoreGo/ItemsTotalClicked.dart';
+import 'package:FincoreGo/ItemsDrillDown.dart';
 import 'package:FincoreGo/currencyFormat.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +9,7 @@ import 'SerialSelect.dart';
 import 'Sidebar.dart';
 import 'package:http/http.dart' as http;
 import 'constants.dart';
+import 'theme_controller.dart';
 
 class Sale_Purc {
   final String month, amount;
@@ -1142,6 +1143,24 @@ class _ItemsClickedPageState extends State<ItemsClicked>
             ),
           ),
           centerTitle: true,
+          actions: [
+            IconButton(
+              tooltip: 'Toggle theme',
+              icon: Icon(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                themeController.setThemeMode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? ThemeMode.light
+                      : ThemeMode.dark,
+                );
+              },
+            ),
+          ],
         ),
       ),
       body: Stack(
@@ -1174,6 +1193,9 @@ class _ItemsClickedPageState extends State<ItemsClicked>
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
+        border: Theme.of(context).brightness == Brightness.dark
+            ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black12.withOpacity(0.08),
@@ -1237,9 +1259,7 @@ class _ItemsClickedPageState extends State<ItemsClicked>
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
                 decoration: BoxDecoration(
                   color: Theme.of(context).brightness == Brightness.dark
-                      ? Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHighest.withOpacity(0.6)
+                      ? Colors.transparent
                       : Colors.grey.shade50.withOpacity(0.6),
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -1298,9 +1318,7 @@ class _ItemsClickedPageState extends State<ItemsClicked>
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
               decoration: BoxDecoration(
                 color: Theme.of(context).brightness == Brightness.dark
-                    ? Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest.withOpacity(0.6)
+                    ? Colors.transparent
                     : Colors.grey.shade50.withOpacity(0.6),
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -1371,9 +1389,7 @@ class _ItemsClickedPageState extends State<ItemsClicked>
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
                 decoration: BoxDecoration(
                   color: Theme.of(context).brightness == Brightness.dark
-                      ? Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHighest.withOpacity(0.6)
+                      ? Colors.transparent
                       : Colors.grey.shade50.withOpacity(0.6),
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -1443,6 +1459,9 @@ class _ItemsClickedPageState extends State<ItemsClicked>
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
+        border: Theme.of(context).brightness == Brightness.dark
+            ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black12.withOpacity(0.08),
@@ -1502,24 +1521,19 @@ class _ItemsClickedPageState extends State<ItemsClicked>
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest.withOpacity(
-                        Theme.of(context).brightness == Brightness.dark
-                            ? 0.85
-                            : 0.35,
-                      ),
-                      Theme.of(context).cardColor.withOpacity(
-                        Theme.of(context).brightness == Brightness.dark
-                            ? 0.95
-                            : 0.9,
-                      ),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: Theme.of(context).brightness == Brightness.dark
+                      ? null
+                      : LinearGradient(
+                          colors: [
+                            Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest
+                                .withOpacity(0.35),
+                            Theme.of(context).cardColor.withOpacity(0.9),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                   border: Border.all(color: app_color, width: 1),
                   borderRadius: BorderRadius.circular(50),
                 ),
@@ -1573,11 +1587,11 @@ class _ItemsClickedPageState extends State<ItemsClicked>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ItemsTotalClicked(
+                builder: (context) => ItemsDrillDown(
                   startdate_string: startOfMonth,
                   enddate_string: endOfMonth,
                   type: vchtype,
-                  total: amount,
+                  total: formatAmount(amount),
                   item_name: itemname,
                 ),
               ),
@@ -1749,9 +1763,7 @@ class _ItemsClickedPageState extends State<ItemsClicked>
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
-            ? Theme.of(
-                context,
-              ).colorScheme.surfaceContainerHighest.withOpacity(0.6)
+            ? Colors.transparent
             : Colors.grey.shade50.withOpacity(0.6),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -1840,6 +1852,9 @@ class _ItemsClickedPageState extends State<ItemsClicked>
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
+        border: Theme.of(context).brightness == Brightness.dark
+            ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black12.withOpacity(0.08),

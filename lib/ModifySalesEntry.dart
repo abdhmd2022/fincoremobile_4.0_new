@@ -4878,7 +4878,7 @@ _itemController.text = _selecteditem;
                         width: 45,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
+                          color: Theme.of(context).dividerColor,
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -5750,7 +5750,7 @@ _itemController.text = _selecteditem;
                         width: 45,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
+                          color: Theme.of(context).dividerColor,
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -7804,7 +7804,7 @@ _itemController.text = _selecteditem;
                                               16,
                                             ),
                                             border: Border.all(
-                                              color: Colors.grey.shade300,
+                                              color: Theme.of(context).dividerColor,
                                             ),
                                             boxShadow: [
                                               BoxShadow(
@@ -8242,7 +8242,7 @@ _itemController.text = _selecteditem;
                                               14,
                                             ),
                                             border: Border.all(
-                                              color: Colors.grey.shade200,
+                                              color: Theme.of(context).dividerColor,
                                             ),
                                             boxShadow: [
                                               BoxShadow(
@@ -8905,7 +8905,9 @@ _itemController.text = _selecteditem;
                             backgroundColor:
                                 app_color, // ✅ always full app_color
                             disabledBackgroundColor:
-                                Colors.grey.shade300, // disabled state
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.grey.shade700
+                                    : Colors.grey.shade300, // disabled state
                             shadowColor: app_color.withOpacity(0.4),
                           ),
                           child: Row(

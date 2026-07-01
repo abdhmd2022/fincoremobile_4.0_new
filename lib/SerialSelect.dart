@@ -2263,6 +2263,7 @@ class _MyHomePageState extends State<SerialSelect>
                   pageBuilder: (context, animation, secondaryAnimation) =>
                       const Dashboard(),
                   transitionsBuilder:
+
                       (context, animation, secondaryAnimation, child) {
                         return FadeTransition(opacity: animation, child: child);
                       },

@@ -257,7 +257,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 Image.asset(
                   isDark
                       ? 'assets/fincorego_logo_transparent.png'
-                      : 'assets/fincorego_logo_png.png',
+                      : 'assets/fincorego_logo_transparent.png',
                   width: 200,
                   height: 200,
                 ),

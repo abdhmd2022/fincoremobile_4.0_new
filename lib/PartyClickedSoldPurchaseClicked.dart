@@ -15,6 +15,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'widgets/scroll_fab.dart';
 
 class Data {
   final String vchno;
@@ -116,6 +117,7 @@ class _PartyClickedSoldPurchaseClickedPageState
   late NumberFormat currencyFormat;
 
   ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollFabController = ScrollController();
 
   TextEditingController searchController = TextEditingController();
 
@@ -885,6 +887,12 @@ class _PartyClickedSoldPurchaseClickedPageState
   }
 
   @override
+  void dispose() {
+    _scrollFabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
@@ -1055,9 +1063,10 @@ class _PartyClickedSoldPurchaseClickedPageState
 
       body: Stack(
         children: [
-          Column(
-            children: [
-              Container(
+          CustomScrollView(
+            controller: _scrollFabController,
+            slivers: [
+              SliverToBoxAdapter(child: Container(
                 margin: EdgeInsets.only(
                   left: 12,
                   right: 12,
@@ -1166,8 +1175,8 @@ class _PartyClickedSoldPurchaseClickedPageState
                     ],
                   ),
                 ),
-              ),
-              Expanded(
+              )),
+              SliverToBoxAdapter(
                 child: Container(
                   margin: const EdgeInsets.only(
                     left: 12,
@@ -1300,8 +1309,9 @@ class _PartyClickedSoldPurchaseClickedPageState
 
                       // List section
                       if (_isListVisible)
-                        Expanded(
-                          child: ListView.builder(
+                        ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                             controller: _scrollController,
                             itemCount: filteredItems.length,
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -1539,7 +1549,6 @@ class _PartyClickedSoldPurchaseClickedPageState
                               );
                             },
                           ),
-                        ),
                     ],
                   ),
                 ),
@@ -1594,6 +1603,7 @@ class _PartyClickedSoldPurchaseClickedPageState
             visible: _isLoading,
             child: Center(child: AppLogoLoader()),
           ),
+          ScrollFab(controller: _scrollFabController),
         ],
       ),
     );

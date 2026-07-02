@@ -433,6 +433,9 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry>
         );
 
         salesentries.sort((a, b) {
+          final vchA = int.tryParse((a.data['VOUCHERNUMBER'] ?? '').toString()) ?? 0;
+          final vchB = int.tryParse((b.data['VOUCHERNUMBER'] ?? '').toString()) ?? 0;
+          if (vchA != vchB) return vchB.compareTo(vchA);
           DateTime dateA = DateTime.parse(a.data['DATE']);
           DateTime dateB = DateTime.parse(b.data['DATE']);
           return dateB.compareTo(dateA);
@@ -508,9 +511,12 @@ class _PendingSalesEntryPageState extends State<PendingSalesEntry>
         isVisibleNoSalesEntryFound = false;
         salesentries.addAll(jsonList.map((json) => SalesModel.fromJson(json)).toList());
         salesentries.sort((a, b) {
+          final vchA = int.tryParse((a.data['VOUCHERNUMBER'] ?? '').toString()) ?? 0;
+          final vchB = int.tryParse((b.data['VOUCHERNUMBER'] ?? '').toString()) ?? 0;
+          if (vchA != vchB) return vchB.compareTo(vchA);
           DateTime dateA = DateTime.parse(a.data['DATE']);
           DateTime dateB = DateTime.parse(b.data['DATE']);
-          return dateB.compareTo(dateA); // descending
+          return dateB.compareTo(dateA);
         });
 
         filteredSalesEntries = List.from(salesentries);

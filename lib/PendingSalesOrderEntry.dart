@@ -434,9 +434,12 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry>
             jsonList.map((json) => SalesOrderModel.fromJson(json)).toList(),
           );
           salesorderentries.sort((a, b) {
+            final vchA = int.tryParse((a.data['VOUCHERNUMBER'] ?? '').toString()) ?? 0;
+            final vchB = int.tryParse((b.data['VOUCHERNUMBER'] ?? '').toString()) ?? 0;
+            if (vchA != vchB) return vchB.compareTo(vchA);
             DateTime dateA = DateTime.parse(a.data['DATE']);
             DateTime dateB = DateTime.parse(b.data['DATE']);
-            return dateB.compareTo(dateA); // descending
+            return dateB.compareTo(dateA);
           });
           filteredSalesOrderEntries = List.from(salesorderentries);
           setState(() {

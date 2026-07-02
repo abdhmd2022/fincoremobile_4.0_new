@@ -1095,169 +1095,80 @@ class _PartyTotalClickedRecPayClickedPageState
           CustomScrollView(
             controller: _scrollFabController,
             slivers: [
-              SliverToBoxAdapter(child: Container(
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 20,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Total Value
-                    Center(
-                      child: Text(
-                        total,
-                        style: GoogleFonts.poppins(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                          color: Theme.of(context).colorScheme.onSurface,
-                          letterSpacing: 0,
+              SliverToBoxAdapter(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 20,
+                        spreadRadius: 2,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Total Value
+                      Center(
+                        child: Text(
+                          total,
+                          style: GoogleFonts.poppins(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            letterSpacing: 0,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
+                      const SizedBox(height: 12),
 
-                    // As of + Overdue + Credit Limit row (pill style)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerHighest.withOpacity(
-                              Theme.of(context).brightness == Brightness.dark
-                                  ? 0.85
-                                  : 0.35,
-                            ),
-                            Theme.of(context).cardColor.withOpacity(
-                              Theme.of(context).brightness == Brightness.dark
-                                  ? 0.95
-                                  : 0.9,
-                            ),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                      // As of + Overdue + Credit Limit row (pill style)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
                         ),
-                        border: Border.all(color: app_color, width: 1),
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Left part: As of + Overdue
-                            Row(
-                              children: [
-                                Text(
-                                  'As of ',
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 14,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
-                                  ),
-                                ),
-                                Text(
-                                  enddate_text,
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
-                                  ),
-                                ),
-                                Text(
-                                  ' | ',
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 14,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                                Text(
-                                  overdue_value,
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(width: 16),
-
-                            // Right part: Credit Limit + Period
-                            Row(
-                              children: [
-                                Text(
-                                  'Credit Limit: ',
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 14,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
-                                  ),
-                                ),
-                                Text(
-                                  creditlimit,
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
-                                  ),
-                                ),
-                                Text(
-                                  ' / ',
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 14,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                                Text(
-                                  creditperiod,
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
-                                  ),
-                                ),
-                                Visibility(
-                                  visible: isVisibleDays,
-                                  child: Text(
-                                    ' Days',
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest.withOpacity(
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? 0.85
+                                    : 0.35,
+                              ),
+                              Theme.of(context).cardColor.withOpacity(
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? 0.95
+                                    : 0.9,
+                              ),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          border: Border.all(color: app_color, width: 1),
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Left part: As of + Overdue
+                              Row(
+                                children: [
+                                  Text(
+                                    'As of ',
                                     style: GoogleFonts.poppins(
                                       fontWeight: FontWeight.w500,
                                       fontSize: 14,
@@ -1266,16 +1177,107 @@ class _PartyTotalClickedRecPayClickedPageState
                                       ).colorScheme.onSurface,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                  Text(
+                                    enddate_text,
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  Text(
+                                    ' | ',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  Text(
+                                    overdue_value,
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(width: 16),
+
+                              // Right part: Credit Limit + Period
+                              Row(
+                                children: [
+                                  Text(
+                                    'Credit Limit: ',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  Text(
+                                    creditlimit,
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  Text(
+                                    ' / ',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  Text(
+                                    creditperiod,
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  Visibility(
+                                    visible: isVisibleDays,
+                                    child: Text(
+                                      ' Days',
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 14,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              )),
+              ),
 
               SliverToBoxAdapter(
                 child: Container(
@@ -1313,7 +1315,7 @@ class _PartyTotalClickedRecPayClickedPageState
                           ),
                           child: Material(
                             elevation: 2,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(18),
                             shadowColor: Colors.black12,
                             child: TextField(
                               controller: searchController,
@@ -1359,13 +1361,13 @@ class _PartyTotalClickedRecPayClickedPageState
                                   horizontal: 16,
                                 ),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(18),
                                   borderSide: BorderSide(
                                     color: Theme.of(context).dividerColor,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(18),
                                   borderSide: const BorderSide(
                                     color: app_color,
                                     width: 1.5,
@@ -1410,198 +1412,201 @@ class _PartyTotalClickedRecPayClickedPageState
                       Visibility(
                         visible: _isListVisible,
                         child: ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            itemCount: filteredItems.length,
-                            itemBuilder: (context, index) {
-                              final card = filteredItems[index];
-                              final curr =
-                                  currencysymbol ??
-                                  ''; // ✅ currency symbol from prefs
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          itemCount: filteredItems.length,
+                          itemBuilder: (context, index) {
+                            final card = filteredItems[index];
+                            final curr =
+                                currencysymbol ??
+                                ''; // ✅ currency symbol from prefs
 
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 14),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor,
-                                  borderRadius: BorderRadius.circular(18),
-                                  border: Theme.of(context).brightness == Brightness.dark
-                                      ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
-                                      : null,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 10,
-                                      spreadRadius: 1,
-                                      offset: const Offset(0, 5),
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 16,
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 14),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
+                                borderRadius: BorderRadius.circular(18),
+                                border:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Border.all(
+                                        color: Colors.white.withOpacity(0.10),
+                                        width: 1,
+                                      )
+                                    : null,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 10,
+                                    spreadRadius: 1,
+                                    offset: const Offset(0, 5),
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // 🔹 Bill Number Header
-                                      Row(
-                                        children: [
-                                          Container(
-                                            width: 34,
-                                            height: 34,
-                                            decoration: const BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Color(0xFF00C9FF),
-                                                  Color(0xFF92FE9D),
-                                                ], // cyan-green
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              borderRadius: BorderRadius.all(
-                                                Radius.circular(10),
-                                              ),
-                                            ),
-                                            child: const Icon(
-                                              Icons.receipt_long,
-                                              size: 18,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Expanded(
-                                            child: Text(
-                                              handleBillNo(card.billno) ??
-                                                  'N/A',
-                                              softWrap: true,
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w700,
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.onSurface,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-
-                                      const SizedBox(height: 12),
-
-                                      // 🔹 Info Chips
-                                      Wrap(
-                                        spacing: 8,
-                                        runSpacing: 8,
-                                        children: [
-                                          // Bill Date Chip
-                                          _buildGradientChip(
-                                            context: context,
-                                            icon: Icons.calendar_today_rounded,
-                                            label: 'Bill Date',
-                                            value: convertDateFormat(
-                                              card.billdate,
-                                            ),
-                                            colors: const [
-                                              Color(0xFF56CCF2),
-                                              Color(0xFF2F80ED),
-                                            ],
-                                          ),
-                                          // Overdue Chip
-                                          _buildGradientChip(
-                                            context: context,
-                                            icon: Icons.timelapse_rounded,
-                                            label: 'Overdue',
-                                            value: '${card.overdue} Days',
-                                            colors: const [
-                                              Color(0xFFFF9966),
-                                              Color(0xFFFF5E62),
-                                            ],
-                                          ),
-
-                                          // Due Date Chip
-                                          _buildGradientChip(
-                                            context: context,
-                                            icon: Icons.event_rounded,
-                                            label: 'Due',
-                                            value: convertDueDateFormat(
-                                              card.duedate,
-                                              card.billdate,
-                                            ),
-                                            colors: const [
-                                              Color(0xFF11998E),
-                                              Color(0xFF38EF7D),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-
-                                      const SizedBox(height: 16),
-
-                                      // 🔹 Amount Section (Bottom Right)
-                                      Align(
-                                        alignment: Alignment.bottomRight,
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 14,
-                                            vertical: 8,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            gradient: const LinearGradient(
+                                ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 16,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // 🔹 Bill Number Header
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 34,
+                                          height: 34,
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
                                               colors: [
-                                                Color(0xFF43CEA2),
-                                                Color(0xFF185A9D),
-                                              ],
+                                                Color(0xFF00C9FF),
+                                                Color(0xFF92FE9D),
+                                              ], // cyan-green
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                             ),
-                                            borderRadius: BorderRadius.circular(
-                                              20,
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(10),
                                             ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black12
-                                                    .withOpacity(0.15),
-                                                blurRadius: 6,
-                                                offset: const Offset(0, 3),
-                                              ),
-                                            ],
                                           ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Flexible(
-                                                child: Text(
-                                                  '${formatAmount(card.outstanding.toString())}',
-                                                  softWrap: true,
-                                                  maxLines: null,
-                                                  overflow:
-                                                      TextOverflow.visible,
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.white,
-                                                    height: 1.4,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
+                                          child: const Icon(
+                                            Icons.receipt_long,
+                                            size: 18,
+                                            color: Colors.white,
                                           ),
                                         ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            handleBillNo(card.billno) ?? 'N/A',
+                                            softWrap: true,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 12),
+
+                                    // 🔹 Info Chips
+                                    Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: [
+                                        // Bill Date Chip
+                                        _buildGradientChip(
+                                          context: context,
+                                          icon: Icons.calendar_today_rounded,
+                                          label: 'Bill Date',
+                                          value: convertDateFormat(
+                                            card.billdate,
+                                          ),
+                                          colors: const [
+                                            Color(0xFF56CCF2),
+                                            Color(0xFF2F80ED),
+                                          ],
+                                        ),
+                                        // Overdue Chip
+                                        _buildGradientChip(
+                                          context: context,
+                                          icon: Icons.timelapse_rounded,
+                                          label: 'Overdue',
+                                          value: '${card.overdue} Days',
+                                          colors: const [
+                                            Color(0xFFFF9966),
+                                            Color(0xFFFF5E62),
+                                          ],
+                                        ),
+
+                                        // Due Date Chip
+                                        _buildGradientChip(
+                                          context: context,
+                                          icon: Icons.event_rounded,
+                                          label: 'Due',
+                                          value: convertDueDateFormat(
+                                            card.duedate,
+                                            card.billdate,
+                                          ),
+                                          colors: const [
+                                            Color(0xFF11998E),
+                                            Color(0xFF38EF7D),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 16),
+
+                                    // 🔹 Amount Section (Bottom Right)
+                                    Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Color(0xFF43CEA2),
+                                              Color(0xFF185A9D),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black12.withOpacity(
+                                                0.15,
+                                              ),
+                                              blurRadius: 6,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                '${formatAmount(card.outstanding.toString())}',
+                                                softWrap: true,
+                                                maxLines: null,
+                                                overflow: TextOverflow.visible,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white,
+                                                  height: 1.4,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),

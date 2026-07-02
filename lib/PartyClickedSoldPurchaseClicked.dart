@@ -1060,122 +1060,125 @@ class _PartyClickedSoldPurchaseClickedPageState
         ),
       ),
 
-
       body: Stack(
         children: [
           CustomScrollView(
             controller: _scrollFabController,
             slivers: [
-              SliverToBoxAdapter(child: Container(
-                margin: EdgeInsets.only(
-                  left: 12,
-                  right: 12,
-                  top: 12,
-                  bottom: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12.withOpacity(0.08),
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: 0,
-                          left: 20,
-                          right: 20,
-                          bottom: 10,
-                        ),
-                        child: Container(
-                          child: Center(
-                            child: Text(
-                              item,
-                              textAlign: TextAlign.center,
-
-                              style: GoogleFonts.poppins(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 17,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 8),
-
-                      /// 📆 Date Range (Single Widget)
-                      InkWell(
-                        onTap: () {},
-                        borderRadius: BorderRadius.circular(50),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest
-                                    .withOpacity(
-                                      Theme.of(context).brightness ==
-                                              Brightness.dark
-                                          ? 0.85
-                                          : 0.35,
-                                    ),
-                                Theme.of(context).cardColor.withOpacity(
-                                  Theme.of(context).brightness ==
-                                          Brightness.dark
-                                      ? 0.95
-                                      : 0.9,
-                                ),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            border: Border.all(color: app_color, width: 1),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.calendar_month_rounded,
-                                size: 18,
-                                color: app_color,
-                              ),
-                              SizedBox(width: 10),
-                              Text(
-                                "$startdate_text → $enddate_text",
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+              SliverToBoxAdapter(
+                child: Container(
+                  margin: EdgeInsets.only(
+                    left: 12,
+                    right: 12,
+                    top: 12,
+                    bottom: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12.withOpacity(0.08),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                        offset: Offset(0, 4),
                       ),
                     ],
                   ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: 0,
+                            left: 20,
+                            right: 20,
+                            bottom: 10,
+                          ),
+                          child: Container(
+                            child: Center(
+                              child: Text(
+                                item,
+                                textAlign: TextAlign.center,
+
+                                style: GoogleFonts.poppins(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 8),
+
+                        /// 📆 Date Range (Single Widget)
+                        InkWell(
+                          onTap: () {},
+                          borderRadius: BorderRadius.circular(50),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest
+                                      .withOpacity(
+                                        Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? 0.85
+                                            : 0.35,
+                                      ),
+                                  Theme.of(context).cardColor.withOpacity(
+                                    Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? 0.95
+                                        : 0.9,
+                                  ),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              border: Border.all(color: app_color, width: 1),
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.calendar_month_rounded,
+                                  size: 18,
+                                  color: app_color,
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  "$startdate_text → $enddate_text",
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              )),
+              ),
               SliverToBoxAdapter(
                 child: Container(
                   margin: const EdgeInsets.only(
@@ -1212,7 +1215,7 @@ class _PartyClickedSoldPurchaseClickedPageState
                           ),
                           child: Material(
                             elevation: 2,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(18),
                             shadowColor: Colors.black12,
                             child: TextField(
                               controller: searchController,
@@ -1256,13 +1259,13 @@ class _PartyClickedSoldPurchaseClickedPageState
                                   horizontal: 16,
                                 ),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(18),
                                   borderSide: BorderSide(
                                     color: Theme.of(context).dividerColor,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(18),
                                   borderSide: const BorderSide(
                                     color: app_color,
                                     width: 1.5,
@@ -1310,245 +1313,246 @@ class _PartyClickedSoldPurchaseClickedPageState
                       // List section
                       if (_isListVisible)
                         ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            controller: _scrollController,
-                            itemCount: filteredItems.length,
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                            itemBuilder: (context, index) {
-                              final item = filteredItems[index];
-                              final curr = currencysymbol ?? ''; // ✅ fallback
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          controller: _scrollController,
+                          itemCount: filteredItems.length,
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          itemBuilder: (context, index) {
+                            final item = filteredItems[index];
+                            final curr = currencysymbol ?? ''; // ✅ fallback
 
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 14),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor,
-                                  borderRadius: BorderRadius.circular(18),
-                                  border: Theme.of(context).brightness == Brightness.dark
-                                      ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
-                                      : null,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 10,
-                                      spreadRadius: 1,
-                                      offset: const Offset(0, 5),
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 16,
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 14),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
+                                borderRadius: BorderRadius.circular(18),
+                                border:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Border.all(
+                                        color: Colors.white.withOpacity(0.10),
+                                        width: 1,
+                                      )
+                                    : null,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 10,
+                                    spreadRadius: 1,
+                                    offset: const Offset(0, 5),
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // 🔹 Top Row: Voucher + Qty Badge
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            width: 34,
-                                            height: 34,
-                                            decoration: const BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Color(0xFF00C9FF),
-                                                  Color(0xFF92FE9D),
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              borderRadius: BorderRadius.all(
-                                                Radius.circular(10),
-                                              ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 16,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // 🔹 Top Row: Voucher + Qty Badge
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          width: 34,
+                                          height: 34,
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Color(0xFF00C9FF),
+                                                Color(0xFF92FE9D),
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
                                             ),
-                                            child: const Icon(
-                                              Icons.receipt_long,
-                                              size: 18,
-                                              color: Colors.white,
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(10),
                                             ),
                                           ),
-                                          const SizedBox(width: 10),
+                                          child: const Icon(
+                                            Icons.receipt_long,
+                                            size: 18,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
 
-                                          // Voucher No
-                                          Expanded(
-                                            child: Text(
-                                              item.vchno ?? 'N/A',
+                                        // Voucher No
+                                        Expanded(
+                                          child: Text(
+                                            item.vchno ?? 'N/A',
+                                            softWrap: true,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface,
+                                            ),
+                                          ),
+                                        ),
+
+                                        const SizedBox(width: 10),
+
+                                        // Qty Badge
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 5,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xFF43CEA2),
+                                                Color(0xFF185A9D),
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.inventory_2_outlined,
+                                                size: 14,
+                                                color: Colors.white,
+                                              ),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                'Qty: ${item.qty}',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13.5,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 14),
+
+                                    // 🔹 Middle Row: Date & Rate
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Date Info
+                                        Row(
+                                          children: [
+                                            Container(
+                                              width: 28,
+                                              height: 28,
+                                              decoration: const BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Color(0xFF56CCF2),
+                                                    Color(0xFF2F80ED),
+                                                  ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(8),
+                                                ),
+                                              ),
+                                              child: const Icon(
+                                                Icons.calendar_today_outlined,
+                                                size: 14,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              convertDateFormat(item.vchdate),
                                               softWrap: true,
                                               style: GoogleFonts.poppins(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
+                                                fontSize: 13.5,
                                                 color: Theme.of(
                                                   context,
-                                                ).colorScheme.onSurface,
+                                                ).colorScheme.onSurfaceVariant,
                                               ),
                                             ),
-                                          ),
+                                          ],
+                                        ),
 
-                                          const SizedBox(width: 10),
-
-                                          // Qty Badge
-                                          Container(
+                                        SizedBox(width: 12),
+                                        // Rate Info with currency symbol 💰
+                                        Flexible(
+                                          child: Container(
+                                            margin: const EdgeInsets.only(
+                                              top: 4,
+                                            ),
                                             padding: const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 5,
+                                              horizontal: 12,
+                                              vertical: 6,
                                             ),
                                             decoration: BoxDecoration(
                                               gradient: const LinearGradient(
                                                 colors: [
-                                                  Color(0xFF43CEA2),
-                                                  Color(0xFF185A9D),
-                                                ],
+                                                  Color(0xFFFF9966),
+                                                  Color(0xFFFF5E62),
+                                                ], // orange-red gradient
                                                 begin: Alignment.topLeft,
                                                 end: Alignment.bottomRight,
                                               ),
                                               borderRadius:
                                                   BorderRadius.circular(20),
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                const Icon(
-                                                  Icons.inventory_2_outlined,
-                                                  size: 14,
-                                                  color: Colors.white,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black12
+                                                      .withOpacity(0.1),
+                                                  blurRadius: 6,
+                                                  offset: const Offset(0, 3),
                                                 ),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  'Qty: ${item.qty}',
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 13.5,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Colors.white,
+                                              ],
+                                            ),
+                                            clipBehavior: Clip
+                                                .none, // 👈 ensures overflow is visible
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Flexible(
+                                                  fit: FlexFit.loose,
+                                                  child: Text(
+                                                    'Rate: ${currencysymbol ?? ''} ${formatRate(item.rate)}',
+                                                    textAlign: TextAlign.right,
+                                                    softWrap: true,
+
+                                                    overflow: TextOverflow
+                                                        .visible, // 👈 makes long text fully visible
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 13.5,
+
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors.white,
+                                                    ),
                                                   ),
                                                 ),
                                               ],
                                             ),
                                           ),
-                                        ],
-                                      ),
-
-                                      const SizedBox(height: 14),
-
-                                      // 🔹 Middle Row: Date & Rate
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          // Date Info
-                                          Row(
-                                            children: [
-                                              Container(
-                                                width: 28,
-                                                height: 28,
-                                                decoration: const BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    colors: [
-                                                      Color(0xFF56CCF2),
-                                                      Color(0xFF2F80ED),
-                                                    ],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                        Radius.circular(8),
-                                                      ),
-                                                ),
-                                                child: const Icon(
-                                                  Icons.calendar_today_outlined,
-                                                  size: 14,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                convertDateFormat(item.vchdate),
-                                                softWrap: true,
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 13.5,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurfaceVariant,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-
-                                          SizedBox(width: 12),
-                                          // Rate Info with currency symbol 💰
-                                          Flexible(
-                                            child: Container(
-                                              margin: const EdgeInsets.only(
-                                                top: 4,
-                                              ),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 6,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                gradient: const LinearGradient(
-                                                  colors: [
-                                                    Color(0xFFFF9966),
-                                                    Color(0xFFFF5E62),
-                                                  ], // orange-red gradient
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black12
-                                                        .withOpacity(0.1),
-                                                    blurRadius: 6,
-                                                    offset: const Offset(0, 3),
-                                                  ),
-                                                ],
-                                              ),
-                                              clipBehavior: Clip
-                                                  .none, // 👈 ensures overflow is visible
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Flexible(
-                                                    fit: FlexFit.loose,
-                                                    child: Text(
-                                                      'Rate: ${currencysymbol ?? ''} ${formatRate(item.rate)}',
-                                                      textAlign:
-                                                          TextAlign.right,
-                                                      softWrap: true,
-
-                                                      overflow: TextOverflow
-                                                          .visible, // 👈 makes long text fully visible
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 13.5,
-
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color: Colors.white,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            );
+                          },
+                        ),
                     ],
                   ),
                 ),

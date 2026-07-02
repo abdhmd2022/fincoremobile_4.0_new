@@ -3540,6 +3540,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry>
                       child: TextFormField(
                         controller: instDateController,
                         readOnly: true,
+                        enableInteractiveSelection: false,
                         onTap: () => _selectinstDate(context),
                         decoration: InputDecoration(
                           labelText: 'Inst Date',
@@ -3987,6 +3988,7 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry>
                                     child: TextFormField(
                                       controller: instDateController,
                                       readOnly: true,
+                                      enableInteractiveSelection: false,
                                       onTap: () => _selectinstDate(context),
                                       decoration: InputDecoration(
                                         labelText: 'Inst Date',
@@ -5012,7 +5014,11 @@ class _ModifyReceiptEntryPageState extends State<ModifyReceiptEntry>
                                     ).colorScheme.onSurfaceVariant,
                                   )
                                 : null,
-                            onTap: () => _selectreceiptDate(context),
+                            onTap: isUniGasSerial(serial_no)
+                                ? null
+                                : () {
+                                    _selectreceiptDate(context);
+                                  },
                           ),
 
                           EntryFormField(

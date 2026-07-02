@@ -45,13 +45,7 @@ enum AppMoreItem {
   help,
 }
 
-enum AppEntryType {
-  none,
-  sales,
-  receipt,
-  salesOrder,
-  deliveryNote,
-}
+enum AppEntryType { none, sales, receipt, salesOrder, deliveryNote }
 
 class AppBottomNav extends StatefulWidget {
   const AppBottomNav({
@@ -228,8 +222,12 @@ class _AppBottomNavState extends State<AppBottomNav> {
     socket = IO.io(SOCKET_URL, <String, dynamic>{
       'transports': ['websocket'],
       'path': '/main/socket.io',
-      'secure': true,
-      'autoConnect': true,
+      'autoConnect': false,
+      'reconnection': true,
+      'reconnectionAttempts': 10,
+      'reconnectionDelay': 1500,
+      'timeout': 20000,
+      'forceNew': true,
       'auth': {'token': authTokenBase},
     });
 
@@ -349,7 +347,8 @@ class _AppBottomNavState extends State<AppBottomNav> {
 
     final isCurrentRouteTab = widget.activeTab == tab;
     final isActive = isCurrentRouteTab;
-    final shouldIgnoreTap = isCurrentRouteTab &&
+    final shouldIgnoreTap =
+        isCurrentRouteTab &&
         tab != AppBottomNavTab.more &&
         tab != AppBottomNavTab.entries;
     final textColor = isActive
@@ -875,7 +874,9 @@ class _AppBottomNavState extends State<AppBottomNav> {
               : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isActive ? gradient.last.withOpacity(0.8) : gradient.last.withOpacity(0.5),
+            color: isActive
+                ? gradient.last.withOpacity(0.8)
+                : gradient.last.withOpacity(0.5),
             width: isActive ? 1.8 : 1.2,
           ),
           boxShadow: [

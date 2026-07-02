@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../constants.dart';
+import '../theme_controller.dart';
 
 // ─── Section Header ──────────────────────────────────────────────
 class EntrySection extends StatelessWidget {
@@ -100,6 +101,7 @@ class EntryFormField extends StatelessWidget {
   final TextEditingController? controller;
   final bool readOnly;
   final bool enabled;
+  final bool enableInteractiveSelection;
   final VoidCallback? onTap;
   final ValueChanged<String>? onChanged;
   final String? errorText;
@@ -116,6 +118,7 @@ class EntryFormField extends StatelessWidget {
     this.controller,
     this.readOnly = false,
     this.enabled = true,
+    this.enableInteractiveSelection = true,
     this.onTap,
     this.onChanged,
     this.errorText,
@@ -137,6 +140,7 @@ class EntryFormField extends StatelessWidget {
         controller: controller,
         readOnly: readOnly,
         enabled: enabled,
+        enableInteractiveSelection: enableInteractiveSelection && !readOnly,
         onTap: onTap,
         onChanged: onChanged,
         keyboardType: keyboardType,
@@ -178,26 +182,26 @@ class EntryFormField extends StatelessWidget {
           ),
           suffixIcon: suffixIcon,
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide(
               color: Theme.of(context).dividerColor,
               width: 1,
             ),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide(color: app_color, width: 1.5),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(18),
             borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(18),
             borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
           ),
           disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide(
               color: Theme.of(context).dividerColor,
               width: 1,
@@ -283,18 +287,18 @@ class EntryDropdownField<T> extends StatelessWidget {
                 ),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(18),
                 borderSide: BorderSide(
                   color: Theme.of(context).dividerColor,
                   width: 1,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(18),
                 borderSide: BorderSide(color: app_color, width: 1.5),
               ),
               errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(18),
                 borderSide: const BorderSide(
                   color: Colors.redAccent,
                   width: 1.5,
@@ -763,7 +767,25 @@ PreferredSizeWidget entryAppBar({
           color: Colors.white,
         ),
       ),
-      actions: actions,
+      actions: [
+        IconButton(
+          tooltip: 'Toggle theme',
+          icon: Icon(
+            Theme.of(context).brightness == Brightness.dark
+                ? Icons.light_mode
+                : Icons.dark_mode,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            themeController.setThemeMode(
+              Theme.of(context).brightness == Brightness.dark
+                  ? ThemeMode.light
+                  : ThemeMode.dark,
+            );
+          },
+        ),
+        ...?actions,
+      ],
     ),
   );
 }
@@ -1179,14 +1201,17 @@ class EntrySearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    const searchRadius = BorderRadius.all(Radius.circular(18));
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: isDark
               ? Theme.of(context).colorScheme.surfaceContainerHighest
               : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: searchRadius,
           border: Border.all(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.08)
@@ -1222,7 +1247,18 @@ class EntrySearchBar extends StatelessWidget {
                     },
                   )
                 : null,
-            border: InputBorder.none,
+            border: const OutlineInputBorder(
+              borderRadius: searchRadius,
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: const OutlineInputBorder(
+              borderRadius: searchRadius,
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: const OutlineInputBorder(
+              borderRadius: searchRadius,
+              borderSide: BorderSide.none,
+            ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 14,

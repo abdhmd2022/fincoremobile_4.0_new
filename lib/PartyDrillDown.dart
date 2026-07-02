@@ -862,170 +862,180 @@ class _PartyDrillDownState extends State<PartyDrillDown>
           CustomScrollView(
             controller: _scrollFabController,
             slivers: [
-              SliverToBoxAdapter(child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Text(
-                        widget.total,
-                        style: GoogleFonts.poppins(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                          color: Theme.of(context).colorScheme.onSurface,
+              SliverToBoxAdapter(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 20,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Text(
+                          widget.total,
+                          style: GoogleFonts.poppins(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerHighest.withOpacity(
-                                Theme.of(context).brightness == Brightness.dark
-                                    ? 0.85
-                                    : 0.35,
+                      const SizedBox(height: 8),
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest
+                                    .withOpacity(
+                                      Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? 0.85
+                                          : 0.35,
+                                    ),
+                                Theme.of(context).cardColor.withOpacity(
+                                  Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? 0.95
+                                      : 0.9,
+                                ),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            border: Border.all(color: app_color),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.calendar_month_rounded,
+                                size: 18,
+                                color: app_color,
                               ),
-                              Theme.of(context).cardColor.withOpacity(
-                                Theme.of(context).brightness == Brightness.dark
-                                    ? 0.95
-                                    : 0.9,
+                              const SizedBox(width: 10),
+                              Text(
+                                '$startdate_text → $enddate_text',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
                               ),
                             ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
                           ),
-                          border: Border.all(color: app_color),
-                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      // Breadcrumb trail
+                      if (widget.trail.isNotEmpty) ...[
+                        const SizedBox(height: 14),
+                        _buildBreadcrumb(),
+                      ],
+                      const SizedBox(height: 20),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest
+                                    .withOpacity(0.72)
+                              : Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest
+                                    .withOpacity(0.45),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: Theme.of(context).dividerColor,
+                          ),
                         ),
                         child: Row(
-                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              Icons.calendar_month_rounded,
-                              size: 18,
-                              color: app_color,
+                              Icons.filter_alt_outlined,
+                              size: 20,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              '$startdate_text → $enddate_text',
+                              'Group by:',
                               style: GoogleFonts.poppins(
+                                fontSize: 15,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 14,
                                 color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  value: _selectedgroup,
+                                  dropdownColor: Theme.of(
+                                    context,
+                                  ).colorScheme.surface,
+                                  borderRadius: BorderRadius.circular(18),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 15,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                                  icon: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                                  onChanged: (v) {
+                                    if (v == null) return;
+                                    setState(() => _selectedgroup = v);
+                                    _fetchGroup(v);
+                                  },
+                                  items: _availableGroups
+                                      .map(
+                                        (g) => DropdownMenuItem(
+                                          value: g,
+                                          child: Text(g),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                    // Breadcrumb trail
-                    if (widget.trail.isNotEmpty) ...[
-                      const SizedBox(height: 14),
-                      _buildBreadcrumb(),
                     ],
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest
-                                  .withOpacity(0.72)
-                            : Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest
-                                  .withOpacity(0.45),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: Theme.of(context).dividerColor,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.filter_alt_outlined,
-                            size: 20,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            'Group by:',
-                            style: GoogleFonts.poppins(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                value: _selectedgroup,
-                                dropdownColor: Theme.of(
-                                  context,
-                                ).colorScheme.surface,
-                                borderRadius: BorderRadius.circular(12),
-                                style: GoogleFonts.poppins(
-                                  fontSize: 15,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                                icon: Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                                ),
-                                onChanged: (v) {
-                                  if (v == null) return;
-                                  setState(() => _selectedgroup = v);
-                                  _fetchGroup(v);
-                                },
-                                items: _availableGroups
-                                    .map(
-                                      (g) => DropdownMenuItem(
-                                        value: g,
-                                        child: Text(g),
-                                      ),
-                                    )
-                                    .toList(),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              )),
+              ),
 
               SliverToBoxAdapter(
                 child: Container(
@@ -1052,7 +1062,7 @@ class _PartyDrillDownState extends State<PartyDrillDown>
                           padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
                           child: Material(
                             elevation: 2,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(18),
                             shadowColor: Colors.black12,
                             child: TextField(
                               controller: searchController,
@@ -1082,13 +1092,13 @@ class _PartyDrillDownState extends State<PartyDrillDown>
                                   horizontal: 16,
                                 ),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(18),
                                   borderSide: BorderSide(
                                     color: Theme.of(context).dividerColor,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(18),
                                   borderSide: const BorderSide(
                                     color: app_color,
                                     width: 1.5,

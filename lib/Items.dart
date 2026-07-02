@@ -1563,137 +1563,142 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin {
             slivers: [
               // 🔹 Dropdown + Tabs Container
               if (isVisibleParent)
-                SliverToBoxAdapter(child: Container(
-                  margin: EdgeInsets.only(
-                    top: 10,
-                    left: 16,
-                    right: 16,
-                    bottom: 8,
-                  ),
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black12, blurRadius: 10),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      // Parent Dropdown
-                      _buildParentDropdown(),
+                SliverToBoxAdapter(
+                  child: Container(
+                    margin: EdgeInsets.only(
+                      top: 10,
+                      left: 16,
+                      right: 16,
+                      bottom: 8,
+                    ),
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black12, blurRadius: 10),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        // Parent Dropdown
+                        _buildParentDropdown(),
 
-                      SizedBox(height: 14),
+                        SizedBox(height: 14),
 
-                      // Tabs
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            if (allitems_visibility)
-                              _buildTab(
-                                "All Items",
-                                Icons.inventory_2_outlined,
-                                isClicked_allitems,
-                                () => fetchItemData('All Items', _selecteditem),
-                              ),
-                            if (fastmovingitems_visibility)
-                              _buildTab(
-                                "Fast Moving",
-                                Icons.flash_on_rounded,
-                                isClicked_fastmoving,
-                                () => fetchItemData(
-                                  'FastMovingItems',
-                                  _selecteditem,
+                        // Tabs
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              if (allitems_visibility)
+                                _buildTab(
+                                  "All Items",
+                                  Icons.inventory_2_outlined,
+                                  isClicked_allitems,
+                                  () =>
+                                      fetchItemData('All Items', _selecteditem),
                                 ),
-                              ),
-                            if (fastmovingitems_visibility)
-                              _buildTab(
-                                "Slow Moving",
-                                Icons.timer_outlined,
-                                isClicked_slowmoving,
-                                () => fetchItemData(
-                                  'SlowMovingItems',
-                                  _selecteditem,
+                              if (fastmovingitems_visibility)
+                                _buildTab(
+                                  "Fast Moving",
+                                  Icons.flash_on_rounded,
+                                  isClicked_fastmoving,
+                                  () => fetchItemData(
+                                    'FastMovingItems',
+                                    _selecteditem,
+                                  ),
                                 ),
-                              ),
-                            if (inactiveitems_visibility)
-                              _buildTab(
-                                "Inactive",
-                                Icons.block,
-                                isClicked_inactiveitems,
-                                () {
-                                  _showInactiveDaysDialog(
-                                    context,
-                                  ); // 👈 open modern dialog instead of direct fetch
-                                },
-                              ),
-                          ],
-                        ),
-                      ),
-
-                      if (_isSearchViewVisible)
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 0,
-                            right: 0,
-                            top: 15,
-                            bottom: 0,
+                              if (fastmovingitems_visibility)
+                                _buildTab(
+                                  "Slow Moving",
+                                  Icons.timer_outlined,
+                                  isClicked_slowmoving,
+                                  () => fetchItemData(
+                                    'SlowMovingItems',
+                                    _selecteditem,
+                                  ),
+                                ),
+                              if (inactiveitems_visibility)
+                                _buildTab(
+                                  "Inactive",
+                                  Icons.block,
+                                  isClicked_inactiveitems,
+                                  () {
+                                    _showInactiveDaysDialog(
+                                      context,
+                                    ); // 👈 open modern dialog instead of direct fetch
+                                  },
+                                ),
+                            ],
                           ),
-                          child: Material(
-                            elevation: 2,
-                            borderRadius: BorderRadius.circular(20),
-                            shadowColor: Colors.black12,
-                            child: TextField(
-                              controller: searchController,
-                              onChanged: _onSearchChanged,
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: "Search items...",
-                                hintStyle: GoogleFonts.poppins(fontSize: 13),
-                                prefixIcon: Icon(
-                                  Icons.search,
+                        ),
+
+                        if (_isSearchViewVisible)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 0,
+                              right: 0,
+                              top: 15,
+                              bottom: 0,
+                            ),
+                            child: Material(
+                              elevation: 2,
+                              borderRadius: BorderRadius.circular(20),
+                              shadowColor: Colors.black12,
+                              child: TextField(
+                                controller: searchController,
+                                onChanged: _onSearchChanged,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
                                   color: Theme.of(
                                     context,
-                                  ).colorScheme.onSurfaceVariant,
+                                  ).colorScheme.onSurface,
                                 ),
+                                decoration: InputDecoration(
+                                  hintText: "Search items...",
+                                  hintStyle: GoogleFonts.poppins(fontSize: 13),
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
 
-                                filled: true,
-                                fillColor:
-                                    Theme.of(
-                                      context,
-                                    ).inputDecorationTheme.fillColor ??
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.surfaceContainerHighest,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                  horizontal: 16,
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: BorderSide(
-                                    color: Theme.of(context).dividerColor,
+                                  filled: true,
+                                  fillColor:
+                                      Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.fillColor ??
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainerHighest,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                    horizontal: 16,
                                   ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: const BorderSide(
-                                    color: app_color,
-                                    width: 1.5,
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context).dividerColor,
+                                    ),
                                   ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    borderSide: const BorderSide(
+                                      color: app_color,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  border: InputBorder.none,
                                 ),
-                                border: InputBorder.none,
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
-                )),
+                ),
 
               // 🔹 List / Empty State
               if (isVisibleNoDataFound)
@@ -1703,16 +1708,13 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin {
                 )
               else
                 SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final card = _getVisibleList()[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: _buildItemCard(card),
-                      );
-                    },
-                    childCount: _getVisibleList().length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final card = _getVisibleList()[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _buildItemCard(card),
+                    );
+                  }, childCount: _getVisibleList().length),
                 ),
             ],
           ),
@@ -1723,7 +1725,6 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin {
         ],
       ),
     );
-
   }
 
   // ------------------- 🔹 Widgets 🔹 -------------------
@@ -1733,7 +1734,7 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: Theme.of(context).dividerColor),
         boxShadow: [
           BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
@@ -2527,19 +2528,19 @@ class _ItemsPageState extends State<Items> with TickerProviderStateMixin {
                       vertical: 12,
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(18),
                       borderSide: BorderSide(
                         color: Theme.of(context).dividerColor,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(18),
                       borderSide: BorderSide(
                         color: Theme.of(context).dividerColor,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(18),
                       borderSide: BorderSide(color: Colors.teal, width: 1.8),
                     ),
                   ),

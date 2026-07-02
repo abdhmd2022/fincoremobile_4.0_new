@@ -721,7 +721,6 @@ class _TransactionsClickedPageState extends State<TransactionsClicked>
         ),
       ),
 
-
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -1522,7 +1521,7 @@ Widget buildCostCenterRow(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     decoration: BoxDecoration(
       color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(18),
       boxShadow: [
         BoxShadow(
           color: Colors.black12.withOpacity(0.08),
@@ -1751,7 +1750,7 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
             color: Colors.black12.withOpacity(0.06),
@@ -1875,7 +1874,7 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
                                       .colorScheme
                                       .surfaceContainerHighest, // soft inner background
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(18),
                                 borderSide: BorderSide(
                                   color: Theme.of(context).dividerColor,
 
@@ -1883,14 +1882,14 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(18),
                                 borderSide: BorderSide(
                                   color: Theme.of(context).dividerColor,
                                   width: 1.4,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(18),
                                 borderSide: BorderSide(
                                   color: Colors.teal.shade400,
                                   width: 1.4,
@@ -1971,7 +1970,7 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
                                                   ? 0.72
                                                   : 0.36,
                                             ),
-                                        borderRadius: BorderRadius.circular(14),
+                                        borderRadius: BorderRadius.circular(18),
                                         border: Border.all(
                                           color: Colors.teal.withOpacity(0.15),
                                           width: 1,

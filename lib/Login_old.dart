@@ -838,8 +838,12 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
     socket = IO.io(SOCKET_URL, <String, dynamic>{
       'transports': ['websocket'],
       'path': '/main/socket.io',
-      'secure': true,
-      'autoConnect': true,
+      'autoConnect': false,
+      'reconnection': true,
+      'reconnectionAttempts': 10,
+      'reconnectionDelay': 1500,
+      'timeout': 20000,
+      'forceNew': true,
       'auth': {'token': authTokenBase},
     });
 
@@ -854,6 +858,8 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
     socket.onDisconnect((_) {
       print("⚠️ Socket Disconnected");
     });
+
+    socket.connect();
 
     /*socket = IO.io('http://192.168.2.110:5999', <String, dynamic>{
       'transports': ['websocket'],

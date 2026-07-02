@@ -5045,11 +5045,11 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
               }
             } else {
               if (screenHeight < 700) {
-                sheetHeight = 0.62;
+                sheetHeight = 0.78;
               } else if (screenHeight < 850) {
-                sheetHeight = 0.52;
+                sheetHeight = 0.68;
               } else {
-                sheetHeight = 0.42;
+                sheetHeight = 0.58;
               }
             }
 
@@ -6173,7 +6173,9 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                                             context,
                                           ).cardColor.withOpacity(0.95)),
                                   prefixIcon: GestureDetector(
-                                    onTap: () => _selectsaleDate(context),
+                                    onTap: isUniGasSerial(serial_no)
+                                        ? null
+                                        : () => _selectsaleDate(context),
                                     child: Container(
                                       margin: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
@@ -6222,7 +6224,12 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                                   ),
                                 ),
                                 readOnly: true,
-                                onTap: () => _selectsaleDate(context),
+                                enableInteractiveSelection: false,
+                                onTap: isUniGasSerial(serial_no)
+                                    ? null
+                                    : () {
+                                        _selectsaleDate(context);
+                                      },
                               ),
                             ),
 

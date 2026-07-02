@@ -5703,11 +5703,11 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
               }
             } else {
               if (screenHeight < 700) {
-                sheetHeight = 0.62;
+                sheetHeight = 0.78;
               } else if (screenHeight < 850) {
-                sheetHeight = 0.52;
+                sheetHeight = 0.68;
               } else {
-                sheetHeight = 0.42;
+                sheetHeight = 0.58;
               }
             }
 
@@ -6763,15 +6763,17 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                             enabled: !isUniGasSerial,
                             suffixIcon: isUniGasSerial
                                 ? Icon(
-                              Icons.lock,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            )
+                                    Icons.lock,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  )
                                 : null,
                             onTap: isUniGasSerial
                                 ? null
                                 : () {
-                              _selectsaleDate(context);
-                            },
+                                    _selectsaleDate(context);
+                                  },
                           ),
 
                           // Voucher No
@@ -7102,6 +7104,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                             ],
                             controller: _refdateController,
                             readOnly: true,
+                            enableInteractiveSelection: false,
                             onTap: () => _selectrefDate(context),
                           ),
 

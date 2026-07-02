@@ -862,8 +862,12 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
     socket = IO.io(SOCKET_URL, <String, dynamic>{
       'transports': ['websocket'],
       'path': '/main/socket.io',
-      'secure': true,
-      'autoConnect': true,
+      'autoConnect': false,
+      'reconnection': true,
+      'reconnectionAttempts': 10,
+      'reconnectionDelay': 1500,
+      'timeout': 20000,
+      'forceNew': true,
       'auth': {'token': authTokenBase},
     });
 
@@ -878,6 +882,8 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
     socket.onDisconnect((_) {
       debugPrint("Socket disconnected");
     });
+
+    socket.connect();
 
     /*socket = IO.io('http://192.168.2.110:5999', <String, dynamic>{
       'transports': ['websocket'],
@@ -1232,7 +1238,7 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
                 </div>''';
 
     try {
-     // await send(message, smtpServer);
+      // await send(message, smtpServer);
 
       /*_scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(
@@ -1649,7 +1655,9 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
         fontSize: 13.5,
       ),
       filled: true,
-      fillColor: Theme.of(context).inputDecorationTheme.fillColor ?? const Color(0xFFF7F9FB),
+      fillColor:
+          Theme.of(context).inputDecorationTheme.fillColor ??
+          const Color(0xFFF7F9FB),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -1962,10 +1970,12 @@ class _LoginPageState extends State<Login> with TickerProviderStateMixin {
                 fieldHeight: 58,
                 fieldWidth: 58,
                 activeFillColor: app_color.withOpacity(0.1),
-                inactiveFillColor: Theme.of(context).brightness == Brightness.dark
+                inactiveFillColor:
+                    Theme.of(context).brightness == Brightness.dark
                     ? const Color(0xFF1F2937)
                     : const Color(0xFFF7F9FB),
-                selectedFillColor: Theme.of(context).brightness == Brightness.dark
+                selectedFillColor:
+                    Theme.of(context).brightness == Brightness.dark
                     ? const Color(0xFF1F2937)
                     : Colors.white,
                 activeColor: app_color,

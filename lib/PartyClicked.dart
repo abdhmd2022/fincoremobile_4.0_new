@@ -2630,864 +2630,659 @@ class _PartyClickedPageState extends State<PartyClicked>
         ),
       ),
 
-
       body: Stack(
         children: [
-          SizedBox.expand(child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12.withOpacity(0.08),
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      /// 🔽 Dropdown
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: app_color, width: 1.2),
-                        ),
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<dynamic>(
-                            value: _selecteddate,
-                            isExpanded: true,
-                            icon: Icon(
-                              Icons.expand_more,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
-                            ),
-                            style: GoogleFonts.poppins(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontSize: 15,
-                            ),
-                            dropdownColor: Theme.of(
-                              context,
-                            ).colorScheme.surface,
-                            onChanged: (value) {
-                              if (value != null) _handleDate(value);
-                            },
-
-                            items: date_range.map((item) {
-                              return DropdownMenuItem<dynamic>(
-                                value: item,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                  ),
-                                  child: Text(item),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 18),
-
-                      /// 📆 Date Range (Single Widget)
-                      InkWell(
-                        onTap: () => _selectDateRange(context),
-                        borderRadius: BorderRadius.circular(50),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest
-                                    .withOpacity(
-                                      Theme.of(context).brightness ==
-                                              Brightness.dark
-                                          ? 0.85
-                                          : 0.35,
-                                    ),
-                                Theme.of(context).cardColor.withOpacity(
-                                  Theme.of(context).brightness ==
-                                          Brightness.dark
-                                      ? 0.95
-                                      : 0.9,
-                                ),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            border: Border.all(color: app_color, width: 1),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.calendar_month_rounded,
-                                size: 18,
-                                color: app_color,
-                              ),
-                              SizedBox(width: 10),
-                              Text(
-                                "$startdate_text → $enddate_text",
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    bottom: 16,
-                  ),
-                  padding: const EdgeInsets.only(
-                    left: 0,
-                    right: 0,
-                    top: 4,
-                    bottom: 10,
-                  ),
+          SizedBox.expand(
+            child: Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black12,
+                        color: Colors.black12.withOpacity(0.08),
                         blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        spreadRadius: 2,
+                        offset: Offset(0, 4),
                       ),
                     ],
                   ),
-                  child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            int countPerRow = constraints.maxWidth > 600
-                                ? 3
-                                : 2;
-                            double buttonWidth =
-                                (constraints.maxWidth -
-                                    (countPerRow - 1) * 12) /
-                                countPerRow;
+                        /// 🔽 Dropdown
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: app_color, width: 1.2),
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<dynamic>(
+                              value: _selecteddate,
+                              isExpanded: true,
+                              icon: Icon(
+                                Icons.expand_more,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                              style: GoogleFonts.poppins(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: 15,
+                              ),
+                              dropdownColor: Theme.of(
+                                context,
+                              ).colorScheme.surface,
+                              onChanged: (value) {
+                                if (value != null) _handleDate(value);
+                              },
 
-                            return Wrap(
-                              spacing: 12,
-                              runSpacing: 12,
-                              alignment: WrapAlignment.center,
-                              children: [
-                                if (isVisibleSummaryBtn)
-                                  SizedBox(
-                                    width: buttonWidth,
-                                    child: _buildModernTabButton(
-                                      label: 'SUMMARY',
-                                      isSelected: isClicked_Summary,
-                                      onTap: fetchSummary,
+                              items: date_range.map((item) {
+                                return DropdownMenuItem<dynamic>(
+                                  value: item,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 10,
                                     ),
+                                    child: Text(item),
                                   ),
-                                if (isVisibleSoldBtn)
-                                  SizedBox(
-                                    width: buttonWidth,
-                                    child: _buildModernTabButton(
-                                      label: 'SOLD',
-                                      isSelected: isClicked_Sold,
-                                      onTap: () {
-                                        setState(() {
-                                          isClicked_Summary = false;
-                                          isClicked_Sold = true;
-                                          isClicked_Purchase = false;
-                                          isSearchLayoutVisible = true;
-                                          fetchsold(
-                                            "Sales",
-                                            partyname,
-                                            startDateString,
-                                            endDateString,
-                                          );
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                if (isVisiblePurchaseBtn)
-                                  SizedBox(
-                                    width: buttonWidth,
-                                    child: _buildModernTabButton(
-                                      label: 'PURCHASED',
-                                      isSelected: isClicked_Purchase,
-                                      onTap: () {
-                                        setState(() {
-                                          isClicked_Purchase = true;
-                                          isClicked_Sold = false;
-                                          isClicked_Summary = false;
-                                          isSearchLayoutVisible = true;
-                                          fetchpurchase(
-                                            "Purchase",
-                                            partyname,
-                                            startDateString,
-                                            endDateString,
-                                          );
-                                        });
-                                      },
-                                    ),
-                                  ),
-                              ],
-                            );
-                          },
+                                );
+                              }).toList(),
+                            ),
+                          ),
                         ),
 
-                        /* Padding(
+                        SizedBox(height: 18),
+
+                        /// 📆 Date Range (Single Widget)
+                        InkWell(
+                          onTap: () => _selectDateRange(context),
+                          borderRadius: BorderRadius.circular(50),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest
+                                      .withOpacity(
+                                        Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? 0.85
+                                            : 0.35,
+                                      ),
+                                  Theme.of(context).cardColor.withOpacity(
+                                    Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? 0.95
+                                        : 0.9,
+                                  ),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              border: Border.all(color: app_color, width: 1),
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.calendar_month_rounded,
+                                  size: 18,
+                                  color: app_color,
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  "$startdate_text → $enddate_text",
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: 16,
+                    ),
+                    padding: const EdgeInsets.only(
+                      left: 0,
+                      right: 0,
+                      top: 4,
+                      bottom: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              int countPerRow = constraints.maxWidth > 600
+                                  ? 3
+                                  : 2;
+                              double buttonWidth =
+                                  (constraints.maxWidth -
+                                      (countPerRow - 1) * 12) /
+                                  countPerRow;
+
+                              return Wrap(
+                                spacing: 12,
+                                runSpacing: 12,
+                                alignment: WrapAlignment.center,
+                                children: [
+                                  if (isVisibleSummaryBtn)
+                                    SizedBox(
+                                      width: buttonWidth,
+                                      child: _buildModernTabButton(
+                                        label: 'SUMMARY',
+                                        isSelected: isClicked_Summary,
+                                        onTap: fetchSummary,
+                                      ),
+                                    ),
+                                  if (isVisibleSoldBtn)
+                                    SizedBox(
+                                      width: buttonWidth,
+                                      child: _buildModernTabButton(
+                                        label: 'SOLD',
+                                        isSelected: isClicked_Sold,
+                                        onTap: () {
+                                          setState(() {
+                                            isClicked_Summary = false;
+                                            isClicked_Sold = true;
+                                            isClicked_Purchase = false;
+                                            isSearchLayoutVisible = true;
+                                            fetchsold(
+                                              "Sales",
+                                              partyname,
+                                              startDateString,
+                                              endDateString,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  if (isVisiblePurchaseBtn)
+                                    SizedBox(
+                                      width: buttonWidth,
+                                      child: _buildModernTabButton(
+                                        label: 'PURCHASED',
+                                        isSelected: isClicked_Purchase,
+                                        onTap: () {
+                                          setState(() {
+                                            isClicked_Purchase = true;
+                                            isClicked_Sold = false;
+                                            isClicked_Summary = false;
+                                            isSearchLayoutVisible = true;
+                                            fetchpurchase(
+                                              "Purchase",
+                                              partyname,
+                                              startDateString,
+                                              endDateString,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+
+                          /* Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 25),
                             child: Divider(
                               thickness: 1,
                               color: Theme.of(context).dividerColor,
                             ),
                           ),*/
-                        if (isClicked_Summary)
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (isVisibleNoDataFound &&
-                                  !ReceivableVisibility &&
-                                  !PayableVisibility &&
-                                  !SalesOrderVisibility &&
-                                  !PurchaseOrderVisibility)
-                                Padding(
-                                  padding: EdgeInsets.only(top: 40),
-                                  child: Center(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.search_off_rounded,
-                                          size: 48,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                        ),
-                                        SizedBox(height: 12),
-                                        Text(
-                                          'No Records Found',
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
+                          if (isClicked_Summary)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (isVisibleNoDataFound &&
+                                    !ReceivableVisibility &&
+                                    !PayableVisibility &&
+                                    !SalesOrderVisibility &&
+                                    !PurchaseOrderVisibility)
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 40),
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.search_off_rounded,
+                                            size: 48,
                                             color: Theme.of(
                                               context,
                                             ).colorScheme.onSurfaceVariant,
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              if (SalesVisibility)
-                                SummaryExpansionCard(
-                                  title: 'Sales',
-                                  totalAmount: totalsaleamt,
-                                  lastDate: lastsaledate,
-                                  count: noofsalesinvoice,
-                                  type: "Sales",
-                                  partyname: partyname,
-
-                                  averageAmount: avgsalesinvoiceamt,
-                                  months: months_list_sales,
-                                  onTapTotal: () =>
-                                      navigateToDetail('Sales', totalsaleamt),
-                                  currencysymbol: currencysymbol,
-                                  decimal: decimal,
-                                ),
-
-                              if (PurchaseVisibility)
-                                SummaryExpansionCard(
-                                  title: 'Purchase',
-                                  totalAmount: totalpurchaseamt,
-                                  lastDate: lastpurchasedate,
-                                  count: noofpurchaseinvoice,
-                                  averageAmount: avgpurchaseinvoiceamt,
-                                  months: months_list_purchase,
-                                  type: "Purchase",
-                                  partyname: partyname,
-                                  currencysymbol: currencysymbol,
-                                  decimal: decimal,
-                                  onTapTotal: () => navigateToDetail(
-                                    'Purchase',
-                                    totalpurchaseamt,
-                                  ),
-                                ),
-
-                              if (ReceiptVisibility)
-                                SummaryExpansionCard(
-                                  title: 'Receipt',
-                                  totalAmount: totalreceiptamt,
-                                  lastDate: lastreceiptdate,
-                                  count: noofreceiptinvoice,
-                                  averageAmount: avgreceiptinvoiceamt,
-                                  months: months_list_receipt,
-                                  type: "Receipt",
-                                  partyname: partyname,
-                                  currencysymbol: currencysymbol,
-                                  decimal: decimal,
-                                  onTapTotal: () {
-                                    String amount = formatAmount(
-                                      totalreceiptamt,
-                                    );
-
-                                    print('amount -> $amount');
-                                    String vchtype = 'Receipt';
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            PartyTotalClickedRest(
-                                              startdate_string: startDateString,
-                                              enddate_string: endDateString,
-                                              type: vchtype,
-                                              total: amount,
-                                              ledger: partyname,
+                                          SizedBox(height: 12),
+                                          Text(
+                                            'No Records Found',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
                                             ),
-                                      ),
-                                    );
-                                  },
-                                ),
-
-                              if (PaymentVisibility)
-                                SummaryExpansionCard(
-                                  title: 'Payment',
-                                  totalAmount: totalpaymentamt,
-                                  lastDate: lastpaymentdate,
-                                  count: noofpaymentinvoice,
-                                  averageAmount: avgpaymentinvoiceamt,
-                                  months: months_list_payment,
-                                  type: "Payment",
-                                  partyname: partyname,
-                                  currencysymbol: currencysymbol,
-                                  decimal: decimal,
-                                  onTapTotal: () {
-                                    String amount = formatAmount(
-                                      totalpaymentamt,
-                                    );
-                                    print('amount -> $amount');
-
-                                    String vchtype = 'Payment';
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            PartyTotalClickedRest(
-                                              startdate_string: startDateString,
-                                              enddate_string: endDateString,
-                                              type: vchtype,
-                                              total: amount,
-                                              ledger: partyname,
-                                            ),
-                                      ),
-                                    );
-                                  },
-                                ),
-
-                              if (CreditnoteVisibility)
-                                SummaryExpansionCard(
-                                  title: 'Credit Note',
-                                  totalAmount: totalcreditnoteamt,
-                                  lastDate: lastcreditnotedate,
-                                  count: noofcreditnoteinvoice,
-                                  averageAmount: avgcreditnoteinvoiceamt,
-                                  months: months_list_creditnote,
-                                  type: "Credit Note",
-                                  partyname: partyname,
-                                  currencysymbol: currencysymbol,
-                                  decimal: decimal,
-                                  onTapTotal: () => navigateToDetail(
-                                    'Credit Note',
-                                    totalcreditnoteamt,
-                                  ),
-                                ),
-                              if (DebitnoteVisibility)
-                                SummaryExpansionCard(
-                                  title: 'Debit Note',
-                                  totalAmount: totaldebitnoteamt,
-                                  lastDate: lastdebitnotedate,
-                                  count: noofdebitnoteinvoice,
-                                  averageAmount: avgdebitnoteinvoiceamt,
-                                  months: months_list_debitnote,
-                                  type: "Debit Note",
-                                  partyname: partyname,
-                                  currencysymbol: currencysymbol,
-                                  decimal: decimal,
-                                  onTapTotal: () => navigateToDetail(
-                                    'Debit Note',
-                                    totaldebitnoteamt,
-                                  ),
-                                ),
-                              if (JournalVisibility)
-                                SummaryExpansionCard(
-                                  title: 'Journal',
-                                  totalAmount: totaljournalamt,
-                                  lastDate: lastjournaldate,
-                                  count: noofjournalinvoice,
-                                  averageAmount: avgjournalinvoiceamt,
-                                  months: months_list_journal,
-                                  type: "Journal",
-                                  partyname: partyname,
-                                  currencysymbol: currencysymbol,
-                                  decimal: decimal,
-                                  onTapTotal: () {
-                                    String amount = formatAmount(
-                                      totaljournalamt,
-                                    );
-                                    print('amount -> $amount');
-                                    String vchtype = 'Journal';
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            PartyTotalClickedRest(
-                                              startdate_string: startDateString,
-                                              enddate_string: endDateString,
-                                              type: vchtype,
-                                              total: amount,
-                                              ledger: partyname,
-                                            ),
-                                      ),
-                                    );
-                                  },
-                                ),
-
-                              if (ReceivableVisibility)
-                                ReceivableBreakdownCard(
-                                  total: receivabletotal,
-                                  onAccount: onAccountReceivable,
-                                  onTotalTap: () {
-                                    navigateToReceivable(
-                                      'Receivable',
-                                      receivabletotal,
-                                      '',
-                                      'All',
-                                    );
-                                  },
-
-                                  rows: [
-                                    {
-                                      'label': row1_receivable_heading,
-                                      'value': row1_receivable,
-                                      'onTap': () {
-                                        navigateToReceivable(
-                                          'Receivable',
-                                          row1_receivable,
-                                          ">",
-                                          row1_receivable_heading_value,
-                                        );
-                                      },
-                                    },
-                                    {
-                                      'label': row2_receivable_heading,
-                                      'value': row2_receivable,
-                                      'onTap': () {
-                                        navigateToReceivable(
-                                          'Receivable',
-                                          row2_receivable,
-                                          ">",
-                                          row2_receivable_heading_value,
-                                        );
-                                      },
-                                    },
-                                    {
-                                      'label': row3_receivable_heading,
-                                      'value': row3_receivable,
-                                      'onTap': () {
-                                        navigateToReceivable(
-                                          'Receivable',
-                                          row3_receivable,
-                                          ">",
-                                          row3_receivable_heading_value,
-                                        );
-                                      },
-                                    },
-                                    {
-                                      'label': row4_receivable_heading,
-                                      'value': row4_receivable,
-                                      'onTap': () {
-                                        navigateToReceivable(
-                                          'Receivable',
-                                          row4_receivable,
-                                          ">",
-                                          row4_receivable_heading_value,
-                                        );
-                                      },
-                                    },
-                                    {
-                                      'label': row5_receivable_heading,
-                                      'value': row5_receivable,
-                                      'onTap': () {
-                                        navigateToReceivable(
-                                          'Receivable',
-                                          row5_receivable,
-                                          ">",
-                                          row5_receivable_heading_value,
-                                        );
-                                      },
-                                    },
-                                    {
-                                      'label': row6_receivable_heading,
-                                      'value': row6_receivable,
-                                      'onTap': () {
-                                        navigateToReceivable(
-                                          'Receivable',
-                                          row6_receivable,
-                                          ">",
-                                          row6_receivable_heading_value,
-                                        );
-                                      },
-                                    },
-                                  ],
-                                ),
-
-                              if (PayableVisibility)
-                                PayableBreakdownCard(
-                                  total: payabletotal,
-                                  onAccount: onAccountPayable,
-                                  onTotalTap: () {
-                                    navigateToPayable(
-                                      'Payable',
-                                      formatAmount(payabletotal.toString()),
-                                      '',
-                                      'All',
-                                    );
-                                  },
-                                  rows: [
-                                    {
-                                      'label': row1_payable_heading,
-                                      'value': row1_payable,
-                                      'onTap': () {
-                                        navigateToPayable(
-                                          'Payable',
-                                          row1_payable,
-                                          ">",
-                                          row1_payable_heading_value,
-                                        );
-                                      },
-                                    },
-                                    {
-                                      'label': row2_payable_heading,
-                                      'value': row2_payable,
-                                      'onTap': () {
-                                        navigateToPayable(
-                                          'Payable',
-                                          row2_payable,
-                                          ">",
-                                          row2_payable_heading_value,
-                                        );
-                                      },
-                                    },
-                                    {
-                                      'label': row3_payable_heading,
-                                      'value': row3_payable,
-                                      'onTap': () {
-                                        navigateToPayable(
-                                          'Payable',
-                                          row3_payable,
-                                          ">",
-                                          row3_payable_heading_value,
-                                        );
-                                      },
-                                    },
-                                    {
-                                      'label': row4_payable_heading,
-                                      'value': row4_payable,
-                                      'onTap': () {
-                                        navigateToPayable(
-                                          'Payable',
-                                          row4_payable,
-                                          ">",
-                                          row4_payable_heading_value,
-                                        );
-                                      },
-                                    },
-                                    {
-                                      'label': row5_payable_heading,
-                                      'value': row5_payable,
-                                      'onTap': () {
-                                        navigateToPayable(
-                                          'Payable',
-                                          row5_payable,
-                                          ">",
-                                          row5_payable_heading_value,
-                                        );
-                                      },
-                                    },
-                                    {
-                                      'label': row6_payable_heading,
-                                      'value': row6_payable,
-                                      'onTap': () {
-                                        navigateToPayable(
-                                          'Payable',
-                                          row6_payable,
-                                          ">",
-                                          row6_payable_heading_value,
-                                        );
-                                      },
-                                    },
-                                  ],
-                                ),
-
-                              if (SalesOrderVisibility)
-                                PendingOrderTile(
-                                  label: 'Pending Sales Order',
-                                  amount: pendingsalesorder,
-                                  currencysymbol: currencysymbol,
-                                  decimal: decimal!,
-                                  onTap: () => navigateToOrder('salesorder'),
-                                ),
-
-                              if (PurchaseOrderVisibility)
-                                PendingOrderTile(
-                                  label: 'Pending Purchase Order',
-                                  amount: pendingpurchaseorder,
-                                  currencysymbol: currencysymbol,
-                                  decimal: decimal,
-                                  onTap: () => navigateToOrder('purcorder'),
-                                ),
-                            ],
-                          ),
-
-                        Visibility(
-                          visible: isClicked_Sold,
-                          child: Column(
-                            children: [
-                              // Header Count
-                              Container(
-                                width: double.infinity,
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor,
-                                  borderRadius: BorderRadius.circular(30),
-                                  border: Border.all(
-                                    color: Colors.teal,
-                                    width: 1.2,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black12.withOpacity(0.05),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.inventory_2_rounded,
-                                      color: Colors.teal,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      '$item_count Items',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14.5,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.teal,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              // Search Bar
-                              if (_isSearchViewVisible)
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                    left: 12,
-                                    right: 12,
-                                    top: 12,
-                                  ),
-                                  child: Material(
-                                    elevation: 2,
-                                    borderRadius: BorderRadius.circular(14),
-                                    shadowColor: Colors.black12,
-
-                                    child: TextField(
-                                      controller: searchController,
-                                      onChanged: (value) {
-                                        final query = value.toLowerCase();
-                                        setState(() {
-                                          filteredItems_sold = query.isEmpty
-                                              ? sold_list
-                                              : sold_list
-                                                    .where(
-                                                      (item) => item.item
-                                                          .toLowerCase()
-                                                          .contains(query),
-                                                    )
-                                                    .toList();
-                                        });
-                                      },
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 15,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurface,
-                                      ),
-                                      decoration: InputDecoration(
-                                        hintText: 'Search...',
-                                        prefixIcon: Icon(
-                                          Icons.search,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                        ),
-                                        filled: true,
-                                        fillColor:
-                                            Theme.of(
-                                              context,
-                                            ).inputDecorationTheme.fillColor ??
-                                            Theme.of(context)
-                                                .colorScheme
-                                                .surfaceContainerHighest,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              vertical: 14,
-                                              horizontal: 16,
-                                            ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            14,
                                           ),
-                                          borderSide: BorderSide(
-                                            color: Theme.of(
-                                              context,
-                                            ).dividerColor,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            14,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: app_color,
-                                            width: 1.5,
-                                          ),
-                                        ),
+                                        ],
                                       ),
                                     ),
                                   ),
-                                ),
+                                if (SalesVisibility)
+                                  SummaryExpansionCard(
+                                    title: 'Sales',
+                                    totalAmount: totalsaleamt,
+                                    lastDate: lastsaledate,
+                                    count: noofsalesinvoice,
+                                    type: "Sales",
+                                    partyname: partyname,
 
-                              // No Data Message
-                              if (isVisibleNoDataFound)
-                                Padding(
-                                  padding: EdgeInsets.only(top: 40),
-                                  child: Center(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.search_off_rounded,
-                                          size: 48,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                        ),
-                                        SizedBox(height: 12),
-                                        Text(
-                                          'No Records Found',
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                      ],
+                                    averageAmount: avgsalesinvoiceamt,
+                                    months: months_list_sales,
+                                    onTapTotal: () =>
+                                        navigateToDetail('Sales', totalsaleamt),
+                                    currencysymbol: currencysymbol,
+                                    decimal: decimal,
+                                  ),
+
+                                if (PurchaseVisibility)
+                                  SummaryExpansionCard(
+                                    title: 'Purchase',
+                                    totalAmount: totalpurchaseamt,
+                                    lastDate: lastpurchasedate,
+                                    count: noofpurchaseinvoice,
+                                    averageAmount: avgpurchaseinvoiceamt,
+                                    months: months_list_purchase,
+                                    type: "Purchase",
+                                    partyname: partyname,
+                                    currencysymbol: currencysymbol,
+                                    decimal: decimal,
+                                    onTapTotal: () => navigateToDetail(
+                                      'Purchase',
+                                      totalpurchaseamt,
                                     ),
                                   ),
-                                ),
 
-                              // Sold List
-                              if (isVisibleSoldList)
-                                ListView.builder(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
+                                if (ReceiptVisibility)
+                                  SummaryExpansionCard(
+                                    title: 'Receipt',
+                                    totalAmount: totalreceiptamt,
+                                    lastDate: lastreceiptdate,
+                                    count: noofreceiptinvoice,
+                                    averageAmount: avgreceiptinvoiceamt,
+                                    months: months_list_receipt,
+                                    type: "Receipt",
+                                    partyname: partyname,
+                                    currencysymbol: currencysymbol,
+                                    decimal: decimal,
+                                    onTapTotal: () {
+                                      String amount = formatAmount(
+                                        totalreceiptamt,
+                                      );
+
+                                      print('amount -> $amount');
+                                      String vchtype = 'Receipt';
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              PartyTotalClickedRest(
+                                                startdate_string:
+                                                    startDateString,
+                                                enddate_string: endDateString,
+                                                type: vchtype,
+                                                total: amount,
+                                                ledger: partyname,
+                                              ),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: filteredItems_sold.length,
-                                  itemBuilder: (context, index) {
-                                    final card = filteredItems_sold[index];
-                                    return _buildSoldPurchaseCard(
-                                      context: context,
-                                      item: card.item,
-                                      qty: card.qty,
-                                      lastDate: card.lastdate,
-                                      rate: card.rate,
-                                      isSale: true,
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                PartyClickedSoldPurchaseClicked(
-                                                  startdate_string:
-                                                      startDateString,
-                                                  enddate_string: endDateString,
-                                                  type: 'Sales',
-                                                  item: card.item,
-                                                  unit: card.unit,
-                                                  ledger: partyname,
-                                                ),
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                            ],
-                          ),
-                        ),
 
-                        Visibility(
-                          visible: isClicked_Purchase,
-                          child: Container(
-                            width: double.infinity,
-                            color: Theme.of(context).scaffoldBackgroundColor,
+                                if (PaymentVisibility)
+                                  SummaryExpansionCard(
+                                    title: 'Payment',
+                                    totalAmount: totalpaymentamt,
+                                    lastDate: lastpaymentdate,
+                                    count: noofpaymentinvoice,
+                                    averageAmount: avgpaymentinvoiceamt,
+                                    months: months_list_payment,
+                                    type: "Payment",
+                                    partyname: partyname,
+                                    currencysymbol: currencysymbol,
+                                    decimal: decimal,
+                                    onTapTotal: () {
+                                      String amount = formatAmount(
+                                        totalpaymentamt,
+                                      );
+                                      print('amount -> $amount');
+
+                                      String vchtype = 'Payment';
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              PartyTotalClickedRest(
+                                                startdate_string:
+                                                    startDateString,
+                                                enddate_string: endDateString,
+                                                type: vchtype,
+                                                total: amount,
+                                                ledger: partyname,
+                                              ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+
+                                if (CreditnoteVisibility)
+                                  SummaryExpansionCard(
+                                    title: 'Credit Note',
+                                    totalAmount: totalcreditnoteamt,
+                                    lastDate: lastcreditnotedate,
+                                    count: noofcreditnoteinvoice,
+                                    averageAmount: avgcreditnoteinvoiceamt,
+                                    months: months_list_creditnote,
+                                    type: "Credit Note",
+                                    partyname: partyname,
+                                    currencysymbol: currencysymbol,
+                                    decimal: decimal,
+                                    onTapTotal: () => navigateToDetail(
+                                      'Credit Note',
+                                      totalcreditnoteamt,
+                                    ),
+                                  ),
+                                if (DebitnoteVisibility)
+                                  SummaryExpansionCard(
+                                    title: 'Debit Note',
+                                    totalAmount: totaldebitnoteamt,
+                                    lastDate: lastdebitnotedate,
+                                    count: noofdebitnoteinvoice,
+                                    averageAmount: avgdebitnoteinvoiceamt,
+                                    months: months_list_debitnote,
+                                    type: "Debit Note",
+                                    partyname: partyname,
+                                    currencysymbol: currencysymbol,
+                                    decimal: decimal,
+                                    onTapTotal: () => navigateToDetail(
+                                      'Debit Note',
+                                      totaldebitnoteamt,
+                                    ),
+                                  ),
+                                if (JournalVisibility)
+                                  SummaryExpansionCard(
+                                    title: 'Journal',
+                                    totalAmount: totaljournalamt,
+                                    lastDate: lastjournaldate,
+                                    count: noofjournalinvoice,
+                                    averageAmount: avgjournalinvoiceamt,
+                                    months: months_list_journal,
+                                    type: "Journal",
+                                    partyname: partyname,
+                                    currencysymbol: currencysymbol,
+                                    decimal: decimal,
+                                    onTapTotal: () {
+                                      String amount = formatAmount(
+                                        totaljournalamt,
+                                      );
+                                      print('amount -> $amount');
+                                      String vchtype = 'Journal';
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              PartyTotalClickedRest(
+                                                startdate_string:
+                                                    startDateString,
+                                                enddate_string: endDateString,
+                                                type: vchtype,
+                                                total: amount,
+                                                ledger: partyname,
+                                              ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+
+                                if (ReceivableVisibility)
+                                  ReceivableBreakdownCard(
+                                    total: receivabletotal,
+                                    onAccount: onAccountReceivable,
+                                    onTotalTap: () {
+                                      navigateToReceivable(
+                                        'Receivable',
+                                        receivabletotal,
+                                        '',
+                                        'All',
+                                      );
+                                    },
+
+                                    rows: [
+                                      {
+                                        'label': row1_receivable_heading,
+                                        'value': row1_receivable,
+                                        'onTap': () {
+                                          navigateToReceivable(
+                                            'Receivable',
+                                            row1_receivable,
+                                            ">",
+                                            row1_receivable_heading_value,
+                                          );
+                                        },
+                                      },
+                                      {
+                                        'label': row2_receivable_heading,
+                                        'value': row2_receivable,
+                                        'onTap': () {
+                                          navigateToReceivable(
+                                            'Receivable',
+                                            row2_receivable,
+                                            ">",
+                                            row2_receivable_heading_value,
+                                          );
+                                        },
+                                      },
+                                      {
+                                        'label': row3_receivable_heading,
+                                        'value': row3_receivable,
+                                        'onTap': () {
+                                          navigateToReceivable(
+                                            'Receivable',
+                                            row3_receivable,
+                                            ">",
+                                            row3_receivable_heading_value,
+                                          );
+                                        },
+                                      },
+                                      {
+                                        'label': row4_receivable_heading,
+                                        'value': row4_receivable,
+                                        'onTap': () {
+                                          navigateToReceivable(
+                                            'Receivable',
+                                            row4_receivable,
+                                            ">",
+                                            row4_receivable_heading_value,
+                                          );
+                                        },
+                                      },
+                                      {
+                                        'label': row5_receivable_heading,
+                                        'value': row5_receivable,
+                                        'onTap': () {
+                                          navigateToReceivable(
+                                            'Receivable',
+                                            row5_receivable,
+                                            ">",
+                                            row5_receivable_heading_value,
+                                          );
+                                        },
+                                      },
+                                      {
+                                        'label': row6_receivable_heading,
+                                        'value': row6_receivable,
+                                        'onTap': () {
+                                          navigateToReceivable(
+                                            'Receivable',
+                                            row6_receivable,
+                                            ">",
+                                            row6_receivable_heading_value,
+                                          );
+                                        },
+                                      },
+                                    ],
+                                  ),
+
+                                if (PayableVisibility)
+                                  PayableBreakdownCard(
+                                    total: payabletotal,
+                                    onAccount: onAccountPayable,
+                                    onTotalTap: () {
+                                      navigateToPayable(
+                                        'Payable',
+                                        formatAmount(payabletotal.toString()),
+                                        '',
+                                        'All',
+                                      );
+                                    },
+                                    rows: [
+                                      {
+                                        'label': row1_payable_heading,
+                                        'value': row1_payable,
+                                        'onTap': () {
+                                          navigateToPayable(
+                                            'Payable',
+                                            row1_payable,
+                                            ">",
+                                            row1_payable_heading_value,
+                                          );
+                                        },
+                                      },
+                                      {
+                                        'label': row2_payable_heading,
+                                        'value': row2_payable,
+                                        'onTap': () {
+                                          navigateToPayable(
+                                            'Payable',
+                                            row2_payable,
+                                            ">",
+                                            row2_payable_heading_value,
+                                          );
+                                        },
+                                      },
+                                      {
+                                        'label': row3_payable_heading,
+                                        'value': row3_payable,
+                                        'onTap': () {
+                                          navigateToPayable(
+                                            'Payable',
+                                            row3_payable,
+                                            ">",
+                                            row3_payable_heading_value,
+                                          );
+                                        },
+                                      },
+                                      {
+                                        'label': row4_payable_heading,
+                                        'value': row4_payable,
+                                        'onTap': () {
+                                          navigateToPayable(
+                                            'Payable',
+                                            row4_payable,
+                                            ">",
+                                            row4_payable_heading_value,
+                                          );
+                                        },
+                                      },
+                                      {
+                                        'label': row5_payable_heading,
+                                        'value': row5_payable,
+                                        'onTap': () {
+                                          navigateToPayable(
+                                            'Payable',
+                                            row5_payable,
+                                            ">",
+                                            row5_payable_heading_value,
+                                          );
+                                        },
+                                      },
+                                      {
+                                        'label': row6_payable_heading,
+                                        'value': row6_payable,
+                                        'onTap': () {
+                                          navigateToPayable(
+                                            'Payable',
+                                            row6_payable,
+                                            ">",
+                                            row6_payable_heading_value,
+                                          );
+                                        },
+                                      },
+                                    ],
+                                  ),
+
+                                if (SalesOrderVisibility)
+                                  PendingOrderTile(
+                                    label: 'Pending Sales Order',
+                                    amount: pendingsalesorder,
+                                    currencysymbol: currencysymbol,
+                                    decimal: decimal!,
+                                    onTap: () => navigateToOrder('salesorder'),
+                                  ),
+
+                                if (PurchaseOrderVisibility)
+                                  PendingOrderTile(
+                                    label: 'Pending Purchase Order',
+                                    amount: pendingpurchaseorder,
+                                    currencysymbol: currencysymbol,
+                                    decimal: decimal,
+                                    onTap: () => navigateToOrder('purcorder'),
+                                  ),
+                              ],
+                            ),
+
+                          Visibility(
+                            visible: isClicked_Sold,
                             child: Column(
                               children: [
-                                /// 🔢 Item Count
+                                // Header Count
                                 Container(
                                   width: double.infinity,
                                   margin: const EdgeInsets.symmetric(
@@ -3534,7 +3329,7 @@ class _PartyClickedPageState extends State<PartyClicked>
                                   ),
                                 ),
 
-                                /// 🔍 Search Box
+                                // Search Bar
                                 if (_isSearchViewVisible)
                                   Padding(
                                     padding: EdgeInsets.only(
@@ -3544,7 +3339,7 @@ class _PartyClickedPageState extends State<PartyClicked>
                                     ),
                                     child: Material(
                                       elevation: 2,
-                                      borderRadius: BorderRadius.circular(14),
+                                      borderRadius: BorderRadius.circular(18),
                                       shadowColor: Colors.black12,
 
                                       child: TextField(
@@ -3552,10 +3347,9 @@ class _PartyClickedPageState extends State<PartyClicked>
                                         onChanged: (value) {
                                           final query = value.toLowerCase();
                                           setState(() {
-                                            filteredItems_purchase =
-                                                query.isEmpty
-                                                ? purchase_list
-                                                : purchase_list
+                                            filteredItems_sold = query.isEmpty
+                                                ? sold_list
+                                                : sold_list
                                                       .where(
                                                         (item) => item.item
                                                             .toLowerCase()
@@ -3566,6 +3360,9 @@ class _PartyClickedPageState extends State<PartyClicked>
                                         },
                                         style: GoogleFonts.poppins(
                                           fontSize: 15,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                         ),
                                         decoration: InputDecoration(
                                           hintText: 'Search...',
@@ -3612,9 +3409,7 @@ class _PartyClickedPageState extends State<PartyClicked>
                                     ),
                                   ),
 
-                                const SizedBox(height: 10),
-
-                                /// ❌ No Data
+                                // No Data Message
                                 if (isVisibleNoDataFound)
                                   Padding(
                                     padding: EdgeInsets.only(top: 40),
@@ -3645,38 +3440,37 @@ class _PartyClickedPageState extends State<PartyClicked>
                                     ),
                                   ),
 
-                                /// 📦 Purchase List
-                                if (isVisiblePurchaseList)
+                                // Sold List
+                                if (isVisibleSoldList)
                                   ListView.builder(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 14,
+                                      horizontal: 12,
                                       vertical: 8,
                                     ),
                                     shrinkWrap: true,
                                     physics:
                                         const NeverScrollableScrollPhysics(),
-                                    itemCount: filteredItems_purchase.length,
+                                    itemCount: filteredItems_sold.length,
                                     itemBuilder: (context, index) {
-                                      final card =
-                                          filteredItems_purchase[index];
+                                      final card = filteredItems_sold[index];
                                       return _buildSoldPurchaseCard(
                                         context: context,
                                         item: card.item,
                                         qty: card.qty,
                                         lastDate: card.lastdate,
                                         rate: card.rate,
-                                        isSale: false,
+                                        isSale: true,
                                         onTap: () {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) =>
+                                              builder: (_) =>
                                                   PartyClickedSoldPurchaseClicked(
                                                     startdate_string:
                                                         startDateString,
                                                     enddate_string:
                                                         endDateString,
-                                                    type: "Purchase",
+                                                    type: 'Sales',
                                                     item: card.item,
                                                     unit: card.unit,
                                                     ledger: partyname,
@@ -3690,14 +3484,227 @@ class _PartyClickedPageState extends State<PartyClicked>
                               ],
                             ),
                           ),
-                        ),
-                      ],
+
+                          Visibility(
+                            visible: isClicked_Purchase,
+                            child: Container(
+                              width: double.infinity,
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                              child: Column(
+                                children: [
+                                  /// 🔢 Item Count
+                                  Container(
+                                    width: double.infinity,
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 10,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).cardColor,
+                                      borderRadius: BorderRadius.circular(30),
+                                      border: Border.all(
+                                        color: Colors.teal,
+                                        width: 1.2,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black12.withOpacity(
+                                            0.05,
+                                          ),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(
+                                          Icons.inventory_2_rounded,
+                                          color: Colors.teal,
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '$item_count Items',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14.5,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.teal,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  /// 🔍 Search Box
+                                  if (_isSearchViewVisible)
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 12,
+                                        right: 12,
+                                        top: 12,
+                                      ),
+                                      child: Material(
+                                        elevation: 2,
+                                        borderRadius: BorderRadius.circular(18),
+                                        shadowColor: Colors.black12,
+
+                                        child: TextField(
+                                          controller: searchController,
+                                          onChanged: (value) {
+                                            final query = value.toLowerCase();
+                                            setState(() {
+                                              filteredItems_purchase =
+                                                  query.isEmpty
+                                                  ? purchase_list
+                                                  : purchase_list
+                                                        .where(
+                                                          (item) => item.item
+                                                              .toLowerCase()
+                                                              .contains(query),
+                                                        )
+                                                        .toList();
+                                            });
+                                          },
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 15,
+                                          ),
+                                          decoration: InputDecoration(
+                                            hintText: 'Search...',
+                                            prefixIcon: Icon(
+                                              Icons.search,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                            ),
+                                            filled: true,
+                                            fillColor:
+                                                Theme.of(context)
+                                                    .inputDecorationTheme
+                                                    .fillColor ??
+                                                Theme.of(context)
+                                                    .colorScheme
+                                                    .surfaceContainerHighest,
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                  vertical: 14,
+                                                  horizontal: 16,
+                                                ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(18),
+                                              borderSide: BorderSide(
+                                                color: Theme.of(
+                                                  context,
+                                                ).dividerColor,
+                                              ),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(18),
+                                              borderSide: const BorderSide(
+                                                color: app_color,
+                                                width: 1.5,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                  const SizedBox(height: 10),
+
+                                  /// ❌ No Data
+                                  if (isVisibleNoDataFound)
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 40),
+                                      child: Center(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.search_off_rounded,
+                                              size: 48,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                            ),
+                                            SizedBox(height: 12),
+                                            Text(
+                                              'No Records Found',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+
+                                  /// 📦 Purchase List
+                                  if (isVisiblePurchaseList)
+                                    ListView.builder(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 8,
+                                      ),
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: filteredItems_purchase.length,
+                                      itemBuilder: (context, index) {
+                                        final card =
+                                            filteredItems_purchase[index];
+                                        return _buildSoldPurchaseCard(
+                                          context: context,
+                                          item: card.item,
+                                          qty: card.qty,
+                                          lastDate: card.lastdate,
+                                          rate: card.rate,
+                                          isSale: false,
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    PartyClickedSoldPurchaseClicked(
+                                                      startdate_string:
+                                                          startDateString,
+                                                      enddate_string:
+                                                          endDateString,
+                                                      type: "Purchase",
+                                                      item: card.item,
+                                                      unit: card.unit,
+                                                      ledger: partyname,
+                                                    ),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          )),
+              ],
+            ),
+          ),
 
           Visibility(
             visible: _isLoading,
@@ -4151,7 +4158,7 @@ class SummaryExpansionCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black12.withOpacity(0.05),
@@ -4295,7 +4302,7 @@ class SummaryExpansionCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(18),
                           border:
                               Theme.of(context).brightness == Brightness.dark
                               ? Border.all(
@@ -4465,7 +4472,7 @@ class DetailRowTile extends StatelessWidget {
         color: Theme.of(context).brightness == Brightness.dark
             ? Colors.transparent
             : Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
         children: [

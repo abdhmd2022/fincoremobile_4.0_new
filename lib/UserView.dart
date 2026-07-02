@@ -750,7 +750,7 @@ class _UserViewPageState extends State<UserView> with TickerProviderStateMixin {
                   backgroundColor: app_color,
                   elevation: 5,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                   onPressed: () {
                     Navigator.pushReplacement(

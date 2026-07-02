@@ -1164,8 +1164,12 @@ class _MyHomePageState extends State<SerialSelect>
     socket = IO.io(SOCKET_URL, <String, dynamic>{
       'transports': ['websocket'],
       'path': '/main/socket.io',
-      'secure': true,
-      'autoConnect': true,
+      'autoConnect': false,
+      'reconnection': true,
+      'reconnectionAttempts': 10,
+      'reconnectionDelay': 1500,
+      'timeout': 20000,
+      'forceNew': true,
       'auth': {'token': authTokenBase},
     });
 
@@ -1195,16 +1199,21 @@ class _MyHomePageState extends State<SerialSelect>
       return Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const AppLogoLoader(size: 80),
-            const SizedBox(height: 20),
-            Text('Signing in…',
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const AppLogoLoader(size: 80),
+              const SizedBox(height: 20),
+              Text(
+                'Signing in…',
                 style: GoogleFonts.poppins(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
-                )),
-          ]),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -2180,7 +2189,6 @@ class _MyHomePageState extends State<SerialSelect>
 
         // ✅ Auto-navigate when single serial + single company
         if (myData.length == 1 && myData_company.length == 1) {
-
           final company_name = myData_company.first['company_name'].toString();
           startfrom = myData_company.first['startfrom'].toString();
           currency = myData_company.first['base_currency'].toString();
@@ -2199,7 +2207,6 @@ class _MyHomePageState extends State<SerialSelect>
           prefs.setString("company_address", result['address'] ?? "");
           prefs.setString("company_emirate", result['emirate'] ?? "");
           prefs.setString("company_country", result['country'] ?? "");
-
 
           if (secbtnaccess == "True") {
             for (String key in [
@@ -2263,7 +2270,6 @@ class _MyHomePageState extends State<SerialSelect>
                   pageBuilder: (context, animation, secondaryAnimation) =>
                       const Dashboard(),
                   transitionsBuilder:
-
                       (context, animation, secondaryAnimation, child) {
                         return FadeTransition(opacity: animation, child: child);
                       },

@@ -536,7 +536,7 @@ class _RolesViewPageState extends State<RolesView>
                         return Container(
                           margin: const EdgeInsets.only(bottom: 14),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(18),
                             color: Theme.of(context).cardColor,
                             border:
                                 Theme.of(context).brightness == Brightness.dark

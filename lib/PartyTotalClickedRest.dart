@@ -881,98 +881,107 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
         ),
       ),
 
-
       body: Stack(
         children: [
           CustomScrollView(
             controller: _scrollFabController,
             slivers: [
-              SliverToBoxAdapter(child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 20,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Total Value
-                    Center(
-                      child: Text(
-                        total,
-                        style: GoogleFonts.poppins(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                          color: Theme.of(context).colorScheme.onSurface,
-                          letterSpacing: 0,
+              SliverToBoxAdapter(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 20,
+                        spreadRadius: 2,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Total Value
+                      Center(
+                        child: Text(
+                          total,
+                          style: GoogleFonts.poppins(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            letterSpacing: 0,
+                          ),
                         ),
                       ),
-                    ),
 
-                    const SizedBox(height: 8),
+                      const SizedBox(height: 8),
 
-                    // Date Range pill
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerHighest.withOpacity(
-                                Theme.of(context).brightness == Brightness.dark
-                                    ? 0.85
-                                    : 0.35,
+                      // Date Range pill
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest
+                                    .withOpacity(
+                                      Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? 0.85
+                                          : 0.35,
+                                    ),
+                                Theme.of(context).cardColor.withOpacity(
+                                  Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? 0.95
+                                      : 0.9,
+                                ),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            border: Border.all(color: app_color, width: 1),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.calendar_month_rounded,
+                                size: 18,
+                                color: app_color,
                               ),
-                              Theme.of(context).cardColor.withOpacity(
-                                Theme.of(context).brightness == Brightness.dark
-                                    ? 0.95
-                                    : 0.9,
+                              const SizedBox(width: 10),
+                              Text(
+                                "$startdate_text → $enddate_text",
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
                               ),
                             ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
                           ),
-                          border: Border.all(color: app_color, width: 1),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.calendar_month_rounded,
-                              size: 18,
-                              color: app_color,
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              "$startdate_text → $enddate_text",
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                          ],
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              )),
+              ),
 
               // Content Section
               SliverToBoxAdapter(
@@ -1011,7 +1020,7 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
                           ),
                           child: Material(
                             elevation: 2,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(18),
                             shadowColor: Colors.black12,
                             child: TextField(
                               controller: searchController,
@@ -1056,13 +1065,13 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
                                   horizontal: 16,
                                 ),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(18),
                                   borderSide: BorderSide(
                                     color: Theme.of(context).dividerColor,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(18),
                                   borderSide: const BorderSide(
                                     color: app_color,
                                     width: 1.5,
@@ -1109,232 +1118,227 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
                       Visibility(
                         visible: _isListVisible,
                         child: ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            itemCount: filteredItems.length,
-                            itemBuilder: (context, index) {
-                              final card = filteredItems[index];
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          itemCount: filteredItems.length,
+                          itemBuilder: (context, index) {
+                            final card = filteredItems[index];
 
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 14),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor,
-                                  borderRadius: BorderRadius.circular(18),
-                                  border:
-                                      Theme.of(context).brightness ==
-                                          Brightness.dark
-                                      ? Border.all(
-                                          color: Colors.white.withOpacity(0.10),
-                                          width: 1,
-                                        )
-                                      : null,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 5),
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 18,
-                                    vertical: 16,
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 14),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
+                                borderRadius: BorderRadius.circular(18),
+                                border:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Border.all(
+                                        color: Colors.white.withOpacity(0.10),
+                                        width: 1,
+                                      )
+                                    : null,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // 🔹 Header Row (Voucher No + Date Chip)
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            width: 36,
-                                            height: 36,
-                                            decoration: const BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Color(0xFF7F7FD5),
-                                                  Color(0xFF86A8E7),
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              borderRadius: BorderRadius.all(
-                                                Radius.circular(10),
-                                              ),
-                                            ),
-                                            child: const Icon(
-                                              Icons.receipt_long,
-                                              size: 18,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-
-                                          // Voucher Number
-                                          Expanded(
-                                            child: Text(
-                                              formatVchNo(card.vchno),
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w700,
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.onSurface,
-                                              ),
-                                            ),
-                                          ),
-
-                                          // 📅 Date Chip (colored background)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 6,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Colors.orange.withOpacity(
-                                                    0.03,
-                                                  ),
-                                                  Colors.orange.withOpacity(
-                                                    0.1,
-                                                  ),
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.orange
-                                                      .withOpacity(0.08),
-                                                  blurRadius: 6,
-                                                  offset: const Offset(0, 3),
-                                                ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                  vertical: 16,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // 🔹 Header Row (Voucher No + Date Chip)
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          width: 36,
+                                          height: 36,
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Color(0xFF7F7FD5),
+                                                Color(0xFF86A8E7),
                                               ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
                                             ),
-                                            child: Row(
-                                              children: [
-                                                const Icon(
-                                                  Icons.calendar_today_outlined,
-                                                  size: 13,
-                                                  color: Colors.orange,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  convertDateFormat(
-                                                    card.vchdate,
-                                                  ),
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 12.5,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Colors.orange,
-                                                  ),
-                                                ),
-                                              ],
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(10),
                                             ),
                                           ),
-                                        ],
-                                      ),
+                                          child: const Icon(
+                                            Icons.receipt_long,
+                                            size: 18,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
 
-                                      const SizedBox(height: 14),
+                                        // Voucher Number
+                                        Expanded(
+                                          child: Text(
+                                            formatVchNo(card.vchno),
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w700,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface,
+                                            ),
+                                          ),
+                                        ),
 
-                                      // 💰 Amount Chip (white background, colored border + text)
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: Container(
+                                        // 📅 Date Chip (colored background)
+                                        Container(
                                           padding: const EdgeInsets.symmetric(
-                                            horizontal: 14,
-                                            vertical: 8,
+                                            horizontal: 10,
+                                            vertical: 6,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: Theme.of(context).cardColor,
-                                            border: Border.all(
-                                              color: Colors.deepOrangeAccent
-                                                  .withOpacity(0.8),
-                                              width: 1.4,
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.orange.withOpacity(0.03),
+                                                Colors.orange.withOpacity(0.1),
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
                                             ),
                                             borderRadius: BorderRadius.circular(
                                               20,
                                             ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.deepOrange
+                                                color: Colors.orange
                                                     .withOpacity(0.08),
-                                                blurRadius: 4,
-                                                offset: const Offset(0, 2),
+                                                blurRadius: 6,
+                                                offset: const Offset(0, 3),
                                               ),
                                             ],
                                           ),
                                           child: Row(
-                                            mainAxisSize: MainAxisSize
-                                                .min, // ✅ only as wide as text
                                             children: [
-                                              Flexible(
-                                                child: Text(
-                                                  '${formatAmount(card.amount.toString())}',
-                                                  softWrap:
-                                                      true, // ✅ allows text to wrap to next line
-                                                  overflow: TextOverflow
-                                                      .visible, // ✅ ensures nothing gets cut off
-                                                  textAlign: TextAlign
-                                                      .end, // or TextAlign.center if needed
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 13.5,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.deepOrangeAccent,
-                                                  ),
+                                              const Icon(
+                                                Icons.calendar_today_outlined,
+                                                size: 13,
+                                                color: Colors.orange,
+                                              ),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                convertDateFormat(card.vchdate),
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 12.5,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.orange,
                                                 ),
                                               ),
                                             ],
                                           ),
                                         ),
-                                      ),
+                                      ],
+                                    ),
 
-                                      const SizedBox(height: 12),
+                                    const SizedBox(height: 14),
 
-                                      // 🔹 Status Chips (Optional / Post Dated)
-                                      Wrap(
-                                        spacing: 8,
-                                        runSpacing: 6,
-                                        children: [
-                                          if (card.ispostdated == "1" &&
-                                              isVisiblePostDated)
-                                            _buildStatusChip(
-                                              context: context,
-                                              label: 'Post Dated',
-                                              colors: const [
-                                                Color(0xFF3A7BD5),
-                                                Color(0xFF00D2FF),
-                                              ],
+                                    // 💰 Amount Chip (white background, colored border + text)
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).cardColor,
+                                          border: Border.all(
+                                            color: Colors.deepOrangeAccent
+                                                .withOpacity(0.8),
+                                            width: 1.4,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.deepOrange
+                                                  .withOpacity(0.08),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 2),
                                             ),
-                                          if (card.isoptional == "1" &&
-                                              isVisibleOptional)
-                                            _buildStatusChip(
-                                              context: context,
-                                              label: 'Optional',
-                                              colors: const [
-                                                Color(0xFFFFB347),
-                                                Color(0xFFFFCC33),
-                                              ],
+                                          ],
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize
+                                              .min, // ✅ only as wide as text
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                '${formatAmount(card.amount.toString())}',
+                                                softWrap:
+                                                    true, // ✅ allows text to wrap to next line
+                                                overflow: TextOverflow
+                                                    .visible, // ✅ ensures nothing gets cut off
+                                                textAlign: TextAlign
+                                                    .end, // or TextAlign.center if needed
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13.5,
+                                                  fontWeight: FontWeight.w600,
+                                                  color:
+                                                      Colors.deepOrangeAccent,
+                                                ),
+                                              ),
                                             ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+
+                                    const SizedBox(height: 12),
+
+                                    // 🔹 Status Chips (Optional / Post Dated)
+                                    Wrap(
+                                      spacing: 8,
+                                      runSpacing: 6,
+                                      children: [
+                                        if (card.ispostdated == "1" &&
+                                            isVisiblePostDated)
+                                          _buildStatusChip(
+                                            context: context,
+                                            label: 'Post Dated',
+                                            colors: const [
+                                              Color(0xFF3A7BD5),
+                                              Color(0xFF00D2FF),
+                                            ],
+                                          ),
+                                        if (card.isoptional == "1" &&
+                                            isVisibleOptional)
+                                          _buildStatusChip(
+                                            context: context,
+                                            label: 'Optional',
+                                            colors: const [
+                                              Color(0xFFFFB347),
+                                              Color(0xFFFFCC33),
+                                            ],
+                                          ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),

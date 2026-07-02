@@ -225,8 +225,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
 
       isVisibleBillHeading = bills.isNotEmpty;
 
-      if (_selectedbankcashname != null &&
-          !isSelectedBankCashInHand) {
+      if (_selectedbankcashname != null && !isSelectedBankCashInHand) {
         isPaymentModeVisible = true;
         isChequeVisible = true;
       }
@@ -775,8 +774,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
         isPaymentModeVisible = false;
       } else {
         isVisibleBillHeading = true;
-        if (_selectedbankcashname != null &&
-            isSelectedBankCashInHand) {
+        if (_selectedbankcashname != null && isSelectedBankCashInHand) {
           isPaymentModeVisible = false;
           _selectedpaymentmode = paymentmode_data.first;
           cheque.clear();
@@ -3081,8 +3079,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
               ? _selectedbankcashname!['name']!
               : "";
 
-          if (_selectedbankcashname != null &&
-              isSelectedBankCashInHand) {
+          if (_selectedbankcashname != null && isSelectedBankCashInHand) {
             isPaymentModeVisible = false;
             _selectedpaymentmode = paymentmode_data.first;
             cheque.clear();
@@ -4245,6 +4242,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
                             child: TextFormField(
                               controller: instDateController,
                               readOnly: true,
+                              enableInteractiveSelection: false,
                               onTap: () => _selectinstDate(context),
                               decoration: InputDecoration(
                                 labelText: 'Inst Date',
@@ -4692,6 +4690,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
                                     child: TextFormField(
                                       controller: instDateController,
                                       readOnly: true,
+                                      enableInteractiveSelection: false,
                                       onTap: () => _selectinstDate(context),
                                       decoration: InputDecoration(
                                         labelText: 'Inst Date',
@@ -5787,15 +5786,17 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
                               enabled: !isUniGasSerial,
                               suffixIcon: isUniGasSerial
                                   ? Icon(
-                                Icons.lock,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              )
+                                      Icons.lock,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    )
                                   : null,
                               onTap: isUniGasSerial
                                   ? null
                                   : () {
-                                _selectreceiptDate(context);
-                              },
+                                      _selectreceiptDate(context);
+                                    },
                             ),
 
                             // Voucher No
@@ -6125,7 +6126,8 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
                                           });
                                           if (isSelectedBankCashInHand) {
                                             setState(() {
-                                              FocusManager.instance.primaryFocus?.unfocus();
+                                              FocusManager.instance.primaryFocus
+                                                  ?.unfocus();
                                               isPaymentModeVisible = false;
                                               _selectedpaymentmode =
                                                   paymentmode_data.first;

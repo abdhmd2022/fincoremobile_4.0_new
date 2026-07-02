@@ -1016,7 +1016,6 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin {
         ),
       ),
 
-
       body: WillPopScope(
         onWillPop: () async {
           Navigator.pushReplacement(
@@ -1030,187 +1029,190 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin {
             CustomScrollView(
               controller: _scrollFabController,
               slivers: [
-                SliverToBoxAdapter(child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  margin: const EdgeInsets.only(left: 12, right: 12, top: 12),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Dropdown
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 4,
+                SliverToBoxAdapter(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    margin: const EdgeInsets.only(left: 12, right: 12, top: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
                         ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: Theme.of(context).dividerColor,
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Dropdown
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 4,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 6,
-                              offset: Offset(0, 2),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(
+                              color: Theme.of(context).dividerColor,
                             ),
-                          ],
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _selectedparty,
-                            isExpanded: true,
-                            icon: Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
-                            ),
-                            dropdownColor: Theme.of(
-                              context,
-                            ).colorScheme.surface,
-
-                            hint: Text(
-                              "Select Party",
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 6,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _selectedparty,
+                              isExpanded: true,
+                              icon: Icon(
+                                Icons.keyboard_arrow_down_rounded,
                                 color: Theme.of(
                                   context,
                                 ).colorScheme.onSurfaceVariant,
                               ),
-                            ),
+                              dropdownColor: Theme.of(
+                                context,
+                              ).colorScheme.surface,
 
-                            style: GoogleFonts.poppins(
-                              fontSize: 15,
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.w500,
-                            ),
-
-                            items: spinner_list.map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Container(
-                                  width:
-                                      double.infinity, // 🔥 prevents overflow
-                                  child: Text(
-                                    value,
-                                    softWrap: true,
-                                    maxLines: 2, // 👈 allow wrapping
-                                    overflow: TextOverflow.visible,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurface,
-                                    ),
-                                  ),
+                              hint: Text(
+                                "Select Party",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                 ),
-                              );
-                            }).toList(),
+                              ),
 
-                            // 🔥 Clean selected view (collapsed)
-                            selectedItemBuilder: (context) {
-                              return spinner_list.map((value) {
-                                return Container(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    value,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+
+                              items: spinner_list.map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Container(
+                                    width:
+                                        double.infinity, // 🔥 prevents overflow
+                                    child: Text(
+                                      value,
+                                      softWrap: true,
+                                      maxLines: 2, // 👈 allow wrapping
+                                      overflow: TextOverflow.visible,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
                                     ),
                                   ),
                                 );
-                              }).toList();
-                            },
+                              }).toList(),
 
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedparty = newValue;
-                                isClicked_allparties = true;
-                                isClicked_inactiveparties = false;
-                              });
-                              fetchPartyData(_selectedparty);
-                            },
+                              // 🔥 Clean selected view (collapsed)
+                              selectedItemBuilder: (context) {
+                                return spinner_list.map((value) {
+                                  return Container(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      value,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  );
+                                }).toList();
+                              },
+
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  _selectedparty = newValue;
+                                  isClicked_allparties = true;
+                                  isClicked_inactiveparties = false;
+                                });
+                                fetchPartyData(_selectedparty);
+                              },
+                            ),
                           ),
                         ),
-                      ),
 
-                      const SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
-                      // Toggle Buttons
-                      Row(
-                        children: [
-                          if (allparties_visibility)
-                            Expanded(
-                              child: _buildModernToggle(
-                                icon: Icons.group_sharp,
-                                label: "All Parties",
-                                isActive: isClicked_allparties,
-                                onTap: () {
-                                  FocusScope.of(context).unfocus();
-                                  setState(() {
-                                    isClicked_allparties = true;
-                                    isClicked_inactiveparties = false;
-                                  });
-                                  fetchPartyData(_selectedparty);
-                                },
-                              ),
-                            ),
-
-                          if (allparties_visibility &&
-                              inactiveparties_visibility)
-                            const SizedBox(width: 10),
-
-                          if (inactiveparties_visibility)
-                            Expanded(
-                              child: _buildModernToggle(
-                                icon: Icons.group_off_sharp,
-                                label: "Inactive Parties",
-                                isActive: isClicked_inactiveparties,
-                                onTap: () {
-                                  setState(() {
+                        // Toggle Buttons
+                        Row(
+                          children: [
+                            if (allparties_visibility)
+                              Expanded(
+                                child: _buildModernToggle(
+                                  icon: Icons.group_sharp,
+                                  label: "All Parties",
+                                  isActive: isClicked_allparties,
+                                  onTap: () {
                                     FocusScope.of(context).unfocus();
-
-                                    isClicked_allparties = false;
-                                    isClicked_inactiveparties = true;
-                                    filteredItems_parties.clear();
-                                    parties_list.clear();
-                                    party_count = "0";
-                                    party_text = int.parse(party_count) < 2
-                                        ? "Party"
-                                        : "Parties";
-                                  });
-                                  _showInactiveDialog();
-                                },
+                                    setState(() {
+                                      isClicked_allparties = true;
+                                      isClicked_inactiveparties = false;
+                                    });
+                                    fetchPartyData(_selectedparty);
+                                  },
+                                ),
                               ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                )),
 
-                SliverToBoxAdapter(child: Container(
-                  width: double.infinity,
+                            if (allparties_visibility &&
+                                inactiveparties_visibility)
+                              const SizedBox(width: 10),
+
+                            if (inactiveparties_visibility)
+                              Expanded(
+                                child: _buildModernToggle(
+                                  icon: Icons.group_off_sharp,
+                                  label: "Inactive Parties",
+                                  isActive: isClicked_inactiveparties,
+                                  onTap: () {
+                                    setState(() {
+                                      FocusScope.of(context).unfocus();
+
+                                      isClicked_allparties = false;
+                                      isClicked_inactiveparties = true;
+                                      filteredItems_parties.clear();
+                                      parties_list.clear();
+                                      party_count = "0";
+                                      party_text = int.parse(party_count) < 2
+                                          ? "Party"
+                                          : "Parties";
+                                    });
+                                    _showInactiveDialog();
+                                  },
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                SliverToBoxAdapter(
+                  child: Container(
+                    width: double.infinity,
                     margin: EdgeInsets.only(
                       left: 12,
                       right: 12,
@@ -1436,204 +1438,192 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin {
                             itemCount: filteredItems_parties.length,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
-                                vertical: 10,
-                              ),
-                              itemBuilder: (context, index) {
-                                final card = filteredItems_parties[index];
-                                return GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => PartyClicked(
-                                          partyname: card.partyname,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    margin: EdgeInsets.only(top: 5, bottom: 0),
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(
-                                        context,
-                                      ).cardColor.withOpacity(0.9),
-                                      borderRadius: BorderRadius.circular(22),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.04),
-                                          blurRadius: 16,
-                                          offset: Offset(0, 6),
-                                        ),
-                                      ],
-                                      border: Border.all(
-                                        color: Theme.of(
-                                          context,
-                                        ).dividerColor.withOpacity(0.55),
-                                        width: 1,
+                              vertical: 10,
+                            ),
+                            itemBuilder: (context, index) {
+                              final card = filteredItems_parties[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PartyClicked(
+                                        partyname: card.partyname,
                                       ),
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 10,
-                                        right: 10,
-                                        top: 16,
-                                        bottom: 16,
+                                  );
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(top: 5, bottom: 0),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(
+                                      context,
+                                    ).cardColor.withOpacity(0.9),
+                                    borderRadius: BorderRadius.circular(22),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.04),
+                                        blurRadius: 16,
+                                        offset: Offset(0, 6),
                                       ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          // 🧾 Party Name Row with Icon + Prompt Arrow
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Container(
-                                                padding: const EdgeInsets.all(
-                                                  8,
+                                    ],
+                                    border: Border.all(
+                                      color: Theme.of(
+                                        context,
+                                      ).dividerColor.withOpacity(0.55),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 10,
+                                      right: 10,
+                                      top: 16,
+                                      bottom: 16,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // 🧾 Party Name Row with Icon + Prompt Arrow
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: app_color.withOpacity(
+                                                  0.1,
                                                 ),
-                                                decoration: BoxDecoration(
-                                                  color: app_color.withOpacity(
-                                                    0.1,
-                                                  ),
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: Icon(
-                                                  Icons.business_rounded,
-                                                  color: app_color,
-                                                  size: 20,
-                                                ),
+                                                shape: BoxShape.circle,
                                               ),
-                                              const SizedBox(width: 16),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      card.partyname,
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 17,
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .colorScheme
-                                                                    .onSurface,
-                                                          ),
-                                                    ),
-                                                    if (card.alias != 'null' &&
-                                                        card.alias != '' &&
-                                                        card.alias != null)
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets.only(
-                                                              top: 4,
-                                                            ),
-                                                        child: Text(
-                                                          card.alias,
-                                                          style:
-                                                              GoogleFonts.poppins(
-                                                                fontSize: 14,
-                                                                color: Colors
-                                                                    .grey[600],
-                                                              ),
-                                                        ),
-                                                      ),
-                                                  ],
-                                                ),
+                                              child: Icon(
+                                                Icons.business_rounded,
+                                                color: app_color,
+                                                size: 20,
                                               ),
-
-                                              // 👇 Prompting Arrow Icon
-                                              Icon(
-                                                Icons.arrow_forward_ios_rounded,
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.onSurfaceVariant,
-                                                size: 18,
-                                              ),
-                                            ],
-                                          ),
-
-                                          // 🕒 Last Invoice Pill
-                                          if (card.maxdate != 'null' &&
-                                              card.maxdate != '')
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                top: 16,
-                                              ),
-                                              child: Row(
+                                            ),
+                                            const SizedBox(width: 16),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
-                                                  Container(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          horizontal: 12,
-                                                          vertical: 5,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color: app_color
-                                                          .withOpacity(0.1),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            30,
-                                                          ),
-                                                    ),
-                                                    child: Row(
-                                                      children: [
-                                                        Icon(
-                                                          Icons
-                                                              .calendar_today_rounded,
-                                                          size: 16,
-                                                          color: app_color,
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 6,
-                                                        ),
-                                                        Text(
-                                                          'Last Invoice:',
-                                                          style:
-                                                              GoogleFonts.poppins(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                fontSize: 13,
-                                                                color:
-                                                                    app_color,
-                                                              ),
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 6,
-                                                        ),
-                                                        Text(
-                                                          formatdate(
-                                                            card.maxdate,
-                                                          ),
-                                                          style:
-                                                              GoogleFonts.poppins(
-                                                                fontSize: 13.5,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                color:
-                                                                    app_color,
-                                                              ),
-                                                        ),
-                                                      ],
+                                                  Text(
+                                                    card.partyname,
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 17,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).colorScheme.onSurface,
                                                     ),
                                                   ),
+                                                  if (card.alias != 'null' &&
+                                                      card.alias != '' &&
+                                                      card.alias != null)
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            top: 4,
+                                                          ),
+                                                      child: Text(
+                                                        card.alias,
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                              fontSize: 14,
+                                                              color: Colors
+                                                                  .grey[600],
+                                                            ),
+                                                      ),
+                                                    ),
                                                 ],
                                               ),
                                             ),
-                                        ],
-                                      ),
+
+                                            // 👇 Prompting Arrow Icon
+                                            Icon(
+                                              Icons.arrow_forward_ios_rounded,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                              size: 18,
+                                            ),
+                                          ],
+                                        ),
+
+                                        // 🕒 Last Invoice Pill
+                                        if (card.maxdate != 'null' &&
+                                            card.maxdate != '')
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 16,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 5,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: app_color
+                                                        .withOpacity(0.1),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          30,
+                                                        ),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons
+                                                            .calendar_today_rounded,
+                                                        size: 16,
+                                                        color: app_color,
+                                                      ),
+                                                      const SizedBox(width: 6),
+                                                      Text(
+                                                        'Last Invoice:',
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              fontSize: 13,
+                                                              color: app_color,
+                                                            ),
+                                                      ),
+                                                      const SizedBox(width: 6),
+                                                      Text(
+                                                        formatdate(
+                                                          card.maxdate,
+                                                        ),
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                              fontSize: 13.5,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              color: app_color,
+                                                            ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                   ),
-                                );
-                              },
-                            ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -1669,7 +1659,7 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin {
           color: isActive
               ? activeColor.withOpacity(0.08)
               : Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: isActive ? activeColor : Theme.of(context).dividerColor,
             width: 1.4,
@@ -1805,11 +1795,11 @@ class _PartyPageState extends State<Party> with TickerProviderStateMixin {
                       vertical: 12,
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(18),
                       borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(18),
                       borderSide: const BorderSide(
                         color: app_color,
                         width: 1.5,

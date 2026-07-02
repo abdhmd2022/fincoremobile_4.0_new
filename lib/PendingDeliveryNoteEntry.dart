@@ -2,14 +2,13 @@ import 'dart:convert';
 import 'package:FincoreGo/Dashboard.dart';
 import 'package:FincoreGo/DeliveryNoteRegistration.dart';
 import 'package:FincoreGo/ModifySalesEntry.dart';
-import 'package:FincoreGo/SalesRegistration.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constants.dart';
-import 'package:flutter/material.dart';
+import 'widgets/entry_widgets.dart';
 import 'package:http/http.dart' as http;
 import 'currencyFormat.dart';
 import 'package:FincoreGo/widgets/app_bottom_nav.dart';
@@ -148,56 +147,6 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
     fetchDeliveryNoteEntries();
   }
 
-  Widget _buildSyncChip(int isSynced) {
-    String text;
-    IconData icon;
-    List<Color> colors;
-
-    if (isSynced == 1) {
-      text = "Synced";
-      icon = Icons.cloud_done;
-      colors = [Colors.green.shade400, Colors.green.shade700];
-    } else if (isSynced == 2) {
-      text = "Failed";
-      icon = Icons.error_outline;
-      colors = [Colors.red.shade400, Colors.red.shade700];
-    } else {
-      text = "Pending";
-      icon = Icons.cloud_upload_outlined;
-      colors = [Colors.orange.shade400, Colors.deepOrange.shade600];
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(colors: colors),
-        boxShadow: [
-          BoxShadow(
-            color: colors.last.withOpacity(0.3),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: Colors.white),
-          const SizedBox(width: 5),
-          Text(
-            text,
-            style: GoogleFonts.poppins(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _showConfirmationDialogAndNavigate(
     BuildContext context,
     int id,
@@ -270,7 +219,6 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
             ),
 
             actions: [
-              // ❌ Cancel Button
               TextButton(
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
@@ -289,7 +237,6 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                 ),
               ),
 
-              // ✅ Confirm Button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
@@ -495,7 +442,6 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
         final vchtype = (data['VOUCHERTYPENAME'] ?? '')
             .toString()
             .toLowerCase();
-        // final amount = (data['totalAmount'] ?? '').toString().toLowerCase();
 
         final bool matchesSearch =
             query.isEmpty ||
@@ -567,8 +513,8 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: app_color, // selected start/end circle
-              onPrimary: Colors.white, // selected date number color
+              primary: app_color,
+              onPrimary: Colors.white,
               surface: Theme.of(context).colorScheme.surface,
               onSurface: Theme.of(context).colorScheme.onSurface,
             ),
@@ -576,14 +522,11 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
             datePickerTheme: DatePickerThemeData(
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
-              // Header
               headerBackgroundColor: app_color,
               headerForegroundColor: Colors.white,
 
-              // Selected start/end dates
               rangeSelectionBackgroundColor: app_color.withOpacity(0.14),
 
-              // Shape of selected dates
               dayShape: WidgetStateProperty.resolveWith<OutlinedBorder?>((
                 states,
               ) {
@@ -593,12 +536,11 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                 return null;
               }),
 
-              // Date number color
               dayForegroundColor: WidgetStateProperty.resolveWith<Color?>((
                 states,
               ) {
                 if (states.contains(WidgetState.selected)) {
-                  return Colors.white; // selected date text white
+                  return Colors.white;
                 }
 
                 if (states.contains(WidgetState.disabled)) {
@@ -608,12 +550,11 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                 return Theme.of(context).colorScheme.onSurface;
               }),
 
-              // Selected date circle color
               dayBackgroundColor: WidgetStateProperty.resolveWith<Color?>((
                 states,
               ) {
                 if (states.contains(WidgetState.selected)) {
-                  return app_color; // app color on selected dates
+                  return app_color;
                 }
 
                 return null;
@@ -726,33 +667,6 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
     return true;
   }
 
-  /*void searchSales(String query) {
-    if (query.trim().isEmpty) {
-      setState(() {
-        filteredDeliveryNoteEntries = List.from(deliverynoteentries);
-      });
-      return;
-    }
-
-    final lowerQuery = query.toLowerCase();
-
-    setState(() {
-      filteredDeliveryNoteEntries = deliverynoteentries.where((entry) {
-        final data = entry.data;
-
-        final party = (data['PARTYLEDGERNAME'] ?? '').toString().toLowerCase();
-        final vchno = (data['VOUCHERNUMBER'] ?? '').toString().toLowerCase();
-        final vchtype = (data['VOUCHERTYPENAME'] ?? '').toString().toLowerCase();
-        final amount = (data['totalAmount'] ?? '').toString().toLowerCase();
-
-        return party.contains(lowerQuery) ||
-            vchno.contains(lowerQuery) ||
-            vchtype.contains(lowerQuery) ||
-            amount.contains(lowerQuery);
-      }).toList();
-    });
-  }*/
-
   Future<void> _refresh() async {
     setState(() {
       fetchDeliveryNoteEntries();
@@ -762,6 +676,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
   Widget _buildDateFilterSection() {
     final bool hasDateFilter =
         selectedSingleDate != null || selectedDateRange != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
@@ -773,9 +688,11 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
           border: Border.all(color: Theme.of(context).dividerColor),
           boxShadow: [
             BoxShadow(
-              color: app_color.withOpacity(0.07),
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : Colors.black.withValues(alpha: 0.06),
               blurRadius: 16,
-              offset: const Offset(0, 8),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -788,7 +705,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [app_color.withOpacity(0.8), app_color],
+                      colors: [app_color.withValues(alpha: 0.8), app_color],
                     ),
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -815,7 +732,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade50,
+                        color: Colors.red.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -871,7 +788,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
           gradient: isSelected
-              ? LinearGradient(colors: [app_color.withOpacity(0.85), app_color])
+              ? LinearGradient(colors: [app_color.withValues(alpha: 0.85), app_color])
               : null,
           color: isSelected
               ? null
@@ -923,159 +840,20 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
         ),
         key: _scaffoldKey,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(50),
-          child: AppBar(
-            backgroundColor: app_color,
-            elevation: 6,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-            ),
-            automaticallyImplyLeading: false,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () {
-                AppNavigation.backOrDashboard(context);
-              },
-            ),
-            centerTitle: true,
-            title: GestureDetector(
-              onTap: () {},
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      "Delivery Note Entries",
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        appBar: entryAppBar(
+          context: context,
+          title: "Delivery Note Entries",
+          onBack: () => AppNavigation.backOrDashboard(context),
         ),
         body: RefreshIndicator(
           onRefresh: _refresh,
           child: Column(
             children: [
               if (deliverynoteentries.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).cardColor,
-                          Theme.of(context).cardColor.withOpacity(0.95),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: app_color.withOpacity(0.08),
-                          blurRadius: 18,
-                          offset: const Offset(0, 8),
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                      border: Border.all(color: Theme.of(context).dividerColor),
-                    ),
-                    child: Row(
-                      children: [
-                        // 🔍 Gradient Search Icon
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [app_color.withOpacity(0.8), app_color],
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(
-                            Icons.search,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        // ✏️ Input Field
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: searchSales,
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: "Search delivery note...",
-                              hintStyle: GoogleFonts.poppins(
-                                fontSize: 13,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-                              filled: true,
-                              fillColor: Colors.transparent,
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              focusedErrorBorder: InputBorder.none,
-                            ),
-                          ),
-                        ),
-
-                        // ❌ Clear Button
-                        if (_searchController.text.isNotEmpty)
-                          GestureDetector(
-                            onTap: () {
-                              _searchController.clear();
-                              _applyFilters();
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color:
-                                    Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? Theme.of(
-                                        context,
-                                      ).colorScheme.surfaceContainerHighest
-                                    : Colors.grey.shade200,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.close,
-                                size: 16,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
+                EntrySearchBar(
+                  controller: _searchController,
+                  onChanged: searchSales,
+                  hintText: "Search delivery note...",
                 ),
 
               if (deliverynoteentries.isNotEmpty) _buildDateFilterSection(),
@@ -1093,9 +871,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                               Icon(
                                 Icons.receipt_long,
                                 size: 64,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                               const SizedBox(height: 16),
                               Text(
@@ -1104,9 +880,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                                 style: GoogleFonts.poppins(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ],
@@ -1116,7 +890,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
 
                     if (!isVisibleNoDeliveryNoteEntryFound)
                       ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 100),
                         itemCount: filteredDeliveryNoteEntries.length,
                         itemBuilder: (context, index) {
                           final card = filteredDeliveryNoteEntries[index];
@@ -1125,18 +899,24 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                           final totalAmount = card.data['totalAmount'];
                           final vchno = card.data['VOUCHERNUMBER'];
                           final vchtype = card.data['VOUCHERTYPENAME'] ?? 'N/A';
-
-                          final bool isExpanded = expandedCards.contains(
-                            card.id,
-                          );
+                          final bool isExpanded = expandedCards.contains(card.id);
 
                           DateTime date = DateTime.parse(dateStr);
-                          String formattedDate = DateFormat(
-                            "dd-MMM-yyyy",
-                          ).format(date);
+                          String formattedDate = DateFormat("dd-MMM-yyyy").format(date);
 
-                          return GestureDetector(
-                            behavior: HitTestBehavior.opaque,
+                          final bool canActOnCard = card.isSynced != 1 &&
+                              (serial_no != uniGasSerialNumber);
+
+                          return PendingEntryCard(
+                            voucherNo: '$vchno',
+                            date: formattedDate,
+                            partyName: partyLedger,
+                            amount: formatAmount(totalAmount.toString()),
+                            isSynced: card.isSynced == 1,
+                            errorMessage: (card.isSynced == 2 && card.message != null)
+                                ? card.message
+                                : null,
+                            isExpanded: isExpanded,
                             onTap: () {
                               setState(() {
                                 isExpanded
@@ -1144,353 +924,40 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                                     : expandedCards.add(card.id);
                               });
                             },
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 9),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: Theme.of(context).cardColor,
-                                border:
-                                    Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? Border.all(
-                                        color: const Color(0xFF374151),
-                                        width: 0.8,
-                                      )
-                                    : null,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color:
-                                        Theme.of(context).brightness ==
-                                            Brightness.dark
-                                        ? Colors.black.withOpacity(0.3)
-                                        : Colors.black.withOpacity(0.05),
-                                    blurRadius: 15,
-                                    offset: const Offset(0, 8),
-                                  ),
-                                ],
+                            onEdit: canActOnCard
+                                ? () {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ModifySalesEntry(
+                                          type: card.type,
+                                          id: card.id,
+                                          isSynced: card.isSynced,
+                                          data: card.data,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                : null,
+                            onDelete: canActOnCard
+                                ? () {
+                                    _showConfirmationDialogAndNavigate(
+                                      context,
+                                      card.id,
+                                    );
+                                  }
+                                : null,
+                            expandedContent: [
+                              DetailRowTile(
+                                label: "Voucher Type",
+                                value: vchtype,
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
+                              // if (serial_no != uniGasSerialNumber)
+                                DetailRowTile(
+                                  label: "Total Amount",
+                                  value: formatAmount(totalAmount.toString()),
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // 🔹 Top Row: Invoice + Action Icons
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                      ),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          // LEFT SIDE (ICON + INVOICE)
-                                          Expanded(
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                // Gradient Icon
-                                                Container(
-                                                  width: 32,
-                                                  height: 32,
-                                                  decoration: BoxDecoration(
-                                                    gradient:
-                                                        const LinearGradient(
-                                                          colors: [
-                                                            Color(0xFF42A5F5),
-                                                            Color(0xFF1E88E5),
-                                                          ],
-                                                          begin:
-                                                              Alignment.topLeft,
-                                                          end: Alignment
-                                                              .bottomRight,
-                                                        ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          10,
-                                                        ),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.blue
-                                                            .withOpacity(0.25),
-                                                        blurRadius: 6,
-                                                        offset: const Offset(
-                                                          0,
-                                                          3,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: const Icon(
-                                                    Icons.receipt_long,
-                                                    size: 18,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 10),
-
-                                                // Invoice Text
-                                                Expanded(
-                                                  child: Text(
-                                                    "$vchno",
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 15,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).colorScheme.onSurface,
-                                                    ),
-                                                    softWrap: true,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-
-                                          const SizedBox(width: 8),
-
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 0,
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                _buildSyncChip(card.isSynced),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-
-                                    if (card.isSynced == 2 &&
-                                        card.message != null)
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          left: 16,
-                                          right: 16,
-                                          top: 16,
-                                        ),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red.shade50,
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                            border: Border.all(
-                                              color: Colors.red.shade200,
-                                            ),
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Icon(
-                                                Icons.error_outline,
-                                                color: Colors.red.shade700,
-                                                size: 18,
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                child: Text(
-                                                  card.message!,
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 12,
-                                                    color: Colors.red.shade700,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-
-                                    const SizedBox(height: 12),
-                                    // 🔹 Detail Rows
-                                    DetailRowTile(
-                                      label: "Party Ledger",
-                                      value: partyLedger ?? '',
-                                    ),
-                                    DetailRowTile(
-                                      label: "Date",
-                                      value: formattedDate,
-                                    ),
-
-                                    AnimatedSize(
-                                      duration: const Duration(
-                                        milliseconds: 300,
-                                      ),
-                                      curve: Curves.easeInOutCubic,
-                                      alignment: Alignment.topCenter,
-                                      child: isExpanded
-                                          ? Column(
-                                              children: [
-                                                DetailRowTile(
-                                                  label: "Voucher Type",
-                                                  value: vchtype,
-                                                ),
-
-                                                if (serial_no !=
-                                                    uniGasSerialNumber)
-                                                  DetailRowTile(
-                                                    label: "Total Amount",
-                                                    value: formatAmount(
-                                                      totalAmount.toString(),
-                                                    ),
-                                                  ),
-                                              ],
-                                            )
-                                          : const SizedBox.shrink(),
-                                    ),
-
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                          right: 14,
-                                          top: 6,
-                                        ),
-                                        child: AnimatedContainer(
-                                          duration: const Duration(
-                                            milliseconds: 250,
-                                          ),
-                                          curve: Curves.easeInOut,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 6,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: isExpanded
-                                                ? (Theme.of(
-                                                            context,
-                                                          ).brightness ==
-                                                          Brightness.dark
-                                                      ? Theme.of(context)
-                                                            .colorScheme
-                                                            .surfaceContainerHighest
-                                                      : Colors.grey.shade100)
-                                                : app_color.withOpacity(0.08),
-                                            borderRadius: BorderRadius.circular(
-                                              30,
-                                            ),
-                                            border: Border.all(
-                                              color: isExpanded
-                                                  ? Theme.of(
-                                                      context,
-                                                    ).dividerColor
-                                                  : app_color.withOpacity(0.18),
-                                            ),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(
-                                                Icons.touch_app_rounded,
-                                                size: 15,
-                                                color: isExpanded
-                                                    ? Theme.of(context)
-                                                          .colorScheme
-                                                          .onSurfaceVariant
-                                                    : app_color,
-                                              ),
-                                              const SizedBox(width: 5),
-                                              Text(
-                                                isExpanded
-                                                    ? "Show less"
-                                                    : "Tap to show more",
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: isExpanded
-                                                      ? Theme.of(context)
-                                                            .colorScheme
-                                                            .onSurfaceVariant
-                                                      : app_color,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 3),
-                                              AnimatedRotation(
-                                                turns: isExpanded ? 0.5 : 0,
-                                                duration: const Duration(
-                                                  milliseconds: 250,
-                                                ),
-                                                child: Icon(
-                                                  Icons
-                                                      .keyboard_arrow_down_rounded,
-                                                  size: 16,
-                                                  color: isExpanded
-                                                      ? Theme.of(context)
-                                                            .colorScheme
-                                                            .onSurfaceVariant
-                                                      : app_color,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    if (card.isSynced != 1 &&
-                                        (serial_no != uniGasSerialNumber))
-                                      Padding(
-                                        padding: EdgeInsets.only(top: 16),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            if (card.isSynced != 1) ...[
-                                              _buildGradientAction(
-                                                icon: Icons.edit,
-                                                text: "Modify",
-
-                                                colors: [
-                                                  Color(0xFF42A5F5),
-                                                  Color(0xFF1E88E5),
-                                                ],
-                                                onTap: () {
-                                                  Navigator.pushReplacement(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ModifySalesEntry(
-                                                            type: card.type,
-                                                            id: card.id,
-                                                            isSynced:
-                                                                card.isSynced,
-                                                            data: card.data,
-                                                          ),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                              const SizedBox(width: 10),
-                                              _buildGradientAction(
-                                                icon: Icons.delete_outline,
-                                                text: "Delete",
-
-                                                colors: [
-                                                  Color(0xFFEF5350),
-                                                  Color(0xFFD32F2F),
-                                                ],
-                                                onTap: () {
-                                                  _showConfirmationDialogAndNavigate(
-                                                    context,
-                                                    card.id,
-                                                  );
-                                                },
-                                              ),
-                                            ],
-                                          ],
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                            ],
                           );
                         },
                       ),
@@ -1520,15 +987,15 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                             vertical: 14,
                           ),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50),
+                            borderRadius: BorderRadius.circular(16),
                             gradient: LinearGradient(
-                              colors: [app_color.withOpacity(0.9), app_color],
+                              colors: [app_color.withValues(alpha: 0.9), app_color],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: app_color.withOpacity(0.4),
+                                color: app_color.withValues(alpha: 0.4),
                                 blurRadius: 12,
                                 offset: const Offset(0, 6),
                               ),
@@ -1537,7 +1004,7 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.add_rounded,
                                 color: Colors.white,
                                 size: 26,
@@ -1562,47 +1029,6 @@ class _PendingDeliveryNoteEntryPageState extends State<PendingDeliveryNoteEntry>
               ),
             ],
           ),
-        ),
-      ),
-    );
-    // TODO: implement build
-  }
-
-  Widget _buildGradientAction({
-    required IconData icon,
-    required String text, // ✅ ADD TEXT
-    required List<Color> colors,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30), // pill shape
-          gradient: LinearGradient(colors: colors),
-          boxShadow: [
-            BoxShadow(
-              color: colors.last.withOpacity(0.25),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16, color: Colors.white),
-            const SizedBox(width: 6),
-            Text(
-              text,
-              style: GoogleFonts.poppins(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -1688,7 +1114,6 @@ class DetailRowTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // 🔹 Gradient Icon
           Container(
             width: 32,
             height: 32,
@@ -1707,7 +1132,6 @@ class DetailRowTile extends StatelessWidget {
           ),
           const SizedBox(width: 12),
 
-          // 🔹 Label (Left Half)
           Expanded(
             flex: 1,
             child: Text(
@@ -1721,7 +1145,6 @@ class DetailRowTile extends StatelessWidget {
             ),
           ),
 
-          // 🔹 Value (Right Half)
           Expanded(
             flex: 1,
             child: Text(

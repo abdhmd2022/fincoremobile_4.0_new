@@ -19,6 +19,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'theme_controller.dart';
 import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'widgets/entry_widgets.dart';
 
 class SalesRegistration extends StatefulWidget {
   const SalesRegistration({Key? key}) : super(key: key);
@@ -115,8 +116,10 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
       isUserEnable = true,
       isUserVisible = true,
       isRolesEnable = true,
-      _isLoading = false,
+      _isLoading = true,
       isVisibleNoUserFound = false;
+
+  bool _isInitialDataLoaded = false;
 
   bool isVchEditable = false; // state variable
 
@@ -703,7 +706,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
 
   List<String> salesledger_data = [];
 
-  late int? decimal;
+  int? decimal = 2;
   late List<String> vchtypenamedata = [];
   late List<String> partyledgerdata = [];
   late List<String> vatledgerdata = [];
@@ -3261,7 +3264,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
       context: context,
       barrierDismissible: false,
       barrierLabel: "SalesInvoice",
-      barrierColor: Colors.black.withOpacity(0.35),
+      barrierColor: Colors.black.withValues(alpha: 0.35),
       transitionDuration: const Duration(milliseconds: 280),
       pageBuilder: (context, animation, secondaryAnimation) {
         return Center(
@@ -4319,6 +4322,15 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
   }
 
   Future<void> _selectsaleDate(BuildContext context) async {
+    if (isUniGasSerial) {
+      closeKeyboard(context);
+      Fluttertoast.showToast(
+        msg: "Voucher date cannot be changed",
+        backgroundColor: Colors.redAccent,
+        textColor: Colors.white,
+      );
+      return;
+    }
     setState(() {
       _isFocused_refno = false;
       _isFocused_narration = false;
@@ -4772,6 +4784,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
     final String currentSerialNo = serial_no?.trim() ?? '';
 
     showModalBottomSheet(
+      useSafeArea: true,
+      barrierColor: Colors.black.withValues(alpha: 0.45),
       context: context,
       enableDrag: false,
 
@@ -4822,9 +4836,21 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                   return Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.vertical(
+                      borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(24),
                       ),
+                      border: Border.all(
+                        color: Theme.of(
+                          context,
+                        ).dividerColor.withValues(alpha: 0.45),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.18),
+                          blurRadius: 24,
+                          offset: const Offset(0, -8),
+                        ),
+                      ],
                     ),
                     child: Column(
                       children: [
@@ -5380,7 +5406,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                               color: Theme.of(context).cardColor,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.08),
+                                  color: Colors.black.withValues(alpha: 0.08),
                                   blurRadius: 10,
                                   offset: const Offset(0, -2),
                                 ),
@@ -5652,6 +5678,8 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
     _selectedledger = null;
 
     showModalBottomSheet(
+      useSafeArea: true,
+      barrierColor: Colors.black.withValues(alpha: 0.45),
       context: context,
       isScrollControlled: true,
       enableDrag: false,
@@ -5692,9 +5720,21 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                 child: Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.vertical(
+                    borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(24),
                     ),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).dividerColor.withValues(alpha: 0.45),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.18),
+                        blurRadius: 24,
+                        offset: const Offset(0, -8),
+                      ),
+                    ],
                   ),
                   child: Column(
                     children: [
@@ -5879,9 +5919,9 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                                                             16,
                                                           ),
                                                       borderSide: BorderSide(
-                                                        color: Colors
-                                                            .grey
-                                                            .shade300,
+                                                        color: Theme.of(
+                                                          context,
+                                                        ).dividerColor,
                                                         width: 1,
                                                       ),
                                                     ),
@@ -6046,7 +6086,7 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                             color: Theme.of(context).cardColor,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
+                                color: Colors.black.withValues(alpha: 0.08),
                                 blurRadius: 10,
                                 offset: const Offset(0, -2),
                               ),
@@ -6556,6 +6596,11 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
       }
     });
     await loadData();
+    if (mounted) {
+      setState(() {
+        _isInitialDataLoaded = true;
+      });
+    }
   }
 
   @override
@@ -6571,6 +6616,14 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
     _initSharedPreferences();
+  }
+
+  bool get isUniGasSerial {
+    final currentSerial = serial_no?.trim() ?? '';
+
+    // 👇 put only that one serial here
+
+    return currentSerial == uniGasSerialNumber;
   }
 
   @override
@@ -6591,56 +6644,23 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
 
   @override
   Widget build(BuildContext context) {
-    final NumberFormat currencyFormat = NumberFormat(
-      "#,##0.${'0' * decimal!}", // 👈 dynamically repeat '0' for decimal places
-    );
-
-    final bool canEditVoucherNo =
-        SecuritybtnAcessHolder.toString().toLowerCase() == 'true';
-    return Scaffold(
-      bottomNavigationBar: const AppBottomNav(
-        activeTab: AppBottomNavTab.entries,
-        activeEntryType: AppEntryType.sales,
-      ),
-      key: _scaffoldKey,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(50),
-        child: AppBar(
-          backgroundColor: app_color,
-          elevation: 6,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-          ),
-          automaticallyImplyLeading: false,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => PendingSalesEntry()),
-              );
-            },
-          ),
-          centerTitle: true,
-          title: GestureDetector(
-            onTap: () {},
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    "New Sales Entry" ?? '',
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+    if (!_isInitialDataLoaded) {
+      return Scaffold(
+        bottomNavigationBar: const AppBottomNav(
+          activeTab: AppBottomNavTab.entries,
+          activeEntryType: AppEntryType.sales,
+        ),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        key: _scaffoldKey,
+        appBar: entryAppBar(
+          context: context,
+          title: "New Sales Entry",
+          onBack: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => PendingSalesEntry()),
+            );
+          },
           actions: [
             IconButton(
               tooltip: 'Toggle theme',
@@ -6660,6 +6680,48 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
             ),
           ],
         ),
+        body: Center(child: AppLogoLoader()),
+      );
+    }
+
+    final NumberFormat currencyFormat = NumberFormat("#,##0.${'0' * decimal!}");
+
+    final bool canEditVoucherNo =
+        SecuritybtnAcessHolder.toString().toLowerCase() == 'true';
+    return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.entries,
+        activeEntryType: AppEntryType.sales,
+      ),
+      key: _scaffoldKey,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: entryAppBar(
+        context: context,
+        title: "New Sales Entry",
+        onBack: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => PendingSalesEntry()),
+          );
+        },
+        actions: [
+          IconButton(
+            tooltip: 'Toggle theme',
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              themeController.setThemeMode(
+                Theme.of(context).brightness == Brightness.dark
+                    ? ThemeMode.light
+                    : ThemeMode.dark,
+              );
+            },
+          ),
+        ],
       ),
       body: WillPopScope(
         onWillPop: () async {
@@ -6669,383 +6731,172 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
           );
           return false;
         },
-
         child: Stack(
           children: [
             ListView(
               children: [
-                /*GestureDetector(
-            onTap: () => _selectDateRangeVchNo(context),
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
-          border: Border.all(
-            color: app_color.withOpacity(0.3),
-            width: 1,
-          ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // calendar icon with gradient style
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [app_color, app_color.withOpacity(0.7)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.calendar_today, color: Colors.white, size: 20),
-            ),
-            const SizedBox(width: 14),
-
-            // text column
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Voucher No. Range",
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "${DateFormat('dd-MMM-yyyy').format(yearStartDate)} → ${DateFormat('dd-MMM-yyyy').format(yearEndDate)}",
-                    style: GoogleFonts.poppins(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
-                      color: app_color,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            Icon(Icons.keyboard_arrow_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
-          ],
-        ),
-      ),
-    ),*/
-                Container(
+                Form(
+                  key: _formKey,
                   child: Column(
                     children: [
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            SizedBox(height: 8),
+                      const SizedBox(height: 8),
 
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
-                              ),
-                              child: TextFormField(
-                                controller: _dateController,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                                readOnly: true,
-                                enableInteractiveSelection: false,
-                                decoration: InputDecoration(
-                                  labelText: "Date",
-                                  labelStyle: GoogleFonts.poppins(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
+                      // ── Entry Details Section ──
+                      EntrySection(
+                        icon: Icons.receipt_long_outlined,
+                        title: "Entry Details",
+                        iconGradient: [
+                          app_color,
+                          app_color.withValues(alpha: 0.7),
+                        ],
+                        children: [
+                          // Date
+                          EntryFormField(
+                            label: "Date",
+                            icon: Icons.calendar_today,
+                            iconGradient: [
+                              app_color,
+                              app_color.withValues(alpha: 0.7),
+                            ],
+                            controller: _dateController,
+                            readOnly: true,
+                            enabled: !isUniGasSerial,
+                            suffixIcon: isUniGasSerial
+                                ? Icon(
+                              Icons.lock,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            )
+                                : null,
+                            onTap: isUniGasSerial
+                                ? null
+                                : () {
+                              _selectsaleDate(context);
+                            },
+                          ),
+
+                          // Voucher No
+                          EntryFormField(
+                            label: "Voucher No.",
+                            icon: canEditVoucherNo
+                                ? Icons.edit_note_rounded
+                                : Icons.confirmation_num_outlined,
+                            iconGradient: canEditVoucherNo
+                                ? [Colors.teal, Colors.tealAccent]
+                                : [
+                                    Colors.deepOrangeAccent,
+                                    Colors.orangeAccent,
+                                  ],
+                            controller: _vchnoController,
+                            readOnly: !canEditVoucherNo,
+                            enabled: canEditVoucherNo,
+                            onChanged: canEditVoucherNo
+                                ? (value) {
+                                    checkVchNoExistence(value.trim());
+                                  }
+                                : null,
+                            keyboardType: TextInputType.text,
+                            errorText: errorMessageVchNo.isNotEmpty
+                                ? errorMessageVchNo
+                                : null,
+                            suffixIcon: canEditVoucherNo
+                                ? const Icon(
+                                    Icons.edit,
+                                    color: Colors.teal,
+                                    size: 20,
+                                  )
+                                : Icon(
+                                    Icons.lock_outline,
                                     color: Theme.of(
                                       context,
                                     ).colorScheme.onSurfaceVariant,
+                                    size: 20,
                                   ),
-                                  filled: true,
-                                  fillColor:
-                                      Theme.of(
-                                        context,
-                                      ).inputDecorationTheme.fillColor ??
-                                      (Theme.of(
-                                            context,
-                                          ).inputDecorationTheme.fillColor ??
-                                          Theme.of(
-                                            context,
-                                          ).cardColor.withOpacity(0.95)),
-                                  prefixIcon: GestureDetector(
-                                    onTap: () => _selectsaleDate(context),
-                                    child: Container(
-                                      margin: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            app_color,
-                                            app_color.withOpacity(0.7),
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Icon(
-                                        Icons.calendar_today,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(
-                                      color: Theme.of(context).dividerColor,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(
-                                      color: app_color,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                    horizontal: 14,
-                                  ),
-                                ),
+                          ),
 
-                                //  onTap: () => _selectsaleDate(context),
-                                onTap: () {},
-                              ),
-                            ),
+                          // Info Banner
+                          const EntryInfoBanner(
+                            text:
+                                'Duplicate voucher numbers in Tally will trigger automatic assignment of a new number.',
+                          ),
 
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 6,
-                              ),
-                              child: TextFormField(
-                                controller: _vchnoController,
-
-                                // Editable only when security access is true
-                                readOnly: !canEditVoucherNo,
-                                enableInteractiveSelection: canEditVoucherNo,
-                                onChanged: canEditVoucherNo
-                                    ? (value) {
-                                        checkVchNoExistence(value.trim());
-                                      }
-                                    : null,
-
-                                keyboardType: TextInputType.text,
-
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: canEditVoucherNo
-                                      ? Theme.of(context).colorScheme.onSurface
-                                      : Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                ),
-
-                                decoration: InputDecoration(
-                                  labelText: "Voucher No.",
-                                  labelStyle: GoogleFonts.poppins(
+                          // Voucher Type Dropdown
+                          EntryDropdownField<String>(
+                            label: "Voucher Type",
+                            icon: Icons.discount_outlined,
+                            iconGradient: [
+                              Colors.purpleAccent,
+                              Colors.deepPurple,
+                            ],
+                            value: _selectedvchtypename,
+                            locked: isVoucherTypeLocked,
+                            hintText: isVoucherTypeLocked
+                                ? "Voucher Type Locked"
+                                : "Voucher Type",
+                            items: vchtypenamedata.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item,
+                                child: Text(
+                                  item,
+                                  style: GoogleFonts.poppins(
                                     fontSize: 13,
-                                    fontWeight: FontWeight.w500,
                                     color: Theme.of(
                                       context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-
-                                  errorText: errorMessageVchNo.isNotEmpty
-                                      ? errorMessageVchNo
-                                      : null,
-
-                                  filled: true,
-                                  fillColor: canEditVoucherNo
-                                      ? Theme.of(
-                                          context,
-                                        ).inputDecorationTheme.fillColor
-                                      : (Theme.of(context).brightness ==
-                                                Brightness.dark
-                                            ? Theme.of(context)
-                                                  .colorScheme
-                                                  .surfaceContainerHighest
-                                            : Colors.grey.shade100),
-
-                                  prefixIcon: Container(
-                                    margin: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: canEditVoucherNo
-                                            ? [Colors.teal, Colors.tealAccent]
-                                            : [
-                                                Colors.deepOrangeAccent,
-                                                Colors.orangeAccent,
-                                              ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                      borderRadius: const BorderRadius.all(
-                                        Radius.circular(12),
-                                      ),
-                                    ),
-                                    child: Icon(
-                                      canEditVoucherNo
-                                          ? Icons.edit_note_rounded
-                                          : Icons.confirmation_num_outlined,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
-
-                                  suffixIcon: canEditVoucherNo
-                                      ? const Icon(
-                                          Icons.edit,
-                                          color: Colors.teal,
-                                          size: 20,
-                                        )
-                                      : Icon(
-                                          Icons.lock_outline,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                          size: 20,
-                                        ),
-
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide(
-                                      color: canEditVoucherNo
-                                          ? Colors.teal.shade200
-                                          : Theme.of(context).dividerColor,
-                                      width: 1,
-                                    ),
-                                  ),
-
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide(
-                                      color: canEditVoucherNo
-                                          ? Colors.teal
-                                          : Theme.of(context).dividerColor,
-                                      width: 1.5,
-                                    ),
-                                  ),
-
-                                  errorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: const BorderSide(
-                                      color: Colors.redAccent,
-                                      width: 1.5,
-                                    ),
-                                  ),
-
-                                  focusedErrorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: const BorderSide(
-                                      color: Colors.redAccent,
-                                      width: 1.5,
-                                    ),
-                                  ),
-
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                    horizontal: 14,
+                                    ).colorScheme.onSurface,
                                   ),
                                 ),
-                              ),
+                              );
+                            }).toList(),
+                            onChanged: (value) async {
+                              setState(() {
+                                _selectedvchtypename = value!;
+                                fetchvchnos(_selectedvchtypename);
+                              });
+                            },
+                          ),
+
+                          // Party Ledger TypeAheadField
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 6,
                             ),
-
-                            Padding(
-                              padding: EdgeInsets.only(
-                                top: 0,
-                                left: 20,
-                                right: 20,
-                                bottom: 0,
-                              ),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: Colors.grey.withOpacity(0.2),
-                                ),
-                                padding: EdgeInsets.all(10),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.info_outline_rounded,
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              child: TypeAheadField<String>(
+                                controller: _partyLedgerController,
+                                suggestionsCallback: (pattern) async {
+                                  return partyledgerdata
+                                      .where(
+                                        (item) => item.toLowerCase().contains(
+                                          pattern.toLowerCase(),
+                                        ),
+                                      )
+                                      .toList();
+                                },
+                                builder: (context, textController, focusNode) {
+                                  return TextField(
+                                    controller: textController,
+                                    focusNode: focusNode,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
                                       color: Theme.of(
                                         context,
-                                      ).colorScheme.onSurfaceVariant,
+                                      ).colorScheme.onSurface,
                                     ),
-                                    SizedBox(width: 10),
-                                    Expanded(
-                                      child: Text(
-                                        'Duplicate voucher numbers in Tally will trigger automatic assignment of a new number.',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                top: 12,
-                                left: 20,
-                                right: 20,
-                                bottom: 0,
-                              ),
-                              child: IgnorePointer(
-                                ignoring: isVoucherTypeLocked,
-                                child: Opacity(
-                                  opacity: isVoucherTypeLocked ? 0.7 : 1,
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-
                                     decoration: InputDecoration(
-                                      filled: true,
-
-                                      fillColor: isVoucherTypeLocked
-                                          ? (Theme.of(context).brightness ==
-                                                    Brightness.dark
-                                                ? Theme.of(context)
-                                                      .colorScheme
-                                                      .surfaceContainerHighest
-                                                : Colors.grey.shade100)
-                                          : (Theme.of(context)
-                                                    .inputDecorationTheme
-                                                    .fillColor ??
-                                                Theme.of(
-                                                  context,
-                                                ).cardColor.withOpacity(0.95)),
-
-                                      labelText: "Voucher Type",
-
+                                      hintText:
+                                          _selectedpartyledger?.isNotEmpty ==
+                                              true
+                                          ? _selectedpartyledger
+                                          : "Select Party Ledger",
+                                      hintStyle: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                      ),
+                                      labelText: "Party Ledger",
                                       labelStyle: GoogleFonts.poppins(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
@@ -7053,1565 +6904,475 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                                           context,
                                         ).colorScheme.onSurfaceVariant,
                                       ),
-
+                                      filled: true,
+                                      fillColor:
+                                          Theme.of(
+                                            context,
+                                          ).inputDecorationTheme.fillColor ??
+                                          Theme.of(
+                                            context,
+                                          ).cardColor.withValues(alpha: 0.95),
                                       prefixIcon: Container(
                                         margin: const EdgeInsets.all(8),
-
                                         decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: isVoucherTypeLocked
-                                                ? [
-                                                    Colors.grey,
-                                                    Colors.grey.shade600,
-                                                  ]
-                                                : [
-                                                    Colors.purpleAccent,
-                                                    Colors.deepPurple,
-                                                  ],
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Colors.greenAccent,
+                                              Colors.teal,
+                                            ],
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
                                           ),
-
-                                          borderRadius: const BorderRadius.all(
-                                            Radius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
                                           ),
                                         ),
-
-                                        child: Icon(
-                                          isVoucherTypeLocked
-                                              ? Icons.lock_outline
-                                              : Icons.discount_outlined,
+                                        child: const Icon(
+                                          Icons.person_outline,
                                           color: Colors.white,
                                           size: 20,
                                         ),
                                       ),
-
+                                      suffixIcon: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          if (_partyLedgerController
+                                              .text
+                                              .isNotEmpty)
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.close,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
+                                                size: 20,
+                                              ),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _partyLedgerController
+                                                      .clear();
+                                                  _selectedpartyledger = "";
+                                                  selectedPartyLedgerPriceLevel =
+                                                      null;
+                                                });
+                                              },
+                                            ),
+                                          Icon(
+                                            Icons.arrow_drop_down,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                          const SizedBox(width: 6),
+                                        ],
+                                      ),
                                       enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
+                                        borderRadius: BorderRadius.circular(14),
                                         borderSide: BorderSide(
                                           color: Theme.of(context).dividerColor,
                                           width: 1,
                                         ),
                                       ),
-
                                       focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
+                                        borderRadius: BorderRadius.circular(14),
                                         borderSide: BorderSide(
                                           color: app_color,
                                           width: 1.5,
                                         ),
                                       ),
-
                                       errorBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
+                                        borderRadius: BorderRadius.circular(14),
                                         borderSide: const BorderSide(
                                           color: Colors.redAccent,
                                           width: 1.5,
                                         ),
                                       ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 16,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                decorationBuilder: (context, child) {
+                                  return Material(
+                                    elevation: 6,
+                                    borderRadius: BorderRadius.circular(16),
+                                    color: Theme.of(context).cardColor,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: child,
+                                    ),
+                                  );
+                                },
+                                itemBuilder: (context, String suggestion) {
+                                  return ListTile(
+                                    title: Text(
+                                      suggestion,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                onSelected: (String suggestion) {
+                                  setState(() {
+                                    _selectedpartyledger = suggestion;
+                                    _partyLedgerController.text = suggestion;
+                                    selectedPartyLedgerPriceLevel =
+                                        partyLedgerPriceLevelMap[suggestion];
+                                    debugPrint(
+                                      'selected party ledger -> $_selectedpartyledger',
+                                    );
+                                    debugPrint(
+                                      'selected price level -> $selectedPartyLedgerPriceLevel',
+                                    );
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                  });
+                                },
+                                emptyBuilder: (context) => Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Text(
+                                    "No ledger found",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      color: Colors.redAccent,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
 
+                          // Sales Ledger Dropdown
+                          EntryDropdownField<String>(
+                            label: "Sales Ledger",
+                            icon: Icons.sell_outlined,
+                            iconGradient: [Colors.blueAccent, Colors.indigo],
+                            value: _selectedsalesledger,
+                            locked: isSalesLedgerLocked,
+                            hintText: isSalesLedgerLocked
+                                ? "Sales Ledger Locked"
+                                : "Sales Ledger",
+                            items: salesledger_data.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item.toString(),
+                                child: Text(
+                                  item.toString(),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (value) async {
+                              setState(() {
+                                _selectedsalesledger = value!;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+
+                      // ── Reference Section ──
+                      EntrySection(
+                        icon: Icons.link,
+                        title: "Reference",
+                        iconGradient: [
+                          Colors.pinkAccent,
+                          Colors.deepPurpleAccent,
+                        ],
+                        children: [
+                          // Reference Date
+                          EntryFormField(
+                            label: "Reference Date",
+                            icon: Icons.event,
+                            iconGradient: [
+                              Colors.pinkAccent,
+                              Colors.deepPurpleAccent,
+                            ],
+                            controller: _refdateController,
+                            readOnly: true,
+                            onTap: () => _selectrefDate(context),
+                          ),
+
+                          // Reference No
+                          EntryFormField(
+                            label: "Reference No",
+                            icon: Icons.link,
+                            iconGradient: [Colors.redAccent, Colors.deepOrange],
+                            controller: controller_refno,
+                            validator: (value) => null,
+                          ),
+                        ],
+                      ),
+
+                      // ── Items Section ──
+                      EntrySection(
+                        icon: Icons.shopping_cart,
+                        title: "Items",
+                        iconGradient: [Colors.purple, Colors.blue],
+                        trailing: GestureDetector(
+                          onTap: () {
+                            _showItemDetailsPopup(context);
+                            _updateUnitDropdown(_selecteditem);
+                          },
+                          child: Container(
+                            width: 34,
+                            height: 34,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: const LinearGradient(
+                                colors: [Colors.teal, Colors.green],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.teal.withValues(alpha: 0.3),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        children: [
+                          ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: saleItems.length,
+                            itemBuilder: (context, index) {
+                              final item = saleItems[index];
+                              return EntryItemCard(
+                                itemName: item.itemName,
+                                quantity: item.itemQuantity,
+                                rate:
+                                    "${getCurrencySymbol(currencycode)} ${currencyFormat.format(double.parse(item.itemPrice.toStringAsFixed(decimal!)))}",
+                                amount:
+                                    "${getCurrencySymbol(currencycode)} ${currencyFormat.format(double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity))}",
+                                onIncrement: () {
+                                  int currentQty =
+                                      int.tryParse(item.itemQuantity) ?? 0;
+                                  setState(() {
+                                    item.itemQuantity = (currentQty + 1)
+                                        .toString();
+                                    _recalculateTotals();
+                                  });
+                                },
+                                onDecrement: () {
+                                  int currentQty =
+                                      int.tryParse(item.itemQuantity) ?? 0;
+                                  if (currentQty > 1) {
+                                    setState(() {
+                                      item.itemQuantity = (currentQty - 1)
+                                          .toString();
+                                      _recalculateTotals();
+                                    });
+                                  } else {
+                                    setState(() {
+                                      saleItems.removeAt(index);
+                                      _recalculateTotals();
+                                    });
+                                  }
+                                },
+                                onDelete: () {
+                                  _deleteSaleItem(index);
+                                },
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+
+                      // ── Ledger Section ──
+                      EntrySection(
+                        icon: Icons.list,
+                        title: "Ledger",
+                        iconGradient: [Colors.red, Colors.redAccent],
+                        trailing: GestureDetector(
+                          onTap: () {
+                            _showLedgerDetailsPopup(context);
+                          },
+                          child: Container(
+                            width: 34,
+                            height: 34,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: const LinearGradient(
+                                colors: [Colors.orange, Colors.orange],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.teal.withValues(alpha: 0.3),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        children: [
+                          ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: ledgerEntries.length,
+                            itemBuilder: (context, index) {
+                              final item = ledgerEntries[index];
+                              return EntryLedgerCard(
+                                ledgerName: item.ledgerName,
+                                amount:
+                                    "${getCurrencySymbol(currencycode)} ${currencyFormat.format(item.ledgerAmount)}",
+                                onDelete: () {
+                                  _deleteLedger(index);
+                                },
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+
+                      // ── VAT Section ──
+                      EntrySection(
+                        icon: Icons.receipt_long_outlined,
+                        title: "VAT",
+                        iconGradient: [Colors.indigo, Colors.cyan],
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 6,
+                            ),
+                            child: Row(
+                              children: [
+                                // VAT Ledger Dropdown
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    isExpanded: true,
+                                    decoration: InputDecoration(
+                                      labelText: "VAT Ledger",
+                                      labelStyle: GoogleFonts.poppins(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 13,
+                                      ),
+                                      prefixIcon: Container(
+                                        margin: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Colors.indigo,
+                                              Colors.cyan,
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.receipt_long_outlined,
+                                          size: 20,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      filled: true,
+                                      fillColor:
+                                          Theme.of(
+                                            context,
+                                          ).inputDecorationTheme.fillColor ??
+                                          Theme.of(
+                                            context,
+                                          ).cardColor.withValues(alpha: 0.95),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                        borderSide: BorderSide(
+                                          color: Theme.of(context).dividerColor,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                        borderSide: BorderSide(
+                                          color: app_color,
+                                          width: 1.5,
+                                        ),
+                                      ),
                                       contentPadding:
                                           const EdgeInsets.symmetric(
                                             horizontal: 14,
                                             vertical: 14,
                                           ),
                                     ),
-
-                                    hint: Text(
-                                      isVoucherTypeLocked
-                                          ? "Voucher Type Locked"
-                                          : "Voucher Type",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-
-                                    value: _selectedvchtypename,
-
-                                    items: vchtypenamedata.map((item) {
+                                    value: _selectedvatledger,
+                                    hint: const Text("Select VAT Ledger"),
+                                    items: vatledgerdata.map((item) {
                                       return DropdownMenuItem<String>(
                                         value: item,
                                         child: Text(
                                           item,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurface,
-                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       );
                                     }).toList(),
-
-                                    onChanged: isVoucherTypeLocked
-                                        ? null
-                                        : (value) async {
-                                            setState(() {
-                                              _selectedvchtypename = value!;
-
-                                              fetchvchnos(_selectedvchtypename);
-                                            });
-                                          },
-
-                                    onTap: () {
+                                    onChanged: (value) {
                                       setState(() {
-                                        _isFocused_vchno = false;
-                                        _isFocused_narration = false;
-                                        _isFocused_totalamt = false;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
+                                        _selectedvatledger = value!;
 
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                top: 12,
-                                left: 20,
-                                right: 20,
-                                bottom: 0,
-                              ),
-                              child: SizedBox(
-                                width: MediaQuery.of(context).size.width,
-                                child: TypeAheadField<String>(
-                                  controller: _partyLedgerController,
-                                  suggestionsCallback: (pattern) async {
-                                    return partyledgerdata
-                                        .where(
-                                          (item) => item.toLowerCase().contains(
-                                            pattern.toLowerCase(),
-                                          ),
-                                        )
-                                        .toList();
-                                  },
-
-                                  // 🔹 Modern text field builder
-                                  builder: (context, textController, focusNode) {
-                                    return TextField(
-                                      controller: textController,
-                                      focusNode: focusNode,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurface,
-                                      ),
-                                      decoration: InputDecoration(
-                                        hintText:
-                                            _selectedpartyledger?.isNotEmpty ==
-                                                true
-                                            ? _selectedpartyledger
-                                            : "Select Party Ledger",
-                                        hintStyle: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                        ),
-                                        labelText: "Party Ledger",
-                                        labelStyle: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                        ),
-                                        filled: true,
-                                        fillColor:
-                                            Theme.of(
-                                              context,
-                                            ).inputDecorationTheme.fillColor ??
-                                            (Theme.of(context)
-                                                    .inputDecorationTheme
-                                                    .fillColor ??
-                                                Theme.of(
-                                                  context,
-                                                ).cardColor.withOpacity(0.95)),
-
-                                        prefixIcon: Container(
-                                          margin: const EdgeInsets.all(8),
-                                          decoration: const BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                Colors.greenAccent,
-                                                Colors.teal,
-                                              ],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(12),
-                                            ),
-                                          ),
-                                          child: const Icon(
-                                            Icons.person_outline,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
-
-                                        suffixIcon: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            if (_partyLedgerController
-                                                .text
-                                                .isNotEmpty)
-                                              IconButton(
-                                                icon: Icon(
-                                                  Icons.close,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurfaceVariant,
-                                                  size: 20,
-                                                ),
-                                                onPressed: () {
-                                                  setState(() {
-                                                    _partyLedgerController
-                                                        .clear();
-                                                    _selectedpartyledger = "";
-                                                    selectedPartyLedgerPriceLevel =
-                                                        null;
-                                                  });
-                                                },
-                                              ),
-
-                                            Icon(
-                                              Icons.arrow_drop_down,
-                                              color: Theme.of(
-                                                context,
-                                              ).colorScheme.onSurfaceVariant,
-                                            ),
-                                            const SizedBox(width: 6),
-                                          ],
-                                        ),
-
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: BorderSide(
-                                            color: Theme.of(
-                                              context,
-                                            ).dividerColor,
-                                            width: 1,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: BorderSide(
-                                            color: app_color,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        errorBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: Colors.redAccent,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 14,
-                                              vertical: 14,
-                                            ),
-                                      ),
-                                    );
-                                  },
-
-                                  // 🔹 Custom dropdown style
-                                  decorationBuilder: (context, child) {
-                                    return Material(
-                                      elevation: 6,
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: Theme.of(
-                                        context,
-                                      ).cardColor, // 👈 dropdown background white
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(
-                                          16,
-                                        ), // 👈 rounded corners
-                                        child: child,
-                                      ),
-                                    );
-                                  },
-
-                                  // 🔹 Suggestion item UI
-                                  itemBuilder: (context, String suggestion) {
-                                    return ListTile(
-                                      title: Text(
-                                        suggestion,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 13,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurface,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    );
-                                  },
-
-                                  // 🔹 On item select
-                                  onSelected: (String suggestion) {
-                                    setState(() {
-                                      _selectedpartyledger = suggestion;
-                                      _partyLedgerController.text = suggestion;
-
-                                      selectedPartyLedgerPriceLevel =
-                                          partyLedgerPriceLevelMap[suggestion];
-
-                                      debugPrint(
-                                        'selected party ledger -> $_selectedpartyledger',
-                                      );
-                                      debugPrint(
-                                        'selected price level -> $selectedPartyLedgerPriceLevel',
-                                      );
-                                      FocusManager.instance.primaryFocus
-                                          ?.unfocus();
-                                    });
-                                  },
-
-                                  // 🔹 Empty result text
-                                  emptyBuilder: (context) => Padding(
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: Text(
-                                      "No ledger found",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        color: Colors.redAccent,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                top: 12,
-                                left: 20,
-                                right: 20,
-                                bottom: 0,
-                              ),
-                              child: IgnorePointer(
-                                ignoring: isSalesLedgerLocked,
-                                child: Opacity(
-                                  opacity: isSalesLedgerLocked ? 0.7 : 1,
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: isSalesLedgerLocked
-                                          ? (Theme.of(context).brightness ==
-                                                    Brightness.dark
-                                                ? Theme.of(context)
-                                                      .colorScheme
-                                                      .surfaceContainerHighest
-                                                : Colors.grey.shade100)
-                                          : (Theme.of(context)
-                                                    .inputDecorationTheme
-                                                    .fillColor ??
-                                                Theme.of(
-                                                  context,
-                                                ).cardColor.withOpacity(0.95)),
-
-                                      labelText: "Sales Ledger",
-
-                                      labelStyle: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                      ),
-
-                                      prefixIcon: Container(
-                                        margin: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: isSalesLedgerLocked
-                                                ? [
-                                                    Colors.grey,
-                                                    Colors.grey.shade600,
-                                                  ]
-                                                : [
-                                                    Colors.blueAccent,
-                                                    Colors.indigo,
-                                                  ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius: const BorderRadius.all(
-                                            Radius.circular(12),
-                                          ),
-                                        ),
-                                        child: Icon(
-                                          isSalesLedgerLocked
-                                              ? Icons.lock_outline
-                                              : Icons.sell_outlined,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: Theme.of(context).dividerColor,
-                                          width: 1,
-                                        ),
-                                      ),
-
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: app_color,
-                                          width: 1.5,
-                                        ),
-                                      ),
-
-                                      errorBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: const BorderSide(
-                                          color: Colors.redAccent,
-                                          width: 1.5,
-                                        ),
-                                      ),
-
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 14,
-                                            vertical: 14,
-                                          ),
-                                    ),
-
-                                    hint: Text(
-                                      isSalesLedgerLocked
-                                          ? "Sales Ledger Locked"
-                                          : "Sales Ledger",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-
-                                    value: _selectedsalesledger,
-
-                                    items: salesledger_data.map((item) {
-                                      return DropdownMenuItem<String>(
-                                        value: item.toString(),
-                                        child: Text(
-                                          item.toString(),
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurface,
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-
-                                    onChanged: isSalesLedgerLocked
-                                        ? null
-                                        : (value) async {
-                                            setState(() {
-                                              _selectedsalesledger = value!;
-                                            });
-                                          },
-
-                                    onTap: () {
-                                      setState(() {
-                                        _isFocused_vchno = false;
-                                        _isFocused_narration = false;
-                                        _isFocused_totalamt = false;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: 20,
-                                right: 20,
-                                bottom: 8,
-                                top: 12,
-                              ),
-                              child: TextFormField(
-                                controller: _refdateController,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                                decoration: InputDecoration(
-                                  labelText: "Reference Date",
-                                  labelStyle: GoogleFonts.poppins(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                                  filled: true,
-                                  fillColor:
-                                      Theme.of(
-                                        context,
-                                      ).inputDecorationTheme.fillColor ??
-                                      (Theme.of(
-                                            context,
-                                          ).inputDecorationTheme.fillColor ??
-                                          Theme.of(
-                                            context,
-                                          ).cardColor.withOpacity(0.95)),
-
-                                  // Prefix Icon with new gradient (pink → purple)
-                                  prefixIcon: GestureDetector(
-                                    onTap: () => _selectrefDate(context),
-                                    child: Container(
-                                      margin: const EdgeInsets.all(8),
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.pinkAccent,
-                                            Colors.deepPurpleAccent,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(12),
-                                        ),
-                                      ),
-                                      child: const Icon(
-                                        Icons.event, // changed icon for variety
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-
-                                  // Borders
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide(
-                                      color: Theme.of(context).dividerColor,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide(
-                                      color: app_color,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  errorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: const BorderSide(
-                                      color: Colors.redAccent,
-                                      width: 1.5,
-                                    ),
-                                  ),
-
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                    horizontal: 14,
-                                  ),
-                                ),
-                                readOnly: true,
-                                onTap: () => _selectrefDate(context),
-                              ),
-                            ),
-
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 4,
-                              ),
-                              child: TextFormField(
-                                enabled: true,
-                                controller: controller_refno,
-                                validator: (value) {
-                                  return null;
-                                },
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                                decoration: InputDecoration(
-                                  labelText: "Reference No",
-                                  hintText: "Enter reference no",
-                                  labelStyle: GoogleFonts.poppins(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color: _isFocused_refno
-                                        ? app_color
-                                        : Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                  ),
-                                  filled: true,
-                                  fillColor:
-                                      Theme.of(
-                                        context,
-                                      ).inputDecorationTheme.fillColor ??
-                                      (Theme.of(
-                                            context,
-                                          ).inputDecorationTheme.fillColor ??
-                                          Theme.of(
-                                            context,
-                                          ).cardColor.withOpacity(0.95)),
-
-                                  // Gradient Prefix Icon (Red → Orange)
-                                  prefixIcon: Container(
-                                    margin: const EdgeInsets.all(8),
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.redAccent,
-                                          Colors.deepOrange,
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(12),
-                                      ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.link,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
-
-                                  // Borders
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide(
-                                      color: Theme.of(context).dividerColor,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide(
-                                      color: app_color,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  errorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: const BorderSide(
-                                      color: Colors.redAccent,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                    horizontal: 14,
-                                  ),
-                                ),
-
-                                // Focus state handling
-                                onChanged: (value) {
-                                  setState(() {
-                                    _isFocused_narration = false;
-                                    _isFocused_totalamt = false;
-                                    _isFocused_refno = true;
-                                    _isFocused_vatamt = false;
-                                    _isFocused_vchno = false;
-                                  });
-                                },
-                                onFieldSubmitted: (value) {
-                                  setState(() {
-                                    _isFocused_refno = false;
-                                  });
-                                },
-                                onTap: () {
-                                  setState(() {
-                                    _isFocused_narration = false;
-                                    _isFocused_totalamt = false;
-                                    _isFocused_refno = true;
-                                    _isFocused_vatamt = false;
-                                    _isFocused_vchno = false;
-                                  });
-                                },
-                                onEditingComplete: () {
-                                  setState(() {
-                                    _isFocused_refno = false;
-                                  });
-                                },
-                              ),
-                            ),
-
-                            Container(
-                              margin: const EdgeInsets.only(
-                                left: 20,
-                                right: 20,
-                                top: 10,
-                                bottom: 5,
-                              ),
-                              padding: const EdgeInsets.only(bottom: 0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: app_color.withOpacity(0.07),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Header Row
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 7,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        // Gradient start icon
-                                        Container(
-                                          width: 34,
-                                          height: 34,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                Colors.purple,
-                                                Colors.blue,
-                                              ],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.purple
-                                                    .withOpacity(0.3),
-                                                blurRadius: 6,
-                                                offset: const Offset(0, 3),
-                                              ),
-                                            ],
-                                          ),
-                                          child: const Icon(
-                                            Icons.shopping_cart,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-
-                                        // Title
-                                        Expanded(
-                                          child: Text(
-                                            "Items",
-                                            style: GoogleFonts.poppins(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                              color: app_color,
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Gradient add icon
-                                        GestureDetector(
-                                          onTap: () {
-                                            _showItemDetailsPopup(context);
-                                            _updateUnitDropdown(_selecteditem);
-                                          },
-                                          child: Container(
-                                            width: 34,
-                                            height: 34,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Colors.teal,
-                                                  Colors.green,
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.teal
-                                                      .withOpacity(0.3),
-                                                  blurRadius: 6,
-                                                  offset: const Offset(0, 3),
-                                                ),
-                                              ],
-                                            ),
-                                            child: const Icon(
-                                              Icons.add,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  // Items List with swipe-to-delete
-                                  ListView.builder(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemCount: saleItems.length,
-                                    itemBuilder: (context, index) {
-                                      final item = saleItems[index];
-
-                                      return Dismissible(
-                                        key: UniqueKey(),
-                                        direction: DismissDirection
-                                            .endToStart, // swipe left to delete
-                                        background: Container(
-                                          alignment: Alignment.centerRight,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 20,
-                                          ),
-                                          color: Colors.redAccent,
-                                          child: const Icon(
-                                            Icons.delete,
-                                            color: Colors.white,
-                                            size: 24,
-                                          ),
-                                        ),
-                                        onDismissed: (direction) {
-                                          _deleteSaleItem(index);
-                                        },
-
-                                        child: Container(
-                                          margin: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 3,
-                                          ),
-                                          padding: const EdgeInsets.all(12),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).cardColor,
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                            border: Border.all(
-                                              color: Theme.of(
-                                                context,
-                                              ).dividerColor,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                  0.03,
-                                                ),
-                                                blurRadius: 6,
-                                                offset: const Offset(0, 3),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              // Item Name
-                                              Row(
-                                                children: [
-                                                  const Icon(
-                                                    Icons.shopping_bag,
-                                                    color: Colors.teal,
-                                                    size: 18,
-                                                  ),
-                                                  const SizedBox(width: 6),
-                                                  Expanded(
-                                                    child: Text(
-                                                      item.itemName,
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .colorScheme
-                                                                    .onSurface,
-                                                          ),
-                                                      softWrap: true,
-                                                      overflow:
-                                                          TextOverflow.visible,
-                                                      maxLines: null,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-
-                                              const SizedBox(height: 10),
-
-                                              // Qty Row
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    "Qty",
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).colorScheme.onSurface,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 8),
-
-                                                  // Minus Button
-                                                  InkWell(
-                                                    onTap: () {
-                                                      int currentQty =
-                                                          int.tryParse(
-                                                            item.itemQuantity,
-                                                          ) ??
-                                                          0;
-                                                      if (currentQty > 1) {
-                                                        setState(() {
-                                                          item.itemQuantity =
-                                                              (currentQty - 1)
-                                                                  .toString();
-                                                          _recalculateTotals();
-                                                        });
-                                                      } else {
-                                                        setState(() {
-                                                          saleItems.removeAt(
-                                                            index,
-                                                          );
-                                                          _recalculateTotals();
-                                                        });
-                                                      }
-                                                    },
-                                                    child: Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                            6,
-                                                          ),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.redAccent
-                                                            .withOpacity(0.15),
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              8,
-                                                            ),
-                                                      ),
-                                                      child: const Icon(
-                                                        Icons.remove,
-                                                        size: 18,
-                                                        color: Colors.redAccent,
-                                                      ),
-                                                    ),
-                                                  ),
-
-                                                  const SizedBox(width: 6),
-
-                                                  // Qty Display (Non-editable)
-                                                  Container(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          vertical: 6,
-                                                          horizontal: 12,
+                                        totalPriceOfItems = saleItems.fold(
+                                          0.0,
+                                          (double prev, SaleItem item) =>
+                                              prev +
+                                              (double.parse(
+                                                    item.itemPrice
+                                                        .toStringAsFixed(
+                                                          decimal!,
                                                         ),
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                          Theme.of(
-                                                                context,
-                                                              ).brightness ==
-                                                              Brightness.dark
-                                                          ? Theme.of(context)
-                                                                .colorScheme
-                                                                .surfaceContainerHighest
-                                                          : Colors
-                                                                .grey
-                                                                .shade100,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            10,
-                                                          ),
-                                                      border: Border.all(
-                                                        color: Colors
-                                                            .grey
-                                                            .shade400,
-                                                      ),
-                                                    ),
-                                                    child: Text(
-                                                      item.itemQuantity,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .colorScheme
-                                                                    .onSurface,
-                                                          ),
-                                                    ),
-                                                  ),
-
-                                                  const SizedBox(width: 6),
-
-                                                  // Plus Button
-                                                  InkWell(
-                                                    onTap: () {
-                                                      int currentQty =
-                                                          int.tryParse(
-                                                            item.itemQuantity,
-                                                          ) ??
-                                                          0;
-                                                      setState(() {
-                                                        item.itemQuantity =
-                                                            (currentQty + 1)
-                                                                .toString();
-                                                        _recalculateTotals();
-                                                      });
-                                                    },
-                                                    child: Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                            6,
-                                                          ),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.green
-                                                            .withOpacity(0.15),
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              8,
-                                                            ),
-                                                      ),
-                                                      child: const Icon(
-                                                        Icons.add,
-                                                        size: 18,
-                                                        color: Colors.green,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-
-                                              const SizedBox(height: 12),
-
-                                              // Rate Section
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    "Rate",
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).colorScheme.onSurface,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Container(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          vertical: 6,
-                                                          horizontal: 10,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                          Theme.of(
-                                                                context,
-                                                              ).brightness ==
-                                                              Brightness.dark
-                                                          ? Theme.of(context)
-                                                                .colorScheme
-                                                                .surfaceContainerHighest
-                                                          : Colors
-                                                                .grey
-                                                                .shade100,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            10,
-                                                          ),
-                                                      border: Border.all(
-                                                        color: Colors
-                                                            .grey
-                                                            .shade400,
-                                                      ),
-                                                    ),
-                                                    child: Text(
-                                                      "${getCurrencySymbol(currencycode)} ${currencyFormat.format(double.parse(item.itemPrice.toStringAsFixed(decimal!)))}",
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .colorScheme
-                                                                    .onSurface,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            Container(
-                              margin: const EdgeInsets.only(
-                                left: 20,
-                                right: 20,
-                                top: 5,
-                                bottom: 10,
-                              ),
-                              padding: const EdgeInsets.only(bottom: 0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: app_color.withOpacity(0.07),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.06),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // Header Row
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 7,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        // Gradient start icon
-                                        Container(
-                                          width: 34,
-                                          height: 34,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                Colors.red,
-                                                Colors.redAccent,
-                                              ],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.purple
-                                                    .withOpacity(0.3),
-                                                blurRadius: 6,
-                                                offset: const Offset(0, 3),
-                                              ),
-                                            ],
-                                          ),
-                                          child: const Icon(
-                                            Icons.list,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-
-                                        // Title
-                                        Expanded(
-                                          child: Text(
-                                            "Ledger",
-                                            style: GoogleFonts.poppins(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                              color: app_color,
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Gradient add icon
-                                        GestureDetector(
-                                          onTap: () {
-                                            _showLedgerDetailsPopup(context);
-                                          },
-                                          child: Container(
-                                            width: 34,
-                                            height: 34,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Colors.orange,
-                                                  Colors.orange,
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.teal
-                                                      .withOpacity(0.3),
-                                                  blurRadius: 6,
-                                                  offset: const Offset(0, 3),
-                                                ),
-                                              ],
-                                            ),
-                                            child: const Icon(
-                                              Icons.add,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  // Ledger List
-                                  ListView.builder(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemCount: ledgerEntries.length,
-                                    itemBuilder: (context, index) {
-                                      final item = ledgerEntries[index];
-
-                                      return Dismissible(
-                                        key: UniqueKey(),
-                                        direction: DismissDirection.endToStart,
-                                        background: Container(
-                                          alignment: Alignment.centerRight,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 20,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.redAccent,
-                                            borderRadius: BorderRadius.circular(
-                                              14,
-                                            ),
-                                          ),
-                                          child: const Icon(
-                                            Icons.delete,
-                                            color: Colors.white,
-                                            size: 22,
-                                          ),
-                                        ),
-                                        onDismissed: (direction) {
-                                          _deleteLedger(index);
-                                        },
-
-                                        child: Container(
-                                          margin: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 3,
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 14,
-                                            vertical: 12,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).cardColor,
-                                            borderRadius: BorderRadius.circular(
-                                              14,
-                                            ),
-                                            border: Border.all(
-                                              color: Theme.of(
-                                                context,
-                                              ).dividerColor,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                  0.03,
-                                                ),
-                                                blurRadius: 6,
-                                                offset: const Offset(0, 2),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              // Ledger Icon + Name
-                                              Icon(
-                                                Icons
-                                                    .account_balance_wallet_outlined,
-                                                color: app_color,
-                                                size: 20,
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                flex: 6,
-                                                child: Text(
-                                                  item.ledgerName,
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).colorScheme.onSurface,
-                                                  ),
-                                                  overflow:
-                                                      TextOverflow.visible,
-                                                  softWrap: true,
-                                                ),
-                                              ),
-
-                                              // Amount with currency
-                                              Expanded(
-                                                flex: 4,
-                                                child: Text(
-                                                  "${getCurrencySymbol(currencycode)} ${currencyFormat.format(item.ledgerAmount)}",
-                                                  textAlign: TextAlign.end,
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).colorScheme.onSurface,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            Row(
-                              children: [
-                                // 🌈 VAT Ledger Dropdown
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 20,
-                                      left: 20,
-                                      right: 5,
-                                    ),
-                                    child: DropdownButtonFormField<String>(
-                                      isExpanded: true,
-                                      decoration: InputDecoration(
-                                        labelText: "VAT Ledger",
-                                        labelStyle: GoogleFonts.poppins(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurface,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        // 🌈 Gradient Icon Container
-                                        prefixIcon: Container(
-                                          margin: const EdgeInsets.all(8),
-                                          decoration: const BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                Colors.indigo,
-                                                Colors.cyan,
-                                              ],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(12),
-                                            ),
-                                          ),
-                                          child: const Icon(
-                                            Icons.receipt_long_outlined,
-                                            size: 20,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: BorderSide(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: BorderSide(
-                                            color: app_color,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: BorderSide(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 14,
-                                            ),
-                                      ),
-                                      value: _selectedvatledger,
-                                      hint: const Text("Select VAT Ledger"),
-                                      items: vatledgerdata.map((item) {
-                                        return DropdownMenuItem<String>(
-                                          value: item,
-                                          child: Text(
-                                            item,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
+                                                  ) *
+                                                  double.parse(
+                                                    item.itemQuantity,
+                                                  )),
                                         );
-                                      }).toList(),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _selectedvatledger = value!;
 
-                                          // 👇 VAT calculation logic intact
-                                          totalPriceOfItems = saleItems.fold(
-                                            0.0,
-                                            (double prev, SaleItem item) =>
-                                                prev +
-                                                (double.parse(
-                                                      item.itemPrice
-                                                          .toStringAsFixed(
-                                                            decimal!,
-                                                          ),
-                                                    ) *
-                                                    double.parse(
-                                                      item.itemQuantity,
-                                                    )),
-                                          );
-
-                                          totalAmountOfLedgers = ledgerEntries
-                                              .fold(
-                                                0.0,
-                                                (
-                                                  double prev,
-                                                  LedgerEntry entry,
-                                                ) => prev + entry.ledgerAmount,
-                                              );
-
-                                          if (_selectedvatledger ==
-                                              'Not Applicable') {
-                                            totalVatAmount = 0;
-                                            roundedtotalVatAmount =
-                                                double.parse(
-                                                  totalVatAmount
-                                                      .toStringAsFixed(
-                                                        decimal!,
-                                                      ),
-                                                );
-                                            NumberFormat formatter =
-                                                NumberFormat(
-                                                  '#,##0.${'0' * decimal!}',
-                                                  'en_US',
-                                                );
-                                            controller_vatamt.text = formatter
-                                                .format(0);
-                                          } else {
-                                            double
-                                            totalAmountForLedgerVatAppEntries =
-                                                ledgerEntries
-                                                    .where(
-                                                      (entry) => entry.vatApp,
-                                                    )
-                                                    .fold(
-                                                      0.0,
-                                                      (
-                                                        double prev,
-                                                        LedgerEntry entry,
-                                                      ) =>
-                                                          prev +
-                                                          entry.ledgerAmount,
-                                                    );
-
-                                            double vat_perc = vatperc / 100;
-                                            itemsVatAmount = double.parse(
-                                              (totalPriceOfItems * vat_perc)
-                                                  .toStringAsFixed(decimal!),
+                                        totalAmountOfLedgers = ledgerEntries
+                                            .fold(
+                                              0.0,
+                                              (
+                                                double prev,
+                                                LedgerEntry entry,
+                                              ) => prev + entry.ledgerAmount,
                                             );
-                                            ledgerVatAmount =
-                                                totalAmountForLedgerVatAppEntries *
-                                                vat_perc;
-                                            totalVatAmount =
-                                                itemsVatAmount +
-                                                ledgerVatAmount;
 
-                                            roundedtotalVatAmount =
-                                                double.parse(
-                                                  totalVatAmount
-                                                      .toStringAsFixed(
-                                                        decimal!,
-                                                      ),
-                                                );
-                                            NumberFormat formatter =
-                                                NumberFormat(
-                                                  '#,##0.${'0' * decimal!}',
-                                                  'en_US',
-                                                );
-                                            controller_vatamt.text = formatter
-                                                .format(roundedtotalVatAmount);
-                                          }
-
-                                          totalAmount =
-                                              totalPriceOfItems +
-                                              totalAmountOfLedgers +
-                                              totalVatAmount;
-                                          roundedtotalAmount = double.parse(
-                                            totalAmount.toStringAsFixed(
+                                        if (_selectedvatledger ==
+                                            'Not Applicable') {
+                                          totalVatAmount = 0;
+                                          roundedtotalVatAmount = double.parse(
+                                            totalVatAmount.toStringAsFixed(
                                               decimal!,
                                             ),
                                           );
@@ -8619,450 +7380,195 @@ class _SalesRegistrationPageState extends State<SalesRegistration>
                                             '#,##0.${'0' * decimal!}',
                                             'en_US',
                                           );
-                                          controller_totalamt.text = formatter
-                                              .format(roundedtotalAmount);
-                                        });
-                                      },
-                                    ),
+                                          controller_vatamt.text = formatter
+                                              .format(0);
+                                        } else {
+                                          double
+                                          totalAmountForLedgerVatAppEntries =
+                                              ledgerEntries
+                                                  .where(
+                                                    (entry) => entry.vatApp,
+                                                  )
+                                                  .fold(
+                                                    0.0,
+                                                    (
+                                                      double prev,
+                                                      LedgerEntry entry,
+                                                    ) =>
+                                                        prev +
+                                                        entry.ledgerAmount,
+                                                  );
+
+                                          double vat_perc = vatperc / 100;
+                                          itemsVatAmount = double.parse(
+                                            (totalPriceOfItems * vat_perc)
+                                                .toStringAsFixed(decimal!),
+                                          );
+                                          ledgerVatAmount =
+                                              totalAmountForLedgerVatAppEntries *
+                                              vat_perc;
+                                          totalVatAmount =
+                                              itemsVatAmount + ledgerVatAmount;
+
+                                          roundedtotalVatAmount = double.parse(
+                                            totalVatAmount.toStringAsFixed(
+                                              decimal!,
+                                            ),
+                                          );
+                                          NumberFormat formatter = NumberFormat(
+                                            '#,##0.${'0' * decimal!}',
+                                            'en_US',
+                                          );
+                                          controller_vatamt.text = formatter
+                                              .format(roundedtotalVatAmount);
+                                        }
+
+                                        totalAmount =
+                                            totalPriceOfItems +
+                                            totalAmountOfLedgers +
+                                            totalVatAmount;
+                                        roundedtotalAmount = double.parse(
+                                          totalAmount.toStringAsFixed(decimal!),
+                                        );
+                                        NumberFormat formatter = NumberFormat(
+                                          '#,##0.${'0' * decimal!}',
+                                          'en_US',
+                                        );
+                                        controller_totalamt.text = formatter
+                                            .format(roundedtotalAmount);
+                                      });
+                                    },
                                   ),
                                 ),
 
+                                const SizedBox(width: 8),
+
+                                // VAT Amount
                                 Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 20,
-                                      left: 5,
-                                      right: 20,
+                                  child: TextFormField(
+                                    enabled: false,
+                                    controller: controller_vatamt,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
                                     ),
-                                    child: TextFormField(
-                                      enabled: false,
-                                      controller: controller_vatamt,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
+                                    decoration: InputDecoration(
+                                      labelText: "VAT Amount",
+                                      labelStyle: GoogleFonts.poppins(
                                         color: Theme.of(
                                           context,
-                                        ).colorScheme.onSurface,
+                                        ).colorScheme.onSurfaceVariant,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 13,
                                       ),
-                                      decoration: InputDecoration(
-                                        labelText: "VAT Amount",
-                                        labelStyle: GoogleFonts.poppins(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurface,
-                                          fontWeight: FontWeight.w500,
+                                      prefix: Container(
+                                        margin: const EdgeInsets.only(right: 8),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
                                         ),
-
-                                        // 🌈 Gradient Currency Symbol (inline instead of icon)
-                                        prefix: Container(
-                                          margin: const EdgeInsets.only(
-                                            right: 8,
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [Colors.green, Colors.teal],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
                                           ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 4,
-                                          ),
-                                          decoration: const BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                Colors.green,
-                                                Colors.teal,
-                                              ], // ✅ distinct from Ledger
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(8),
-                                            ),
-                                          ),
-                                          child: Text(
-                                            getCurrencySymbol(currencycode),
-                                            style: GoogleFonts.poppins(
-                                              color: Colors.white,
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-
-                                        border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: BorderSide(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
+                                            8,
                                           ),
                                         ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: BorderSide(
-                                            color: app_color,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: BorderSide(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
+                                        child: Text(
+                                          getCurrencySymbol(currencycode),
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 12,
-                                            ),
                                       ),
+                                      filled: true,
+                                      fillColor:
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Theme.of(context)
+                                                .colorScheme
+                                                .surfaceContainerHighest
+                                          : Colors.grey.shade100,
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                        borderSide: BorderSide(
+                                          color: Theme.of(context).dividerColor,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      disabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                        borderSide: BorderSide(
+                                          color: Theme.of(context).dividerColor,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 14,
+                                          ),
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
-                              ),
-                              child: TextFormField(
-                                controller: controller_narration,
-                                focusNode: _textFieldFocusNodeNarration,
-                                validator: (value) => null,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                                decoration: InputDecoration(
-                                  labelText: "Narration",
-                                  hintText: "Enter narration",
-                                  hintStyle: GoogleFonts.poppins(
-                                    fontSize: 13,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                                  labelStyle: GoogleFonts.poppins(
-                                    color: _isFocused_narration
-                                        ? app_color
-                                        : Theme.of(
-                                            context,
-                                          ).colorScheme.onSurface,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-
-                                  // 🌈 Gradient Icon (Notes)
-                                  prefixIcon: Container(
-                                    margin: const EdgeInsets.all(8),
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.pinkAccent,
-                                          Colors.deepOrange,
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(12),
-                                      ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.notes_rounded,
-                                      size: 20,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-
-                                  filled: true,
-                                  fillColor:
-                                      Theme.of(
-                                        context,
-                                      ).inputDecorationTheme.fillColor ??
-                                      (Theme.of(
-                                            context,
-                                          ).inputDecorationTheme.fillColor ??
-                                          Theme.of(
-                                            context,
-                                          ).cardColor.withOpacity(0.95)),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 14,
-                                  ),
-
-                                  // Borders
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide(
-                                      color: app_color,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                ),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _isFocused_narration = true;
-                                    _isFocused_vchno = false;
-                                    _isFocused_vatamt = false;
-                                    _isFocused_totalamt = false;
-                                    _isFocused_refno = false;
-                                  });
-                                },
-                                onFieldSubmitted: (value) {
-                                  setState(() {
-                                    _isFocused_narration = false;
-                                    _isFocused_vchno = false;
-                                    _isFocused_vatamt = false;
-                                    _isFocused_totalamt = false;
-                                    _isFocused_refno = false;
-                                  });
-                                },
-                                onTap: () {
-                                  setState(() {
-                                    _isFocused_narration = true;
-                                    _isFocused_vchno = false;
-                                    _isFocused_vatamt = false;
-                                    _isFocused_totalamt = false;
-                                    _isFocused_refno = false;
-                                  });
-                                },
-                                onEditingComplete: () {
-                                  setState(() {
-                                    _isFocused_narration = false;
-                                    _isFocused_vchno = false;
-                                    _isFocused_vatamt = false;
-                                    _isFocused_totalamt = false;
-                                    _isFocused_refno = false;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
 
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 15,
-                          left: 20,
-                          right: 20,
-                          bottom: 0,
-                        ),
-                        child: TextFormField(
-                          enabled: false,
-                          controller: controller_totalamt,
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+\.?\d{0,4}'),
-                            ),
-                          ],
-                          keyboardType: TextInputType.number,
-                          validator: (value) => null,
-                          style: GoogleFonts.poppins(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                          decoration: InputDecoration(
-                            labelText: 'Total Amount',
-                            hintText: 'Enter total amount',
-
-                            // 🌈 Gradient Currency Symbol (cool tone, unique)
-                            prefix: Container(
-                              margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.indigo,
-                                    Colors.blueAccent,
-                                  ], // 🔵 unique from narration
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(8),
-                                ),
-                              ),
-                              child: Text(
-                                getCurrencySymbol(
-                                  currencycode,
-                                ), // e.g. AED, $, ₹
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-
-                            // Borders
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).dividerColor,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(
-                                color: app_color,
-                                width: 1.4,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).dividerColor,
-                              ),
-                            ),
-                            labelStyle: GoogleFonts.poppins(
-                              color: _isFocused_totalamt
-                                  ? app_color
-                                  : Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 14,
-                              horizontal: 12,
-                            ),
-                            filled: true,
-                            fillColor:
-                                Theme.of(context).brightness == Brightness.dark
-                                ? Theme.of(
-                                    context,
-                                  ).colorScheme.surfaceContainerHighest
-                                : (Theme.of(context).brightness ==
-                                          Brightness.dark
-                                      ? Theme.of(
-                                          context,
-                                        ).colorScheme.surfaceContainerHighest
-                                      : Colors.grey.shade50),
-                          ),
-
-                          // Focus State
-                          onTap: () {
-                            setState(() {
-                              _isFocused_totalamt = true;
-                              _isFocused_narration = false;
-                              _isFocused_refno = false;
-                              _isFocused_vatamt = false;
-                              _isFocused_vchno = false;
-                            });
-                          },
-                          onFieldSubmitted: (_) {
-                            setState(() {
-                              _isFocused_totalamt = false;
-                            });
-                          },
-                          onEditingComplete: () {
-                            setState(() {
-                              _isFocused_totalamt = false;
-                            });
-                          },
-                        ),
-                      ),
-
-                      Container(
-                        padding: const EdgeInsets.only(top: 20),
-                        margin: const EdgeInsets.only(
-                          bottom: 30,
-                          left: 20,
-                          right: 20,
-                        ),
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: errorMessageVchNo.isNotEmpty
-                              ? null
-                              : () {
-                                  if (_formKey.currentState != null &&
-                                      _formKey.currentState!.validate()) {
-                                    _formKey.currentState!.save();
-                                    saveEntry();
-                                  }
-                                },
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 16,
-                              horizontal: 20,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                30,
-                              ), // pill shape
-                            ),
-                            elevation: 8,
-                            backgroundColor:
-                                app_color, // ✅ always full app_color
-                            disabledBackgroundColor:
-                                Theme.of(context).brightness == Brightness.dark
-                                ? Colors.grey.shade700
-                                : Colors.grey.shade300, // disabled state
-                            shadowColor: app_color.withOpacity(0.4),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // 🌟 Modern Save Icon (circular background inside button)
-                              Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor
-                                      .withOpacity(
-                                        0.2,
-                                      ), // soft white tint inside
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.check_circle, // modern variant of save
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-
-                              // Save Text
-                              Text(
-                                "Save",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                  letterSpacing: 1,
-                                ),
-                              ),
+                      // ── Narration Section ──
+                      EntrySection(
+                        icon: Icons.notes_rounded,
+                        title: "Narration",
+                        iconGradient: [Colors.pinkAccent, Colors.deepOrange],
+                        children: [
+                          EntryFormField(
+                            label: "Narration",
+                            icon: Icons.notes_rounded,
+                            iconGradient: [
+                              Colors.pinkAccent,
+                              Colors.deepOrange,
                             ],
+                            controller: controller_narration,
+                            validator: (value) => null,
+                            maxLines: 3,
                           ),
-                        ),
+                        ],
                       ),
+
+                      // ── Total Amount ──
+                      EntryTotalBar(
+                        label: "Total Amount",
+                        value: controller_totalamt.text.isNotEmpty
+                            ? controller_totalamt.text
+                            : "0.00",
+                        currencySymbol: getCurrencySymbol(currencycode),
+                      ),
+
+                      // ── Save Button ──
+                      EntrySaveButton(
+                        label: "Save",
+                        onPressed: errorMessageVchNo.isNotEmpty
+                            ? null
+                            : () {
+                                if (_formKey.currentState != null &&
+                                    _formKey.currentState!.validate()) {
+                                  _formKey.currentState!.save();
+                                  saveEntry();
+                                }
+                              },
+                      ),
+
+                      const SizedBox(height: 30),
                     ],
                   ),
                 ),

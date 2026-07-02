@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constants.dart';
+import 'widgets/entry_widgets.dart';
 import 'ModifySalesOrderEntry.dart';
 import 'SalesOrderRegistration.dart';
 import 'package:http/http.dart' as http;
@@ -147,56 +148,6 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry>
       }
     });
     fetchSalesOrderEntries();
-  }
-
-  Widget _buildSyncChip(int isSynced) {
-    String text;
-    IconData icon;
-    List<Color> colors;
-
-    if (isSynced == 1) {
-      text = "Synced";
-      icon = Icons.cloud_done;
-      colors = [Colors.green.shade400, Colors.green.shade700];
-    } else if (isSynced == 2) {
-      text = "Failed";
-      icon = Icons.error_outline;
-      colors = [Colors.red.shade400, Colors.red.shade700];
-    } else {
-      text = "Pending";
-      icon = Icons.cloud_upload_outlined;
-      colors = [Colors.orange.shade400, Colors.deepOrange.shade600];
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(colors: colors),
-        boxShadow: [
-          BoxShadow(
-            color: colors.last.withOpacity(0.3),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: Colors.white),
-          const SizedBox(width: 5),
-          Text(
-            text,
-            style: GoogleFonts.poppins(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> _showConfirmationDialogAndNavigate(
@@ -528,7 +479,6 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry>
       onWillPop: () async {
         Navigator.pushReplacement(
           context,
-
           MaterialPageRoute(builder: (context) => Dashboard()),
         );
         return true;
@@ -540,166 +490,26 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry>
         ),
         key: _scaffoldKey,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(50),
-          child: AppBar(
-            backgroundColor: app_color,
-            elevation: 6,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-            ),
-            automaticallyImplyLeading: false,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () {
-                AppNavigation.backOrDashboard(context);
-              },
-            ),
-            centerTitle: true,
-            title: GestureDetector(
-              onTap: () {},
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      "Sales Order Entries" ?? '',
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        appBar: entryAppBar(
+          context: context,
+          title: "Sales Order Entries",
+          onBack: () => AppNavigation.backOrDashboard(context),
         ),
-
         body: RefreshIndicator(
           onRefresh: _refresh,
           child: Column(
             children: [
-              // 🔍 PREMIUM SEARCH BAR (same as previous screen)
               if (salesorderentries.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).cardColor,
-                          Theme.of(context).cardColor.withOpacity(0.95),
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: app_color.withOpacity(0.08),
-                          blurRadius: 18,
-                          offset: const Offset(0, 8),
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                      border: Border.all(color: Theme.of(context).dividerColor),
-                    ),
-                    child: Row(
-                      children: [
-                        // 🔍 ICON
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [app_color.withOpacity(0.8), app_color],
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(
-                            Icons.search,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        // ✏️ INPUT
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (value) {
-                              searchSalesOrder(value);
-                              setState(() {});
-                            },
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: "Search sales orders...",
-                              hintStyle: GoogleFonts.poppins(
-                                fontSize: 13,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-
-                              filled: true,
-                              fillColor: Colors.transparent,
-                              // ❌ REMOVE ALL BORDERS
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          ),
-                        ),
-
-                        // ❌ CLEAR BUTTON
-                        if (_searchController.text.isNotEmpty)
-                          GestureDetector(
-                            onTap: () {
-                              _searchController.clear();
-                              searchSalesOrder('');
-                              setState(() {});
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color:
-                                    Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? Theme.of(
-                                        context,
-                                      ).colorScheme.surfaceContainerHighest
-                                    : Colors.grey.shade200,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.close, size: 16),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
+                EntrySearchBar(
+                  controller: _searchController,
+                  onChanged: searchSalesOrder,
+                  hintText: "Search sales orders...",
                 ),
-
               Expanded(
                 child: Stack(
                   children: [
-                    Visibility(
-                      visible: isVisibleNoSalesOrderEntryFound,
-                      child: Center(
+                    if (isVisibleNoSalesOrderEntryFound)
+                      Center(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Column(
@@ -708,9 +518,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry>
                               Icon(
                                 Icons.receipt_long,
                                 size: 64,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                               const SizedBox(height: 16),
                               Text(
@@ -719,377 +527,94 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry>
                                 style: GoogleFonts.poppins(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ],
                           ),
                         ),
                       ),
-                    ),
 
-                    ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                      itemCount: filteredSalesOrderEntries.length,
-                      itemBuilder: (context, index) {
-                        final card = filteredSalesOrderEntries[index];
-                        final partyLedger = card.data['PARTYLEDGERNAME'];
-                        final dateStr = card.data['DATE'];
-                        final totalAmount = card.data['totalAmount'];
-                        final vchno = card.data['VOUCHERNUMBER'];
-                        final vchtype = card.data['VOUCHERTYPENAME'] ?? 'N/A';
-                        final bool isExpanded = expandedCards.contains(card.id);
+                    if (!isVisibleNoSalesOrderEntryFound)
+                      ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 100),
+                        itemCount: filteredSalesOrderEntries.length,
+                        itemBuilder: (context, index) {
+                          final card = filteredSalesOrderEntries[index];
+                          final partyLedger = card.data['PARTYLEDGERNAME'];
+                          final dateStr = card.data['DATE'];
+                          final totalAmount = card.data['totalAmount'];
+                          final vchno = card.data['VOUCHERNUMBER'];
+                          final vchtype = card.data['VOUCHERTYPENAME'] ?? 'N/A';
+                          final bool isExpanded = expandedCards.contains(card.id);
 
-                        DateTime date = DateTime.parse(dateStr);
-                        String formattedDate = DateFormat(
-                          "dd-MMM-yyyy",
-                        ).format(date);
+                          DateTime date = DateTime.parse(dateStr);
+                          String formattedDate = DateFormat("dd-MMM-yyyy").format(date);
 
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isExpanded
-                                  ? expandedCards.remove(card.id)
-                                  : expandedCards.add(card.id);
-                            });
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 9),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Theme.of(context).cardColor,
-                              border:
-                                  Theme.of(context).brightness ==
-                                      Brightness.dark
-                                  ? Border.all(
-                                      color: const Color(0xFF374151),
-                                      width: 0.8,
-                                    )
-                                  : null,
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      Theme.of(context).brightness ==
-                                          Brightness.dark
-                                      ? Colors.black.withOpacity(0.3)
-                                      : Colors.black.withOpacity(0.05),
-                                  blurRadius: 15,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // 🔹 Top Row: Order + Action Icons
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Row(
-                                            children: [
-                                              // Gradient Icon
-                                              Container(
-                                                width: 32,
-                                                height: 32,
-                                                decoration: BoxDecoration(
-                                                  gradient:
-                                                      const LinearGradient(
-                                                        colors: [
-                                                          Color(0xFF66BB6A),
-                                                          Color(0xFF388E3C),
-                                                        ],
-                                                        begin:
-                                                            Alignment.topLeft,
-                                                        end: Alignment
-                                                            .bottomRight,
-                                                      ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.green
-                                                          .withOpacity(0.25),
-                                                      blurRadius: 6,
-                                                      offset: const Offset(
-                                                        0,
-                                                        3,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: const Icon(
-                                                  Icons.shopping_cart_outlined,
-                                                  size: 18,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 10),
+                          final bool canActOnCard = card.isSynced != 1 &&
+                              (serial_no != uniGasSerialNumber);
 
-                                              // Order Text
-                                              Expanded(
-                                                child: Text(
-                                                  "$vchno",
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 15,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).colorScheme.onSurface,
-                                                  ),
-                                                  softWrap: true,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 0,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              _buildSyncChip(card.isSynced),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  if (card.isSynced == 2 &&
-                                      card.message != null)
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 16,
-                                        right: 16,
-                                        top: 16,
-                                      ),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                          color: Colors.red.shade50,
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          border: Border.all(
-                                            color: Colors.red.shade200,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.error_outline,
-                                              color: Colors.red.shade700,
-                                              size: 18,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Expanded(
-                                              child: Text(
-                                                card.message!,
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 12,
-                                                  color: Colors.red.shade700,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                          return PendingEntryCard(
+                            voucherNo: '$vchno',
+                            date: formattedDate,
+                            partyName: partyLedger,
+                            amount: formatAmount(totalAmount.toString()),
+                            isSynced: card.isSynced == 1,
+                            errorMessage: (card.isSynced == 2 && card.message != null)
+                                ? card.message
+                                : null,
+                            isExpanded: isExpanded,
+                            onTap: () {
+                              setState(() {
+                                isExpanded
+                                    ? expandedCards.remove(card.id)
+                                    : expandedCards.add(card.id);
+                              });
+                            },
+                            onEdit: canActOnCard
+                                ? () {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ModifySalesOrderEntry(
+                                          type: card.type,
+                                          id: card.id,
+                                          isSynced: card.isSynced,
+                                          data: card.data,
                                         ),
                                       ),
-                                    ),
-
-                                  const SizedBox(height: 12),
-
-                                  // 🔹 Detail Rows
-                                  DetailRowTile(
-                                    label: "Party Ledger",
-                                    value: partyLedger ?? '',
-                                  ),
-                                  DetailRowTile(
-                                    label: "Date",
-                                    value: formattedDate,
-                                  ),
-
-                                  AnimatedSize(
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOutCubic,
-                                    alignment: Alignment.topCenter,
-                                    child: isExpanded
-                                        ? Column(
-                                            children: [
-                                              DetailRowTile(
-                                                label: "Voucher Type",
-                                                value: vchtype,
-                                              ),
-                                              DetailRowTile(
-                                                label: "Total Amount",
-                                                value: formatAmount(
-                                                  totalAmount.toString(),
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                        : const SizedBox.shrink(),
-                                  ),
-
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                        right: 14,
-                                        top: 6,
-                                      ),
-                                      child: AnimatedContainer(
-                                        duration: const Duration(
-                                          milliseconds: 250,
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: isExpanded
-                                              ? (Theme.of(context).brightness ==
-                                                        Brightness.dark
-                                                    ? Theme.of(context)
-                                                          .colorScheme
-                                                          .surfaceContainerHighest
-                                                    : Colors.grey.shade100)
-                                              : app_color.withOpacity(0.08),
-                                          borderRadius: BorderRadius.circular(
-                                            30,
-                                          ),
-                                          border: Border.all(
-                                            color: isExpanded
-                                                ? Theme.of(context).dividerColor
-                                                : app_color.withOpacity(0.18),
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.touch_app_rounded,
-                                              size: 15,
-                                              color: isExpanded
-                                                  ? Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurfaceVariant
-                                                  : app_color,
-                                            ),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              isExpanded
-                                                  ? "Show less"
-                                                  : "Tap to show more",
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w600,
-                                                color: isExpanded
-                                                    ? Theme.of(context)
-                                                          .colorScheme
-                                                          .onSurfaceVariant
-                                                    : app_color,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 3),
-                                            AnimatedRotation(
-                                              turns: isExpanded ? 0.5 : 0,
-                                              duration: const Duration(
-                                                milliseconds: 250,
-                                              ),
-                                              child: Icon(
-                                                Icons
-                                                    .keyboard_arrow_down_rounded,
-                                                size: 16,
-                                                color: isExpanded
-                                                    ? Theme.of(context)
-                                                          .colorScheme
-                                                          .onSurfaceVariant
-                                                    : app_color,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-                                  if (card.isSynced != 1 &&
-                                      (serial_no != uniGasSerialNumber)) ...[
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 16),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          _buildGradientAction(
-                                            icon: Icons.edit,
-                                            text: "Modify",
-
-                                            colors: [
-                                              const Color(0xFF42A5F5),
-                                              const Color(0xFF1E88E5),
-                                            ],
-                                            onTap: () {
-                                              Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ModifySalesOrderEntry(
-                                                        type: card.type,
-                                                        id: card.id,
-                                                        isSynced: card.isSynced,
-                                                        data: card.data,
-                                                      ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                          const SizedBox(width: 10),
-                                          _buildGradientAction(
-                                            icon: Icons.delete_outline,
-                                            text: "Delete",
-
-                                            colors: [
-                                              const Color(0xFFEF5350),
-                                              const Color(0xFFD32F2F),
-                                            ],
-                                            onTap: () {
-                                              _showConfirmationDialogAndNavigate(
-                                                context,
-                                                card.id,
-                                              );
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ],
+                                    );
+                                  }
+                                : null,
+                            onDelete: canActOnCard
+                                ? () {
+                                    _showConfirmationDialogAndNavigate(
+                                      context,
+                                      card.id,
+                                    );
+                                  }
+                                : null,
+                            expandedContent: [
+                              DetailRowTile(
+                                label: "Voucher Type",
+                                value: vchtype,
                               ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                              DetailRowTile(
+                                label: "Total Amount",
+                                value: formatAmount(totalAmount.toString()),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
 
+                    // Loading spinner
                     Visibility(
                       visible: _isLoading,
-                      child: Center(child: AppLogoLoader()),
+                      child: const Center(child: AppLogoLoader()),
                     ),
 
+                    // Floating Action Button
                     Positioned(
                       bottom: 40,
                       right: 30,
@@ -1108,15 +633,15 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry>
                             vertical: 14,
                           ),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50),
+                            borderRadius: BorderRadius.circular(16),
                             gradient: LinearGradient(
-                              colors: [app_color.withOpacity(0.9), app_color],
+                              colors: [app_color.withValues(alpha: 0.9), app_color],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: app_color.withOpacity(0.4),
+                                color: app_color.withValues(alpha: 0.4),
                                 blurRadius: 12,
                                 offset: const Offset(0, 6),
                               ),
@@ -1125,7 +650,7 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry>
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.add_rounded,
                                 color: Colors.white,
                                 size: 26,
@@ -1153,7 +678,6 @@ class _PendingSalesOrderEntryPageState extends State<PendingSalesOrderEntry>
         ),
       ),
     );
-    // TODO: implement build
   }
 }
 
@@ -1290,44 +814,4 @@ class DetailRowTile extends StatelessWidget {
 
     return onTap != null ? GestureDetector(onTap: onTap, child: row) : row;
   }
-}
-
-Widget _buildGradientAction({
-  required IconData icon,
-  required String text, // ✅ ADD TEXT
-  required List<Color> colors,
-  required VoidCallback onTap,
-}) {
-  return GestureDetector(
-    onTap: onTap,
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30), // pill shape
-        gradient: LinearGradient(colors: colors),
-        boxShadow: [
-          BoxShadow(
-            color: colors.last.withOpacity(0.25),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: Colors.white),
-          const SizedBox(width: 6),
-          Text(
-            text,
-            style: GoogleFonts.poppins(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
 }

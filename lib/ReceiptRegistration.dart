@@ -18,6 +18,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'constants.dart';
 import 'theme_controller.dart';
 import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'widgets/entry_widgets.dart';
 
 class ReceiptRegistration extends StatefulWidget {
   const ReceiptRegistration({Key? key}) : super(key: key);
@@ -63,8 +64,10 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
       isUserEnable = true,
       isUserVisible = true,
       isRolesEnable = true,
-      _isLoading = false,
+      _isLoading = true,
       isVisibleNoUserFound = false;
+
+  bool _isInitialDataLoaded = false;
 
   late DateTime now = DateTime.now();
 
@@ -88,11 +91,17 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
 
   TextEditingController _banknameController = TextEditingController();
 
-  bool get isSelectedBankCashInHand =>
-      _selectedbankcashname != null &&
-      _selectedbankcashname!['type'] == 'Cash-in-Hand';
+  bool get isSelectedBankCashInHand {
+    final type = _selectedbankcashname?['type']
+        ?.toString()
+        .trim()
+        .toLowerCase()
+        .replaceAll('-', ' ');
 
-  bool get isUniGasUser =>
+    return type == 'cash in hand';
+  }
+
+  bool get isVanSalesUser =>
       serial_no != null && vanSalesSerialNo.contains(serial_no);
 
   late final TextEditingController controller_narration =
@@ -217,7 +226,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
       isVisibleBillHeading = bills.isNotEmpty;
 
       if (_selectedbankcashname != null &&
-          _selectedbankcashname!['type'] != 'Cash-in-Hand') {
+          !isSelectedBankCashInHand) {
         isPaymentModeVisible = true;
         isChequeVisible = true;
       }
@@ -767,7 +776,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
       } else {
         isVisibleBillHeading = true;
         if (_selectedbankcashname != null &&
-            _selectedbankcashname!['type'] == 'Cash-in-Hand') {
+            isSelectedBankCashInHand) {
           isPaymentModeVisible = false;
           _selectedpaymentmode = paymentmode_data.first;
           cheque.clear();
@@ -878,7 +887,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
 
   bool isPaymentModeVisible = false;
 
-  late int? decimal;
+  int? decimal = 2;
 
   late List<String> partydata = [];
 
@@ -985,7 +994,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
       context: context,
       barrierDismissible: false,
       barrierLabel: "ReceiptVoucher",
-      barrierColor: Colors.black.withOpacity(0.35),
+      barrierColor: Colors.black.withValues(alpha: 0.35),
       transitionDuration: const Duration(milliseconds: 280),
       pageBuilder: (context, animation, secondaryAnimation) {
         return Center(
@@ -2666,7 +2675,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
       allLedgerEntriesList.add(bankAllocation);
 
       // If the selected bank/cash type is not 'Cash-in-Hand', add cheque details to bank allocation list
-      if (_selectedbankcashname!['type'] != 'Cash-in-Hand') {
+      if (!isSelectedBankCashInHand) {
         bankAllocation["BANKALLOCATIONS.LIST"] = cheque.map((cheque) {
           return {
             "DATE": receiptdatestring,
@@ -2976,6 +2985,8 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
 
       final response = await http.post(url, headers: headers);
 
+      debugPrint('receipt load data -> ${response.body}');
+
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
 
@@ -3071,7 +3082,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
               : "";
 
           if (_selectedbankcashname != null &&
-              _selectedbankcashname!['type'] == 'Cash-in-Hand') {
+              isSelectedBankCashInHand) {
             isPaymentModeVisible = false;
             _selectedpaymentmode = paymentmode_data.first;
             cheque.clear();
@@ -3131,6 +3142,15 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
   }
 
   Future<void> _selectreceiptDate(BuildContext context) async {
+    if (isUniGasSerial) {
+      closeKeyboard(context);
+      Fluttertoast.showToast(
+        msg: "Voucher date cannot be changed",
+        backgroundColor: Colors.redAccent,
+        textColor: Colors.white,
+      );
+      return;
+    }
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: receiptdate,
@@ -3544,6 +3564,8 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
   Future<void> _showBillsDetailsPopup(BuildContext context) async {
     setState(() {
       showModalBottomSheet(
+        useSafeArea: true,
+        barrierColor: Colors.black.withValues(alpha: 0.45),
         context: context,
         isScrollControlled: true,
         enableDrag: false,
@@ -3594,9 +3616,21 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
                   child: Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.vertical(
+                      borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(24),
                       ),
+                      border: Border.all(
+                        color: Theme.of(
+                          context,
+                        ).dividerColor.withValues(alpha: 0.45),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.18),
+                          blurRadius: 24,
+                          offset: const Offset(0, -8),
+                        ),
+                      ],
                     ),
                     child: Column(
                       children: [
@@ -4018,7 +4052,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
                               color: Theme.of(context).cardColor,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.08),
+                                  color: Colors.black.withValues(alpha: 0.08),
                                   blurRadius: 10,
                                   offset: const Offset(0, -2),
                                 ),
@@ -4464,6 +4498,8 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
   Future<void> _showChequeDetailsPopup(BuildContext context) async {
     setState(() {
       showModalBottomSheet(
+        useSafeArea: true,
+        barrierColor: Colors.black.withValues(alpha: 0.45),
         context: context,
         isScrollControlled: true,
         enableDrag: false,
@@ -4504,9 +4540,21 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
                   child: Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.vertical(
+                      borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(24),
                       ),
+                      border: Border.all(
+                        color: Theme.of(
+                          context,
+                        ).dividerColor.withValues(alpha: 0.45),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.18),
+                          blurRadius: 24,
+                          offset: const Offset(0, -8),
+                        ),
+                      ],
                     ),
                     child: Column(
                       children: [
@@ -4971,7 +5019,7 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
                               color: Theme.of(context).cardColor,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.08),
+                                  color: Colors.black.withValues(alpha: 0.08),
                                   blurRadius: 10,
                                   offset: const Offset(0, -2),
                                 ),
@@ -5208,6 +5256,18 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
             isChequeVisible = false;
           });
         }*/
+    }
+
+    if (isSelectedBankCashInHand) {
+      setState(() {
+        FocusManager.instance.primaryFocus?.unfocus();
+        isPaymentModeVisible = false;
+        _selectedpaymentmode = paymentmode_data.first;
+        cheque.clear();
+        updateChequeAmount();
+        isVisibleChequeHeading = false;
+        isChequeVisible = false;
+      });
     }
   } // add bill function
 
@@ -5455,6 +5515,11 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
       }
     });
     await loadData();
+    if (mounted) {
+      setState(() {
+        _isInitialDataLoaded = true;
+      });
+    }
   }
 
   Future<void> _selectDateRangeVchNo(BuildContext context) async {
@@ -5598,56 +5663,23 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
 
   @override
   Widget build(BuildContext context) {
-    final NumberFormat currencyFormat = NumberFormat(
-      "#,##0.${'0' * decimal!}", // 👈 dynamically repeat '0' for decimal places
-    );
-    final bool canEditVoucherNo =
-        SecuritybtnAcessHolder.toString().toLowerCase() == 'true';
-
-    return Scaffold(
-      bottomNavigationBar: const AppBottomNav(
-        activeTab: AppBottomNavTab.entries,
-        activeEntryType: AppEntryType.receipt,
-      ),
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      key: _scaffoldKey,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(50),
-        child: AppBar(
-          backgroundColor: app_color,
-          elevation: 6,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-          ),
-          automaticallyImplyLeading: false,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => PendingReceiptEntry()),
-              );
-            },
-          ),
-          centerTitle: true,
-          title: GestureDetector(
-            onTap: () {},
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    "New Receipts Entry" ?? '',
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+    if (!_isInitialDataLoaded) {
+      return Scaffold(
+        bottomNavigationBar: const AppBottomNav(
+          activeTab: AppBottomNavTab.entries,
+          activeEntryType: AppEntryType.receipt,
+        ),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        key: _scaffoldKey,
+        appBar: entryAppBar(
+          context: context,
+          title: "New Receipt Entry",
+          onBack: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => PendingReceiptEntry()),
+            );
+          },
           actions: [
             IconButton(
               tooltip: 'Toggle theme',
@@ -5667,8 +5699,49 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
             ),
           ],
         ),
-      ),
+        body: Center(child: AppLogoLoader()),
+      );
+    }
 
+    final NumberFormat currencyFormat = NumberFormat("#,##0.${'0' * decimal!}");
+    final bool canEditVoucherNo =
+        SecuritybtnAcessHolder.toString().toLowerCase() == 'true';
+
+    return Scaffold(
+      bottomNavigationBar: const AppBottomNav(
+        activeTab: AppBottomNavTab.entries,
+        activeEntryType: AppEntryType.receipt,
+      ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      key: _scaffoldKey,
+      appBar: entryAppBar(
+        context: context,
+        title: "New Receipt Entry",
+        onBack: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => PendingReceiptEntry()),
+          );
+        },
+        actions: [
+          IconButton(
+            tooltip: 'Toggle theme',
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              themeController.setThemeMode(
+                Theme.of(context).brightness == Brightness.dark
+                    ? ThemeMode.light
+                    : ThemeMode.dark,
+              );
+            },
+          ),
+        ],
+      ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
@@ -5680,783 +5753,476 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
               context,
               MaterialPageRoute(builder: (context) => PendingReceiptEntry()),
             );
-            return true;
+            return false;
           },
           child: Stack(
             children: [
               ListView(
                 children: [
-                  /* GestureDetector(
-                  onTap: () => _selectDateRangeVchNo(context),
-                  child: Container(
-                    margin: const EdgeInsets.only(top:8,bottom:4, left: 12, right : 12),
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                      border: Border.all(
-                        color: app_color.withOpacity(0.3),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // calendar icon with gradient style
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [app_color, app_color.withOpacity(0.7)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.calendar_today, color: Colors.white, size: 20),
-                        ),
-                        const SizedBox(width: 14),
-
-                        // text column
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Voucher No. Range",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                "${DateFormat('dd-MMM-yyyy').format(yearStartDate)} → ${DateFormat('dd-MMM-yyyy').format(yearEndDate)}",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: app_color,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        Icon(Icons.keyboard_arrow_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      ],
-                    ),
-                  ),
-                ),*/
-                  const SizedBox.shrink(),
-
-                  Container(
+                  Form(
+                    key: _formKey,
                     child: Column(
                       children: [
-                        Form(
-                          key: _formKey,
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 20,
-                                  right: 20,
-                                  top: 16,
-                                  bottom: 8,
-                                ),
-                                child: TextFormField(
-                                  controller: _dateController,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
-                                  ),
-                                  decoration: InputDecoration(
-                                    labelText: "Date",
-                                    labelStyle: GoogleFonts.poppins(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                    ),
-                                    filled: true,
-                                    fillColor:
-                                        Theme.of(
-                                          context,
-                                        ).inputDecorationTheme.fillColor ??
-                                        (Theme.of(
-                                              context,
-                                            ).inputDecorationTheme.fillColor ??
-                                            Theme.of(
-                                              context,
-                                            ).cardColor.withOpacity(0.95)),
+                        const SizedBox(height: 8),
 
-                                    // 🌈 Gradient Calendar Icon
-                                    prefixIcon: GestureDetector(
-                                      onTap: () {
-                                        closeKeyboard(context);
+                        // ── Entry Details Section ──
+                        EntrySection(
+                          icon: Icons.receipt_long_outlined,
+                          title: "Entry Details",
+                          iconGradient: [
+                            app_color,
+                            app_color.withValues(alpha: 0.7),
+                          ],
+                          children: [
+                            // Date
+                            EntryFormField(
+                              label: "Date",
+                              icon: Icons.calendar_today,
+                              iconGradient: [
+                                app_color,
+                                app_color.withValues(alpha: 0.7),
+                              ],
+                              controller: _dateController,
+                              readOnly: true,
+                              enabled: !isUniGasSerial,
+                              suffixIcon: isUniGasSerial
+                                  ? Icon(
+                                Icons.lock,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              )
+                                  : null,
+                              onTap: isUniGasSerial
+                                  ? null
+                                  : () {
+                                _selectreceiptDate(context);
+                              },
+                            ),
 
-                                        if (isUniGasUser) {
-                                          Fluttertoast.showToast(
-                                            msg:
-                                                "Voucher date cannot be changed",
-                                            backgroundColor: Colors.redAccent,
-                                            textColor: Colors.white,
-                                          );
-                                          return;
-                                        }
-
-                                        _selectreceiptDate(context);
-                                      },
-                                      child: Container(
-                                        margin: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              app_color,
-                                              app_color.withOpacity(0.7),
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        child: const Icon(
-                                          Icons.calendar_today,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-                                    ),
-
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(
-                                        color: Theme.of(context).dividerColor,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(
-                                        color: app_color,
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                      horizontal: 14,
-                                    ),
-                                  ),
-                                  readOnly: true,
-                                  onTap: () {
-                                    closeKeyboard(context);
-
-                                    if (isUniGasUser) {
-                                      Fluttertoast.showToast(
-                                        msg: "Voucher date cannot be changed",
-                                        backgroundColor: Colors.redAccent,
-                                        textColor: Colors.white,
-                                      );
-                                      return;
-                                    }
-
-                                    _selectreceiptDate(context);
-                                  },
-                                ),
-                              ),
-
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 6,
-                                ),
-                                child: TextFormField(
-                                  controller: _vchnoController,
-
-                                  // Editable only when security access is true
-                                  readOnly: !canEditVoucherNo,
-                                  enableInteractiveSelection: canEditVoucherNo,
-                                  onChanged: canEditVoucherNo
-                                      ? (value) {
-                                          checkVchNoExistence(value.trim());
-                                        }
-                                      : null,
-
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: isVchEditable
-                                        ? Theme.of(
-                                            context,
-                                          ).colorScheme.onSurface
-                                        : Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant, // 👈 visual hint
-                                  ),
-
-                                  decoration: InputDecoration(
-                                    labelText: "Voucher No.",
-                                    labelStyle: GoogleFonts.poppins(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                    ),
-
-                                    errorText: errorMessageVchNo.isNotEmpty
-                                        ? errorMessageVchNo
-                                        : null,
-
-                                    filled: true,
-                                    fillColor:
-                                        Theme.of(
-                                          context,
-                                        ).inputDecorationTheme.fillColor ??
-                                        (Theme.of(
-                                              context,
-                                            ).inputDecorationTheme.fillColor ??
-                                            Theme.of(
-                                              context,
-                                            ).cardColor.withOpacity(0.95)),
-
-                                    prefixIcon: Container(
-                                      margin: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          colors: [
-                                            Colors.deepOrangeAccent,
-                                            Colors.orangeAccent,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(12),
-                                        ),
-                                      ),
-                                      child: const Icon(
-                                        Icons.confirmation_num_outlined,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-
-                                    // 👇 EDIT BUTTON
-                                    suffixIcon: canEditVoucherNo
-                                        ? IconButton(
-                                            icon: Icon(
-                                              isVchEditable
-                                                  ? Icons.lock_open
-                                                  : Icons.edit,
-                                              color: app_color,
-                                            ),
-                                            onPressed: () {
-                                              setState(() {
-                                                isVchEditable = !isVchEditable;
-                                              });
-                                            },
-                                          )
-                                        : Icon(
-                                            Icons.lock,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
-                                        color: Theme.of(context).dividerColor,
-                                        width: 1,
-                                      ),
-                                    ),
-
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
-                                        color: app_color,
-                                        width: 1.5,
-                                      ),
-                                    ),
-
-                                    errorBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: const BorderSide(
-                                        color: Colors.redAccent,
-                                        width: 1.5,
-                                      ),
-                                    ),
-
-                                    focusedErrorBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: const BorderSide(
-                                        color: Colors.redAccent,
-                                        width: 1.5,
-                                      ),
-                                    ),
-
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                      horizontal: 14,
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  top: 0,
-                                  left: 20,
-                                  right: 20,
-                                  bottom: 0,
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    color: Colors.grey.withOpacity(0.2),
-                                  ),
-                                  padding: EdgeInsets.all(10),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.info_outline_rounded,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                      ),
-                                      SizedBox(width: 10),
-                                      Expanded(
-                                        child: Text(
-                                          'Duplicate voucher numbers in Tally will trigger automatic assignment of a new number.',
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                      ),
+                            // Voucher No
+                            EntryFormField(
+                              label: "Voucher No.",
+                              icon: canEditVoucherNo
+                                  ? Icons.edit_note_rounded
+                                  : Icons.confirmation_num_outlined,
+                              iconGradient: canEditVoucherNo
+                                  ? [Colors.teal, Colors.tealAccent]
+                                  : [
+                                      Colors.deepOrangeAccent,
+                                      Colors.orangeAccent,
                                     ],
-                                  ),
-                                ),
-                              ),
-
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 12,
-                                  left: 20,
-                                  right: 20,
-                                  bottom: 0,
-                                ),
-                                child: DropdownButtonFormField<String>(
-                                  isExpanded: true,
-                                  decoration: InputDecoration(
-                                    labelText: "Voucher Type Name",
-                                    labelStyle: GoogleFonts.poppins(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: isVoucherTypeLocked
-                                          ? Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant
-                                          : Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                    ),
-                                    filled: true,
-                                    fillColor: isVoucherTypeLocked
-                                        ? (Theme.of(context).brightness ==
-                                                  Brightness.dark
-                                              ? Theme.of(context)
-                                                    .colorScheme
-                                                    .surfaceContainerHighest
-                                              : Colors.grey.shade100)
-                                        : (Theme.of(context)
-                                                  .inputDecorationTheme
-                                                  .fillColor ??
-                                              Theme.of(
-                                                context,
-                                              ).cardColor.withOpacity(0.95)),
-                                    prefixIcon: Container(
-                                      margin: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: isVoucherTypeLocked
-                                            ? Colors.grey.shade400
-                                            : app_color,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Icon(
-                                        isVoucherTypeLocked
-                                            ? Icons.lock_outline
-                                            : Icons.receipt_long_outlined,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                    suffixIcon: Icon(
-                                      isVoucherTypeLocked
-                                          ? Icons.lock_outline
-                                          : Icons.arrow_drop_down,
-                                      color: isVoucherTypeLocked
-                                          ? Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant
-                                          : Theme.of(
-                                              context,
-                                            ).colorScheme.onSurface,
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
-                                        color: Theme.of(context).dividerColor,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    disabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
-                                        color: Theme.of(context).dividerColor,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
+                              controller: _vchnoController,
+                              readOnly: !canEditVoucherNo,
+                              enabled: canEditVoucherNo,
+                              onChanged: canEditVoucherNo
+                                  ? (value) {
+                                      checkVchNoExistence(value.trim());
+                                    }
+                                  : null,
+                              keyboardType: TextInputType.text,
+                              errorText: errorMessageVchNo.isNotEmpty
+                                  ? errorMessageVchNo
+                                  : null,
+                              suffixIcon: canEditVoucherNo
+                                  ? IconButton(
+                                      icon: Icon(
+                                        isVchEditable
+                                            ? Icons.lock_open
+                                            : Icons.edit,
                                         color: app_color,
-                                        width: 1.5,
                                       ),
+                                      onPressed: () {
+                                        setState(() {
+                                          isVchEditable = !isVchEditable;
+                                        });
+                                      },
+                                    )
+                                  : Icon(
+                                      Icons.lock_outline,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                      size: 20,
                                     ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 14,
-                                    ),
-                                  ),
-                                  hint: Text(
-                                    "Voucher Type Name",
+                            ),
+
+                            // Info Banner
+                            const EntryInfoBanner(
+                              text:
+                                  'Duplicate voucher numbers in Tally will trigger automatic assignment of a new number.',
+                            ),
+
+                            // Voucher Type Dropdown
+                            EntryDropdownField<String>(
+                              label: "Voucher Type Name",
+                              icon: Icons.receipt_long_outlined,
+                              iconGradient: [
+                                Colors.purpleAccent,
+                                Colors.deepPurple,
+                              ],
+                              value: _selectedvchtypename.isNotEmpty
+                                  ? _selectedvchtypename
+                                  : null,
+                              locked: isVoucherTypeLocked,
+                              hintText: isVoucherTypeLocked
+                                  ? "Voucher Type Locked"
+                                  : "Voucher Type Name",
+                              items: vchtypenamedata.map((item) {
+                                return DropdownMenuItem<String>(
+                                  value: item,
+                                  child: Text(
+                                    item,
                                     style: GoogleFonts.poppins(
                                       fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: isVoucherTypeLocked
-                                          ? Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant
-                                          : Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
                                     ),
                                   ),
-                                  value: _selectedvchtypename.isNotEmpty
-                                      ? _selectedvchtypename
-                                      : null,
-                                  items: vchtypenamedata.map((item) {
-                                    return DropdownMenuItem<String>(
-                                      value: item,
-                                      child: Text(
-                                        item,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: isVoucherTypeLocked
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.onSurfaceVariant
-                                              : Theme.of(
-                                                  context,
-                                                ).colorScheme.onSurface,
-                                        ),
-                                      ),
-                                    );
-                                  }).toList(),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                if (value == null) return;
+                                setState(() {
+                                  _selectedvchtypename = value;
+                                });
+                                fetchvchnos(_selectedvchtypename);
+                              },
+                            ),
 
-                                  // ✅ main lock fix
-                                  onChanged: isVoucherTypeLocked
-                                      ? null
-                                      : (value) {
-                                          if (value == null) return;
-
-                                          setState(() {
-                                            _selectedvchtypename = value;
-                                          });
-
-                                          fetchvchnos(_selectedvchtypename);
-                                        },
-                                ),
+                            // Party TypeAheadField
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 6,
                               ),
-
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 12,
-                                  left: 20,
-                                  right: 20,
-                                  bottom: 0,
-                                ),
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  child: TypeAheadField<String>(
-                                    suggestionsCallback: (pattern) {
-                                      return partydata.where((item) {
-                                        final name = item
-                                            .toString()
-                                            .toLowerCase();
-                                        return name.contains(
-                                          pattern.toLowerCase(),
-                                        );
-                                      }).toList();
-                                    },
-
-                                    builder: (context, controller, focusNode) {
-                                      _partyController = controller;
-
-                                      return TextField(
-                                        controller: controller,
-                                        focusNode: focusNode,
-                                        decoration: InputDecoration(
-                                          labelText: "Party",
-                                          hintText: 'Search',
-                                          hintStyle: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                          labelStyle: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                          filled: true,
-                                          fillColor:
-                                              Theme.of(context)
-                                                  .inputDecorationTheme
-                                                  .fillColor ??
-                                              (Theme.of(context)
-                                                      .inputDecorationTheme
-                                                      .fillColor ??
-                                                  Colors.white.withOpacity(
-                                                    0.95,
-                                                  )),
-
-                                          // 🌈 Gradient Prefix Icon
-                                          prefixIcon: Container(
-                                            margin: const EdgeInsets.all(8),
-                                            decoration: const BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Colors.purple,
-                                                  Colors.deepOrange,
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              borderRadius: BorderRadius.all(
-                                                Radius.circular(12),
-                                              ),
-                                            ),
-                                            child: const Icon(
-                                              Icons.person_outline,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-
-                                          // ✖️ Cross + ⬇ Dropdown in suffix
-                                          suffixIcon: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              if (controller.text.isNotEmpty)
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    setState(() {
-                                                      controller.clear();
-                                                      _selectedparty = "";
-                                                      showOutstandingCard =
-                                                          false;
-                                                      totalOutstanding = 0.0;
-                                                      outstandingError = "";
-                                                    });
-                                                  },
-                                                  child: Icon(
-                                                    Icons.close,
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurfaceVariant,
-                                                    size: 20,
-                                                  ),
-                                                ),
-                                              const SizedBox(width: 4),
-                                              Icon(
-                                                Icons.arrow_drop_down,
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.onSurface,
-                                              ),
-                                              const SizedBox(width: 8),
-                                            ],
-                                          ),
-
-                                          // Borders
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                            borderSide: BorderSide(
-                                              color: Theme.of(
-                                                context,
-                                              ).dividerColor,
-                                              width: 1,
-                                            ),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                            borderSide: BorderSide(
-                                              color: app_color,
-                                              width: 1.5,
-                                            ),
-                                          ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 14,
-                                                vertical: 14,
-                                              ),
-                                        ),
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                child: TypeAheadField<String>(
+                                  suggestionsCallback: (pattern) {
+                                    return partydata.where((item) {
+                                      final name = item
+                                          .toString()
+                                          .toLowerCase();
+                                      return name.contains(
+                                        pattern.toLowerCase(),
                                       );
-                                    },
-
-                                    itemBuilder: (context, String suggestion) {
-                                      return ListTile(
-                                        title: Text(
-                                          suggestion,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurface,
-                                          ),
-                                        ),
-                                      );
-                                    },
-
-                                    onSelected: (String suggestion) {
-                                      closeKeyboard(context);
-
-                                      setState(() {
-                                        _selectedparty = suggestion;
-                                        _partyController.text = _selectedparty;
-                                      });
-
-                                      if (showOutstandingBills) {
-                                        fetchPartyOutstanding(suggestion);
-                                      }
-                                    },
-
-                                    // ✅ new API → emptyBuilder replaces noItemsFoundBuilder
-                                    emptyBuilder: (context) => Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Text(
-                                        'No matching party found',
-                                        style: TextStyle(
+                                    }).toList();
+                                  },
+                                  builder: (context, controller, focusNode) {
+                                    _partyController = controller;
+                                    return TextField(
+                                      controller: controller,
+                                      focusNode: focusNode,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
+                                      decoration: InputDecoration(
+                                        labelText: "Party",
+                                        hintText: 'Search',
+                                        hintStyle: GoogleFonts.poppins(
+                                          fontSize: 13,
                                           color: Theme.of(
                                             context,
                                           ).colorScheme.onSurfaceVariant,
                                         ),
+                                        labelStyle: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                        filled: true,
+                                        fillColor:
+                                            Theme.of(
+                                              context,
+                                            ).inputDecorationTheme.fillColor ??
+                                            Theme.of(
+                                              context,
+                                            ).cardColor.withValues(alpha: 0.95),
+                                        prefixIcon: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.purple,
+                                                Colors.deepOrange,
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(10),
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.person_outline,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        suffixIcon: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (controller.text.isNotEmpty)
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    controller.clear();
+                                                    _selectedparty = "";
+                                                    showOutstandingCard = false;
+                                                    totalOutstanding = 0.0;
+                                                    outstandingError = "";
+                                                  });
+                                                },
+                                                child: Icon(
+                                                  Icons.close,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                            const SizedBox(width: 4),
+                                            Icon(
+                                              Icons.arrow_drop_down,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface,
+                                            ),
+                                            const SizedBox(width: 8),
+                                          ],
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Colors.redAccent,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 14,
+                                              vertical: 16,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                  decorationBuilder: (context, child) {
+                                    return Material(
+                                      elevation: 6,
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: Theme.of(context).cardColor,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: child,
+                                      ),
+                                    );
+                                  },
+                                  itemBuilder: (context, String suggestion) {
+                                    return ListTile(
+                                      title: Text(
+                                        suggestion,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  onSelected: (String suggestion) {
+                                    closeKeyboard(context);
+                                    setState(() {
+                                      _selectedparty = suggestion;
+                                      _partyController.text = _selectedparty;
+                                    });
+                                    if (showOutstandingBills) {
+                                      fetchPartyOutstanding(suggestion);
+                                    }
+                                  },
+                                  emptyBuilder: (context) => Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'No matching party found',
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
+                            ),
 
-                              buildOutstandingCard(),
+                            buildOutstandingCard(),
 
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 12,
-                                  left: 20,
-                                  right: 20,
-                                  bottom: 0,
-                                ),
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  child: TypeAheadField<Map<String, String>>(
-                                    controller: _bankcashnameController,
-
-                                    suggestionsCallback: (pattern) async {
-                                      if (isBankCashLedgerLocked) return [];
-
-                                      return bankcashname_data
-                                          .where(
-                                            (item) => item['name']!
-                                                .toLowerCase()
-                                                .contains(
-                                                  pattern.toLowerCase(),
-                                                ),
-                                          )
-                                          .toList();
-                                    },
-
-                                    itemBuilder: (context, suggestion) {
-                                      return ListTile(
-                                        title: Text(
-                                          suggestion['name']!,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      );
-                                    },
-
-                                    onSelected: isBankCashLedgerLocked
-                                        ? null
-                                        : (suggestion) {
-                                            setState(() {
-                                              _selectedbankcashname =
-                                                  suggestion;
-                                              _bankcashnameController.text =
-                                                  suggestion['name']!;
-                                            });
-
-                                            if (_selectedbankcashname!['type'] ==
-                                                'Cash-in-Hand') {
-                                              setState(() {
-                                                isPaymentModeVisible = false;
-                                                _selectedpaymentmode =
-                                                    paymentmode_data.first;
-                                                cheque.clear();
-                                                updateChequeAmount();
-                                                isVisibleChequeHeading = false;
-                                                isChequeVisible = false;
-                                              });
-                                            }
-                                          },
-
-                                    builder: (context, controller, focusNode) {
-                                      return TextFormField(
-                                        controller: controller,
-                                        focusNode: isBankCashLedgerLocked
-                                            ? AlwaysDisabledFocusNode()
-                                            : focusNode,
-                                        readOnly: isBankCashLedgerLocked,
-                                        enabled: !isBankCashLedgerLocked,
+                            // Bank / Cash Ledger TypeAheadField
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 6,
+                              ),
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                child: TypeAheadField<Map<String, String>>(
+                                  controller: _bankcashnameController,
+                                  suggestionsCallback: (pattern) async {
+                                    if (isBankCashLedgerLocked) return [];
+                                    return bankcashname_data
+                                        .where(
+                                          (item) => item['name']!
+                                              .toLowerCase()
+                                              .contains(pattern.toLowerCase()),
+                                        )
+                                        .toList();
+                                  },
+                                  itemBuilder: (context, suggestion) {
+                                    return ListTile(
+                                      title: Text(
+                                        suggestion['name']!,
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  onSelected: isBankCashLedgerLocked
+                                      ? null
+                                      : (suggestion) {
+                                          setState(() {
+                                            _selectedbankcashname = suggestion;
+                                            _bankcashnameController.text =
+                                                suggestion['name']!;
+                                          });
+                                          if (isSelectedBankCashInHand) {
+                                            setState(() {
+                                              FocusManager.instance.primaryFocus?.unfocus();
+                                              isPaymentModeVisible = false;
+                                              _selectedpaymentmode =
+                                                  paymentmode_data.first;
+                                              cheque.clear();
+                                              updateChequeAmount();
+                                              isVisibleChequeHeading = false;
+                                              isChequeVisible = false;
+                                            });
+                                          }
+                                        },
+                                  decorationBuilder: (context, child) {
+                                    return Material(
+                                      elevation: 6,
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: Theme.of(context).cardColor,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: child,
+                                      ),
+                                    );
+                                  },
+                                  builder: (context, controller, focusNode) {
+                                    return TextFormField(
+                                      controller: controller,
+                                      focusNode: isBankCashLedgerLocked
+                                          ? AlwaysDisabledFocusNode()
+                                          : focusNode,
+                                      readOnly: isBankCashLedgerLocked,
+                                      enabled: !isBankCashLedgerLocked,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: isBankCashLedgerLocked
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant
+                                            : Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface,
+                                      ),
+                                      decoration: InputDecoration(
+                                        labelText: "Bank / Cash Ledger",
+                                        labelStyle: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                        filled: true,
+                                        fillColor: isBankCashLedgerLocked
+                                            ? (Theme.of(context).brightness ==
+                                                      Brightness.dark
+                                                  ? Theme.of(context)
+                                                        .colorScheme
+                                                        .surfaceContainerHighest
+                                                  : Colors.grey.shade100)
+                                            : (Theme.of(context)
+                                                      .inputDecorationTheme
+                                                      .fillColor ??
+                                                  Theme.of(context).cardColor
+                                                      .withValues(alpha: 0.95)),
+                                        prefixIcon: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: isBankCashLedgerLocked
+                                                  ? [
+                                                      Colors.grey,
+                                                      Colors.grey.shade600,
+                                                    ]
+                                                  : [
+                                                      app_color,
+                                                      app_color.withValues(
+                                                        alpha: 0.7,
+                                                      ),
+                                                    ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                          child: Icon(
+                                            isBankCashLedgerLocked
+                                                ? Icons.lock_outline
+                                                : Icons
+                                                      .account_balance_wallet_outlined,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        suffixIcon: Icon(
+                                          isBankCashLedgerLocked
+                                              ? Icons.lock_outline
+                                              : Icons.arrow_drop_down,
                                           color: isBankCashLedgerLocked
                                               ? Theme.of(
                                                   context,
@@ -6465,1176 +6231,603 @@ class _ReceiptRegistrationPageState extends State<ReceiptRegistration>
                                                   context,
                                                 ).colorScheme.onSurface,
                                         ),
-
-                                        decoration: InputDecoration(
-                                          labelText: "Bank / Cash Ledger",
-                                          labelStyle: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500,
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: BorderSide(
                                             color: Theme.of(
                                               context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                          filled: true,
-                                          hint: Text(
-                                            "Bank / Cash Ledger",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w500,
-                                              color: isVoucherTypeLocked
-                                                  ? Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurfaceVariant
-                                                  : Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurfaceVariant,
-                                            ),
-                                          ),
-                                          fillColor: isBankCashLedgerLocked
-                                              ? (Theme.of(context).brightness ==
-                                                        Brightness.dark
-                                                    ? Theme.of(context)
-                                                          .colorScheme
-                                                          .surfaceContainerHighest
-                                                    : Colors.grey.shade100)
-                                              : (Theme.of(context)
-                                                        .inputDecorationTheme
-                                                        .fillColor ??
-                                                    Colors.white.withOpacity(
-                                                      0.95,
-                                                    )),
-                                          prefixIcon: Container(
-                                            margin: const EdgeInsets.all(8),
-                                            decoration: BoxDecoration(
-                                              color: isBankCashLedgerLocked
-                                                  ? Colors.grey.shade400
-                                                  : app_color,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: Icon(
-                                              isBankCashLedgerLocked
-                                                  ? Icons.lock_outline
-                                                  : Icons
-                                                        .account_balance_wallet_outlined,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                          suffixIcon: Icon(
-                                            isBankCashLedgerLocked
-                                                ? Icons.lock_outline
-                                                : Icons.arrow_drop_down,
-                                            color: isBankCashLedgerLocked
-                                                ? Theme.of(
-                                                    context,
-                                                  ).colorScheme.onSurfaceVariant
-                                                : Theme.of(
-                                                    context,
-                                                  ).colorScheme.onSurface,
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                            borderSide: BorderSide(
-                                              color: Theme.of(
-                                                context,
-                                              ).dividerColor,
-                                            ),
-                                          ),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                            borderSide: BorderSide(
-                                              color: Theme.of(
-                                                context,
-                                              ).dividerColor,
-                                            ),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                            borderSide: BorderSide(
-                                              color: app_color,
-                                              width: 1.5,
-                                            ),
+                                            ).dividerColor,
+                                            width: 1,
                                           ),
                                         ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-
-                              Container(
-                                margin: const EdgeInsets.only(
-                                  left: 20,
-                                  right: 20,
-                                  top: 12,
-                                  bottom: 5,
-                                ),
-                                padding: const EdgeInsets.only(bottom: 0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: app_color.withOpacity(0.07),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.06),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    // 🔹 Header Row
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 7,
+                                        disabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: app_color,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 14,
+                                              vertical: 16,
+                                            ),
                                       ),
-                                      child: Row(
-                                        children: [
-                                          // Gradient start icon
-                                          Container(
-                                            width: 34,
-                                            height: 34,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: const LinearGradient(
-                                                colors: [
-                                                  Colors.blueGrey,
-                                                  Colors.grey,
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.blue
-                                                      .withOpacity(0.3),
-                                                  blurRadius: 6,
-                                                  offset: const Offset(0, 3),
-                                                ),
-                                              ],
-                                            ),
-                                            child: const Icon(
-                                              Icons.receipt_long,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-
-                                          // Title
-                                          Expanded(
-                                            child: Text(
-                                              "Bills",
-                                              style: GoogleFonts.poppins(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 16,
-                                                color: app_color,
-                                              ),
-                                            ),
-                                          ),
-
-                                          // Gradient add icon
-                                          GestureDetector(
-                                            onTap: () {
-                                              _selectedbill = billsdata.first;
-                                              if (_selectedbill == 'New Ref' ||
-                                                  _selectedbill == 'Agst Ref') {
-                                                setState(() {
-                                                  isVisibleDueDate = true;
-                                                  isVisibleBillNo = true;
-                                                });
-                                              } else {
-                                                setState(() {
-                                                  isVisibleDueDate = false;
-                                                  isVisibleBillNo = false;
-                                                });
-                                              }
-
-                                              billAmountController.clear();
-                                              billNoController.clear();
-                                              _billduedateController.clear();
-                                              closeKeyboard(context);
-
-                                              _showBillsDetailsPopup(context);
-                                            },
-                                            child: Container(
-                                              width: 34,
-                                              height: 34,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                gradient: const LinearGradient(
-                                                  colors: [
-                                                    Colors.orange,
-                                                    Colors.deepOrange,
-                                                  ],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.orange
-                                                        .withOpacity(0.3),
-                                                    blurRadius: 6,
-                                                    offset: const Offset(0, 3),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: const Icon(
-                                                Icons.add,
-                                                color: Colors.white,
-                                                size: 20,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-
-                                    // 🔹 Bills List (Ledger style cards)
-                                    ListView.builder(
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemCount: bills.length,
-                                      itemBuilder: (context, index) {
-                                        final bill = bills[index];
-                                        final bool showBillNo =
-                                            (bill.billName == "Agst Ref" ||
-                                                bill.billName == "New Ref") &&
-                                            bill.billNo != 'null' &&
-                                            bill.billNo != '';
-
-                                        return Dismissible(
-                                          key: UniqueKey(),
-                                          direction:
-                                              DismissDirection.endToStart,
-                                          background: Container(
-                                            alignment: Alignment.centerRight,
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 20,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.redAccent,
-                                              borderRadius:
-                                                  BorderRadius.circular(14),
-                                            ),
-                                            child: const Icon(
-                                              Icons.delete,
-                                              color: Colors.white,
-                                              size: 22,
-                                            ),
-                                          ),
-                                          onDismissed: (direction) {
-                                            _deleteBill(index);
-                                          },
-                                          child: Container(
-                                            margin: const EdgeInsets.only(
-                                              left: 16,
-                                              right: 16,
-                                              bottom: 6,
-                                              top: 2,
-                                            ),
-                                            padding: const EdgeInsets.all(14),
-                                            decoration: BoxDecoration(
-                                              color: Theme.of(
-                                                context,
-                                              ).cardColor,
-                                              borderRadius:
-                                                  BorderRadius.circular(14),
-                                              border: Border.all(
-                                                color: Theme.of(
-                                                  context,
-                                                ).dividerColor,
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.03),
-                                                  blurRadius: 6,
-                                                  offset: const Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Expanded(
-                                                      flex: 5,
-                                                      child: Text(
-                                                        bill.billName,
-                                                        style: GoogleFonts.poppins(
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .onSurface,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      flex: 5,
-                                                      child: Text(
-                                                        "Bill No: ${showBillNo ? bill.billNo ?? "N/A" : "N/A"}",
-                                                        textAlign:
-                                                            TextAlign.end,
-                                                        style: GoogleFonts.poppins(
-                                                          fontSize: 13,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                          color: Theme.of(context)
-                                                              .colorScheme
-                                                              .onSurfaceVariant,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                const SizedBox(height: 10),
-
-                                                // Amount Row (Gradient currency icon + Amount)
-                                                Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                      width: 26,
-                                                      height: 26,
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        gradient:
-                                                            const LinearGradient(
-                                                              colors: [
-                                                                Colors.teal,
-                                                                Colors.cyan,
-                                                              ],
-                                                              begin: Alignment
-                                                                  .topLeft,
-                                                              end: Alignment
-                                                                  .bottomRight,
-                                                            ),
-                                                        boxShadow: [
-                                                          BoxShadow(
-                                                            color: Colors.cyan
-                                                                .withOpacity(
-                                                                  0.3,
-                                                                ),
-                                                            blurRadius: 6,
-                                                            offset:
-                                                                const Offset(
-                                                                  0,
-                                                                  3,
-                                                                ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      alignment:
-                                                          Alignment.center,
-                                                      child: Text(
-                                                        getCurrencySymbol(
-                                                          currencycode,
-                                                        ),
-                                                        style:
-                                                            GoogleFonts.poppins(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontSize: 11,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    Text(
-                                                      currencyFormat.format(
-                                                        bill.billAmount,
-                                                      ),
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .colorScheme
-                                                                    .onSurface,
-                                                          ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              Visibility(
-                                visible:
-                                    isPaymentModeVisible &&
-                                    !isSelectedBankCashInHand,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: 8,
-                                    left: 20,
-                                    right: 20,
-                                    bottom: 0,
-                                  ),
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    value: _selectedpaymentmode,
-                                    hint: Text(
-                                      'Select Payment Mode',
+                                    );
+                                  },
+                                  emptyBuilder: (context) => Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'No ledger found',
                                       style: GoogleFonts.poppins(
                                         fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-
-                                    items: paymentmode_data.map((item) {
-                                      return DropdownMenuItem<String>(
-                                        value: item.toString(),
-                                        child: Text(
-                                          item.toString(),
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurface,
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) async {
-                                      setState(() {
-                                        _selectedpaymentmode = value!;
-                                      });
-
-                                      if (bills.isEmpty) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'At least add 1 bill',
-                                            ),
-                                          ),
-                                        );
-
-                                        isChequeVisible = false;
-                                        selectedbankname = bankname_data.first;
-                                        _banknameController.text =
-                                            selectedbankname;
-                                        instNoController.clear();
-                                        instdate = DateTime.now();
-                                        instdatestring = _dateFormat.format(
-                                          instdate,
-                                        );
-                                        instdatetxt = formatlastsaledate(
-                                          instdatestring,
-                                        );
-                                        instDateController.text = instdatetxt;
-                                        chequeAmountController.clear();
-                                        cheque.clear();
-                                        updateChequeAmount();
-                                      } else {
-                                        setState(() {
-                                          isChequeVisible = true;
-                                        });
-                                      }
-                                    },
-                                    decoration: InputDecoration(
-                                      labelText: "Payment Mode",
-                                      labelStyle: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                      ),
-                                      filled: true,
-                                      fillColor:
-                                          Theme.of(
-                                            context,
-                                          ).inputDecorationTheme.fillColor ??
-                                          (Theme.of(context)
-                                                  .inputDecorationTheme
-                                                  .fillColor ??
-                                              Theme.of(
-                                                context,
-                                              ).cardColor.withOpacity(0.95)),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 14,
-                                            vertical: 14,
-                                          ),
-
-                                      // 🌈 Gradient Prefix Icon
-                                      prefixIcon: Container(
-                                        margin: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [
-                                              Colors.teal,
-                                              Colors.indigo,
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        child: const Icon(
-                                          Icons.payment_outlined,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-
-                                      // Borders
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: Theme.of(context).dividerColor,
-                                          width: 1,
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: app_color,
-                                          width: 1.5,
-                                        ),
+                                        color: Colors.redAccent,
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
+                            ),
+                          ],
+                        ),
 
-                              Visibility(
-                                visible: isChequeVisible,
-                                child: Container(
-                                  margin: const EdgeInsets.only(
-                                    left: 20,
-                                    right: 20,
-                                    top: 10,
-                                    bottom: 0,
+                        // ── Bills Section ──
+                        EntrySection(
+                          icon: Icons.receipt_long,
+                          title: "Bills",
+                          iconGradient: [Colors.blueGrey, Colors.grey],
+                          trailing: GestureDetector(
+                            onTap: () {
+                              _selectedbill = billsdata.first;
+                              if (_selectedbill == 'New Ref' ||
+                                  _selectedbill == 'Agst Ref') {
+                                setState(() {
+                                  isVisibleDueDate = true;
+                                  isVisibleBillNo = true;
+                                });
+                              } else {
+                                setState(() {
+                                  isVisibleDueDate = false;
+                                  isVisibleBillNo = false;
+                                });
+                              }
+                              billAmountController.clear();
+                              billNoController.clear();
+                              _billduedateController.clear();
+                              closeKeyboard(context);
+                              _showBillsDetailsPopup(context);
+                            },
+                            child: Container(
+                              width: 34,
+                              height: 34,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: const LinearGradient(
+                                  colors: [Colors.orange, Colors.deepOrange],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.orange.withValues(alpha: 0.3),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 3),
                                   ),
-                                  padding: const EdgeInsets.only(bottom: 0),
-                                  decoration: BoxDecoration(
-                                    color: app_color.withOpacity(0.07),
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.06),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.add,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                          children: [
+                            ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: bills.length,
+                              itemBuilder: (context, index) {
+                                final bill = bills[index];
+                                final bool showBillNo =
+                                    (bill.billName == "Agst Ref" ||
+                                        bill.billName == "New Ref") &&
+                                    bill.billNo != 'null' &&
+                                    bill.billNo != '';
+                                return Dismissible(
+                                  key: UniqueKey(),
+                                  direction: DismissDirection.endToStart,
+                                  background: Container(
+                                    alignment: Alignment.centerRight,
+                                    padding: const EdgeInsets.only(right: 24),
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color(0xFFFF6B6B),
+                                          Color(0xFFEE5A24),
+                                        ],
                                       ),
-                                    ],
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: const Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.white,
+                                      size: 26,
+                                    ),
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      // 🔹 Header Row with PaymentMode + Add Icon
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 20,
-                                          vertical: 7,
+                                  onDismissed: (direction) {
+                                    _deleteBill(index);
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 4,
+                                    ),
+                                    padding: const EdgeInsets.all(14),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).cardColor,
+                                      borderRadius: BorderRadius.circular(14),
+                                      border: Border.all(
+                                        color: Theme.of(context).dividerColor,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.03,
+                                          ),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
                                         ),
-                                        child: Row(
+                                      ],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Container(
-                                              width: 34,
-                                              height: 34,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                gradient: LinearGradient(
-                                                  colors: [
-                                                    Colors.purpleAccent,
-                                                    Colors.deepPurple,
-                                                  ],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.teal
-                                                        .withOpacity(0.3),
-                                                    blurRadius: 6,
-                                                    offset: const Offset(0, 3),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: const Icon(
-                                                Icons.payment,
-                                                color: Colors.white,
-                                                size: 20,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 12),
-
                                             Expanded(
+                                              flex: 5,
                                               child: Text(
-                                                _selectedpaymentmode,
+                                                bill.billName,
                                                 style: GoogleFonts.poppins(
+                                                  fontSize: 14,
                                                   fontWeight: FontWeight.w600,
-                                                  fontSize: 16,
-                                                  color: app_color,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).colorScheme.onSurface,
                                                 ),
                                               ),
                                             ),
-
-                                            GestureDetector(
-                                              onTap: () =>
-                                                  _showChequeDetailsPopup(
-                                                    context,
-                                                  ),
-                                              child: Container(
-                                                width: 34,
-                                                height: 34,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  gradient:
-                                                      const LinearGradient(
-                                                        colors: [
-                                                          Colors.orange,
-                                                          Colors
-                                                              .deepOrangeAccent,
-                                                        ],
-                                                        begin:
-                                                            Alignment.topLeft,
-                                                        end: Alignment
-                                                            .bottomRight,
-                                                      ),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.orange
-                                                          .withOpacity(0.3),
-                                                      blurRadius: 6,
-                                                      offset: const Offset(
-                                                        0,
-                                                        3,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: const Icon(
-                                                  Icons.add,
-                                                  color: Colors.white,
-                                                  size: 20,
+                                            Expanded(
+                                              flex: 5,
+                                              child: Text(
+                                                "Bill No: ${showBillNo ? bill.billNo ?? "N/A" : "N/A"}",
+                                                textAlign: TextAlign.end,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
                                                 ),
                                               ),
                                             ),
                                           ],
                                         ),
-                                      ),
-
-                                      // 🔹 Cheque List
-                                      ListView.builder(
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        shrinkWrap: true,
-                                        itemCount: cheque.length,
-                                        itemBuilder: (context, index) {
-                                          final cheques = cheque[index];
-                                          final bool showInstNo =
-                                              !(cheques.instno == "null" ||
-                                                  cheques.instno.isEmpty ||
-                                                  cheques.instno == "");
-
-                                          return Dismissible(
-                                            key: UniqueKey(),
-                                            direction:
-                                                DismissDirection.endToStart,
-                                            background: Container(
-                                              alignment: Alignment.centerRight,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 20,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.redAccent,
-                                                borderRadius:
-                                                    BorderRadius.circular(14),
+                                        const SizedBox(height: 10),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              width: 26,
+                                              height: 26,
+                                              decoration: const BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Colors.teal,
+                                                    Colors.cyan,
+                                                  ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
                                               ),
-                                              child: const Icon(
-                                                Icons.delete,
-                                                color: Colors.white,
-                                                size: 22,
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                getCurrencySymbol(currencycode),
+                                                style: GoogleFonts.poppins(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 11,
+                                                ),
                                               ),
                                             ),
-                                            onDismissed: (direction) {
-                                              setState(() {
-                                                cheque.removeAt(index);
-                                                updateChequeAmount();
-                                                isVisibleChequeHeading =
-                                                    cheque.isNotEmpty;
-                                              });
-                                            },
-                                            child: Container(
-                                              margin: const EdgeInsets.only(
-                                                left: 16,
-                                                right: 16,
-                                                bottom: 6,
-                                                top: 2,
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              currencyFormat.format(
+                                                bill.billAmount,
                                               ),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 14,
-                                                    vertical: 12,
-                                                  ),
-                                              decoration: BoxDecoration(
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
                                                 color: Theme.of(
                                                   context,
-                                                ).cardColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(14),
-                                                border: Border.all(
-                                                  color: Colors.grey.shade200,
-                                                ),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black
-                                                        .withOpacity(0.03),
-                                                    blurRadius: 6,
-                                                    offset: const Offset(0, 2),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  // 🔹 First row → Inst No + Inst Date
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          const Icon(
-                                                            Icons
-                                                                .confirmation_num_outlined,
-                                                            color: Colors
-                                                                .deepPurple,
-                                                            size: 18,
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 6,
-                                                          ),
-                                                          Text(
-                                                            "Inst No: ${showInstNo ? cheques.instno : "N/A"}",
-                                                            style: GoogleFonts.poppins(
-                                                              fontSize: 13,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                              color:
-                                                                  Theme.of(
-                                                                        context,
-                                                                      )
-                                                                      .colorScheme
-                                                                      .onSurface,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          const Icon(
-                                                            Icons.date_range,
-                                                            color: Colors.teal,
-                                                            size: 18,
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 6,
-                                                          ),
-                                                          Text(
-                                                            formatdate(
-                                                              cheques.instdate ??
-                                                                  '',
-                                                            ),
-                                                            style: GoogleFonts.poppins(
-                                                              fontSize: 13,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                              color:
-                                                                  Theme.of(
-                                                                        context,
-                                                                      )
-                                                                      .colorScheme
-                                                                      .onSurface,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ),
-
-                                                  const SizedBox(height: 8),
-
-                                                  // 🔹 Amount row
-                                                  Row(
-                                                    children: [
-                                                      Container(
-                                                        width: 26,
-                                                        height: 26,
-                                                        decoration: BoxDecoration(
-                                                          shape:
-                                                              BoxShape.circle,
-                                                          gradient:
-                                                              LinearGradient(
-                                                                colors: [
-                                                                  Colors
-                                                                      .deepPurple
-                                                                      .shade400,
-                                                                  Colors
-                                                                      .blue
-                                                                      .shade600,
-                                                                ],
-
-                                                                begin: Alignment
-                                                                    .topLeft,
-                                                                end: Alignment
-                                                                    .bottomRight,
-                                                              ),
-                                                        ),
-                                                        child: Center(
-                                                          child: Text(
-                                                            getCurrencySymbol(
-                                                              currencycode,
-                                                            ),
-                                                            style:
-                                                                GoogleFonts.poppins(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontSize: 11,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 8),
-                                                      Text(
-                                                        currencyFormat.format(
-                                                          cheques.chequeAmount,
-                                                        ),
-                                                        style: GoogleFonts.poppins(
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .onSurface,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
+                                                ).colorScheme.onSurface,
                                               ),
                                             ),
-                                          );
-                                        },
-                                      ),
-                                    ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+
+                        // ── Payment Mode Section ──
+                        Visibility(
+                          visible:
+                              isPaymentModeVisible && !isSelectedBankCashInHand,
+                          child: EntrySection(
+                            icon: Icons.payment_outlined,
+                            title: "Payment Mode",
+                            iconGradient: [Colors.teal, Colors.indigo],
+                            children: [
+                              EntryDropdownField<String>(
+                                label: "Payment Mode",
+                                icon: Icons.payment_outlined,
+                                iconGradient: [Colors.teal, Colors.indigo],
+                                value: _selectedpaymentmode,
+                                hintText: 'Select Payment Mode',
+                                items: paymentmode_data.map((item) {
+                                  return DropdownMenuItem<String>(
+                                    value: item.toString(),
+                                    child: Text(
+                                      item.toString(),
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) async {
+                                  setState(() {
+                                    _selectedpaymentmode = value!;
+                                  });
+                                  if (bills.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('At least add 1 bill'),
+                                      ),
+                                    );
+                                    isChequeVisible = false;
+                                    selectedbankname = bankname_data.first;
+                                    _banknameController.text = selectedbankname;
+                                    instNoController.clear();
+                                    instdate = DateTime.now();
+                                    instdatestring = _dateFormat.format(
+                                      instdate,
+                                    );
+                                    instdatetxt = formatlastsaledate(
+                                      instdatestring,
+                                    );
+                                    instDateController.text = instdatetxt;
+                                    chequeAmountController.clear();
+                                    cheque.clear();
+                                    updateChequeAmount();
+                                  } else {
+                                    setState(() {
+                                      isChequeVisible = true;
+                                    });
+                                  }
+                                },
                               ),
                             ],
                           ),
                         ),
 
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: 8,
-                            left: 20,
-                            right: 20,
-                            bottom: 0,
-                          ),
-                          child: TextFormField(
-                            controller: controller_narration,
-                            focusNode: _textFieldFocusNodeNarration,
-                            validator: (value) => null,
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                            decoration: InputDecoration(
-                              labelText: 'Narration',
-                              hintText: 'Enter narration',
-
-                              // 🌈 Gradient Icon (different decent color from vchtype)
-                              prefixIcon: Container(
-                                margin: const EdgeInsets.all(8),
+                        // ── Cheque / Instrument Section ──
+                        Visibility(
+                          visible: isChequeVisible,
+                          child: EntrySection(
+                            icon: Icons.payment,
+                            title: _selectedpaymentmode,
+                            iconGradient: [
+                              Colors.purpleAccent,
+                              Colors.deepPurple,
+                            ],
+                            trailing: GestureDetector(
+                              onTap: () => _showChequeDetailsPopup(context),
+                              child: Container(
+                                width: 34,
+                                height: 34,
                                 decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
                                   gradient: const LinearGradient(
                                     colors: [
-                                      Colors.deepPurple,
-                                      Colors.indigo,
-                                    ], // decent gradient
+                                      Colors.orange,
+                                      Colors.deepOrangeAccent,
+                                    ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
-                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.orange.withValues(
+                                        alpha: 0.3,
+                                      ),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
                                 ),
                                 child: const Icon(
-                                  Icons.notes_rounded,
+                                  Icons.add,
                                   color: Colors.white,
                                   size: 20,
                                 ),
                               ),
-
-                              filled: true,
-                              fillColor:
-                                  Theme.of(
-                                    context,
-                                  ).inputDecorationTheme.fillColor ??
-                                  (Theme.of(
-                                        context,
-                                      ).inputDecorationTheme.fillColor ??
-                                      Theme.of(
-                                        context,
-                                      ).cardColor.withOpacity(0.95)),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 14,
-                              ),
-
-                              // Borders
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(
-                                  color: Theme.of(context).dividerColor,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(
-                                  color: Theme.of(context).dividerColor,
-                                  width: 1,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(
-                                  color: app_color,
-                                  width: 1.5,
-                                ),
-                              ),
-
-                              labelStyle: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
                             ),
-                          ),
-                        ),
-
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: 10,
-                            left: 20,
-                            right: 20,
-                            bottom: 0,
-                          ),
-                          child: TextFormField(
-                            enabled: false,
-                            controller: controller_totalamt,
-                            inputFormatters: <TextInputFormatter>[
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d+\.?\d{0,4}'),
+                            children: [
+                              ListView.builder(
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: cheque.length,
+                                itemBuilder: (context, index) {
+                                  final cheques = cheque[index];
+                                  final bool showInstNo =
+                                      !(cheques.instno == "null" ||
+                                          cheques.instno.isEmpty ||
+                                          cheques.instno == "");
+                                  return Dismissible(
+                                    key: UniqueKey(),
+                                    direction: DismissDirection.endToStart,
+                                    background: Container(
+                                      alignment: Alignment.centerRight,
+                                      padding: const EdgeInsets.only(right: 24),
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFFFF6B6B),
+                                            Color(0xFFEE5A24),
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: const Icon(
+                                        Icons.delete_outline,
+                                        color: Colors.white,
+                                        size: 26,
+                                      ),
+                                    ),
+                                    onDismissed: (direction) {
+                                      setState(() {
+                                        cheque.removeAt(index);
+                                        updateChequeAmount();
+                                        isVisibleChequeHeading =
+                                            cheque.isNotEmpty;
+                                      });
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 4,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 12,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).cardColor,
+                                        borderRadius: BorderRadius.circular(14),
+                                        border: Border.all(
+                                          color:
+                                              Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? Colors.white.withValues(
+                                                  alpha: 0.08,
+                                                )
+                                              : Colors.grey.shade200,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.03,
+                                            ),
+                                            blurRadius: 6,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons
+                                                        .confirmation_num_outlined,
+                                                    color: Colors.deepPurple,
+                                                    size: 18,
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    "Inst No: ${showInstNo ? cheques.instno : "N/A"}",
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).colorScheme.onSurface,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.date_range,
+                                                    color: Colors.teal,
+                                                    size: 18,
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    formatdate(
+                                                      cheques.instdate ?? '',
+                                                    ),
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).colorScheme.onSurface,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              Container(
+                                                width: 26,
+                                                height: 26,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Colors
+                                                          .deepPurple
+                                                          .shade400,
+                                                      Colors.blue.shade600,
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    getCurrencySymbol(
+                                                      currencycode,
+                                                    ),
+                                                    style: GoogleFonts.poppins(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 11,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                currencyFormat.format(
+                                                  cheques.chequeAmount,
+                                                ),
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).colorScheme.onSurface,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ],
-                            keyboardType: TextInputType.number,
-                            validator: (value) => null,
-                            style: GoogleFonts.poppins(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                            decoration: InputDecoration(
-                              labelText: 'Amount',
-                              hintText: 'Enter Amount',
-
-                              // 🌈 Gradient Currency Symbol
-                              prefix: Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Colors.grey,
-                                      Colors.brown,
-                                    ], // 🔵 unique from narration
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(8),
-                                  ),
-                                ),
-                                child: Text(
-                                  getCurrencySymbol(
-                                    currencycode,
-                                  ), // e.g. AED, $, ₹
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-
-                              // Borders
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(
-                                  color: Theme.of(context).dividerColor,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(
-                                  color: app_color,
-                                  width: 1.5,
-                                ),
-                              ),
-
-                              // Label
-                              labelStyle: GoogleFonts.poppins(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 14,
-                                horizontal: 12,
-                              ),
-                              filled: true,
-                              fillColor:
-                                  Theme.of(
-                                    context,
-                                  ).inputDecorationTheme.fillColor ??
-                                  Colors.white,
-                            ),
                           ),
                         ),
 
-                        Container(
-                          padding: const EdgeInsets.only(top: 20),
-                          margin: const EdgeInsets.only(
-                            bottom: 30,
-                            left: 20,
-                            right: 20,
-                          ),
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: errorMessageVchNo.isNotEmpty
-                                ? null
-                                : () {
-                                    if (_formKey.currentState != null &&
-                                        _formKey.currentState!.validate()) {
-                                      _formKey.currentState!.save();
-                                      saveEntry();
-                                    }
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 20,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  30,
-                                ), // pill shape
-                              ),
-                              elevation: 8,
-                              backgroundColor:
-                                  app_color, // ✅ always full app_color
-                              disabledBackgroundColor:
-                                  Theme.of(context).brightness ==
-                                      Brightness.dark
-                                  ? Colors.grey.shade700
-                                  : Colors.grey.shade300, // disabled state
-                              shadowColor: app_color.withOpacity(0.4),
+                        // ── Narration Section ──
+                        EntrySection(
+                          icon: Icons.notes_rounded,
+                          title: "Narration",
+                          iconGradient: [Colors.deepPurple, Colors.indigo],
+                          children: [
+                            EntryFormField(
+                              label: "Narration",
+                              icon: Icons.notes_rounded,
+                              iconGradient: [Colors.deepPurple, Colors.indigo],
+                              controller: controller_narration,
+                              validator: (value) => null,
+                              maxLines: 3,
                             ),
-                            child: Container(
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.check_circle,
-                                    color: Colors.white,
-                                    size: 22,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    "Save",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                      letterSpacing: 1,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                          ],
                         ),
+
+                        // ── Total Amount ──
+                        EntryTotalBar(
+                          label: "Total Amount",
+                          value: controller_totalamt.text.isNotEmpty
+                              ? controller_totalamt.text
+                              : "0.00",
+                          currencySymbol: getCurrencySymbol(currencycode),
+                        ),
+
+                        // ── Save Button ──
+                        EntrySaveButton(
+                          label: "Save",
+                          onPressed: errorMessageVchNo.isNotEmpty
+                              ? null
+                              : () {
+                                  if (_formKey.currentState != null &&
+                                      _formKey.currentState!.validate()) {
+                                    _formKey.currentState!.save();
+                                    saveEntry();
+                                  }
+                                },
+                        ),
+
+                        const SizedBox(height: 30),
                       ],
                     ),
                   ),
                 ],
               ),
-
               Visibility(
                 visible: _isLoading,
                 child: Center(child: AppLogoLoader()),

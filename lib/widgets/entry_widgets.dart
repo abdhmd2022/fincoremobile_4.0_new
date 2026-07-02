@@ -1,0 +1,1235 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../constants.dart';
+
+// ─── Section Header ──────────────────────────────────────────────
+class EntrySection extends StatelessWidget {
+  final IconData icon;
+  final List<Color> iconGradient;
+  final String title;
+  final Widget? trailing;
+  final List<Widget> children;
+  final EdgeInsetsGeometry? margin;
+
+  const EntrySection({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.children,
+    this.iconGradient = const [Colors.teal, Colors.green],
+    this.trailing,
+    this.margin,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: isDark
+            ? Border.all(color: Colors.white.withValues(alpha: 0.08))
+            : null,
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.3)
+                : Colors.black.withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: iconGradient,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: iconGradient.first.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Icon(icon, color: Colors.white, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                if (trailing != null) trailing!,
+              ],
+            ),
+          ),
+          ...children,
+          const SizedBox(height: 12),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Modern Form Field ───────────────────────────────────────────
+class EntryFormField extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final List<Color> iconGradient;
+  final TextEditingController? controller;
+  final bool readOnly;
+  final bool enabled;
+  final VoidCallback? onTap;
+  final ValueChanged<String>? onChanged;
+  final String? errorText;
+  final Widget? suffixIcon;
+  final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
+  final int maxLines;
+
+  const EntryFormField({
+    super.key,
+    required this.label,
+    required this.icon,
+    this.iconGradient = const [Colors.teal, Colors.tealAccent],
+    this.controller,
+    this.readOnly = false,
+    this.enabled = true,
+    this.onTap,
+    this.onChanged,
+    this.errorText,
+    this.suffixIcon,
+    this.keyboardType,
+    this.validator,
+    this.maxLines = 1,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final disabledFill = isDark
+        ? Theme.of(context).colorScheme.surfaceContainerHighest
+        : Colors.grey.shade100;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: TextFormField(
+        controller: controller,
+        readOnly: readOnly,
+        enabled: enabled,
+        onTap: onTap,
+        onChanged: onChanged,
+        keyboardType: keyboardType,
+        validator: validator,
+        maxLines: maxLines,
+        style: GoogleFonts.poppins(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: enabled
+              ? Theme.of(context).colorScheme.onSurface
+              : Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: GoogleFonts.poppins(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          errorText: errorText,
+          filled: true,
+          fillColor: enabled
+              ? (Theme.of(context).inputDecorationTheme.fillColor ??
+                    Theme.of(context).cardColor.withValues(alpha: 0.95))
+              : disabledFill,
+          prefixIcon: Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: enabled
+                    ? iconGradient
+                    : [Colors.grey, Colors.grey.shade600],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: Colors.white, size: 20),
+          ),
+          suffixIcon: suffixIcon,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(
+              color: Theme.of(context).dividerColor,
+              width: 1,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: app_color, width: 1.5),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(
+              color: Theme.of(context).dividerColor,
+              width: 1,
+            ),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 16,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Modern Dropdown Field ───────────────────────────────────────
+class EntryDropdownField<T> extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final List<Color> iconGradient;
+  final T? value;
+  final List<DropdownMenuItem<T>> items;
+  final ValueChanged<T?>? onChanged;
+  final bool locked;
+  final String? hintText;
+
+  const EntryDropdownField({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.items,
+    this.iconGradient = const [Colors.purpleAccent, Colors.deepPurple],
+    this.value,
+    this.onChanged,
+    this.locked = false,
+    this.hintText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: IgnorePointer(
+        ignoring: locked,
+        child: Opacity(
+          opacity: locked ? 0.7 : 1,
+          child: DropdownButtonFormField<T>(
+            isExpanded: true,
+            initialValue: value,
+            items: items,
+            onChanged: locked ? null : onChanged,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: locked
+                  ? (isDark
+                        ? Theme.of(context).colorScheme.surfaceContainerHighest
+                        : Colors.grey.shade100)
+                  : (Theme.of(context).inputDecorationTheme.fillColor ??
+                        Theme.of(context).cardColor.withValues(alpha: 0.95)),
+              labelText: label,
+              labelStyle: GoogleFonts.poppins(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              prefixIcon: Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: locked
+                        ? [Colors.grey, Colors.grey.shade600]
+                        : iconGradient,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  locked ? Icons.lock_outline : icon,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(
+                  color: Theme.of(context).dividerColor,
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: app_color, width: 1.5),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(
+                  color: Colors.redAccent,
+                  width: 1.5,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 14,
+              ),
+            ),
+            hint: Text(
+              hintText ?? label,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Item Card for line items list ───────────────────────────────
+class EntryItemCard extends StatelessWidget {
+  final String itemName;
+  final String quantity;
+  final String rate;
+  final String amount;
+  final String? unit;
+  final VoidCallback onIncrement;
+  final VoidCallback onDecrement;
+  final VoidCallback onDelete;
+  final VoidCallback? onTap;
+
+  const EntryItemCard({
+    super.key,
+    required this.itemName,
+    required this.quantity,
+    required this.rate,
+    required this.amount,
+    this.unit,
+    required this.onIncrement,
+    required this.onDecrement,
+    required this.onDelete,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Dismissible(
+      key: UniqueKey(),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 24),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFF6B6B), Color(0xFFEE5A24)],
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Icon(Icons.delete_outline, color: Colors.white, size: 26),
+      ),
+      onDismissed: (_) => onDelete(),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.grey.shade200,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: app_color.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.shopping_bag_outlined,
+                      color: app_color,
+                      size: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      itemName,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  // Qty stepper
+                  _QtyControl(
+                    quantity: quantity,
+                    onIncrement: onIncrement,
+                    onDecrement: onDecrement,
+                  ),
+                  if (unit != null && unit!.isNotEmpty) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        unit!,
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.orange.shade700,
+                        ),
+                      ),
+                    ),
+                  ],
+                  const Spacer(),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Rate: $rate',
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        amount,
+                        style: GoogleFonts.poppins(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: app_color,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _QtyControl extends StatelessWidget {
+  final String quantity;
+  final VoidCallback onIncrement;
+  final VoidCallback onDecrement;
+
+  const _QtyControl({
+    required this.quantity,
+    required this.onIncrement,
+    required this.onDecrement,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surfaceContainerHighest
+            : Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          InkWell(
+            onTap: onDecrement,
+            borderRadius: const BorderRadius.horizontal(
+              left: Radius.circular(10),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              child: Icon(Icons.remove, size: 18, color: Colors.redAccent),
+            ),
+          ),
+          Container(
+            constraints: const BoxConstraints(minWidth: 36),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Text(
+              quantity,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: onIncrement,
+            borderRadius: const BorderRadius.horizontal(
+              right: Radius.circular(10),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              child: Icon(Icons.add, size: 18, color: app_color),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Modern Save Button ──────────────────────────────────────────
+class EntrySaveButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+
+  const EntrySaveButton({
+    super.key,
+    this.label = 'Save Entry',
+    this.icon = Icons.check_circle_outline,
+    this.onPressed,
+    this.isLoading = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onPressed != null && !isLoading;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: SizedBox(
+        width: double.infinity,
+        height: 54,
+        child: ElevatedButton(
+          onPressed: enabled ? onPressed : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: enabled ? app_color : Colors.grey.shade400,
+            foregroundColor: Colors.white,
+            elevation: enabled ? 4 : 0,
+            shadowColor: app_color.withValues(alpha: 0.4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          child: isLoading
+              ? const SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.5,
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(icon, size: 22),
+                    const SizedBox(width: 10),
+                    Text(
+                      label,
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Info Banner ─────────────────────────────────────────────────
+class EntryInfoBanner extends StatelessWidget {
+  final String text;
+  final IconData icon;
+  final Color? color;
+
+  const EntryInfoBanner({
+    super.key,
+    required this.text,
+    this.icon = Icons.info_outline_rounded,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bannerColor = color ?? app_color;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: bannerColor.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: bannerColor.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: bannerColor, size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                text,
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Total Bar (for bottom of forms) ─────────────────────────────
+class EntryTotalBar extends StatelessWidget {
+  final String label;
+  final String value;
+  final String? currencySymbol;
+
+  const EntryTotalBar({
+    super.key,
+    this.label = 'Total',
+    required this.value,
+    this.currencySymbol,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark
+              ? [const Color(0xFF1A2332), const Color(0xFF0D1B2A)]
+              : [Colors.white, const Color(0xFFF8FAFE)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: app_color.withValues(alpha: 0.3), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: app_color.withValues(alpha: 0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: app_color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.account_balance_wallet_outlined,
+                  color: app_color,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                label,
+                style: GoogleFonts.poppins(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          Text(
+            currencySymbol != null ? '$currencySymbol $value' : value,
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: app_color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Modern AppBar for entry screens ─────────────────────────────
+PreferredSizeWidget entryAppBar({
+  required BuildContext context,
+  required String title,
+  required VoidCallback onBack,
+  List<Widget>? actions,
+}) {
+  return PreferredSize(
+    preferredSize: const Size.fromHeight(56),
+    child: AppBar(
+      backgroundColor: app_color,
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+      ),
+      automaticallyImplyLeading: false,
+      leading: IconButton(
+        icon: const Icon(
+          Icons.arrow_back_ios_new,
+          color: Colors.white,
+          size: 20,
+        ),
+        onPressed: onBack,
+      ),
+      centerTitle: true,
+      title: Text(
+        title,
+        style: GoogleFonts.poppins(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+      ),
+      actions: actions,
+    ),
+  );
+}
+
+// ─── Ledger Item Card ────────────────────────────────────────────
+class EntryLedgerCard extends StatelessWidget {
+  final String ledgerName;
+  final String amount;
+  final VoidCallback onDelete;
+
+  const EntryLedgerCard({
+    super.key,
+    required this.ledgerName,
+    required this.amount,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Dismissible(
+      key: UniqueKey(),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 24),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFF6B6B), Color(0xFFEE5A24)],
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Icon(Icons.delete_outline, color: Colors.white, size: 26),
+      ),
+      onDismissed: (_) => onDelete(),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.grey.shade200,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.indigo.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.account_balance_outlined,
+                color: Colors.indigo,
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                ledgerName,
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ),
+            Text(
+              amount,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.indigo,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Pending Entry Card ──────────────────────────────────────────
+class PendingEntryCard extends StatelessWidget {
+  final String voucherNo;
+  final String date;
+  final String? partyName;
+  final String amount;
+  final bool isSynced;
+  final String? errorMessage;
+  final bool isExpanded;
+  final VoidCallback onTap;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback? onShare;
+  final List<Widget>? expandedContent;
+
+  const PendingEntryCard({
+    super.key,
+    required this.voucherNo,
+    required this.date,
+    this.partyName,
+    required this.amount,
+    this.isSynced = false,
+    this.errorMessage,
+    this.isExpanded = false,
+    required this.onTap,
+    this.onEdit,
+    this.onDelete,
+    this.onShare,
+    this.expandedContent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(18),
+          border: isDark
+              ? Border.all(color: Colors.white.withValues(alpha: 0.08))
+              : null,
+          boxShadow: [
+            BoxShadow(
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : Colors.black.withValues(alpha: 0.06),
+              blurRadius: isExpanded ? 20 : 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              app_color,
+                              app_color.withValues(alpha: 0.7),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.receipt_long_outlined,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '#$voucherNo',
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                            if (partyName != null && partyName!.isNotEmpty)
+                              Text(
+                                partyName!,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            amount,
+                            style: GoogleFonts.poppins(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: app_color,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSynced
+                                  ? Colors.green.withValues(alpha: 0.1)
+                                  : Colors.orange.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              isSynced ? 'Synced' : 'Pending',
+                              style: GoogleFonts.poppins(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: isSynced
+                                    ? Colors.green.shade700
+                                    : Colors.orange.shade700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  if (errorMessage != null && errorMessage!.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.red.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.warning_amber_rounded,
+                            color: Colors.red,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              errorMessage!,
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.red.shade700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (isExpanded) ...[
+              Divider(
+                height: 1,
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                child: Row(
+                  children: [
+                    _metaChip(context, Icons.calendar_today_outlined, date),
+                  ],
+                ),
+              ),
+              if (expandedContent != null) ...expandedContent!,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (onEdit != null)
+                      _actionButton(
+                        context,
+                        Icons.edit_outlined,
+                        'Edit',
+                        app_color,
+                        onTap: onEdit!,
+                      ),
+                    if (onShare != null)
+                      _actionButton(
+                        context,
+                        Icons.share_outlined,
+                        'Share',
+                        Colors.blue,
+                        onTap: onShare!,
+                      ),
+                    if (onDelete != null)
+                      _actionButton(
+                        context,
+                        Icons.delete_outline,
+                        'Delete',
+                        Colors.red,
+                        onTap: onDelete!,
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _metaChip(BuildContext context, IconData icon, String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 14,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _actionButton(
+    BuildContext context,
+    IconData icon,
+    String label,
+    Color color, {
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Modern Search Bar for pending screens ───────────────────────
+class EntrySearchBar extends StatelessWidget {
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final String hintText;
+  final VoidCallback? onClear;
+
+  const EntrySearchBar({
+    super.key,
+    required this.controller,
+    required this.onChanged,
+    this.hintText = 'Search...',
+    this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark
+              ? Theme.of(context).colorScheme.surfaceContainerHighest
+              : Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.grey.shade200,
+          ),
+        ),
+        child: TextField(
+          controller: controller,
+          onChanged: onChanged,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: GoogleFonts.poppins(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            prefixIcon: Icon(Icons.search_rounded, color: app_color, size: 22),
+            suffixIcon: controller.text.isNotEmpty
+                ? IconButton(
+                    icon: Icon(
+                      Icons.close,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    onPressed: () {
+                      controller.clear();
+                      onChanged('');
+                      onClear?.call();
+                    },
+                  )
+                : null,
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

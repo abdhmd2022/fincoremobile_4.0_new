@@ -77,6 +77,11 @@ bool isVanSalesAccess(String? serialNo) {
   return serialNo != null && vanSalesSerialNo.contains(serialNo.trim());
 }
 
+bool isUniGasSerial(String? serialNo) {
+  final currentSerial = serialNo?.trim() ?? '';
+  return currentSerial == uniGasSerialNumber;
+}
+
 void closeKeyboard(BuildContext context) {
   FocusScope.of(context).unfocus();
 }

@@ -12,12 +12,14 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constants.dart';
+import 'theme_controller.dart';
 import 'PendingSalesOrderEntry.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:FincoreGo/widgets/app_bottom_nav.dart';
+import 'widgets/entry_widgets.dart';
 
 class ModifySalesOrderEntry extends StatefulWidget {
   final int id, isSynced;
@@ -137,8 +139,10 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
       isUserEnable = true,
       isUserVisible = true,
       isRolesEnable = true,
-      _isLoading = false,
+      _isLoading = true,
       isVisibleNoUserFound = false;
+
+  bool _isInitialDataLoaded = false;
 
   TextEditingController _itemController = TextEditingController();
   TextEditingController _partyLedgerController = TextEditingController();
@@ -565,7 +569,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
 
   List<String> salesledger_data = [];
 
-  late int? decimal;
+  int? decimal = 2;
   late List<String> vchtypenamedata = [];
   late List<String> partyledgerdata = [];
   late List<String> vatledgerdata = [];
@@ -2721,7 +2725,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
       context: context,
       barrierDismissible: false,
       barrierLabel: "SalesOrder",
-      barrierColor: Colors.black.withOpacity(0.35),
+      barrierColor: Colors.black.withValues(alpha: 0.35),
       transitionDuration: const Duration(milliseconds: 280),
       pageBuilder: (context, animation, secondaryAnimation) {
         return Center(
@@ -3706,6 +3710,15 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
   }
 
   Future<void> _selectsaleDate(BuildContext context) async {
+    if (isUniGasSerial(serial_no)) {
+      closeKeyboard(context);
+      Fluttertoast.showToast(
+        msg: "Voucher date cannot be changed",
+        backgroundColor: Colors.redAccent,
+        textColor: Colors.white,
+      );
+      return;
+    }
     setState(() {
       _isFocused_orderno = false;
       _isFocused_narration = false;
@@ -4105,7 +4118,11 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
 */
 
   Future<void> _showItemDetailsPopup(BuildContext context) async {
+    FocusManager.instance.primaryFocus?.unfocus();
     showModalBottomSheet(
+      useSafeArea: true,
+      requestFocus: false,
+      barrierColor: Colors.black.withValues(alpha: 0.45),
       context: context,
       isScrollControlled: true,
       enableDrag: false,
@@ -4158,9 +4175,21 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                 child: Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.vertical(
+                    borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(24),
                     ),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).dividerColor.withValues(alpha: 0.45),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.18),
+                        blurRadius: 24,
+                        offset: const Offset(0, -8),
+                      ),
+                    ],
                   ),
                   child: Column(
                     children: [
@@ -4726,7 +4755,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                             color: Theme.of(context).cardColor,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
+                                color: Colors.black.withValues(alpha: 0.08),
                                 blurRadius: 10,
                                 offset: const Offset(0, -2),
                               ),
@@ -4983,12 +5012,16 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
   }*/
 
   void _showLedgerDetailsPopup(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
     final TextEditingController _ledgerController = TextEditingController();
 
     _ledgerController.clear();
     _selectedledger = null;
 
     showModalBottomSheet(
+      useSafeArea: true,
+      requestFocus: false,
+      barrierColor: Colors.black.withValues(alpha: 0.45),
       context: context,
       isScrollControlled: true,
       enableDrag: false,
@@ -5029,9 +5062,21 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                 child: Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.vertical(
+                    borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(24),
                     ),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).dividerColor.withValues(alpha: 0.45),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.18),
+                        blurRadius: 24,
+                        offset: const Offset(0, -8),
+                      ),
+                    ],
                   ),
                   child: Column(
                     children: [
@@ -5216,9 +5261,9 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                                                             16,
                                                           ),
                                                       borderSide: BorderSide(
-                                                        color: Colors
-                                                            .grey
-                                                            .shade300,
+                                                        color: Theme.of(
+                                                          context,
+                                                        ).dividerColor,
                                                         width: 1,
                                                       ),
                                                     ),
@@ -5383,7 +5428,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                             color: Theme.of(context).cardColor,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
+                                color: Colors.black.withValues(alpha: 0.08),
                                 blurRadius: 10,
                                 offset: const Offset(0, -2),
                               ),
@@ -5812,6 +5857,11 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
       }
     });
     await loadData();
+    if (mounted) {
+      setState(() {
+        _isInitialDataLoaded = true;
+      });
+    }
   }
 
   @override
@@ -5908,6 +5958,46 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
 
   @override
   Widget build(BuildContext context) {
+    if (!_isInitialDataLoaded) {
+      return Scaffold(
+        bottomNavigationBar: const AppBottomNav(
+          activeTab: AppBottomNavTab.entries,
+          activeEntryType: AppEntryType.salesOrder,
+        ),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        key: _scaffoldKey,
+        appBar: entryAppBar(
+          context: context,
+          title: "Modify Sales Order Entry",
+          onBack: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => PendingSalesOrderEntry()),
+            );
+          },
+          actions: [
+            IconButton(
+              tooltip: 'Toggle theme',
+              icon: Icon(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                themeController.setThemeMode(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? ThemeMode.light
+                      : ThemeMode.dark,
+                );
+              },
+            ),
+          ],
+        ),
+        body: Center(child: AppLogoLoader()),
+      );
+    }
+
     final NumberFormat currencyFormat = NumberFormat(
       "#,##0.${'0' * decimal!}", // 👈 dynamically repeat '0' for decimal places
     );
@@ -5918,56 +6008,41 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
       ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       key: _scaffoldKey,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(50),
-        child: AppBar(
-          backgroundColor: app_color,
-          elevation: 6,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-          ),
-          automaticallyImplyLeading: false,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+      appBar: entryAppBar(
+        context: context,
+        title: "Modify Sales Order Entry",
+        onBack: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => PendingSalesOrderEntry()),
+          );
+        },
+        actions: [
+          IconButton(
+            tooltip: 'Toggle theme',
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+              color: Colors.white,
+            ),
             onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PendingSalesOrderEntry(),
-                ),
+              themeController.setThemeMode(
+                Theme.of(context).brightness == Brightness.dark
+                    ? ThemeMode.light
+                    : ThemeMode.dark,
               );
             },
           ),
-
-          centerTitle: true,
-          title: GestureDetector(
-            onTap: () {},
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    "Modify Sales Order Entry" ?? '',
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        ],
       ),
-
       body: WillPopScope(
         onWillPop: () async {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => PendingSalesEntry()),
+            MaterialPageRoute(builder: (context) => PendingSalesOrderEntry()),
           );
-          return true;
+          return false;
         },
         child: Stack(
           children: [
@@ -5986,7 +6061,7 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
+                          color: Colors.black.withValues(alpha: 0.08),
                           blurRadius: 12,
                           offset: const Offset(0, 6),
                         ),
@@ -6119,6 +6194,14 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                                       ),
                                     ),
                                   ),
+                                  suffixIcon: isUniGasSerial(serial_no)
+                                      ? Icon(
+                                          Icons.lock,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        )
+                                      : null,
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
                                     borderSide: BorderSide(
@@ -6621,123 +6704,6 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                               ),
                             ),
 
-                            Container(
-                              padding: EdgeInsets.only(
-                                top: 15,
-                                left: 20,
-                                right: 20,
-                                bottom: 0,
-                              ),
-                              child: TextFormField(
-                                enabled: true,
-                                controller: controller_orderno,
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return 'Order No value cannot be empty';
-                                  }
-                                  return null;
-                                },
-                                decoration: InputDecoration(
-                                  labelText: 'Order No',
-                                  hintText: 'Enter order no',
-                                  labelStyle: GoogleFonts.poppins(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                                  filled: true,
-                                  fillColor:
-                                      Theme.of(
-                                        context,
-                                      ).inputDecorationTheme.fillColor ??
-                                      (Theme.of(
-                                            context,
-                                          ).inputDecorationTheme.fillColor ??
-                                          Theme.of(
-                                            context,
-                                          ).cardColor.withOpacity(0.95)),
-                                  prefixIcon: GestureDetector(
-                                    child: Container(
-                                      margin: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            app_color,
-                                            app_color.withOpacity(0.7),
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Icon(
-                                        Icons.note_outlined,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(
-                                      color: Theme.of(context).dividerColor,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(
-                                      color: app_color,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                    horizontal: 14,
-                                  ),
-                                ),
-
-                                onChanged: (value) {
-                                  setState(() {
-                                    _isFocused_narration = false;
-                                    _isFocused_totalamt = false;
-                                    _isFocused_orderno = true;
-                                    _isFocused_vatamt = false;
-                                    _isFocused_vchno = false;
-                                  });
-                                },
-                                onFieldSubmitted: (value) {
-                                  setState(() {
-                                    _isFocused_narration = false;
-                                    _isFocused_totalamt = false;
-                                    _isFocused_orderno = false;
-                                    _isFocused_vatamt = false;
-                                    _isFocused_vchno = false;
-                                  });
-                                },
-                                onTap: () {
-                                  setState(() {
-                                    _isFocused_narration = false;
-                                    _isFocused_totalamt = false;
-                                    _isFocused_orderno = true;
-                                    _isFocused_vatamt = false;
-                                    _isFocused_vchno = false;
-                                  });
-                                },
-                                onEditingComplete: () {
-                                  setState(() {
-                                    _isFocused_narration = false;
-                                    _isFocused_totalamt = false;
-                                    _isFocused_orderno = false;
-                                    _isFocused_vatamt = false;
-                                    _isFocused_vchno = false;
-                                  });
-                                },
-                              ),
-                            ),
-
                             Padding(
                               padding: const EdgeInsets.only(
                                 top: 12,
@@ -6856,665 +6822,151 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                               ),
                             ),
 
-                            Container(
-                              margin: const EdgeInsets.only(
-                                left: 20,
-                                right: 20,
-                                top: 10,
-                                bottom: 5,
-                              ),
-                              padding: const EdgeInsets.only(bottom: 0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: app_color.withOpacity(0.07),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Header Row
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 7,
+                            EntrySection(
+                              icon: Icons.shopping_cart,
+                              title: "Items",
+                              iconGradient: [Colors.purple, Colors.blue],
+                              trailing: GestureDetector(
+                                onTap: () {
+                                  _showItemDetailsPopup(context);
+                                  _updateUnitDropdown(_selecteditem);
+                                },
+                                child: Container(
+                                  width: 34,
+                                  height: 34,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: const LinearGradient(
+                                      colors: [Colors.teal, Colors.green],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                     ),
-                                    child: Row(
-                                      children: [
-                                        // Gradient start icon
-                                        Container(
-                                          width: 34,
-                                          height: 34,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                Colors.purple,
-                                                Colors.blue,
-                                              ],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.purple
-                                                    .withOpacity(0.3),
-                                                blurRadius: 6,
-                                                offset: const Offset(0, 3),
-                                              ),
-                                            ],
-                                          ),
-                                          child: const Icon(
-                                            Icons.shopping_cart,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.teal.withValues(
+                                          alpha: 0.3,
                                         ),
-                                        const SizedBox(width: 12),
-
-                                        // Title
-                                        Expanded(
-                                          child: Text(
-                                            "Items",
-                                            style: GoogleFonts.poppins(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                              color: app_color,
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Gradient add icon
-                                        GestureDetector(
-                                          onTap: () {
-                                            _showItemDetailsPopup(context);
-                                            _updateUnitDropdown(_selecteditem);
-                                          },
-                                          child: Container(
-                                            width: 34,
-                                            height: 34,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Colors.teal,
-                                                  Colors.green,
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.teal
-                                                      .withOpacity(0.3),
-                                                  blurRadius: 6,
-                                                  offset: const Offset(0, 3),
-                                                ),
-                                              ],
-                                            ),
-                                            child: const Icon(
-                                              Icons.add,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
                                   ),
-
-                                  // Items List with swipe-to-delete
-                                  ListView.builder(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemCount: saleItems.length,
-                                    itemBuilder: (context, index) {
-                                      final item = saleItems[index];
-
-                                      return Dismissible(
-                                        key: UniqueKey(),
-                                        direction: DismissDirection
-                                            .endToStart, // swipe left to delete
-                                        background: Container(
-                                          alignment: Alignment.centerRight,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 20,
-                                          ),
-                                          color: Colors.redAccent,
-                                          child: const Icon(
-                                            Icons.delete,
-                                            color: Colors.white,
-                                            size: 24,
-                                          ),
-                                        ),
-                                        onDismissed: (direction) {
-                                          _deleteSaleItem(index);
-                                        },
-
-                                        child: Container(
-                                          margin: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 3,
-                                          ),
-                                          padding: const EdgeInsets.all(12),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).cardColor,
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                            border: Border.all(
-                                              color: Theme.of(
-                                                context,
-                                              ).dividerColor,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                  0.03,
-                                                ),
-                                                blurRadius: 6,
-                                                offset: const Offset(0, 3),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              // Item Name
-                                              Row(
-                                                children: [
-                                                  const Icon(
-                                                    Icons.shopping_bag,
-                                                    color: Colors.teal,
-                                                    size: 18,
-                                                  ),
-                                                  const SizedBox(width: 6),
-                                                  Expanded(
-                                                    child: Text(
-                                                      item.itemName,
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .colorScheme
-                                                                    .onSurface,
-                                                          ),
-                                                      softWrap: true,
-                                                      overflow:
-                                                          TextOverflow.visible,
-                                                      maxLines: null,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-
-                                              const SizedBox(height: 10),
-
-                                              // Qty Row
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    "Qty",
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).colorScheme.onSurface,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 8),
-
-                                                  // Minus Button
-                                                  InkWell(
-                                                    onTap: () {
-                                                      int currentQty =
-                                                          int.tryParse(
-                                                            item.itemQuantity,
-                                                          ) ??
-                                                          0;
-                                                      if (currentQty > 1) {
-                                                        setState(() {
-                                                          item.itemQuantity =
-                                                              (currentQty - 1)
-                                                                  .toString();
-                                                          _recalculateTotals();
-                                                        });
-                                                      } else {
-                                                        setState(() {
-                                                          saleItems.removeAt(
-                                                            index,
-                                                          );
-                                                          _recalculateTotals();
-                                                        });
-                                                      }
-                                                    },
-                                                    child: Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                            6,
-                                                          ),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.redAccent
-                                                            .withOpacity(0.15),
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              8,
-                                                            ),
-                                                      ),
-                                                      child: const Icon(
-                                                        Icons.remove,
-                                                        size: 18,
-                                                        color: Colors.redAccent,
-                                                      ),
-                                                    ),
-                                                  ),
-
-                                                  const SizedBox(width: 6),
-
-                                                  // Qty Display (Non-editable)
-                                                  Container(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          vertical: 6,
-                                                          horizontal: 12,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                          Theme.of(
-                                                                context,
-                                                              ).brightness ==
-                                                              Brightness.dark
-                                                          ? Theme.of(context)
-                                                                .colorScheme
-                                                                .surfaceContainerHighest
-                                                          : Colors
-                                                                .grey
-                                                                .shade100,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            10,
-                                                          ),
-                                                      border: Border.all(
-                                                        color: Colors
-                                                            .grey
-                                                            .shade400,
-                                                      ),
-                                                    ),
-                                                    child: Text(
-                                                      item.itemQuantity,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .colorScheme
-                                                                    .onSurface,
-                                                          ),
-                                                    ),
-                                                  ),
-
-                                                  const SizedBox(width: 6),
-
-                                                  // Plus Button
-                                                  InkWell(
-                                                    onTap: () {
-                                                      int currentQty =
-                                                          int.tryParse(
-                                                            item.itemQuantity,
-                                                          ) ??
-                                                          0;
-                                                      setState(() {
-                                                        item.itemQuantity =
-                                                            (currentQty + 1)
-                                                                .toString();
-                                                        _recalculateTotals();
-                                                      });
-                                                    },
-                                                    child: Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                            6,
-                                                          ),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.green
-                                                            .withOpacity(0.15),
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              8,
-                                                            ),
-                                                      ),
-                                                      child: const Icon(
-                                                        Icons.add,
-                                                        size: 18,
-                                                        color: Colors.green,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-
-                                              const SizedBox(height: 12),
-
-                                              // Rate Section
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    "Rate",
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).colorScheme.onSurface,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Container(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          vertical: 6,
-                                                          horizontal: 10,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                          Theme.of(
-                                                                context,
-                                                              ).brightness ==
-                                                              Brightness.dark
-                                                          ? Theme.of(context)
-                                                                .colorScheme
-                                                                .surfaceContainerHighest
-                                                          : Colors
-                                                                .grey
-                                                                .shade100,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            10,
-                                                          ),
-                                                      border: Border.all(
-                                                        color: Colors
-                                                            .grey
-                                                            .shade400,
-                                                      ),
-                                                    ),
-                                                    child: Text(
-                                                      "${getCurrencySymbol(currencycode)} ${currencyFormat.format(item.itemPrice)}",
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .colorScheme
-                                                                    .onSurface,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                  child: const Icon(
+                                    Icons.add,
+                                    color: Colors.white,
+                                    size: 20,
                                   ),
-                                ],
+                                ),
                               ),
+                              children: [
+                                ListView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: saleItems.length,
+                                  itemBuilder: (context, index) {
+                                    final item = saleItems[index];
+                                    final itemUnit = [
+                                      if (item.itemUnit.isNotEmpty)
+                                        item.itemUnit,
+                                    ].join(' | ');
+
+                                    return EntryItemCard(
+                                      itemName: item.itemName,
+                                      quantity: item.itemQuantity,
+                                      unit: itemUnit,
+                                      rate:
+                                          "${getCurrencySymbol(currencycode)} ${currencyFormat.format(double.parse(item.itemPrice.toStringAsFixed(decimal!)))}",
+                                      amount:
+                                          "${getCurrencySymbol(currencycode)} ${currencyFormat.format(double.parse(item.itemPrice.toStringAsFixed(decimal!)) * double.parse(item.itemQuantity))}",
+                                      onIncrement: () {
+                                        int currentQty =
+                                            int.tryParse(item.itemQuantity) ??
+                                            0;
+                                        setState(() {
+                                          item.itemQuantity = (currentQty + 1)
+                                              .toString();
+                                          _recalculateTotals();
+                                        });
+                                      },
+                                      onDecrement: () {
+                                        int currentQty =
+                                            int.tryParse(item.itemQuantity) ??
+                                            0;
+                                        if (currentQty > 1) {
+                                          setState(() {
+                                            item.itemQuantity = (currentQty - 1)
+                                                .toString();
+                                            _recalculateTotals();
+                                          });
+                                        } else {
+                                          setState(() {
+                                            saleItems.removeAt(index);
+                                            _recalculateTotals();
+                                          });
+                                        }
+                                      },
+                                      onDelete: () {
+                                        _deleteSaleItem(index);
+                                      },
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
 
-                            Container(
-                              margin: const EdgeInsets.only(
-                                left: 20,
-                                right: 20,
-                                top: 5,
-                                bottom: 10,
-                              ),
-                              padding: const EdgeInsets.only(bottom: 0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: app_color.withOpacity(0.07),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.06),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // Header Row
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 7,
+                            EntrySection(
+                              icon: Icons.list,
+                              title: "Ledger",
+                              iconGradient: [Colors.red, Colors.redAccent],
+                              trailing: GestureDetector(
+                                onTap: () {
+                                  _showLedgerDetailsPopup(context);
+                                },
+                                child: Container(
+                                  width: 34,
+                                  height: 34,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: const LinearGradient(
+                                      colors: [Colors.teal, Colors.green],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                     ),
-                                    child: Row(
-                                      children: [
-                                        // Gradient start icon
-                                        Container(
-                                          width: 34,
-                                          height: 34,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                Colors.red,
-                                                Colors.redAccent,
-                                              ],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.purple
-                                                    .withOpacity(0.3),
-                                                blurRadius: 6,
-                                                offset: const Offset(0, 3),
-                                              ),
-                                            ],
-                                          ),
-                                          child: const Icon(
-                                            Icons.list,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.teal.withValues(
+                                          alpha: 0.3,
                                         ),
-                                        const SizedBox(width: 12),
-
-                                        // Title
-                                        Expanded(
-                                          child: Text(
-                                            "Ledger",
-                                            style: GoogleFonts.poppins(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                              color: app_color,
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Gradient add icon
-                                        GestureDetector(
-                                          onTap: () {
-                                            _showLedgerDetailsPopup(context);
-                                          },
-                                          child: Container(
-                                            width: 34,
-                                            height: 34,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Colors.orange,
-                                                  Colors.orange,
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.teal
-                                                      .withOpacity(0.3),
-                                                  blurRadius: 6,
-                                                  offset: const Offset(0, 3),
-                                                ),
-                                              ],
-                                            ),
-                                            child: const Icon(
-                                              Icons.add,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
                                   ),
-
-                                  // Ledger List
-                                  ListView.builder(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemCount: ledgerEntries.length,
-                                    itemBuilder: (context, index) {
-                                      final item = ledgerEntries[index];
-
-                                      return Dismissible(
-                                        key: UniqueKey(),
-                                        direction: DismissDirection.endToStart,
-                                        background: Container(
-                                          alignment: Alignment.centerRight,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 20,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.redAccent,
-                                            borderRadius: BorderRadius.circular(
-                                              14,
-                                            ),
-                                          ),
-                                          child: const Icon(
-                                            Icons.delete,
-                                            color: Colors.white,
-                                            size: 22,
-                                          ),
-                                        ),
-                                        onDismissed: (direction) {
-                                          _deleteLedger(index);
-                                        },
-
-                                        child: Container(
-                                          margin: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 3,
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 14,
-                                            vertical: 12,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).cardColor,
-                                            borderRadius: BorderRadius.circular(
-                                              14,
-                                            ),
-                                            border: Border.all(
-                                              color: Theme.of(
-                                                context,
-                                              ).dividerColor,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                  0.03,
-                                                ),
-                                                blurRadius: 6,
-                                                offset: const Offset(0, 2),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              // Ledger Icon + Name
-                                              Icon(
-                                                Icons
-                                                    .account_balance_wallet_outlined,
-                                                color: app_color,
-                                                size: 20,
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                flex: 6,
-                                                child: Text(
-                                                  item.ledgerName,
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).colorScheme.onSurface,
-                                                  ),
-                                                  overflow:
-                                                      TextOverflow.visible,
-                                                  softWrap: true,
-                                                ),
-                                              ),
-
-                                              // Amount with currency
-                                              Expanded(
-                                                flex: 4,
-                                                child: Text(
-                                                  "${getCurrencySymbol(currencycode)} ${currencyFormat.format(item.ledgerAmount)}",
-                                                  textAlign: TextAlign.end,
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).colorScheme.onSurface,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                  child: const Icon(
+                                    Icons.add,
+                                    color: Colors.white,
+                                    size: 20,
                                   ),
-                                ],
+                                ),
                               ),
+                              children: [
+                                ListView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: ledgerEntries.length,
+                                  itemBuilder: (context, index) {
+                                    final item = ledgerEntries[index];
+                                    return EntryLedgerCard(
+                                      ledgerName: item.ledgerName,
+                                      amount:
+                                          "${getCurrencySymbol(currencycode)} ${currencyFormat.format(item.ledgerAmount)}",
+                                      onDelete: () {
+                                        _deleteLedger(index);
+                                      },
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
 
                             Row(
@@ -7812,337 +7264,51 @@ class _ModifySalesOrderEntryPageState extends State<ModifySalesOrderEntry>
                               ],
                             ),
 
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
-                              ),
-                              child: TextFormField(
-                                controller: controller_narration,
-                                focusNode: _textFieldFocusNodeNarration,
-                                validator: (value) => null,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
+                            EntrySection(
+                              icon: Icons.notes_rounded,
+                              title: "Narration",
+                              iconGradient: [
+                                Colors.pinkAccent,
+                                Colors.deepOrange,
+                              ],
+                              children: [
+                                EntryFormField(
+                                  label: "Narration",
+                                  icon: Icons.notes_rounded,
+                                  iconGradient: [
+                                    Colors.pinkAccent,
+                                    Colors.deepOrange,
+                                  ],
+                                  controller: controller_narration,
+                                  validator: (value) => null,
+                                  maxLines: 3,
                                 ),
-                                decoration: InputDecoration(
-                                  labelText: "Narration",
-                                  hintText: "Enter narration",
-                                  hintStyle: GoogleFonts.poppins(
-                                    fontSize: 13,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                                  labelStyle: GoogleFonts.poppins(
-                                    color: _isFocused_narration
-                                        ? app_color
-                                        : Theme.of(
-                                            context,
-                                          ).colorScheme.onSurface,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-
-                                  // 🌈 Gradient Icon (Notes)
-                                  prefixIcon: Container(
-                                    margin: const EdgeInsets.all(8),
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.pinkAccent,
-                                          Colors.deepOrange,
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(12),
-                                      ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.notes_rounded,
-                                      size: 20,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-
-                                  filled: true,
-                                  fillColor:
-                                      Theme.of(
-                                        context,
-                                      ).inputDecorationTheme.fillColor ??
-                                      (Theme.of(
-                                            context,
-                                          ).inputDecorationTheme.fillColor ??
-                                          Theme.of(
-                                            context,
-                                          ).cardColor.withOpacity(0.95)),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 14,
-                                  ),
-
-                                  // Borders
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide(
-                                      color: app_color,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                ),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _isFocused_narration = true;
-                                    _isFocused_vchno = false;
-                                    _isFocused_vatamt = false;
-                                    _isFocused_totalamt = false;
-                                  });
-                                },
-                                onFieldSubmitted: (value) {
-                                  setState(() {
-                                    _isFocused_narration = false;
-                                    _isFocused_vchno = false;
-                                    _isFocused_vatamt = false;
-                                    _isFocused_totalamt = false;
-                                  });
-                                },
-                                onTap: () {
-                                  setState(() {
-                                    _isFocused_narration = true;
-                                    _isFocused_vchno = false;
-                                    _isFocused_vatamt = false;
-                                    _isFocused_totalamt = false;
-                                  });
-                                },
-                                onEditingComplete: () {
-                                  setState(() {
-                                    _isFocused_narration = false;
-                                    _isFocused_vchno = false;
-                                    _isFocused_vatamt = false;
-                                    _isFocused_totalamt = false;
-                                  });
-                                },
-                              ),
+                              ],
                             ),
                           ],
                         ),
                       ),
 
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 15,
-                          left: 20,
-                          right: 20,
-                          bottom: 0,
-                        ),
-                        child: TextFormField(
-                          enabled: false,
-                          controller: controller_totalamt,
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+\.?\d{0,4}'),
-                            ),
-                          ],
-                          keyboardType: TextInputType.number,
-                          validator: (value) => null,
-                          style: GoogleFonts.poppins(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                          decoration: InputDecoration(
-                            labelText: 'Total Amount',
-                            hintText: 'Enter total amount',
-
-                            // 🌈 Gradient Currency Symbol (cool tone, unique)
-                            prefix: Container(
-                              margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.indigo,
-                                    Colors.blueAccent,
-                                  ], // 🔵 unique from narration
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(8),
-                                ),
-                              ),
-                              child: Text(
-                                getCurrencySymbol(
-                                  currencycode,
-                                ), // e.g. AED, $, ₹
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-
-                            // Borders
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).dividerColor,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(
-                                color: app_color,
-                                width: 1.4,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).dividerColor,
-                              ),
-                            ),
-                            labelStyle: GoogleFonts.poppins(
-                              color: _isFocused_totalamt
-                                  ? app_color
-                                  : Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 14,
-                              horizontal: 12,
-                            ),
-                            filled: true,
-                            fillColor:
-                                Theme.of(context).brightness == Brightness.dark
-                                ? Theme.of(
-                                    context,
-                                  ).colorScheme.surfaceContainerHighest
-                                : (Theme.of(context).brightness ==
-                                          Brightness.dark
-                                      ? Theme.of(
-                                          context,
-                                        ).colorScheme.surfaceContainerHighest
-                                      : Colors.grey.shade50),
-                          ),
-
-                          // Focus State
-                          onTap: () {
-                            setState(() {
-                              _isFocused_totalamt = true;
-                              _isFocused_narration = false;
-                              _isFocused_vatamt = false;
-                              _isFocused_vchno = false;
-                            });
-                          },
-                          onFieldSubmitted: (_) {
-                            setState(() {
-                              _isFocused_totalamt = false;
-                            });
-                          },
-                          onEditingComplete: () {
-                            setState(() {
-                              _isFocused_totalamt = false;
-                            });
-                          },
-                        ),
+                      EntryTotalBar(
+                        label: "Total Amount",
+                        value: controller_totalamt.text.isNotEmpty
+                            ? controller_totalamt.text
+                            : "0.00",
+                        currencySymbol: getCurrencySymbol(currencycode),
                       ),
 
-                      Container(
-                        padding: const EdgeInsets.only(top: 20),
-                        margin: const EdgeInsets.only(
-                          bottom: 30,
-                          left: 20,
-                          right: 20,
-                        ),
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: errorMessageVchNo.isNotEmpty
-                              ? null
-                              : () {
-                                  if (_formKey.currentState != null &&
-                                      _formKey.currentState!.validate()) {
-                                    _formKey.currentState!.save();
-                                    updateEntry(id);
-                                  }
-                                },
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 16,
-                              horizontal: 20,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                30,
-                              ), // pill shape
-                            ),
-                            elevation: 8,
-                            backgroundColor:
-                                app_color, // ✅ always full app_color
-                            disabledBackgroundColor:
-                                Theme.of(context).brightness == Brightness.dark
-                                ? Colors.grey.shade700
-                                : Colors.grey.shade300, // disabled state
-                            shadowColor: app_color.withOpacity(0.4),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // 🌟 Modern Save Icon (circular background inside button)
-                              Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor
-                                      .withOpacity(
-                                        0.2,
-                                      ), // soft white tint inside
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.check_circle, // modern variant of save
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-
-                              // Save Text
-                              Text(
-                                "Update",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                  letterSpacing: 1,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      EntrySaveButton(
+                        label: "Update",
+                        icon: Icons.save_as_rounded,
+                        onPressed: errorMessageVchNo.isNotEmpty
+                            ? null
+                            : () {
+                                if (_formKey.currentState != null &&
+                                    _formKey.currentState!.validate()) {
+                                  _formKey.currentState!.save();
+                                  updateEntry(id);
+                                }
+                              },
                       ),
                     ],
                   ),

@@ -1291,8 +1291,7 @@ class _PartyTotalClickedRestPageState extends State<PartyTotalClickedRest>
                                                   style: GoogleFonts.poppins(
                                                     fontSize: 13.5,
                                                     fontWeight: FontWeight.w600,
-                                                    color:
-                                                        Colors.deepOrangeAccent,
+                                                    color: Colors.deepOrangeAccent,
                                                   ),
                                                 ),
                                               ),

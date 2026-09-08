@@ -71,7 +71,19 @@ class _ModifyUserPageState extends ConsumerState<ModifyUser> {
     final selectedRole = vm.selectedRole;
     final isActive = vm.isActive;
 
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        // Same reasoning as the AppBar back button below - UserView was
+        // replaced, not pushed under this screen, so the hardware back
+        // button needs the same explicit redirect rather than the default
+        // pop-with-nothing-to-pop-to (black screen).
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const UserView()),
+        );
+        return false;
+      },
+      child: Scaffold(
       bottomNavigationBar: const AppBottomNav(
         activeTab: AppBottomNavTab.more,
         activeMoreItem: AppMoreItem.users,
@@ -85,7 +97,16 @@ class _ModifyUserPageState extends ConsumerState<ModifyUser> {
           automaticallyImplyLeading: false,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
+            // UserView navigates here via `pushReplacement`, not `push` -
+            // it's gone from the stack, not sitting underneath this screen.
+            // A blind `Navigator.pop(context)` had nothing left to pop back
+            // to, leaving a black screen. Navigate back to UserView the
+            // same way `_save()` already does on success, instead of
+            // assuming a route to pop to exists.
+            onPressed: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const UserView()),
+            ),
           ),
           title: Text(
             'User Modification',
@@ -153,6 +174,16 @@ class _ModifyUserPageState extends ConsumerState<ModifyUser> {
                         ),
                         value: isActive,
                         activeColor: app_color,
+                        // Explicit inactive colors - without these, a
+                        // toggled-off switch falls back to Flutter's
+                        // default inactive thumb/track colors, which can
+                        // blend into this screen's background depending on
+                        // the active theme (looks like the switch vanished
+                        // rather than just being off). Same fix already
+                        // applied to the Van Allocation toggle elsewhere in
+                        // this app.
+                        inactiveThumbColor: Colors.grey.shade500,
+                        inactiveTrackColor: Colors.grey.shade300,
                         onChanged: (value) => notifier.setActive(value),
                       ),
                       const SizedBox(height: 20),
@@ -187,6 +218,7 @@ class _ModifyUserPageState extends ConsumerState<ModifyUser> {
                 ),
               ],
             ),
+      ),
     );
   }
 }

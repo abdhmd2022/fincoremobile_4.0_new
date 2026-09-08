@@ -1,3 +1,7 @@
+import 'dart:convert' show jsonEncode;
+
+import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
+
 import 'api_exception.dart';
 import 'base_api_client.dart';
 import 'tally_oauth_client.dart';
@@ -23,16 +27,43 @@ class IdentityRepository {
 
   // -- Company roles (AddRole / ModifyRole / RolesView) ----------------
 
-  /// Each item's `permissions` is `[{permision: {id, name, displayName,
-  /// description, group, resource, action}}, ...]` - note the misspelled
-  /// `permision` key, which is the actual field name tally-oauth's
-  /// RoleResponseSchema uses, not a typo introduced here.
+  /// Each item's `permissions` is `[{permission: {id, name, displayName,
+  /// description, group, resource, action}}, ...]`. tally-admin-api's Zod
+  /// response DTO (RoleResponseSchema) documents this nested key as the
+  /// misspelled `permision` - that's wrong/stale on the backend's side,
+  /// not what's actually on the wire: confirmed live against the real
+  /// Prisma `select` that builds it (CompanyRoleSelect in
+  /// company-role.service.ts explicitly projects `permission: {...}`).
+  /// Parse this as `permission`, not `permision`.
   Future<ApiResult> listRoles({int page = 1, int limit = 20}) =>
       _oauth.get('/company-role?page=$page&limit=$limit', scope: TokenScope.companyUser);
 
+  /// A handful of `success:true` responses from this backend have come
+  /// back with `data` missing/null (seen live on `GET /company-role/:id` -
+  /// crashed the caller with an unhandled "Null is not a subtype of
+  /// Map(String, dynamic) in type cast" instead of a catchable error).
+  /// Centralizes that cast so every call site throws a normal,
+  /// catchable [ApiException] instead of crashing, and logs the raw
+  /// payload in debug builds to help track down which endpoint/response
+  /// is actually malformed.
+  Map<String, dynamic> _asObject(ApiResult result, String context) {
+    final data = result.data;
+    if (data is Map<String, dynamic>) return data;
+    if (kDebugMode) {
+      debugPrint(
+        '$context: expected an object, got ${data.runtimeType}: $data',
+      );
+    }
+    throw ApiException(
+      statusCode: 0,
+      code: 'MALFORMED_RESPONSE',
+      message: 'Unexpected response from the server. Please try again.',
+    );
+  }
+
   Future<Map<String, dynamic>> getRole(String id) async {
     final result = await _oauth.get('/company-role/$id', scope: TokenScope.companyUser);
-    return result.data as Map<String, dynamic>;
+    return _asObject(result, 'getRole($id)');
   }
 
   /// `permissionIds` are Permission uuids (from [listPermissions]), not
@@ -46,7 +77,7 @@ class IdentityRepository {
       body: {'name': name, 'permissions': permissionIds},
       scope: TokenScope.companyUser,
     );
-    return result.data as Map<String, dynamic>;
+    return _asObject(result, 'createRole($name)');
   }
 
   Future<Map<String, dynamic>> updateRole(
@@ -58,7 +89,7 @@ class IdentityRepository {
     if (name != null) body['name'] = name;
     if (permissionIds != null) body['permissions'] = permissionIds;
     final result = await _oauth.patch('/company-role/$id', body: body, scope: TokenScope.companyUser);
-    return result.data as Map<String, dynamic>;
+    return _asObject(result, 'updateRole($id)');
   }
 
   Future<void> deleteRole(String id) =>
@@ -111,6 +142,15 @@ class IdentityRepository {
       if (phone != null) 'phone': phone,
       if (email != null) 'email': email,
     };
+    // Debug-only, password masked - never prints in a release build
+    // (kDebugMode compiles to `false` there), same treatment as the
+    // debug-only OTP print in Login.dart.
+    if (kDebugMode) {
+      debugPrint(
+        'POST /company-user body: '
+        '${jsonEncode({...body, 'password': '*' * password.length})}',
+      );
+    }
     final result = await _oauth.post('/company-user', body: body, scope: TokenScope.companyUser);
     return result.data as Map<String, dynamic>;
   }

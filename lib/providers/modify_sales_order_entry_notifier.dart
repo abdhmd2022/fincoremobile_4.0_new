@@ -11,6 +11,7 @@ import '../api/stock_repository.dart';
 import '../api/voucher_entry_dropdowns_repository.dart';
 import '../api/voucher_entry_repository.dart';
 import '../api/voucher_type_repository.dart';
+import '../constants.dart' show vanSalesSerialNo;
 
 /// Riverpod migration of `ModifySalesOrderEntry.dart`'s
 /// `_ModifySalesOrderEntryPageState`. Same verbatim `_commit`/`_snapshot`
@@ -197,6 +198,9 @@ class ModifySalesOrderEntryState {
 
   final String errorMessageVchNo;
 
+  final String? selectedPartyLedgerPriceLevel;
+  final Map<String, String?> partyLedgerPriceLevelMap;
+
   /// This entry's own narration/reference, as loaded from `args.data` -
   /// read once by the widget to seed `controller_narration`/
   /// `controller_orderno` right after `loadData()` resolves.
@@ -260,6 +264,8 @@ class ModifySalesOrderEntryState {
     required this.selectedSalesLedger,
     required this.selectedVatLedger,
     required this.errorMessageVchNo,
+    required this.selectedPartyLedgerPriceLevel,
+    required this.partyLedgerPriceLevelMap,
     required this.narration,
     required this.referenceNo,
     required this.originalVoucherNumber,
@@ -341,6 +347,8 @@ class ModifySalesOrderEntryNotifier
           selectedSalesLedger: null,
           selectedVatLedger: null,
           errorMessageVchNo: '',
+          selectedPartyLedgerPriceLevel: null,
+          partyLedgerPriceLevelMap: const {},
           narration: '',
           referenceNo: '',
           originalVoucherNumber: null,
@@ -397,6 +405,8 @@ class ModifySalesOrderEntryNotifier
     selectedSalesLedger: _selectedsalesledger,
     selectedVatLedger: _selectedvatledger,
     errorMessageVchNo: errorMessageVchNo,
+    selectedPartyLedgerPriceLevel: selectedPartyLedgerPriceLevel,
+    partyLedgerPriceLevelMap: Map.unmodifiable(partyLedgerPriceLevelMap),
     narration: narration,
     referenceNo: referenceNo,
     originalVoucherNumber: _originalVoucherNumber,
@@ -469,6 +479,9 @@ class ModifySalesOrderEntryNotifier
   dynamic _selectedvatledger;
 
   String errorMessageVchNo = '';
+
+  String? selectedPartyLedgerPriceLevel;
+  Map<String, String?> partyLedgerPriceLevelMap = {};
 
   String narration = '';
   String referenceNo = '';
@@ -679,7 +692,10 @@ class ModifySalesOrderEntryNotifier
   }
 
   void setSelectedPartyLedger(String value) {
-    _commit(() => _selectedpartyledger = value);
+    _commit(() {
+      _selectedpartyledger = value;
+      selectedPartyLedgerPriceLevel = partyLedgerPriceLevelMap[value];
+    });
   }
 
   /// Verbatim port of the VAT-ledger dropdown `onChanged` body.
@@ -796,11 +812,28 @@ class ModifySalesOrderEntryNotifier
         _voucherTypeMasterIdByName[v['name'] as String] = v['masterId'] as int;
       }
 
+      final String currentSerialNo = serial_no?.trim() ?? '';
+      final bool isUniGas = vanSalesSerialNo.contains(currentSerialNo);
+
+      String? trimOrNull(String? raw) =>
+          (raw?.trim().isEmpty ?? true) ? null : raw!.trim();
+
       _commit(() {
         vchtypenamedata = salesOrderTypes.map((v) => v['name'] as String).toList();
 
         partyledgerdata = partyLedgers.map((l) => l['name'] as String).toList()
           ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+
+        partyLedgerPriceLevelMap.clear();
+        if (isUniGas) {
+          for (final ledger in partyLedgers) {
+            final String ledgerName = (ledger['name'] as String).trim();
+            if (ledgerName.isEmpty) continue;
+            partyLedgerPriceLevelMap[ledgerName] = trimOrNull(
+              ledger['priceLevel'] as String?,
+            );
+          }
+        }
 
         salesledger_data = salesLedgers.map((l) => l['name'] as String).toList();
 
@@ -909,6 +942,7 @@ class ModifySalesOrderEntryNotifier
     final String oldpartyledger = (partyEntry['ledgerName'] as String?) ??
         (partyledgerdata.isNotEmpty ? partyledgerdata[0] : '');
     _selectedpartyledger = oldpartyledger;
+    selectedPartyLedgerPriceLevel = partyLedgerPriceLevelMap[oldpartyledger];
 
     // Sales ledger - the ledgerMasterId booked against the first inventory
     // entry (mirrors legacy reading ACCOUNTINGALLOCATIONS.LIST[0].LEDGERNAME

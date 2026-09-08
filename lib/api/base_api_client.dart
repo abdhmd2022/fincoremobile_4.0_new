@@ -81,9 +81,20 @@ abstract class BaseApiClient {
     }
   }
 
-  Future<Map<String, String>> _headers(TokenScope scope) async {
-    final headers = {
-      'Content-Type': 'application/json',
+  // [hasBody] deliberately controls whether `Content-Type: application/json`
+  // is sent at all - Fastify's JSON body parser 400s with "Body cannot be
+  // empty when content-type is set to 'application/json'" on a bodyless
+  // request (GET/DELETE, or a POST/PATCH/PUT called with no body) that
+  // still carries this header. Confirmed live: this silently broke every
+  // token refresh (fixed separately in token_refresher.dart, which bypasses
+  // this client) and every `DELETE` call through this client (e.g. deleting
+  // a company-user) the same way.
+  Future<Map<String, String>> _headers(
+    TokenScope scope, {
+    required bool hasBody,
+  }) async {
+    final headers = <String, String>{
+      if (hasBody) 'Content-Type': 'application/json',
       // tally-oauth's login/refresh require this (single-active-session-
       // per-device tracking) - sent on every request, not just those two,
       // since it's harmless elsewhere and one place to maintain.
@@ -126,7 +137,8 @@ abstract class BaseApiClient {
     bool isRetry = false,
   }) async {
     final uri = Uri.parse('$apiRoot$path');
-    final headers = await _headers(scope).timeout(_requestTimeout);
+    final headers = await _headers(scope, hasBody: body != null)
+        .timeout(_requestTimeout);
     final encodedBody = body == null ? null : jsonEncode(body);
 
     late final http.Response response;

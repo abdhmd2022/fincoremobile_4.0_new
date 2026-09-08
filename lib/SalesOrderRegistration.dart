@@ -16,6 +16,7 @@ import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 import 'widgets/entry_widgets.dart';
 import 'widgets/searchable_selector.dart';
 import 'providers/sales_order_registration_notifier.dart';
+import 'api/price_level_repository.dart';
 
 class SalesOrderRegistration extends ConsumerStatefulWidget {
   const SalesOrderRegistration({Key? key}) : super(key: key);
@@ -3244,6 +3245,74 @@ class _SalesOrderRegistrationPageState
     return null;
   }
 
+  /// Parses tally-api's compound "value/unit" price-level rate string (e.g.
+  /// "100.00/Nos") into just the numeric value - same shape as
+  /// SalesRegistration.dart's own `_parsePriceLevelRateString`.
+  double? _parsePriceLevelRateString(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return null;
+    return double.tryParse(raw.split('/').first.trim());
+  }
+
+  /// Same effective-dated price-level rate lookup as
+  /// `SalesRegistration.dart`'s `_priceLevelRate`: fetches every price-level
+  /// row for [stockItemMasterId], narrows to [priceLevelName], and picks the
+  /// latest row whose `date` is on/before [asOf] (a future price shouldn't
+  /// apply to an earlier voucher date). Returns null when there's no
+  /// matching row.
+  Future<double?> _priceLevelRate({
+    required int stockItemMasterId,
+    required String priceLevelName,
+    required DateTime asOf,
+  }) async {
+    final rows = await PriceLevelRepository.instance.ratesForItem(
+      stockItemMasterId,
+    );
+    Map<String, dynamic>? best;
+    DateTime? bestDate;
+    for (final row in rows) {
+      if (row['priceLevelName'] != priceLevelName) continue;
+      final rowDate = DateTime.tryParse(row['date']?.toString() ?? '');
+      if (rowDate == null || rowDate.isAfter(asOf)) continue;
+      if (bestDate == null || rowDate.isAfter(bestDate)) {
+        bestDate = rowDate;
+        best = row;
+      }
+    }
+    if (best == null) return null;
+    return _parsePriceLevelRateString(best['rate']?.toString());
+  }
+
+  // Price-level rate for one bulk-add item - mirrors
+  // `SalesRegistration.dart`'s `_resolvePriceLevelRateForItem`. Returns
+  // null if the party has no price level, or the API has no rate for this
+  // item under that price level.
+  Future<double?> _resolvePriceLevelRateForItem(String itemMasterId) async {
+    final vm = _s;
+    if (vm.serialNo == null ||
+        vm.serialNo!.trim().isEmpty ||
+        !vanSalesSerialNo.contains(vm.serialNo!.trim())) {
+      return null;
+    }
+    if (vm.selectedPartyLedgerPriceLevel == null ||
+        vm.selectedPartyLedgerPriceLevel!.trim().isEmpty) {
+      return null;
+    }
+
+    try {
+      final int? parsedItemMasterId = int.tryParse(itemMasterId);
+      if (parsedItemMasterId == null) return null;
+
+      return await _priceLevelRate(
+        stockItemMasterId: parsedItemMasterId,
+        priceLevelName: vm.selectedPartyLedgerPriceLevel!,
+        asOf: vm.saledate,
+      );
+    } catch (e) {
+      debugPrint('Bulk add: price level lookup failed for $itemMasterId: $e');
+    }
+    return null;
+  }
+
   // Small colored badge used to permanently show where a rate came from
   // (Price Level / Item Rate / Manual) — a normal user-facing indicator.
   Widget _rateSourceBadge(String source) {
@@ -3398,8 +3467,20 @@ class _SalesOrderRegistrationPageState
       final List<dynamic> unitJson = itemInfo['unit'] ?? [];
       final List<Unit> units = unitJson.map((u) => Unit.fromJson(u)).toList();
       final double multiplier = units.isNotEmpty ? units.first.multiplier : 1.0;
-      final double? rate = _resolveItemOwnRate(itemInfo, multiplier);
-      final String source = rate != null ? 'Item Rate' : 'Empty';
+      final String? masterId = itemInfo['masterId']?.toString();
+
+      double? rate;
+      String source;
+
+      if (masterId != null && masterId.isNotEmpty) {
+        rate = await _resolvePriceLevelRateForItem(masterId);
+      }
+      if (rate != null) {
+        source = 'Price Level';
+      } else {
+        rate = _resolveItemOwnRate(itemInfo, multiplier);
+        source = rate != null ? 'Item Rate' : 'Empty';
+      }
 
       setStateDialog(() {
         rateInfoCache[name] = _ResolvedRateInfo(

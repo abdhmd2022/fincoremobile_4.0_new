@@ -999,6 +999,28 @@ class DeliveryNoteRegistrationNotifier
       _godownsRaw = results[4] as List<Map<String, dynamic>>;
       _voucherTypesRaw = results[5] as List<Map<String, dynamic>>;
       _currenciesRaw = results[6] as List<Map<String, dynamic>>;
+
+      // `_godownsRaw` (`/godowns`) is already scoped server-side to this
+      // specific company-user's own GODOWN master-restriction (Van
+      // Allocation) - exactly one row back means this user is locked to a
+      // single vehicle/location. For the *display* item list only, switch
+      // to `salesData(godownMasterId: ...)`'s per-godown-batch items
+      // (positive quantity only) - matches legacy's per-vehicle item
+      // filtering for Spectra van-sales users. `_stockItemsRaw` itself
+      // stays the full/unfiltered list (unchanged) since it's also used
+      // for other item lookups (e.g. resolving an already-added item's
+      // details) that must keep working even for an item with no stock at
+      // this specific godown. Unrestricted users (including admins, never
+      // given a GODOWN restriction) get every godown back here and keep
+      // the full item list - no extra request for them.
+      var itemsForDisplay = _stockItemsRaw;
+      if (isVanSalesSerial && _godownsRaw.length == 1) {
+        final godownMasterId = _godownsRaw.first['masterId'] as int;
+        final scoped = await VoucherEntryDropdownsRepository.instance
+            .salesData(type: 'deliveryNote', godownMasterId: godownMasterId);
+        itemsForDisplay =
+            (scoped['items'] as List).cast<Map<String, dynamic>>();
+      }
       // Same server-side classification `SalesRegistration.dart`/
       // `SalesOrderRegistration.dart` use (via
       // `VoucherEntryDropdownsRepository.salesData()`) - replaces this
@@ -1088,7 +1110,7 @@ class DeliveryNoteRegistrationNotifier
 
         _selectedvatledger = _defaultVatLedger();
 
-        itemdata = _stockItemsRaw.map((item) {
+        itemdata = itemsForDisplay.map((item) {
           final List<Map<String, dynamic>> units = [];
           if (item['baseUnitSymbol'] != null) {
             units.add({'name': item['baseUnitSymbol'], 'multiplier': '1'});

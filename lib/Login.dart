@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -618,8 +619,6 @@ class _LoginPageState extends ConsumerState<Login>
     username_prefs = usernamee;
     password_prefs = passwordd;
 
-    print(usernamee);
-
     await prefs_login.remove('username');
     await prefs_login.remove('password');
     await prefs_login.remove('company_name');
@@ -1065,7 +1064,12 @@ class _LoginPageState extends ConsumerState<Login>
         '${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}';
     _login_.update((s) => s.copyWith(generatedOtp: otp));
 
-    print(otp);
+    // Debug-only: never prints in a release build (kDebugMode is compiled
+    // out to `false` there), so the OTP can't leak into a real user's
+    // device logs - only useful while testing on a debug build.
+    if (kDebugMode) {
+      debugPrint('OTP (debug only): $otp');
+    }
 
     final smtpServer = SmtpServer(
       'smtp.hostinger.com',
@@ -1485,9 +1489,18 @@ class _LoginPageState extends ConsumerState<Login>
       child: const Text('Forgot Password?'),
     );
 
-    if (_s.biometricEnabled) {
+    if (_s.biometricAvailable && _s.biometricEnabled) {
       // No Remember Me switch to share the row with - always fits, always
-      // right-aligned, same as before.
+      // right-aligned, same as before. Matches the exact condition that
+      // decides whether the "Sign in with Face ID/Fingerprint" button
+      // itself is shown (below) - checking `biometricEnabled` alone here
+      // was a real bug: `biometricEnabled` is a persisted preference that
+      // can be `true` from a stale/previous state (e.g. `local_auth`
+      // falsely reporting biometric hardware as available on an iOS
+      // Simulator with no Face ID actually enrolled - see
+      // `BiometricAuthService.authenticate`'s own doc-comment), leaving a
+      // device with no real biometric hardware showing neither the
+      // biometric button NOR Remember Me - completely stuck.
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [forgotPasswordButton],

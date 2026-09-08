@@ -1253,7 +1253,7 @@ class _ItemsClickedPageState extends ConsumerState<ItemsClicked>
       isSales ? vm.salesLastSalePrice : vm.purchaseLastPurchasePrice,
     );
 
-    print('last $isSales price $lastPrice');
+    debugPrint('last $isSales price $lastPrice');
     final qty = _formatValue(
       isSales ? vm.salesTotalSalesQty : vm.purchaseTotalPurchaseQty,
     );

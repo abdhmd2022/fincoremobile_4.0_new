@@ -278,6 +278,25 @@ class _RolesViewPageState extends ConsumerState<RolesView>
   void initState() {
     super.initState();
     _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+    // Force a fresh instance of the notifier (and thus a fresh
+    // `fetchRoles()`) on every entry to this screen, rather than trusting
+    // `autoDispose` to have already torn down a previous instance. If the
+    // active company was switched while an old instance of this provider
+    // was still technically alive (e.g. this screen re-entered via a route
+    // that didn't fully unmount the previous one), this guarantees the
+    // roles shown always belong to the currently selected company instead
+    // of a stale list from whichever company was active on the last fetch.
+    //
+    // Deferred to a post-frame callback - calling `ref.invalidate`
+    // synchronously inside initState throws
+    // ("dependOnInheritedWidgetOfExactType<UncontrolledProviderScope>...
+    // called before _RolesViewPageState.initState() completed") since it
+    // triggers a provider-scope lookup before this element finishes
+    // mounting. Same pattern CompanySelectTallyOauth.dart already uses for
+    // its own initState-time provider call.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.invalidate(rolesViewNotifierProvider);
+    });
   }
 
   Future<void> _refresh() => fetchRoles();
@@ -293,7 +312,10 @@ class _RolesViewPageState extends ConsumerState<RolesView>
     });
     final isVisibleNoRoleFound = vm.isVisibleNoRoleFound;
     final isLoading = vm.isLoading;
-    final roles = vm.roles;
+    // `filteredRoles`, not `roles` - the notifier's `filterRoles()` only
+    // ever updates `filteredRoles` (see roles_view_notifier.dart), so
+    // rendering `roles` directly ignored the search box entirely.
+    final roles = vm.filteredRoles;
     final company = vm.company;
 
     return WillPopScope(
@@ -302,7 +324,7 @@ class _RolesViewPageState extends ConsumerState<RolesView>
           context,
           MaterialPageRoute(builder: (context) => Dashboard()),
         );
-        return true;
+        return false;
       },
       child: Scaffold(
         bottomNavigationBar: const AppBottomNav(
@@ -360,16 +382,24 @@ class _RolesViewPageState extends ConsumerState<RolesView>
               Visibility(
                 visible: isVisibleNoRoleFound,
                 child: Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 40.0),
-                    child: Text(
-                      'No Roles Found',
-                      style: GoogleFonts.poppins(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.group_off_outlined,
+                        size: 64,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
-                    ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No Roles Found',
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

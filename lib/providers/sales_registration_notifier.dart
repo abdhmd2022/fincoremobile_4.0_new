@@ -879,10 +879,27 @@ class SalesRegistrationNotifier extends StateNotifier<SalesRegistrationState> {
           .cast<Map<String, dynamic>>();
       final otherLedgersRaw = (salesData['otherLedgers'] as List)
           .cast<Map<String, dynamic>>();
-      final stockItems = (salesData['items'] as List)
+      var stockItems = (salesData['items'] as List)
           .cast<Map<String, dynamic>>();
       final godowns = (salesData['godowns'] as List)
           .cast<Map<String, dynamic>>();
+
+      // `godowns` above is already scoped server-side to this specific
+      // company-user's own GODOWN master-restriction (Van Allocation) -
+      // exactly one row back means this user is locked to a single
+      // vehicle/location. Re-fetch `items` with that godownMasterId to
+      // switch from "every stock item company-wide" to "only what's
+      // actually in stock (positive batch quantity) at that godown" -
+      // matches legacy's per-vehicle item filtering for Spectra van-sales
+      // users. Unrestricted users (including admins, who were never given
+      // a GODOWN restriction) get every godown back here and keep the
+      // full, unfiltered item list - no extra request for them.
+      if (isUniGas && godowns.length == 1) {
+        final godownMasterId = godowns.first['masterId'] as int;
+        final scoped = await VoucherEntryDropdownsRepository.instance
+            .salesData(type: 'sales', godownMasterId: godownMasterId);
+        stockItems = (scoped['items'] as List).cast<Map<String, dynamic>>();
+      }
 
       String? trimOrNull(String? raw) =>
           (raw?.trim().isEmpty ?? true) ? null : raw!.trim();

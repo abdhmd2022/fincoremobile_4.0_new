@@ -155,11 +155,13 @@ class AuthRepository {
   /// slot into the same license-then-company picker
   /// ([CompanySelectNotifier.loadData]/[CompanySelectState.companiesFor])
   /// built around [listLicenses]'s owned-license shape, for an account
-  /// that has none of its own. tally-oauth's login `companies[].license`
-  /// sub-object doesn't expose `tallySerialNumber` yet (only
-  /// `GET /license/user` does) - left blank here, which
-  /// [CompanySelectNotifier.licenseLabel] already falls back from to the
-  /// license name.
+  /// that has none of its own. tally-admin-api's `CompanyResponseSchema`
+  /// (used by both `GET /company` and `POST /auth/user/login`'s `companies[]`)
+  /// now includes the license's own `tallySerialNumber` and owning `user`
+  /// directly, so this reads them straight off `company['license']` instead
+  /// of the blank placeholder this used before that field existed -
+  /// [CompanySelectNotifier.licenseLabel] still falls back to the license
+  /// name for any legacy/cached response that doesn't have it yet.
   List<Map<String, dynamic>> licensesFromLastLoginCompanies() {
     final seenLicenseIds = <String>{};
     final result = <Map<String, dynamic>>[];
@@ -167,7 +169,11 @@ class AuthRepository {
       final licenseId = company['licenseId'] as String?;
       if (licenseId == null || !seenLicenseIds.add(licenseId)) continue;
       final license = company['license'] as Map<String, dynamic>? ?? const {};
-      result.add({'id': licenseId, 'tallySerialNumber': '', ...license});
+      result.add({
+        ...license,
+        'id': licenseId,
+        'tallySerialNumber': license['tallySerialNumber']?.toString() ?? '',
+      });
     }
     return result;
   }
@@ -314,20 +320,36 @@ class AuthRepository {
   Future<List<String>?> currentCompanyUserPermissions() async {
     final token = await TokenStore.instance.companyUserAccessToken;
     if (token == null) return null;
-    return _decodeJwtPermissions(token);
+    final payload = _decodeJwtPayload(token);
+    final raw = payload?['permissions'];
+    if (raw is List) return raw.map((e) => e.toString()).toList();
+    return null;
   }
 
-  List<String>? _decodeJwtPermissions(String token) {
+  /// The current company-user's own id - tally-admin-api's JWT strategies
+  /// confirm `sub` is literally the `CompanyUser` row's id for a
+  /// company-user-scoped token (`token.companyUserId !== sub` is the check
+  /// they run), not the underlying `User`'s id. Used to look up this
+  /// specific logged-in user's own master-restrictions (e.g. their
+  /// Van-Allocation-assigned `GODOWN`), distinct from [listCompanies]/
+  /// [listLicenses]'s owner-only "everything I own" view.
+  ///
+  /// Returns null under the same conditions [currentCompanyUserPermissions]
+  /// does - no active session, unparseable token, or a token predating
+  /// this claim's rollout.
+  Future<String?> currentCompanyUserId() async {
+    final token = await TokenStore.instance.companyUserAccessToken;
+    if (token == null) return null;
+    final payload = _decodeJwtPayload(token);
+    return payload?['sub']?.toString();
+  }
+
+  Map<String, dynamic>? _decodeJwtPayload(String token) {
     try {
       final parts = token.split('.');
       if (parts.length != 3) return null;
       final payloadJson = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
-      final payload = jsonDecode(payloadJson) as Map<String, dynamic>;
-      final raw = payload['permissions'];
-      if (raw is List) {
-        return raw.map((e) => e.toString()).toList();
-      }
-      return null;
+      return jsonDecode(payloadJson) as Map<String, dynamic>;
     } catch (_) {
       // Malformed/truncated token, or an unexpected payload shape - treat
       // exactly like "no claim present" rather than crashing company

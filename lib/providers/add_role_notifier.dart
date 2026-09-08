@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../AddRole.dart';
 import '../api/api_exception.dart';
+import '../constants.dart';
 import 'repository_providers.dart';
 
 class AddRoleState {
@@ -40,11 +42,7 @@ class AddRoleState {
   }
 
   Map<String, List<PermissionOption>> get groupedPermissions {
-    final grouped = <String, List<PermissionOption>>{};
-    for (final permission in permissions) {
-      grouped.putIfAbsent(permission.group, () => []).add(permission);
-    }
-    return grouped;
+    return PermissionOption.groupByLegacyOrder(permissions);
   }
 }
 
@@ -69,13 +67,54 @@ class AddRoleNotifier extends StateNotifier<AddRoleState> {
     try {
       final result =
           await _ref.read(identityRepositoryProvider).listPermissions();
-      final items = (result.data as List).cast<Map<String, dynamic>>();
+      // `.whereType<Map>()` rather than a blind `.cast<Map<String,
+      // dynamic>>()` - a malformed/null entry in this list should be
+      // dropped, not crash the whole screen (see the matching note in
+      // modify_role_notifier.dart's _load()).
+      final items = (result.data as List)
+          .whereType<Map>()
+          .map((e) => e.cast<String, dynamic>())
+          .toList();
+      // Meta-admin entries (Company/Company User/License Management) have
+      // no legacy equivalent and aren't selectable for a custom role here
+      // - see [PermissionOption.isMetaAdmin].
+      final permissions = items
+          .map(PermissionOption.fromJson)
+          .where((p) => !PermissionOption.isMetaAdmin(p.resource))
+          .toList();
+
+      // The `/company-permission` catalog is global (not company/license
+      // scoped on the backend), so it includes Spectra/UniGas-only entries
+      // for every company: the whole "Van Allocation" group, and "Create
+      // Delivery Note Entry" within Entries (legacy only showed both to a
+      // van-sales-enabled company - see AddRole.dart's `entryPermissions`
+      // getter in the legacy app). Filtered out here to match the same
+      // `isVanSalesAccess` gate the Van Allocation screen itself uses (see
+      // app_bottom_nav.dart) - a generic company (e.g. customer1demo)
+      // shouldn't be able to grant a permission it has no matching feature
+      // for.
+      final prefs = await SharedPreferences.getInstance();
+      final serialNo = prefs.getString('serial_no');
+      final isSpectra = isVanSalesAccess(serialNo);
+      final filtered = isSpectra
+          ? permissions
+          : permissions
+              .where((p) =>
+                  p.group != 'Van Allocation' &&
+                  p.resource != 'ENTRY_DELIVERY_NOTE')
+              .toList();
+
       state = state.copyWith(
-        permissions: items.map(PermissionOption.fromJson).toList(),
+        permissions: filtered,
         isLoadingPermissions: false,
       );
     } on ApiException catch (e) {
       state = state.copyWith(isLoadingPermissions: false, loadError: e.message);
+    } on SessionExpiredException {
+      // BaseApiClient already force-navigated to Login on a dead refresh
+      // token - this screen is being torn down underneath that redirect,
+      // so there's nothing useful to show here.
+      state = state.copyWith(isLoadingPermissions: false);
     } catch (e) {
       state = state.copyWith(
         isLoadingPermissions: false,
@@ -114,6 +153,10 @@ class AddRoleNotifier extends StateNotifier<AddRoleState> {
     } on ApiException catch (e) {
       state = state.copyWith(isSaving: false);
       return AddRoleActionResult(false, e.message);
+    } on SessionExpiredException {
+      // Already redirected to Login by BaseApiClient - no message to show.
+      state = state.copyWith(isSaving: false);
+      return const AddRoleActionResult(false);
     } catch (e) {
       state = state.copyWith(isSaving: false);
       return const AddRoleActionResult(

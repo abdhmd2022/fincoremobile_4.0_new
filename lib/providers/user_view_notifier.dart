@@ -86,19 +86,19 @@ class UserViewNotifier extends StateNotifier<UserViewState> {
 
   void filterUsers(String query) {
     _searchQuery = query;
-    if (query.trim().isEmpty) {
-      state = state.copyWith(filteredUsers: List.from(state.users));
-    } else {
-      final lower = query.toLowerCase();
-      state = state.copyWith(
-        filteredUsers: state.users
+    final lower = query.toLowerCase();
+    final filtered = query.trim().isEmpty
+        ? List<UserModel>.from(state.users)
+        : state.users
             .where((u) =>
                 u.name.toLowerCase().contains(lower) ||
                 u.email.toLowerCase().contains(lower) ||
                 u.roleName.toLowerCase().contains(lower))
-            .toList(),
-      );
-    }
+            .toList();
+    state = state.copyWith(
+      filteredUsers: filtered,
+      isVisibleNoUserFound: filtered.isEmpty,
+    );
   }
 
   /// Company scoping now comes from the company-user session's token (see
@@ -127,7 +127,7 @@ class UserViewNotifier extends StateNotifier<UserViewState> {
       state = state.copyWith(
         users: users,
         filteredUsers: filtered,
-        isVisibleNoUserFound: users.isEmpty ? true : state.isVisibleNoUserFound,
+        isVisibleNoUserFound: filtered.isEmpty,
         isLoading: false,
       );
     } on ApiException catch (e) {

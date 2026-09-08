@@ -5859,12 +5859,10 @@ class _DeliverynoteregistrationPageState
   /// widget-local); the actual `ledgerEntries` mutation + totals recompute
   /// is `_notifier.addOrMergeLedger`.
   void addLedger() {
-    Map<String, dynamic>? specificLedger = ledgerdata.firstWhere(
-      (ledger) => ledger['name'] == _selectedledger,
-    );
-
-    final ledgerName = specificLedger['name'];
+    final ledgerName = _selectedledger as String?;
     final ledgerAmount = ledgerAmountController.text;
+
+    if (ledgerName == null || ledgerName.isEmpty) return;
 
     if (ledgerName.isNotEmpty && ledgerAmount.isNotEmpty) {
       Navigator.of(context).pop();

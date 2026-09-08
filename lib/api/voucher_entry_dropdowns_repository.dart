@@ -27,10 +27,27 @@ class VoucherEntryDropdownsRepository {
   /// separately. [type] selects which `VoucherReservedName`(s) `vchTypes`
   /// is filtered to server-side (`'sales' | 'salesOrder' | 'deliveryNote'`,
   /// defaults to `'sales'`) - the other fields (`partyLedgers`/
-  /// `salesLedgers`/`vatLedgers`/`otherLedgers`/`items`/`godowns`) are not
+  /// `salesLedgers`/`vatLedgers`/`otherLedgers`/`godowns`) are not
   /// type-dependent.
-  Future<Map<String, dynamic>> salesData({String? type}) async {
-    final query = type != null ? '?type=$type' : '';
+  ///
+  /// [godownMasterId] is a separate, opt-in narrowing from the GODOWN
+  /// master-restriction allow-list mentioned above: passing it switches
+  /// `items` to one row per item+batch actually in stock at that specific
+  /// godown (positive `closingQuantity` only) instead of every stock item
+  /// company-wide - an item with no positive-quantity batch there
+  /// disappears entirely, and an item can appear as multiple rows (one per
+  /// qualifying batch). Existence-checked server-side first, so an
+  /// unknown/restricted godownMasterId 404s rather than silently returning
+  /// an empty item list.
+  Future<Map<String, dynamic>> salesData({
+    String? type,
+    int? godownMasterId,
+  }) async {
+    final params = <String>[
+      if (type != null) 'type=$type',
+      if (godownMasterId != null) 'godownMasterId=$godownMasterId',
+    ];
+    final query = params.isEmpty ? '' : '?${params.join('&')}';
     final result = await _client.getForCompany(
       '/voucher-entry-dropdowns/sales-data$query',
     );

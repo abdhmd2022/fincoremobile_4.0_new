@@ -333,6 +333,25 @@ class CompanySelectNotifier extends StateNotifier<CompanySelectState> {
       final permissions = await repo.currentCompanyUserPermissions();
       await applyPermissionFlags(prefs, permissions);
 
+      // `secbtnaccess` (Roles/Users menu visibility) is a straight
+      // admin/non-admin check, not a granted-permission check - true only
+      // when this company-user's actual role is the system Admin role.
+      // Fail-closed (hidden) if the lookup fails for any reason, same
+      // policy as the permission flags above.
+      var isAdmin = false;
+      final companyUserId = await repo.currentCompanyUserId();
+      if (companyUserId != null) {
+        try {
+          final user = await _ref
+              .read(identityRepositoryProvider)
+              .getCompanyUser(companyUserId);
+          isAdmin = (user['role'] as Map<String, dynamic>?)?['isSystem'] == true;
+        } catch (_) {
+          isAdmin = false;
+        }
+      }
+      await prefs.setString('secbtnaccess', isAdmin ? 'True' : 'False');
+
       return const CompanySelectResult(true);
     } on ApiException catch (e) {
       state = state.copyWith(isSelecting: false, errorMessage: e.message);

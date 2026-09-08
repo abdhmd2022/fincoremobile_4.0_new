@@ -135,6 +135,20 @@ class ChangePasswordNotifier extends StateNotifier<ChangePasswordState> {
       );
     } on ApiException catch (e) {
       state = state.copyWith(isLoading: false);
+      // Not a username/email-format mistake - `user-auth.service.ts`'s
+      // `resetPassword()` looks the account up by username fine, then
+      // throws this exact message when the found account simply has no
+      // email address on file at all, so the OTP has nowhere to be sent.
+      // There's no in-app way to add one and no non-OTP password-change
+      // path (tally-oauth has no "change with old password" endpoint) -
+      // surfaced as a clear, actionable message instead of the raw
+      // backend text, which reads like a login-typo error.
+      if (e.message == 'User email not found') {
+        return const ChangePasswordResult(
+          false,
+          'This account has no email on file, so we can\'t send a reset code. Please contact your administrator to add one before changing your password.',
+        );
+      }
       return ChangePasswordResult(false, e.message);
     } catch (e) {
       state = state.copyWith(isLoading: false);

@@ -23,12 +23,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// touched again, verify against a real decoded token, not just the
 /// permission catalog's `name` column.
 ///
-/// One legacy key, `secbtnaccess` (the admin/"security button" visibility
-/// flag - see Settings.dart/Dashboard.dart/CreateUser.dart etc.), is
-/// deliberately left out of this map: there is no 1:1 entry for it among
-/// the 48 new app-functionality permissions, so [applyPermissionFlags]
-/// keeps defaulting it to `"True"` exactly as the old hardcoded block did,
-/// rather than gating it against a permission string that doesn't exist.
+/// `secbtnaccess` (the admin/"security button" visibility flag gating the
+/// Roles/Users management menu items - see app_bottom_nav.dart) isn't set
+/// here at all - it has no equivalent in this permission catalog, and is
+/// deliberately based on a straight "is this company-user's role the
+/// system Admin role" check instead (`CompanyUser.role.isSystem`, from
+/// `GET /company-user/:id`), not on any granted-permission string - see
+/// [CompanySelectNotifier.selectCompany] where it's set. Previously this
+/// was hardcoded to `"True"` unconditionally (a real bug - every
+/// company-user, including a generic/Spectra non-admin one, saw
+/// "Roles"/"Users" in their menu regardless of login), now fixed to
+/// reflect the actual admin/non-admin login.
 const Map<String, String> legacyFlagToPermission = {
   // Dashboard
   'salesdash': 'DASHBOARD_SALES:READ',
@@ -91,31 +96,25 @@ const Map<String, String> legacyFlagToPermission = {
   'settings_fastslowinactiveitem': 'SETTINGS_FAST_SLOW_INACTIVE_ITEM:UPDATE',
 };
 
-/// Legacy flags with no equivalent in the new 40-entry permission catalog.
-/// Kept defaulted to `"True"` by [applyPermissionFlags] rather than
-/// permission-gated - see the doc comment on [legacyFlagToPermission] for
-/// why `secbtnaccess` specifically is here.
-const List<String> unmappedLegacyFlags = ['secbtnaccess'];
-
 /// Sets every legacy screen-visibility/enable SharedPreferences key from a
 /// decoded company-user JWT `permissions` claim
 /// ([AuthRepository.currentCompanyUserPermissions]).
 ///
-/// - [permissions] `null` means the claim couldn't be read at all (no
-///   active company-user session, an undecodable token, or a token that
-///   doesn't carry the claim yet - e.g. an older tally-oauth deployment
-///   still mid-rollout) - deliberately handled the same as a real empty
-///   list. Product decision made here: an unreadable/absent claim defaults
-///   every *mapped* flag to `"False"`, not `"True"` - fail closed rather
-///   than silently granting the old "everything True" full-access
-///   default, since a missing/broken claim is not itself evidence the
-///   account should see everything. If this default needs revisiting
-///   (e.g. because it turns out real accounts hit the null case often
-///   during rollout), that's a product call for whoever reviews this.
-/// - `secbtnaccess` is excluded from that fail-closed behavior - it keeps
-///   its own unconditional `"True"` default regardless of [permissions],
-///   same as before, since it isn't part of the new permission catalog at
-///   all yet.
+/// [permissions] `null` means the claim couldn't be read at all (no active
+/// company-user session, an undecodable token, or a token that doesn't
+/// carry the claim yet - e.g. an older tally-oauth deployment still
+/// mid-rollout) - deliberately handled the same as a real empty list.
+/// Product decision made here: an unreadable/absent claim defaults every
+/// flag here to `"False"`, not `"True"` - fail closed rather than
+/// silently granting the old "everything True" full-access default, since
+/// a missing/broken claim is not itself evidence the account should see
+/// everything. If this default needs revisiting (e.g. because it turns
+/// out real accounts hit the null case often during rollout), that's a
+/// product call for whoever reviews this.
+///
+/// Does not touch `secbtnaccess` - see the doc comment above
+/// [legacyFlagToPermission] for why that one is set separately, from an
+/// admin/non-admin role check rather than a permission string.
 Future<void> applyPermissionFlags(
   SharedPreferences prefs,
   List<String>? permissions,
@@ -126,8 +125,5 @@ Future<void> applyPermissionFlags(
       entry.key,
       granted.contains(entry.value) ? 'True' : 'False',
     );
-  }
-  for (final key in unmappedLegacyFlags) {
-    await prefs.setString(key, 'True');
   }
 }

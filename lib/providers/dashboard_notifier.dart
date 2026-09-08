@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -306,7 +307,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     final serialNo = _prefs.getString('serial_no');
     final licenseExpiry = _prefs.getString('license_expiry');
     final baseCurrency = _prefs.getString('base_currency') ?? '';
-    print('base_currency -> $baseCurrency');
+    debugPrint('base_currency -> $baseCurrency');
 
     final selectedScale =
         _numberScaleFromString(_prefs.getString('number_scale'));
@@ -319,7 +320,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         _prefs.getString('deliverynoteentry') ?? 'True';
 
     final selectedDate = _prefs.getString('dateRangeOption') ?? 'Today';
-    print('selected date option -> $selectedDate');
+    debugPrint('selected date option -> $selectedDate');
 
     final decimal = _prefs.getInt('decimalplace') ?? 2;
 

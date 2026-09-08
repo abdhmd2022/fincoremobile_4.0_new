@@ -1695,7 +1695,7 @@ class _PartyClickedPageState extends ConsumerState<PartyClicked>
                                     onTapTotal: () {
                                       String amount = totalreceiptamt;
 
-                                      print('amount -> $amount');
+                                      debugPrint('amount -> $amount');
                                       String vchtype = 'Receipt';
                                       Navigator.push(
                                         context,
@@ -1731,7 +1731,7 @@ class _PartyClickedPageState extends ConsumerState<PartyClicked>
                                     ledgerMasterId: ledgerMasterId,
                                     onTapTotal: () {
                                       String amount = totalpaymentamt;
-                                      print('amount -> $amount');
+                                      debugPrint('amount -> $amount');
 
                                       String vchtype = 'Payment';
                                       Navigator.push(
@@ -1806,7 +1806,7 @@ class _PartyClickedPageState extends ConsumerState<PartyClicked>
                                     ledgerMasterId: ledgerMasterId,
                                     onTapTotal: () {
                                       String amount = totaljournalamt;
-                                      print('amount -> $amount');
+                                      debugPrint('amount -> $amount');
                                       String vchtype = 'Journal';
                                       Navigator.push(
                                         context,
@@ -2673,7 +2673,7 @@ class _PartyClickedPageState extends ConsumerState<PartyClicked>
   void navigateToOrder(String type) {
     String vchtype = type == 'salesorder' ? 'sales' : 'purchase';
 
-    print('vchtype -> $vchtype and type->$type');
+    debugPrint('vchtype -> $vchtype and type->$type');
     Navigator.push(
       context,
       MaterialPageRoute(

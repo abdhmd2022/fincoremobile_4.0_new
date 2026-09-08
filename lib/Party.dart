@@ -530,7 +530,7 @@ class _PartyPageState extends ConsumerState<Party>
             context,
             MaterialPageRoute(builder: (context) => Dashboard()),
           );
-          return true;
+          return false;
         },
         child: Stack(
           children: [

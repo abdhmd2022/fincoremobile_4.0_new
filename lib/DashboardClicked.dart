@@ -1607,7 +1607,7 @@ class _DashboardClickedPageState extends ConsumerState<DashboardClicked>
           }
         } catch (e) {
           formattedDate = duedate;
-          print(e);
+          debugPrint(e.toString());
         }
       }
     }
@@ -1647,7 +1647,7 @@ class _DashboardClickedPageState extends ConsumerState<DashboardClicked>
           }
         } catch (e) {
           formattedDate = DateTime.parse(duedate);
-          print(e);
+          debugPrint(e.toString());
         }
       }
     }
@@ -2007,7 +2007,7 @@ class _DashboardClickedPageState extends ConsumerState<DashboardClicked>
                               generateAndSharePDF_PartyAgeing().catchError((
                                 e,
                               ) {
-                                print(e);
+                                debugPrint(e.toString());
                                 showToast('Failed to generate report');
                               });
                             } else {
@@ -2017,7 +2017,7 @@ class _DashboardClickedPageState extends ConsumerState<DashboardClicked>
                               _isAgeingView) {
                             if (_ageingBuckets.isNotEmpty) {
                               generateAndSharePDF_Ageing().catchError((e) {
-                                print(e);
+                                debugPrint(e.toString());
                                 showToast('Failed to generate report');
                               });
                             } else {
@@ -2027,7 +2027,7 @@ class _DashboardClickedPageState extends ConsumerState<DashboardClicked>
                               _isTopPartiesView) {
                             if (_topParties.isNotEmpty) {
                               generateAndSharePDF_TopParties().catchError((e) {
-                                print(e);
+                                debugPrint(e.toString());
                                 showToast('Failed to generate report');
                               });
                             } else {
@@ -2073,7 +2073,7 @@ class _DashboardClickedPageState extends ConsumerState<DashboardClicked>
                               generateAndShareCSV_PartyAgeing().catchError((
                                 e,
                               ) {
-                                print(e);
+                                debugPrint(e.toString());
                                 showToast('Failed to generate report');
                               });
                             } else {
@@ -2083,7 +2083,7 @@ class _DashboardClickedPageState extends ConsumerState<DashboardClicked>
                               _isAgeingView) {
                             if (_ageingBuckets.isNotEmpty) {
                               generateAndShareCSV_Ageing().catchError((e) {
-                                print(e);
+                                debugPrint(e.toString());
                                 showToast('Failed to generate report');
                               });
                             } else {
@@ -2093,7 +2093,7 @@ class _DashboardClickedPageState extends ConsumerState<DashboardClicked>
                               _isTopPartiesView) {
                             if (_topParties.isNotEmpty) {
                               generateAndShareCSV_TopParties().catchError((e) {
-                                print(e);
+                                debugPrint(e.toString());
                                 showToast('Failed to generate report');
                               });
                             } else {
@@ -2144,7 +2144,7 @@ class _DashboardClickedPageState extends ConsumerState<DashboardClicked>
             context,
             MaterialPageRoute(builder: (context) => Dashboard()),
           );
-          return true;
+          return false;
         },
         child: Stack(
           children: [

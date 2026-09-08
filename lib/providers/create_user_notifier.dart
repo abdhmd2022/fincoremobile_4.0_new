@@ -119,20 +119,21 @@ class CreateUserNotifier extends StateNotifier<CreateUserState> {
   /// Returns the (name, password, email-or-null) needed for the credentials
   /// email on success, so the widget can send it - notifiers shouldn't own
   /// SMTP/UI side effects.
+  ///
+  /// [firstName]/[lastName] are collected as separate fields in the UI
+  /// (matching tally-oauth's `CreateCompanyUserSchema`, which requires each
+  /// independently - previously derived by splitting a single "Full Name"
+  /// field, which broke for a short second word like "Driver 1"'s "1").
   Future<({bool success, String? emailToNotify, String? password})>
       userRegistration({
     required String userNameOrEmail,
     required String password,
     required String roleId,
-    required String name,
+    required String firstName,
+    required String lastName,
     required bool isEmailLogin,
   }) async {
     state = state.copyWith(isLoading: true);
-
-    final nameParts = name.trim().split(RegExp(r'\s+'));
-    final firstName = nameParts.first;
-    final lastName =
-        nameParts.length > 1 ? nameParts.sublist(1).join(' ') : firstName;
 
     try {
       await _ref.read(identityRepositoryProvider).createCompanyUser(

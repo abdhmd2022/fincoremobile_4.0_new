@@ -1369,7 +1369,7 @@ class _LedgerExpandableTileState extends State<LedgerExpandableTile>
     super.initState();
     _filteredBills = widget.bills; // initialize with all bills
 
-    print('bills -> $_filteredBills');
+    debugPrint('bills -> $_filteredBills');
     _searchController.addListener(_filterBills);
   }
 

@@ -20,13 +20,18 @@ class CreateUser extends ConsumerStatefulWidget {
 
 class _CreateUserPageState extends ConsumerState<CreateUser>
     with TickerProviderStateMixin {
-  bool _isFocused_email = false, _isFocus_name = false;
+  bool _isFocused_email = false,
+      _isFocus_firstname = false,
+      _isFocus_lastname = false;
 
   late final TextEditingController controller_username =
       TextEditingController();
   late final TextEditingController controller_password =
       TextEditingController();
-  late final TextEditingController controller_name = TextEditingController();
+  late final TextEditingController controller_firstname =
+      TextEditingController();
+  late final TextEditingController controller_lastname =
+      TextEditingController();
 
   bool _isFocused_password = false;
   bool _obscureText = true;
@@ -137,7 +142,7 @@ class _CreateUserPageState extends ConsumerState<CreateUser>
 
     try {
       await send(message, smtpServer); // ✅ DO NOT assign it to a variable
-      print('Credential email sent to $email');
+      debugPrint('Credential email sent to $email');
     } catch (e) {
       showAppMessage(context, 'Failed to send email: $e');
     }
@@ -152,28 +157,32 @@ class _CreateUserPageState extends ConsumerState<CreateUser>
     required String userNameOrEmail,
     required String password,
     required String roleId,
-    required String name,
+    required String firstName,
+    required String lastName,
   }) async {
     final isEmailLogin = isEmail(userNameOrEmail);
     final result = await ref.read(createUserNotifierProvider.notifier).userRegistration(
       userNameOrEmail: userNameOrEmail,
       password: password,
       roleId: roleId,
-      name: name,
+      firstName: firstName,
+      lastName: lastName,
       isEmailLogin: isEmailLogin,
     );
 
     if (result.success) {
+      final fullName = '$firstName $lastName'.trim();
       if (result.emailToNotify != null) {
         sendUserCredentialsEmailSMTP(
           email: result.emailToNotify!,
-          name: name,
+          name: fullName,
           password: result.password!,
         );
       }
 
       controller_username.clear();
-      controller_name.clear();
+      controller_firstname.clear();
+      controller_lastname.clear();
       controller_password.clear();
       if (mounted) FocusScope.of(context).unfocus();
     }
@@ -211,11 +220,18 @@ class _CreateUserPageState extends ConsumerState<CreateUser>
 
     return WillPopScope(
       onWillPop: () async {
+        // Returning `true` here told Flutter to ALSO run the default pop
+        // right after this already navigated away via `pushReplacement` -
+        // two conflicting navigation operations firing back-to-back (most
+        // visible via iOS's edge-swipe-back gesture, which goes through
+        // this exact callback). Since this handles the navigation itself,
+        // it must return `false` to say "already handled, don't also
+        // pop" - same fix as ModifyUser.dart's WillPopScope.
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => UserView()),
         );
-        return true;
+        return false;
       },
       child: Scaffold(
         bottomNavigationBar: const AppBottomNav(
@@ -328,11 +344,19 @@ class _CreateUserPageState extends ConsumerState<CreateUser>
                             ),
                             const SizedBox(height: 16),
                             _modernTextField(
-                              label: 'Full Name',
-                              controller: controller_name,
+                              label: 'First Name',
+                              controller: controller_firstname,
                               icon: Icons.person_outline,
-                              isFocused: _isFocus_name,
-                              onFocus: () => _updateFocus(name: true),
+                              isFocused: _isFocus_firstname,
+                              onFocus: () => _updateFocus(firstname: true),
+                            ),
+                            const SizedBox(height: 20),
+                            _modernTextField(
+                              label: 'Last Name',
+                              controller: controller_lastname,
+                              icon: Icons.person_outline,
+                              isFocused: _isFocus_lastname,
+                              onFocus: () => _updateFocus(lastname: true),
                             ),
                             const SizedBox(height: 20),
                             _modernTextField(
@@ -553,12 +577,14 @@ class _CreateUserPageState extends ConsumerState<CreateUser>
   }
 
   void _updateFocus({
-    bool name = false,
+    bool firstname = false,
+    bool lastname = false,
     bool email = false,
     bool password = false,
   }) {
     setState(() {
-      _isFocus_name = name;
+      _isFocus_firstname = firstname;
+      _isFocus_lastname = lastname;
       _isFocused_email = email;
       _isFocused_password = password;
     });
@@ -566,26 +592,42 @@ class _CreateUserPageState extends ConsumerState<CreateUser>
 
   // Mirrors tally-oauth's actual `POST /company-user` Zod schema (confirmed
   // live against the running server, not guessed): `userName` >= 8 chars,
-  // `firstName`/`lastName`/`email` <= their DB column widths (VarChar(100)/
-  // VarChar(100)/VarChar(320)), `phone` E.164 (`+` then up to 15 digits) if
+  // `firstName`/`lastName` >= 2 chars (confirmed live: a too-short lastName
+  // 400s with "Name must be at least 2 characters"), each <= their DB
+  // column widths (VarChar(100)/VarChar(100)/VarChar(320) for
+  // firstName/lastName/email), `phone` E.164 (`+` then up to 15 digits) if
   // given. Password has no confirmed server-side complexity/length rule
   // beyond bcrypt's 72-byte input cap, so this only enforces a conservative
   // minimum (8, matching userName) rather than inventing rules that could
   // reject a password the server would actually accept.
   static final RegExp _phoneE164 = RegExp(r'^\+[1-9]\d{1,14}$');
 
+  String? _validateName(String label, String value) {
+    if (value.isEmpty) return "Please enter a $label";
+    if (value.length < 2) return "$label must be at least 2 characters";
+    if (value.length > 100) return "$label must be 100 characters or fewer";
+    return null;
+  }
+
   void _submitForm() {
-    final name = controller_name.text.trim();
+    final firstName = controller_firstname.text.trim();
+    final lastName = controller_lastname.text.trim();
     final username = controller_username.text.trim();
     final roleId =
         ref.read(createUserNotifierProvider).selectedRole?["id"] as String?;
 
-    if (name.isEmpty) {
-      showAppMessage(context, "Please enter the user's full name");
+    final firstNameError = _validateName('first name', firstName);
+    if (firstNameError != null) {
+      showAppMessage(context, firstNameError);
       return;
     }
-    if (name.length > 100) {
-      showAppMessage(context, "Full name must be 100 characters or fewer");
+    final lastNameError = _validateName('last name', lastName);
+    if (lastNameError != null) {
+      showAppMessage(context, lastNameError);
+      return;
+    }
+    if (firstName.toLowerCase() == lastName.toLowerCase()) {
+      showAppMessage(context, "First name and last name should not be the same");
       return;
     }
     if (username.isEmpty) {
@@ -641,7 +683,8 @@ class _CreateUserPageState extends ConsumerState<CreateUser>
       userNameOrEmail: username,
       password: finalPassword,
       roleId: roleId,
-      name: name,
+      firstName: firstName,
+      lastName: lastName,
     );
   }
 

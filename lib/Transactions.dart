@@ -951,7 +951,7 @@ class _TransactionsPageState extends ConsumerState<Transactions>
             context,
             MaterialPageRoute(builder: (context) => Dashboard()),
           );
-          return true;
+          return false;
         },
         child: Stack(
           children: [

@@ -11,7 +11,7 @@ import '../api/stock_repository.dart';
 import '../api/tally_api_client.dart';
 import '../api/voucher_entry_dropdowns_repository.dart';
 import '../api/voucher_entry_repository.dart';
-import '../constants.dart' show uniGasSerialNumber;
+import '../constants.dart' show vanSalesSerialNo, uniGasSerialNumber;
 
 /// Riverpod migration of `SalesOrderRegistration.dart`'s
 /// `_SalesOrderRegistrationPageState`. Same verbatim `_commit`/`_snapshot`
@@ -104,6 +104,9 @@ class SalesOrderRegistrationState {
 
   final String errorMessageVchNo;
 
+  final String? selectedPartyLedgerPriceLevel;
+  final Map<String, String?> partyLedgerPriceLevelMap;
+
   const SalesOrderRegistrationState({
     required this.vchTypeNameData,
     required this.partyLedgerData,
@@ -147,6 +150,8 @@ class SalesOrderRegistrationState {
     required this.selectedSalesLedger,
     required this.selectedVatLedger,
     required this.errorMessageVchNo,
+    required this.selectedPartyLedgerPriceLevel,
+    required this.partyLedgerPriceLevelMap,
   });
 }
 
@@ -232,6 +237,8 @@ class SalesOrderRegistrationNotifier
           selectedSalesLedger: null,
           selectedVatLedger: null,
           errorMessageVchNo: '',
+          selectedPartyLedgerPriceLevel: null,
+          partyLedgerPriceLevelMap: const {},
         ),
       ) {
     _init();
@@ -285,6 +292,8 @@ class SalesOrderRegistrationNotifier
     selectedSalesLedger: _selectedsalesledger,
     selectedVatLedger: _selectedvatledger,
     errorMessageVchNo: errorMessageVchNo,
+    selectedPartyLedgerPriceLevel: selectedPartyLedgerPriceLevel,
+    partyLedgerPriceLevelMap: Map.unmodifiable(partyLedgerPriceLevelMap),
   );
 
   String _formatDecimal(double value) {
@@ -352,6 +361,9 @@ class SalesOrderRegistrationNotifier
   dynamic _selectedvatledger;
 
   String errorMessageVchNo = '';
+
+  String? selectedPartyLedgerPriceLevel;
+  Map<String, String?> partyLedgerPriceLevelMap = {};
 
   bool get isUniGasSerial {
     final currentSerial = serial_no?.trim() ?? '';
@@ -545,7 +557,10 @@ class SalesOrderRegistrationNotifier
   }
 
   void setSelectedPartyLedger(String value) {
-    _commit(() => _selectedpartyledger = value);
+    _commit(() {
+      _selectedpartyledger = value;
+      selectedPartyLedgerPriceLevel = partyLedgerPriceLevelMap[value];
+    });
   }
 
   /// Verbatim port of the VAT-ledger dropdown `onChanged` body.
@@ -705,7 +720,7 @@ class SalesOrderRegistrationNotifier
         _fetchCurrencyMasterId(currencycode),
       ]);
 
-      final stockItems = results[0] as List<Map<String, dynamic>>;
+      var stockItems = results[0] as List<Map<String, dynamic>>;
       final salesData = results[1] as Map<String, dynamic>;
       final godowns = results[2] as List<Map<String, dynamic>>;
       final voucherTypes = results[3] as List<Map<String, dynamic>>;
@@ -748,6 +763,30 @@ class SalesOrderRegistrationNotifier
         _voucherTypeMasterIdByName[v['name'] as String] = v['masterId'] as int;
       }
 
+      final String currentSerialNo = serial_no?.trim() ?? '';
+      final bool isUniGas = vanSalesSerialNo.contains(currentSerialNo);
+
+      // `godowns` (via `_fetchGodowns()`'s `/godowns` list) is already
+      // scoped server-side to this specific company-user's own GODOWN
+      // master-restriction (Van Allocation) - exactly one row back means
+      // this user is locked to a single vehicle/location. Switch from
+      // `StockRepository.listStockItems()`'s "every stock item company-
+      // wide" to `salesData(godownMasterId: ...)`'s per-godown-batch item
+      // list (positive quantity only) for that case - matches legacy's
+      // per-vehicle item filtering for Spectra van-sales users.
+      // Unrestricted users (including admins, never given a GODOWN
+      // restriction) get every godown back here and keep the full item
+      // list - no extra request for them.
+      if (isUniGas && godowns.length == 1) {
+        final godownMasterId = godowns.first['masterId'] as int;
+        final scoped = await VoucherEntryDropdownsRepository.instance
+            .salesData(type: 'salesOrder', godownMasterId: godownMasterId);
+        stockItems = (scoped['items'] as List).cast<Map<String, dynamic>>();
+      }
+
+      String? trimOrNull(String? raw) =>
+          (raw?.trim().isEmpty ?? true) ? null : raw!.trim();
+
       _commit(() {
         vchtypenamedata = salesOrderTypes.map((v) => v['name'] as String).toList();
         _selectedvchtypename = (vchtypenamedata.isNotEmpty ? vchtypenamedata[0] : null);
@@ -755,6 +794,19 @@ class SalesOrderRegistrationNotifier
         partyledgerdata = partyLedgers.map((l) => l['name'] as String).toList()
           ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
         _selectedpartyledger = (partyledgerdata.isNotEmpty ? partyledgerdata[0] : null);
+
+        partyLedgerPriceLevelMap.clear();
+        if (isUniGas) {
+          for (final ledger in partyLedgers) {
+            final String ledgerName = (ledger['name'] as String).trim();
+            if (ledgerName.isEmpty) continue;
+            partyLedgerPriceLevelMap[ledgerName] = trimOrNull(
+              ledger['priceLevel'] as String?,
+            );
+          }
+        }
+        selectedPartyLedgerPriceLevel =
+            partyLedgerPriceLevelMap[_selectedpartyledger];
 
         salesledger_data = salesLedgers.map((l) => l['name'] as String).toList();
         _selectedsalesledger = (salesledger_data.isNotEmpty ? salesledger_data[0] : null);
@@ -1057,6 +1109,7 @@ class SalesOrderRegistrationNotifier
       _selectedpartyledger = (partyledgerdata.isNotEmpty ? partyledgerdata[0] : null);
       _selectedsalesledger = (salesledger_data.isNotEmpty ? salesledger_data[0] : null);
       _selectedvatledger = (vatledgerdata.isNotEmpty ? vatledgerdata[0] : null);
+      selectedPartyLedgerPriceLevel = partyLedgerPriceLevelMap[_selectedpartyledger];
 
       saleItems.clear();
       ledgerEntries.clear();

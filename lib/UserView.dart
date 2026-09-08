@@ -299,7 +299,7 @@ class _UserViewPageState extends ConsumerState<UserView>
           context,
           MaterialPageRoute(builder: (context) => Dashboard()),
         );
-        return true;
+        return false;
       },
       child: Scaffold(
         bottomNavigationBar: const AppBottomNav(

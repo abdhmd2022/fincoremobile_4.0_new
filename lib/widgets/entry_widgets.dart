@@ -8,6 +8,7 @@ import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 import 'package:image/image.dart' as img;
 import '../constants.dart';
 import '../currencyFormat.dart';
+import '../AddRole.dart' show PermissionOption;
 
 // ─── Section Header ──────────────────────────────────────────────
 class EntrySection extends StatelessWidget {
@@ -1786,4 +1787,254 @@ void showAppMessage(
       _appMessageOverlay = null;
     }
   });
+}
+
+// ─── Role form card (AddRole.dart / ModifyRole.dart) ────────────────
+// Shared visual treatment for the role-name field + grouped permission
+// checklist, so both screens (previously a bare TextField + flat
+// Matches the legacy app's Add/Modify Role screens (fincoremobile_4.0_new,
+// the pre-newbackend sibling): a "Create/Edit role" card with a rounded
+// name field, then one card per permission group with a header row (icon +
+// title + a master Switch.adaptive that toggles the whole group) and a Wrap
+// of pill-shaped chip toggles for each permission in that group - not a
+// checkbox list.
+//
+// Takes plain `(id, displayName)` records for each permission rather than
+// importing `PermissionOption` from AddRole.dart, to avoid a circular
+// import (AddRole.dart already imports this file).
+Widget buildRoleFormCard({
+  required BuildContext context,
+  required IconData headerIcon,
+  required String headerTitle,
+  required String headerSubtitle,
+  required TextEditingController nameController,
+  required Map<String, List<PermissionOption>>
+      groupedPermissions,
+  required Set<String> selectedPermissionIds,
+  required int totalPermissionCount,
+  required void Function(String id, bool checked) onToggle,
+}) {
+  final theme = Theme.of(context);
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Container(
+        decoration: BoxDecoration(
+          color: theme.cardColor,
+          borderRadius: BorderRadius.circular(20),
+          border: theme.brightness == Brightness.dark
+              ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+              : null,
+          boxShadow: const [
+            BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(
+                  backgroundColor: app_color.withOpacity(0.1),
+                  radius: 18,
+                  child: Icon(headerIcon, size: 20, color: app_color),
+                ),
+                title: Text(
+                  headerTitle,
+                  style: GoogleFonts.poppins(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                subtitle: Text(
+                  headerSubtitle,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: nameController,
+                style: GoogleFonts.poppins(fontSize: 15),
+                decoration: InputDecoration(
+                  labelText: 'Role name',
+                  labelStyle: GoogleFonts.poppins(),
+                  prefixIcon: Icon(
+                    Icons.badge_outlined,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  filled: true,
+                  fillColor: theme.brightness == Brightness.dark
+                      ? theme.colorScheme.surfaceContainerHighest.withOpacity(0.4)
+                      : const Color(0xFFF7F8FA),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(22),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(22),
+                    borderSide: BorderSide(color: theme.dividerColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(22),
+                    borderSide: BorderSide(color: app_color, width: 1.5),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const SizedBox(height: 10),
+      for (final entry in groupedPermissions.entries) ...[
+        _PermissionGroupCard(
+          groupName: entry.key,
+          permissions: entry.value,
+          selectedPermissionIds: selectedPermissionIds,
+          onToggle: onToggle,
+        ),
+        const SizedBox(height: 10),
+      ],
+    ],
+  );
+}
+
+class _PermissionGroupCard extends StatelessWidget {
+  final String groupName;
+  final List<PermissionOption> permissions;
+  final Set<String> selectedPermissionIds;
+  final void Function(String id, bool checked) onToggle;
+
+  const _PermissionGroupCard({
+    required this.groupName,
+    required this.permissions,
+    required this.selectedPermissionIds,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final allSelected = permissions.isNotEmpty &&
+        permissions.every((p) => selectedPermissionIds.contains(p.id));
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: theme.brightness == Brightness.dark
+            ? Border.all(color: Colors.white.withOpacity(0.10), width: 1)
+            : null,
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: app_color.withOpacity(0.1),
+                      radius: 18,
+                      child: Icon(Icons.shield_outlined, size: 20, color: app_color),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      groupName,
+                      style: GoogleFonts.poppins(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+                Switch.adaptive(
+                  value: allSelected,
+                  activeColor: app_color,
+                  inactiveTrackColor: Colors.grey.shade300,
+                  inactiveThumbColor: Colors.white,
+                  onChanged: (value) {
+                    for (final p in permissions) {
+                      onToggle(p.id, value);
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: permissions
+                  .map(
+                    (permission) => _buildSubPermissionChip(
+                      context,
+                      permission.displayName,
+                      selectedPermissionIds.contains(permission.id),
+                      (checked) => onToggle(permission.id, checked),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Widget _buildSubPermissionChip(
+  BuildContext context,
+  String label,
+  bool value,
+  ValueChanged<bool> onChanged,
+) {
+  final theme = Theme.of(context);
+  return InkWell(
+    onTap: () => onChanged(!value),
+    borderRadius: BorderRadius.circular(20),
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: value ? app_color.withOpacity(0.1) : theme.cardColor,
+        border: Border.all(color: value ? app_color : theme.dividerColor),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            value ? Icons.check_circle : Icons.radio_button_unchecked,
+            size: 18,
+            color: value ? app_color : theme.colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: value ? app_color : theme.colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }

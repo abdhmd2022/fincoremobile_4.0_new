@@ -64,6 +64,14 @@ class RolesViewNotifier extends StateNotifier<RolesViewState> {
 
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
+    // This provider is invalidated on every RolesView entry (see
+    // RolesView.dart's initState - forces a fresh fetch rather than
+    // trusting a stale instance survived a company switch), which can
+    // dispose this very instance while the `await` above is still
+    // in-flight. Checking `mounted` after every await point below avoids
+    // "Tried to use RolesViewNotifier after `dispose` was called" - a
+    // disposed instance's in-flight work should just stop, not crash.
+    if (!mounted) return;
     final company = prefs.getString('company_name') ?? '';
     final securityAccess = prefs.getString('secbtnaccess');
     final visible = securityAccess == 'True';
@@ -77,25 +85,27 @@ class RolesViewNotifier extends StateNotifier<RolesViewState> {
 
   void filterRoles(String query) {
     _searchQuery = query;
-    if (query.trim().isEmpty) {
-      state = state.copyWith(filteredRoles: List.from(state.roles));
-    } else {
-      state = state.copyWith(
-        filteredRoles: state.roles
+    final filtered = query.trim().isEmpty
+        ? List<RoleModel>.from(state.roles)
+        : state.roles
             .where((r) => r.name.toLowerCase().contains(query.toLowerCase()))
-            .toList(),
-      );
-    }
+            .toList();
+    state = state.copyWith(
+      filteredRoles: filtered,
+      isVisibleNoRoleFound: filtered.isEmpty,
+    );
   }
 
   /// The role's own company scoping now comes from the company-user
   /// session's token (see company-role.controller.ts's `findAll`), not a
   /// `serialno` in the request body - no param needed here anymore.
   Future<void> fetchRoles() async {
+    if (!mounted) return;
     state = state.copyWith(isLoading: true);
     try {
       final result =
           await _ref.read(identityRepositoryProvider).listRoles(limit: 100);
+      if (!mounted) return;
       final items = (result.data as List).cast<Map<String, dynamic>>();
       final roles = items.map(RoleModel.fromJson).toList();
       final filtered = _searchQuery.trim().isEmpty
@@ -111,8 +121,10 @@ class RolesViewNotifier extends StateNotifier<RolesViewState> {
         isLoading: false,
       );
     } on ApiException catch (e) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, errorMessage: e.message);
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Could not reach the server. Please try again.',
@@ -124,16 +136,17 @@ class RolesViewNotifier extends StateNotifier<RolesViewState> {
     String roleId,
     String roleName,
   ) async {
+    if (!mounted) return const RolesViewActionResult(false, '');
     state = state.copyWith(isLoading: true);
     try {
       await _ref.read(identityRepositoryProvider).deleteRole(roleId);
       await fetchRoles();
       return RolesViewActionResult(true, "Role '$roleName' deleted");
     } on ApiException catch (e) {
-      state = state.copyWith(isLoading: false);
+      if (mounted) state = state.copyWith(isLoading: false);
       return RolesViewActionResult(false, e.message);
     } catch (e) {
-      state = state.copyWith(isLoading: false);
+      if (mounted) state = state.copyWith(isLoading: false);
       return const RolesViewActionResult(
         false,
         'Could not reach the server. Please try again.',

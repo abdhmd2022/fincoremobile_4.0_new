@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'RolesView.dart';
 import 'constants.dart';
 import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 import 'widgets/entry_widgets.dart';
 import 'providers/modify_role_notifier.dart';
+import 'providers/roles_view_notifier.dart';
 
 class ModifyRole extends ConsumerStatefulWidget {
   final String roleId;
@@ -35,10 +35,17 @@ class _ModifyRolePageState extends ConsumerState<ModifyRole> {
       showAppMessage(context, result.message!, isError: !result.success);
     }
     if (result.success) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const RolesView()),
-      );
+      // RolesView.dart pushed this screen (not pushReplacement), keeping
+      // itself on the stack underneath specifically so a plain pop always
+      // has somewhere to return to. Popping back to it here (instead of
+      // pushReplacement-ing a brand new RolesView on top) avoids stacking
+      // a duplicate RolesView on every successful save - refresh its list
+      // first since it's the same underlying
+      // `rolesViewNotifierProvider.autoDispose` instance (still mounted,
+      // not disposed, while covered by this screen).
+      await ref.read(rolesViewNotifierProvider.notifier).fetchRoles();
+      if (!mounted) return;
+      Navigator.pop(context);
     }
   }
 
@@ -50,8 +57,11 @@ class _ModifyRolePageState extends ConsumerState<ModifyRole> {
 
     ref.listen<ModifyRoleState>(provider, (previous, next) {
       if (next.loadError != null) {
-        showAppMessage(context, next.loadError!);
+        showAppMessage(context, next.loadError!, isError: !next.shouldGoBack);
         notifier.clearLoadError();
+      }
+      if (next.shouldGoBack) {
+        Navigator.pop(context);
       }
     });
 
@@ -64,6 +74,7 @@ class _ModifyRolePageState extends ConsumerState<ModifyRole> {
 
     final isLoading = vm.isLoading;
     final isSaving = vm.isSaving;
+    final isSystem = vm.isSystem;
     final selectedPermissionIds = vm.selectedPermissionIds;
 
     return Scaffold(
@@ -98,96 +109,88 @@ class _ModifyRolePageState extends ConsumerState<ModifyRole> {
           : ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
               children: [
-                TextField(
-                  controller: nameController,
-                  style: GoogleFonts.poppins(),
-                  decoration: InputDecoration(
-                    labelText: 'Role name',
-                    labelStyle: GoogleFonts.poppins(),
-                    filled: true,
-                    fillColor: Theme.of(context).cardColor,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Permissions',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                for (final entry in vm.groupedPermissions.entries) ...[
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12, bottom: 4),
-                    child: Text(
-                      entry.key,
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: app_color,
-                      ),
-                    ),
-                  ),
+                // System roles (e.g. "Admin", one auto-created per company)
+                // can't be edited by a regular company-user - the backend
+                // rejects the update outright. Shown read-only with a clear
+                // explanation up front instead of letting the user fill out
+                // the form and hit a confusing error on submit.
+                if (isSystem)
                   Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
+                      color: Colors.amber.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.amber.shade700),
                     ),
-                    child: Column(
-                      children: entry.value
-                          .map(
-                            (permission) => CheckboxListTile(
-                              value: selectedPermissionIds.contains(permission.id),
-                              onChanged: (checked) {
-                                notifier.togglePermission(
-                                  permission.id,
-                                  checked ?? false,
-                                );
-                              },
-                              title: Text(
-                                permission.displayName,
-                                style: GoogleFonts.poppins(fontSize: 14),
-                              ),
-                              controlAffinity: ListTileControlAffinity.leading,
-                              activeColor: app_color,
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline, color: Colors.amber.shade800),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'This is a system role and cannot be modified. You can still view its permissions.',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12.5,
+                              color: Colors.amber.shade900,
+                              fontWeight: FontWeight.w500,
                             ),
-                          )
-                          .toList(),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: isSaving ? null : _saveRole,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: app_color,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: isSaving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Text(
-                          'Save Changes',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                IgnorePointer(
+                  ignoring: isSystem,
+                  child: Opacity(
+                    opacity: isSystem ? 0.6 : 1,
+                    child: buildRoleFormCard(
+                      context: context,
+                      headerIcon: Icons.edit_outlined,
+                      headerTitle: 'Edit Role',
+                      headerSubtitle:
+                          'Update the role name and adjust its permissions.',
+                      nameController: nameController,
+                      groupedPermissions: vm.groupedPermissions,
+                      selectedPermissionIds: selectedPermissionIds,
+                      totalPermissionCount: vm.permissions.length,
+                      onToggle: notifier.togglePermission,
+                    ),
+                  ),
                 ),
+                const SizedBox(height: 22),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: (isSaving || isSystem) ? null : _saveRole,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: app_color,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40,
+                        vertical: 14,
+                      ),
+                    ),
+                    child: isSaving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Text(
+                            'MODIFY',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 40),
               ],
             ),
     );

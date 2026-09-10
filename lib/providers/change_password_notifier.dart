@@ -1,14 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/api_exception.dart';
 import 'repository_providers.dart';
 
+/// Legacy-style single-step flow: old password + new password + confirm,
+/// verified against the account's current stored password - no OTP/email
+/// step (see `AuthRepository.changePasswordWithOldPassword` and
+/// tally-admin-api's `POST /auth/user/change-password-with-old`, added
+/// specifically to restore this - the account's `id` comes from the
+/// normal user access token already attached to the request, so unlike
+/// the old OTP flow this doesn't need the username/email at all).
 class ChangePasswordState {
-  final String username;
-  // Set once step 1 (send OTP) succeeds - the short-lived token from
-  // `reset-password` that authorizes the actual `change-password` call.
-  final String? resetToken;
   final bool isLoading;
   final bool showNewPassValidation;
   final bool showConfirmValidation;
@@ -16,13 +18,11 @@ class ChangePasswordState {
   final bool hasUpper;
   final bool hasNumber;
   final bool isMatch;
+  final bool isOldPassVisible;
   final bool isNewPassVisible;
   final bool isConfirmPassVisible;
-  final bool isOtpVisible;
 
   const ChangePasswordState({
-    this.username = '',
-    this.resetToken,
     this.isLoading = false,
     this.showNewPassValidation = false,
     this.showConfirmValidation = false,
@@ -30,15 +30,12 @@ class ChangePasswordState {
     this.hasUpper = false,
     this.hasNumber = false,
     this.isMatch = false,
+    this.isOldPassVisible = false,
     this.isNewPassVisible = false,
     this.isConfirmPassVisible = false,
-    this.isOtpVisible = false,
   });
 
   ChangePasswordState copyWith({
-    String? username,
-    String? resetToken,
-    bool clearResetToken = false,
     bool? isLoading,
     bool? showNewPassValidation,
     bool? showConfirmValidation,
@@ -46,13 +43,11 @@ class ChangePasswordState {
     bool? hasUpper,
     bool? hasNumber,
     bool? isMatch,
+    bool? isOldPassVisible,
     bool? isNewPassVisible,
     bool? isConfirmPassVisible,
-    bool? isOtpVisible,
   }) {
     return ChangePasswordState(
-      username: username ?? this.username,
-      resetToken: clearResetToken ? null : (resetToken ?? this.resetToken),
       isLoading: isLoading ?? this.isLoading,
       showNewPassValidation:
           showNewPassValidation ?? this.showNewPassValidation,
@@ -62,9 +57,9 @@ class ChangePasswordState {
       hasUpper: hasUpper ?? this.hasUpper,
       hasNumber: hasNumber ?? this.hasNumber,
       isMatch: isMatch ?? this.isMatch,
+      isOldPassVisible: isOldPassVisible ?? this.isOldPassVisible,
       isNewPassVisible: isNewPassVisible ?? this.isNewPassVisible,
       isConfirmPassVisible: isConfirmPassVisible ?? this.isConfirmPassVisible,
-      isOtpVisible: isOtpVisible ?? this.isOtpVisible,
     );
   }
 }
@@ -81,15 +76,7 @@ class ChangePasswordResult {
 class ChangePasswordNotifier extends StateNotifier<ChangePasswordState> {
   final Ref _ref;
 
-  ChangePasswordNotifier(this._ref) : super(const ChangePasswordState()) {
-    _loadSession();
-  }
-
-  Future<void> _loadSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString('username') ?? '';
-    state = state.copyWith(username: username);
-  }
+  ChangePasswordNotifier(this._ref) : super(const ChangePasswordState());
 
   void validateNewPassword(String value, String confirmText) {
     state = state.copyWith(
@@ -108,6 +95,10 @@ class ChangePasswordNotifier extends StateNotifier<ChangePasswordState> {
     );
   }
 
+  void toggleOldPassVisible() {
+    state = state.copyWith(isOldPassVisible: !state.isOldPassVisible);
+  }
+
   void toggleNewPassVisible() {
     state = state.copyWith(isNewPassVisible: !state.isNewPassVisible);
   }
@@ -116,66 +107,17 @@ class ChangePasswordNotifier extends StateNotifier<ChangePasswordState> {
     state = state.copyWith(isConfirmPassVisible: !state.isConfirmPassVisible);
   }
 
-  void toggleOtpVisible() {
-    state = state.copyWith(isOtpVisible: !state.isOtpVisible);
-  }
-
-  /// Step 1 of the tally-oauth OTP flow - sends an OTP to the account's
-  /// email and stashes the short-lived reset token step 2 needs.
-  Future<ChangePasswordResult> sendOtp() async {
-    state = state.copyWith(isLoading: true);
-    try {
-      final token = await _ref
-          .read(authRepositoryProvider)
-          .requestPasswordResetOtp(username: state.username);
-      state = state.copyWith(resetToken: token, isLoading: false);
-      return const ChangePasswordResult(
-        true,
-        'OTP sent to your registered email.',
-      );
-    } on ApiException catch (e) {
-      state = state.copyWith(isLoading: false);
-      // Not a username/email-format mistake - `user-auth.service.ts`'s
-      // `resetPassword()` looks the account up by username fine, then
-      // throws this exact message when the found account simply has no
-      // email address on file at all, so the OTP has nowhere to be sent.
-      // There's no in-app way to add one and no non-OTP password-change
-      // path (tally-oauth has no "change with old password" endpoint) -
-      // surfaced as a clear, actionable message instead of the raw
-      // backend text, which reads like a login-typo error.
-      if (e.message == 'User email not found') {
-        return const ChangePasswordResult(
-          false,
-          'This account has no email on file, so we can\'t send a reset code. Please contact your administrator to add one before changing your password.',
-        );
-      }
-      return ChangePasswordResult(false, e.message);
-    } catch (e) {
-      state = state.copyWith(isLoading: false);
-      return const ChangePasswordResult(false, 'Network error. Please try again.');
-    }
-  }
-
-  /// Step 2 of the tally-oauth OTP flow - the "Update Password" button's
-  /// tally-oauth path once an OTP has been requested.
-  Future<ChangePasswordResult> confirmReset({
-    required String otp,
+  Future<ChangePasswordResult> changePassword({
+    required String oldPassword,
     required String newPassword,
   }) async {
-    final resetToken = state.resetToken;
-    if (resetToken == null) {
-      return const ChangePasswordResult(false, 'Please request an OTP first.');
-    }
-
     state = state.copyWith(isLoading: true);
     try {
-      await _ref.read(authRepositoryProvider).changePassword(
-        resetToken: resetToken,
-        otp: otp,
-        password: newPassword,
-      );
+      await _ref.read(authRepositoryProvider).changePasswordWithOldPassword(
+            oldPassword: oldPassword,
+            newPassword: newPassword,
+          );
       state = state.copyWith(
-        clearResetToken: true,
         isLoading: false,
         showNewPassValidation: false,
         showConfirmValidation: false,
@@ -190,10 +132,15 @@ class ChangePasswordNotifier extends StateNotifier<ChangePasswordState> {
       );
     } on ApiException catch (e) {
       state = state.copyWith(isLoading: false);
+      // The backend's own wording ("Current password is incorrect") is
+      // already clear - surfaced as-is rather than overridden.
       return ChangePasswordResult(false, e.message);
     } catch (e) {
       state = state.copyWith(isLoading: false);
-      return const ChangePasswordResult(false, 'Network error. Please try again.');
+      return const ChangePasswordResult(
+        false,
+        'Could not reach the server. Please try again.',
+      );
     }
   }
 }

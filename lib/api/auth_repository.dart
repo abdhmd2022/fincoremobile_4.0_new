@@ -393,13 +393,38 @@ class AuthRepository {
   String _normalizeCompanyName(String name) =>
       name.replaceAll(' ', '').toLowerCase();
 
-  /// `POST /auth/user/reset-password` - public, no auth needed. tally-oauth
-  /// has no "change password while logged in with your current password"
-  /// endpoint; this OTP-based flow (also used for "forgot password") is the
-  /// only password-change path it exposes, so `ChangePassword.dart` uses it
-  /// for a tally-oauth-only session too. Sends an OTP to the account's
-  /// email and returns a short-lived reset token (~15 min) that must be
-  /// passed to [changePassword] along with that OTP.
+  /// `POST /auth/user/change-password-with-old` - the legacy-style flow:
+  /// verifies [oldPassword] against the account's real stored hash and
+  /// changes it directly, using the normal user access token ([TokenScope.user],
+  /// no separate reset-token dance). This is what `ChangePassword.dart`
+  /// uses now, matching the legacy app's UI (old/new/confirm password,
+  /// no OTP). [requestPasswordResetOtp]/[changePassword] below remain as
+  /// the "forgot password" fallback for someone who doesn't currently
+  /// know their password (that flow still can't help an account with no
+  /// email on file, which is exactly the case this endpoint was added to
+  /// cover).
+  Future<void> changePasswordWithOldPassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    await _oauth.post(
+      '/auth/user/change-password-with-old',
+      body: {
+        'oldPassword': oldPassword,
+        'password': newPassword,
+        'confirmPassword': newPassword,
+      },
+      scope: TokenScope.user,
+    );
+  }
+
+  /// `POST /auth/user/reset-password` - public, no auth needed. The
+  /// "forgot password" flow (and previously the only password-change path
+  /// tally-oauth exposed at all, before [changePasswordWithOldPassword]
+  /// was added) - still the only option for someone who doesn't currently
+  /// know their password. Sends an OTP to the account's email and returns
+  /// a short-lived reset token (~15 min) that must be passed to
+  /// [changePassword] along with that OTP.
   Future<String> requestPasswordResetOtp({required String username}) async {
     final decoded = await _publicPost('/auth/user/reset-password', {
       'username': username,

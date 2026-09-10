@@ -15,9 +15,9 @@ class ChangePassword extends ConsumerStatefulWidget {
 }
 
 class _ChangePasswordScreenState extends ConsumerState<ChangePassword> {
+  final oldPassController = TextEditingController();
   final newPassController = TextEditingController();
   final confirmPassController = TextEditingController();
-  final otpController = TextEditingController();
 
   dynamic _formKey = GlobalKey<FormState>();
 
@@ -96,41 +96,31 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePassword> {
     );
   }
 
-  Future<void> handleChangePassword() => _handleConfirmReset();
-
-  /// Step 1 of the tally-oauth OTP flow - sends an OTP to the account's
-  /// email and stashes the short-lived reset token step 2 needs.
-  Future<void> _handleSendOtp() async {
-    final result =
-        await ref.read(changePasswordNotifierProvider.notifier).sendOtp();
-    if (!mounted) return;
-    _showMessage(result.message);
-  }
-
-  /// Step 2 of the tally-oauth OTP flow - the "Update Password" button's
-  /// tally-oauth path once an OTP has been requested.
-  Future<void> _handleConfirmReset() async {
+  Future<void> handleChangePassword() async {
     if (!_formKey.currentState!.validate()) return;
 
     final result = await ref
         .read(changePasswordNotifierProvider.notifier)
-        .confirmReset(otp: otpController.text, newPassword: newPassController.text);
+        .changePassword(
+          oldPassword: oldPassController.text,
+          newPassword: newPassController.text,
+        );
     if (!mounted) return;
-    _showMessage(result.message);
+    _showMessage(result.message, isError: !result.success);
     if (result.success) {
       FocusScope.of(context).unfocus();
       _formKey.currentState?.reset();
       setState(() {
         _formKey = GlobalKey<FormState>();
-        otpController.clear();
+        oldPassController.clear();
         newPassController.clear();
         confirmPassController.clear();
       });
     }
   }
 
-  void _showMessage(String msg) {
-    showAppMessage(context, msg);
+  void _showMessage(String msg, {bool isError = true}) {
+    showAppMessage(context, msg, isError: isError);
   }
 
   Widget _buildRule(String text, bool valid) {
@@ -160,9 +150,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePassword> {
   Widget build(BuildContext context) {
     final vm = ref.watch(changePasswordNotifierProvider);
     final notifier = ref.read(changePasswordNotifierProvider.notifier);
-    final username = vm.username;
-    final resetToken = vm.resetToken;
-    final isOtpVisible = vm.isOtpVisible;
+    final isOldPassVisible = vm.isOldPassVisible;
     final isNewPassVisible = vm.isNewPassVisible;
     final isConfirmPassVisible = vm.isConfirmPassVisible;
     final showNewPassValidation = vm.showNewPassValidation;
@@ -263,43 +251,22 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePassword> {
                           child: SingleChildScrollView(
                             child: Column(
                               children: [
-                                // tally-oauth has no "change with current
-                                // password" endpoint - only this OTP-based
-                                // reset flow. Step 1: request an OTP; the
-                                // rest of the form (OTP + new/confirm
-                                // password) only appears once it's sent.
-                                if (resetToken == null) ...[
-                                  Text(
-                                    "We'll send a one-time code to $username to verify it's you.",
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 13,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                  SizedBox(height: 15),
-                                ],
+                                _modernField(
+                                  "Old Password",
+                                  oldPassController,
+                                  Icons.lock_outline,
+                                  isOldPassVisible,
+                                  notifier.toggleOldPassVisible,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "Old password required";
+                                    }
+                                    return null;
+                                  },
+                                ),
 
-                                if (resetToken != null) ...[
-                                  _modernField(
-                                    "One-Time Code",
-                                    otpController,
-                                    Icons.pin_outlined,
-                                    isOtpVisible,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "OTP required";
-                                      }
-                                      return null;
-                                    },
-                                    notifier.toggleOtpVisible,
-                                  ),
-                                  SizedBox(height: 15),
-                                ],
+                                SizedBox(height: 15),
 
-                                if (resetToken != null) ...[
                                 _modernField(
                                   "New Password",
                                   newPassController,
@@ -317,16 +284,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePassword> {
                                     if (!hasLower || !hasUpper || !hasNumber) {
                                       return "Password must meet all requirements";
                                     }
-
-                                    /* if (!RegExp(r'[a-z]').hasMatch(value)) {
-                                      return "Must contain lowercase letter";
+                                    if (value == oldPassController.text) {
+                                      return "New password must be different from old password.";
                                     }
-                                    if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                                      return "Must contain uppercase letter";
-                                    }
-                                    if (!RegExp(r'[0-9]').hasMatch(value)) {
-                                      return "Must contain number";
-                                    }*/
                                     return null;
                                   },
                                 ),
@@ -346,6 +306,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePassword> {
                                   Icons.check_circle_outline,
                                   isConfirmPassVisible,
                                   notifier.toggleConfirmPassVisible,
+                                  onChanged: validateConfirmPassword,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return "Confirm your password";
@@ -401,7 +362,6 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePassword> {
                                     ],
                                   ),
                                 ],
-                                ], // end resetToken != null
 
                                 SizedBox(height: 15),
 
@@ -411,9 +371,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePassword> {
                                   child: GestureDetector(
                                     onTap: isLoading
                                         ? null
-                                        : (resetToken == null)
-                                            ? _handleSendOtp
-                                            : handleChangePassword,
+                                        : handleChangePassword,
                                     child: Container(
                                       margin: EdgeInsets.only(top: 20),
                                       padding: EdgeInsets.symmetric(
@@ -463,9 +421,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePassword> {
                                                       ),
                                               )
                                             : Text(
-                                                (resetToken == null)
-                                                    ? "Send OTP"
-                                                    : "Update Password",
+                                                "Update Password",
                                                 style: GoogleFonts.poppins(
                                                   color: Colors.white,
                                                   fontWeight: FontWeight.w600,

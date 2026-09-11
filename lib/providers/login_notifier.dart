@@ -13,6 +13,7 @@ class LoginState {
   final bool isLoading;
   final bool isLoadingResetPass;
   final bool isConfirmingPasswordReset;
+  final bool isVerifyingResetOtp;
   final bool isOtpVerifyingProgress;
   final bool isVerifyingOtp;
 
@@ -20,6 +21,15 @@ class LoginState {
   final bool isVisibleResetPassForm;
   final bool isVisibleOTPForm;
   final bool isVisibleResetOtpForm;
+
+  /// True once the reset-OTP form's 6-digit code has been fully entered -
+  /// gates whether the new/confirm-password fields are shown at all.
+  /// There's no standalone "verify OTP" backend call for password reset
+  /// (unlike login-OTP/verify-email) - [AuthRepository.changePassword]
+  /// checks the OTP and sets the password in one atomic call - so this is
+  /// a UI-only gate; a wrong/expired code still surfaces as an error on
+  /// final submit and resets this flag so the password fields hide again.
+  final bool isResetOtpConfirmed;
 
   final bool biometricAvailable;
   final bool biometricEnabled;
@@ -34,7 +44,11 @@ class LoginState {
   final bool isResendButtonEnabled;
   final String formattedTimerTime;
 
-  final String generatedOtp;
+  /// The opaque login-OTP token from `POST /auth/user/login-otp/send`
+  /// (see AuthRepository.sendLoginOtp/verifyLoginOtp) - required to
+  /// complete the OTP step. Not a real OTP itself (that's emailed to the
+  /// user, never held client-side).
+  final String otpToken;
   final String maskedEmail;
   final String? passwordResetToken;
 
@@ -42,12 +56,14 @@ class LoginState {
     this.isLoading = false,
     this.isLoadingResetPass = false,
     this.isConfirmingPasswordReset = false,
+    this.isVerifyingResetOtp = false,
     this.isOtpVerifyingProgress = false,
     this.isVerifyingOtp = false,
     this.isVisibleLoginForm = true,
     this.isVisibleResetPassForm = false,
     this.isVisibleOTPForm = false,
     this.isVisibleResetOtpForm = false,
+    this.isResetOtpConfirmed = false,
     this.biometricAvailable = false,
     this.biometricEnabled = false,
     this.biometricPromptShown = false,
@@ -58,7 +74,7 @@ class LoginState {
     this.isVisibleTimer = false,
     this.isResendButtonEnabled = false,
     this.formattedTimerTime = '01:00',
-    this.generatedOtp = '',
+    this.otpToken = '',
     this.maskedEmail = '',
     this.passwordResetToken,
   });
@@ -67,12 +83,14 @@ class LoginState {
     bool? isLoading,
     bool? isLoadingResetPass,
     bool? isConfirmingPasswordReset,
+    bool? isVerifyingResetOtp,
     bool? isOtpVerifyingProgress,
     bool? isVerifyingOtp,
     bool? isVisibleLoginForm,
     bool? isVisibleResetPassForm,
     bool? isVisibleOTPForm,
     bool? isVisibleResetOtpForm,
+    bool? isResetOtpConfirmed,
     bool? biometricAvailable,
     bool? biometricEnabled,
     bool? biometricPromptShown,
@@ -83,7 +101,7 @@ class LoginState {
     bool? isVisibleTimer,
     bool? isResendButtonEnabled,
     String? formattedTimerTime,
-    String? generatedOtp,
+    String? otpToken,
     String? maskedEmail,
     String? passwordResetToken,
     bool clearPasswordResetToken = false,
@@ -93,6 +111,7 @@ class LoginState {
       isLoadingResetPass: isLoadingResetPass ?? this.isLoadingResetPass,
       isConfirmingPasswordReset:
           isConfirmingPasswordReset ?? this.isConfirmingPasswordReset,
+      isVerifyingResetOtp: isVerifyingResetOtp ?? this.isVerifyingResetOtp,
       isOtpVerifyingProgress:
           isOtpVerifyingProgress ?? this.isOtpVerifyingProgress,
       isVerifyingOtp: isVerifyingOtp ?? this.isVerifyingOtp,
@@ -102,6 +121,7 @@ class LoginState {
       isVisibleOTPForm: isVisibleOTPForm ?? this.isVisibleOTPForm,
       isVisibleResetOtpForm:
           isVisibleResetOtpForm ?? this.isVisibleResetOtpForm,
+      isResetOtpConfirmed: isResetOtpConfirmed ?? this.isResetOtpConfirmed,
       biometricAvailable: biometricAvailable ?? this.biometricAvailable,
       biometricEnabled: biometricEnabled ?? this.biometricEnabled,
       biometricPromptShown: biometricPromptShown ?? this.biometricPromptShown,
@@ -115,7 +135,7 @@ class LoginState {
       isResendButtonEnabled:
           isResendButtonEnabled ?? this.isResendButtonEnabled,
       formattedTimerTime: formattedTimerTime ?? this.formattedTimerTime,
-      generatedOtp: generatedOtp ?? this.generatedOtp,
+      otpToken: otpToken ?? this.otpToken,
       maskedEmail: maskedEmail ?? this.maskedEmail,
       passwordResetToken: clearPasswordResetToken
           ? null

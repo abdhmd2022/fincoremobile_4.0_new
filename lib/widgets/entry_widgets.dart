@@ -1698,6 +1698,30 @@ Uint8List fitToThermalPaperWidth(Uint8List png, int printerWidthPx) {
   return Uint8List.fromList(img.encodePng(resized));
 }
 
+// ─── Shared 6-digit OTP pin-field separator ───────────────────────
+// Renders a `-` between the 3rd and 4th boxes of a 6-box PinCodeTextField
+// (`separatorBuilder`) so the code reads as `123-456`, matching the
+// hyphenated format the backend's OTP emails now display (see
+// mail-templates.ts's formatOtpForDisplay) - purely visual, the
+// underlying entered/submitted value is still the plain 6-digit string.
+// Shared by Login.dart's login-OTP/reset-OTP fields and VerifyEmail.dart.
+Widget otpPinSeparator(BuildContext context, int index) {
+  if (index == 2) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: Text(
+        '-',
+        style: GoogleFonts.poppins(
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+  return const SizedBox(width: 8);
+}
+
 // ─── App-wide message banner ──────────────────────────────────────
 // Replaces Fluttertoast across the app: Android's native Toast is capped
 // at ~3.5s (LENGTH_LONG) with no way to extend it - too quick for a

@@ -1,10 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:FincoreGo/AssistantChat.dart';
 
+/// AssistantChat's `_init()` reads the active company via `TokenStore`,
+/// which is backed by flutter_secure_storage's platform channel -
+/// unavailable in a plain `flutter_test` VM run. Without this stub the
+/// unanswered channel call falls through to `TokenStore`'s own 10s
+/// `.timeout()`, whose Timer is still pending when the widget tree is
+/// disposed at test end, failing flutter_test's `!timersPending` invariant
+/// (same stub as base_api_client_test.dart's `_stubSecureStorageChannel`).
+void _stubSecureStorageChannel() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(channel, (call) async => null);
+}
+
 void main() {
+  setUpAll(_stubSecureStorageChannel);
+
   testWidgets(
     'Contact Support Team card shows a Contact Number field',
     (tester) async {

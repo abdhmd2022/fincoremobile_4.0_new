@@ -29,6 +29,56 @@ class CompanyMappingNotFoundException implements Exception {
       'CompanyMappingNotFoundException(serialNo: $serialNo, companyName: $companyName)';
 }
 
+/// [AuthRepository.sendLoginOtp]'s result - one of two outcomes:
+///
+/// - [otpRequired] true: a genuinely new/untrusted device. [otpToken] is
+///   the opaque token [AuthRepository.verifyLoginOtp] needs, [debugOtp] is
+///   only ever populated outside production (see tally-admin-api's
+///   UserAuthService.sendLoginOtp), never something a release build's
+///   backend would send.
+/// - [otpRequired] false: this device already completed OTP before and
+///   hasn't been logged out since (see UserDeviceService.isOtpVerified on
+///   the backend) - the session is *already established* (tokens already
+///   persisted to [TokenStore] by the time this returns), [session] is
+///   the result, and there is no OTP screen to show at all.
+class LoginOtpSendResult {
+  const LoginOtpSendResult._({
+    required this.otpRequired,
+    this.otpToken,
+    this.debugOtp,
+    this.session,
+  });
+
+  factory LoginOtpSendResult.otpPending({
+    required String otpToken,
+    String? debugOtp,
+  }) => LoginOtpSendResult._(
+    otpRequired: true,
+    otpToken: otpToken,
+    debugOtp: debugOtp,
+  );
+
+  factory LoginOtpSendResult.sessionEstablished(LoginSessionResult session) =>
+      LoginOtpSendResult._(otpRequired: false, session: session);
+
+  final bool otpRequired;
+  final String? otpToken;
+  final String? debugOtp;
+  final LoginSessionResult? session;
+}
+
+/// What [AuthRepository.loginToTallyOauth]/[AuthRepository.verifyLoginOtp]
+/// hand back about the account that just logged in, beyond just "it
+/// worked" - specifically whether its email still needs verifying, so
+/// Login.dart can decide whether to show that prompt (only for an
+/// email-style login, per the app's own rule - a username login skips it
+/// entirely since there's no email identity being asserted).
+class LoginSessionResult {
+  const LoginSessionResult({required this.email, required this.emailVerified});
+  final String? email;
+  final bool emailVerified;
+}
+
 /// Orchestrates the dual-backend login: a tally-oauth session (for
 /// dashboards/reports/masters/users/roles/companies/licenses) established
 /// alongside the legacy backend's own login, which callers keep driving
@@ -56,7 +106,7 @@ class AuthRepository {
   /// to login even if the legacy `/api/login/getusers` call succeeds - most
   /// of the app now depends on this session, so proceeding with a
   /// half-authed state would just move the failure somewhere less obvious.
-  Future<void> loginToTallyOauth({
+  Future<LoginSessionResult> loginToTallyOauth({
     required String userName,
     required String password,
   }) async {
@@ -65,7 +115,81 @@ class AuthRepository {
       body: {'userName': userName, 'password': password},
       scope: TokenScope.none,
     );
+    return _persistLoginSession(
+      result.data as Map<String, dynamic>,
+      fallbackUserName: userName,
+    );
+  }
+
+  /// Step 1 of the real, backend-verified login-OTP flow (`POST
+  /// /auth/user/login-otp/send`) - replaces the old fake OTP step that
+  /// generated a code client-side, emailed it with a hardcoded SMTP
+  /// credential, and compared it locally without ever asking the backend
+  /// (see Login.dart's session notes). Verifies the real password same as
+  /// [loginToTallyOauth].
+  ///
+  /// Trusted-device shortcut: if this device already completed OTP before
+  /// and hasn't been logged out since, the backend skips OTP entirely and
+  /// hands back a real session directly (`otpRequired: false`) - this
+  /// persists it exactly like [loginToTallyOauth]/[verifyLoginOtp] would,
+  /// so the caller can go straight to company selection with no OTP
+  /// screen at all. Otherwise (`otpRequired: true`) this does NOT
+  /// establish a session - it returns the opaque login-OTP token
+  /// [verifyLoginOtp] needs.
+  Future<LoginOtpSendResult> sendLoginOtp({
+    required String userName,
+    required String password,
+  }) async {
+    final result = await _oauth.post(
+      '/auth/user/login-otp/send',
+      body: {'userName': userName, 'password': password},
+      scope: TokenScope.none,
+    );
     final data = result.data as Map<String, dynamic>;
+
+    if (data['otpRequired'] == false) {
+      final session = await _persistLoginSession(
+        data,
+        fallbackUserName: userName,
+      );
+      return LoginOtpSendResult.sessionEstablished(session);
+    }
+
+    return LoginOtpSendResult.otpPending(
+      otpToken: data['token'] as String,
+      // Only ever present outside production (see tally-admin-api's
+      // UserAuthService.sendLoginOtp) - a dev/testing convenience so this
+      // can be debugPrint'd instead of needing real inbox access. The real
+      // email is sent server-side either way.
+      debugOtp: data['otp'] as String?,
+    );
+  }
+
+  /// Step 2 - exchanges the login-OTP token from [sendLoginOtp] plus the
+  /// code the user entered for a real session, same shape/persistence as
+  /// [loginToTallyOauth] (this is what actually establishes the session -
+  /// [sendLoginOtp] alone never does).
+  Future<LoginSessionResult> verifyLoginOtp({
+    required String otpToken,
+    required String otp,
+    required String fallbackUserName,
+  }) async {
+    final result = await _oauth.post(
+      '/auth/user/login-otp/verify',
+      body: {'otp': otp},
+      scope: TokenScope.none,
+      bearerOverride: otpToken,
+    );
+    return _persistLoginSession(
+      result.data as Map<String, dynamic>,
+      fallbackUserName: fallbackUserName,
+    );
+  }
+
+  Future<LoginSessionResult> _persistLoginSession(
+    Map<String, dynamic> data, {
+    required String fallbackUserName,
+  }) async {
     final token = data['token'] as Map<String, dynamic>;
     await TokenStore.instance.saveUserTokens(
       accessToken: token['accessToken'] as String,
@@ -91,7 +215,7 @@ class AuthRepository {
       final email = user['email']?.toString();
       final displayUserName = (email != null && email.isNotEmpty)
           ? email
-          : (user['userName']?.toString() ?? userName);
+          : (user['userName']?.toString() ?? fallbackUserName);
       await prefs.setString('username', displayUserName);
 
       final firstName = user['firstName']?.toString() ?? '';
@@ -112,7 +236,14 @@ class AuthRepository {
         'email_nav',
         (email != null && email.isNotEmpty) ? email : displayUserName,
       );
+
+      return LoginSessionResult(
+        email: email,
+        emailVerified: user['emailVerifiedAt'] != null,
+      );
     }
+
+    return const LoginSessionResult(email: null, emailVerified: true);
   }
 
   /// Companies owned by the logged-in user (`GET /company`), for the
@@ -433,6 +564,23 @@ class AuthRepository {
     return data['token'] as String;
   }
 
+  /// `POST /auth/user/reset-password/verify-otp` - a non-consuming preview
+  /// check so the UI can confirm the code is actually right (and only then
+  /// reveal the new-password fields) before the real, single-use
+  /// [changePassword] call. Throws [ApiException] on a wrong/expired code;
+  /// unlike [changePassword], a wrong guess here does not burn [resetToken]
+  /// - the same token can be retried.
+  Future<void> verifyResetPasswordOtp({
+    required String resetToken,
+    required String otp,
+  }) async {
+    await _publicPost(
+      '/auth/user/reset-password/verify-otp',
+      {'otp': otp},
+      bearerToken: resetToken,
+    );
+  }
+
   /// `POST /auth/user/change-password` - completes the flow started by
   /// [requestPasswordResetOtp]. Authorized by [resetToken] (that call's
   /// response token), NOT the normal user access token - bypasses
@@ -446,6 +594,34 @@ class AuthRepository {
       '/auth/user/change-password',
       {'password': password, 'confirmPassword': password, 'otp': otp},
       bearerToken: resetToken,
+    );
+  }
+
+  /// `POST /auth/user/send-verification-email` - authorized by the normal
+  /// user access token (unlike the reset-password/login-OTP sends, which
+  /// are public since no session exists yet at that point - here one
+  /// already does). Emails an OTP and returns a short-lived verify token,
+  /// same two-step shape as every other OTP flow this repository drives.
+  Future<String> sendVerificationEmail() async {
+    final result = await _oauth.post(
+      '/auth/user/send-verification-email',
+      scope: TokenScope.user,
+    );
+    final data = result.data as Map<String, dynamic>;
+    return data['token'] as String;
+  }
+
+  /// `POST /auth/user/verify-email` - authorized by [verifyToken] (from
+  /// [sendVerificationEmail]), not the stored session token.
+  Future<void> verifyEmail({
+    required String verifyToken,
+    required String otp,
+  }) async {
+    await _oauth.post(
+      '/auth/user/verify-email',
+      body: {'otp': otp},
+      scope: TokenScope.none,
+      bearerOverride: verifyToken,
     );
   }
 
@@ -515,7 +691,18 @@ class AuthRepository {
             .post(
               Uri.parse('$tallyOauthApiRoot/auth/user/logout'),
               headers: {
-                'Content-Type': 'application/json',
+                // No `Content-Type: application/json` here deliberately -
+                // this request has no body, and Fastify's JSON body
+                // parser 400s with "Body cannot be empty when
+                // content-type is set to 'application/json'" if that
+                // header is present without an actual JSON payload (same
+                // issue TokenRefresher._post's own comment documents).
+                // With the `catch (_)` below silently swallowing this,
+                // that 400 meant logout looked like it worked (local
+                // tokens still got cleared) while the backend never
+                // actually revoked anything OR cleared this device's
+                // login-OTP trust - so a device stayed "OTP-verified"
+                // forever, even across logouts.
                 'Authorization': 'Bearer $refreshToken',
                 'x-device-id': await TokenStore.instance.deviceId,
               },

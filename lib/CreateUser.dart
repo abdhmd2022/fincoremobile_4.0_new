@@ -11,6 +11,7 @@ import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 import 'widgets/entry_widgets.dart';
 import 'widgets/searchable_selector.dart';
 import 'providers/create_user_notifier.dart';
+import 'utils/email_template.dart';
 
 class CreateUser extends ConsumerStatefulWidget {
   const CreateUser({Key? key}) : super(key: key);
@@ -56,36 +57,27 @@ class _CreateUserPageState extends ConsumerState<CreateUser>
     );
 
     final message = Message()
-      ..from = Address('noreply@fincoreerp.com', 'Fincore Support')
+      ..from = Address('noreply@fincoreerp.com', 'Fincore Go Support')
       ..recipients.add(email)
       ..subject = 'Your Login Credentials for Fincore Go'
-      ..html =
-          '''
-<div style="border: 1px solid #ccc; padding: 30px; margin: 20px; text-align: center; font-family: Arial, sans-serif; color: #333;">
-  <a href="https://tallyuae.ae/">
-    <img src="https://mobile.chaturvedigroup.com/fincore_logo/tally_1.png" 
-         alt="Logo" 
-         style="width: 150px; height: auto; margin-bottom: 15px;">
-  </a>
-
-  <p style="font-size: 14px;">
+      ..html = buildBrandedEmailHtml('''
+  <p style="font-size: 14px; font-family: Arial, sans-serif; color: #333;">
     Hi <strong>$name</strong>,<br><br>
     Welcome to <strong>Fincore Go!</strong><br>
     Your account has been successfully created. Below are your login credentials:
   </p>
 
-  <div style="background-color: #f5f5f5; color: #333; font-size: 14px; padding: 10px 20px; border-radius: 5px; display: inline-block; text-align: left;">
+  <div style="background-color: #f5f5f5; color: #333; font-size: 14px; font-family: Arial, sans-serif; padding: 10px 20px; border-radius: 5px; display: inline-block; text-align: left;">
     <strong>Email:</strong> $email<br>
     <strong>Password:</strong> $password
   </div>
 
-  <p style="font-size: 12px; margin-top: 15px;">
+  <p style="font-size: 12px; font-family: Arial, sans-serif; color: #333; margin-top: 15px;">
     You can change your password anytime from the "Reset Password" option in the app.
   </p>
 
   <hr style="border: none; border-top: 1px solid #ddd; margin: 25px 0;">
 
-  <!-- 📱 Mobile App Download Buttons -->
   <div style="text-align: center;">
     <h3 style="font-family: Arial, sans-serif; color: #333; margin-bottom: 10px;">
       Get the Fincore Go Mobile App
@@ -93,52 +85,33 @@ class _CreateUserPageState extends ConsumerState<CreateUser>
 
     <div style="display: inline-block;">
       <a href="https://play.google.com/store/apps/details?id=com.csh.fincoremobile" target="_blank" style="margin-right: 0px;">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" 
-               alt="Get it on Google Play" 
+          <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+               alt="Get it on Google Play"
                style="width: 150px; height: auto;">
       </a>
 
       <a href="https://apps.apple.com/ae/app/fincore-mobile/id6451186057" target="_blank">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" 
-             alt="Download on the App Store" 
+        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"
+             alt="Download on the App Store"
              style="width: 150px; height: auto;">
       </a>
     </div>
   </div>
 
-  <!-- 🖥️ Desktop App Download Button -->
   <div style="text-align: center; margin-top: 30px;">
     <h3 style="font-family: Arial, sans-serif; color: #333; margin-bottom: 10px;">
       Get the Fincore Go Desktop App
     </h3>
 
     <a href="https://mobile.chaturvedigroup.com/download/" target="_blank">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/6/68/Windows_logo_and_wordmark_-_2012–2015.svg" 
-           alt="Download Fincore Go Desktop for Windows" 
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/68/Windows_logo_and_wordmark_-_2012–2015.svg"
+           alt="Download Fincore Go Desktop for Windows"
            style="width: 150px; height: auto;">
     </a>
   </div>
 
   <hr style="border: none; border-top: 1px solid #ddd; margin: 25px 0;">
-
-  <p style="font-size: 12px;">
-    If you did not request this account, please contact 
-    <a href="mailto:saadan@ca-eim.com" style="color: #1a73e8;">saadan@ca-eim.com</a>.
-  </p>
-
-  <p style="color: #999; font-style: italic; font-size: 12px;">
-    Disclaimer: This email is for credential delivery only. Please do not share your password with anyone.<br>
-    This is a system-generated email. Do not reply.
-  </p>
-
-  <div style="border-top: 1px solid #ccc; padding-top: 10px; margin-top: 10px; text-align: center;">
-    <p style="font-size: 10px; color: #a3a2a2; line-height: 1.4;">
-      © 2023-2026 Chaturvedi Software House LLC. All Rights Reserved<br>
-      513 Al Khaleej Center, Bur Dubai, Dubai, United Arab Emirates | +97143258361
-    </p>
-  </div>
-</div>
-''';
+''');
 
     try {
       await send(message, smtpServer); // ✅ DO NOT assign it to a variable

@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'constants.dart';
 import 'package:FincoreGo/AssistantChat.dart';
+import 'package:FincoreGo/providers/help_notifier.dart';
 import 'package:FincoreGo/widgets/app_bottom_nav.dart';
 import 'package:FincoreGo/widgets/app_navigation.dart';
 import 'widgets/entry_widgets.dart';
 
-class Help extends StatefulWidget {
+class Help extends ConsumerStatefulWidget {
   final bool showBottomNavigation;
 
   const Help({Key? key, this.showBottomNavigation = true}) : super(key: key);
 
   @override
-  _HelpPageState createState() => _HelpPageState();
+  ConsumerState<Help> createState() => _HelpPageState();
 }
 
 class _MapPatternPainter extends CustomPainter {
@@ -54,36 +55,13 @@ class _MapPatternPainter extends CustomPainter {
   }
 }
 
-class _HelpPageState extends State<Help> with TickerProviderStateMixin {
+class _HelpPageState extends ConsumerState<Help> with TickerProviderStateMixin {
   static const String _officeMapQuery =
       'Chaturvedi Software House LLC, 513 Al Khaleej Centre, Bur Dubai, Dubai';
 
-  bool isDashEnable = true,
-      isRolesVisible = true,
-      isUserEnable = true,
-      isUserVisible = true,
-      isRolesEnable = false,
-      isVisibleNoRoleFound = false;
-
-  String rolename_fetched = "";
-
   final TextEditingController _textEditingController = TextEditingController();
 
-  bool isLengthErrorVisible = false;
-
-  String name = "", email = "";
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  late SharedPreferences prefs;
-
-  String? hostname = "",
-      company = "",
-      company_lowercase = "",
-      serial_no = "",
-      username = "",
-      HttpURL = "",
-      SecuritybtnAcessHolder = "";
 
   Future<void> launchMapSearch(String query) async {
     final uri = Uri.parse(
@@ -94,18 +72,6 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       showAppMessage(context, 'Could not open Google Maps');
-    }
-  }
-
-  Future<void> _initSharedPreferences() async {
-    prefs = await SharedPreferences.getInstance();
-
-    String? email_nav = prefs.getString('email_nav');
-    String? name_nav = prefs.getString('name_nav');
-
-    if (email_nav != null && name_nav != null) {
-      name = name_nav;
-      email = email_nav;
     }
   }
 
@@ -139,7 +105,9 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
     final String recipientEmail =
         'saadan@ca-eim.com'; // Replace with your desired recipient email
     // final List<String> ccEmails = ["praveen@ca-eim.com"];
-    final String nameAndEmail = 'Name: $name\nEmail: $email\n\n';
+    final helpState = ref.read(helpNotifierProvider);
+    final String nameAndEmail =
+        'Name: ${helpState.name}\nEmail: ${helpState.email}\n\n';
     final String additionalText = _textEditingController.text;
 
     final Uri emailUri = Uri(
@@ -401,13 +369,8 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _initSharedPreferences();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final helpState = ref.watch(helpNotifierProvider);
     return Scaffold(
       bottomNavigationBar: widget.showBottomNavigation
           ? const AppBottomNav(
@@ -638,7 +601,7 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
 
                 // Error message
                 Visibility(
-                  visible: isLengthErrorVisible,
+                  visible: helpState.isLengthErrorVisible,
                   child: Column(
                     children: [
                       const SizedBox(height: 8),
@@ -674,14 +637,11 @@ class _HelpPageState extends State<Help> with TickerProviderStateMixin {
                       style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                     ),
                     onPressed: () {
+                      final notifier = ref.read(helpNotifierProvider.notifier);
                       if (_textEditingController.text.length <= 10) {
-                        setState(() {
-                          isLengthErrorVisible = true;
-                        });
+                        notifier.setLengthErrorVisible(true);
                       } else {
-                        setState(() {
-                          isLengthErrorVisible = false;
-                        });
+                        notifier.setLengthErrorVisible(false);
                         sendEmail();
                       }
                     },

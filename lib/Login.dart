@@ -1,21 +1,17 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mailer/mailer.dart';
-import 'package:mailer/smtp_server.dart';
 import 'package:open_file/open_file.dart';
 import 'package:flutter/services.dart';
 import 'Help.dart';
 import 'CompanySelectTallyOauth.dart';
+import 'VerifyEmail.dart';
 import 'constants.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
@@ -101,42 +97,86 @@ class _LoginPageState extends ConsumerState<Login>
 
   _LoginPageState({required this.usernamee, required this.passwordd});
 
+  /// Step 2 of the real, backend-verified login-OTP flow - exchanges the
+  /// login-OTP token (from [_otplogin]'s [AuthRepository.sendLoginOtp]
+  /// call) plus the code the user entered for a real session via
+  /// [AuthRepository.verifyLoginOtp]. The backend rejects a wrong/expired/
+  /// already-used code (401/403) - this no longer compares against
+  /// anything held client-side.
   Future<void> _verifyOtpAndProceed(String enteredOTP) async {
     if (_s.isVerifyingOtp || _s.isOtpVerifyingProgress) return;
 
-    if (enteredOTP.length == 4) {
-      if (enteredOTP == _s.generatedOtp) {
-        _login_.update(
-          (s) => s.copyWith(isVerifyingOtp: true, isOtpVerifyingProgress: true),
-        );
-
-        FocusManager.instance.primaryFocus?.unfocus();
-
-        isOTPVerified = true;
-        isAnotherDevice = true;
-
-        _directlogin();
-
-        if (mounted) {
-          _login_.update((s) => s.copyWith(isOtpVerifyingProgress: false));
-        }
-      } else {
-        isOTPVerified = false;
-        isAnotherDevice = false;
-
-        showAppMessage(context, 'Incorrect OTP');
-
-        otpController.clear();
-        currentText = '';
-
-        _login_.update(
-          (s) =>
-              s.copyWith(isVerifyingOtp: false, isOtpVerifyingProgress: false),
-        );
-      }
-    } else {
-      showAppMessage(context, 'Please enter a 4-digit OTP');
+    // The backend's OtpProvider.generate() defaults to a 6-digit code (see
+    // tally-admin-api's user-auth.service.ts) for every OTP flow, login
+    // included - this used to be 4 because the old fake flow generated its
+    // own 4-digit code client-side. Left at 4 after wiring the real
+    // backend call, no real 6-digit code could ever be entered here.
+    if (enteredOTP.length != 6) {
+      showAppMessage(context, 'Please enter the 6-digit OTP');
+      return;
     }
+
+    _login_.update(
+      (s) => s.copyWith(isVerifyingOtp: true, isOtpVerifyingProgress: true),
+    );
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    try {
+      final session = await AuthRepository.instance.verifyLoginOtp(
+        otpToken: _s.otpToken,
+        otp: enteredOTP,
+        fallbackUserName: usernamee,
+      );
+
+      isOTPVerified = true;
+      isAnotherDevice = true;
+
+      if (!mounted) return;
+      _login_.update((s) => s.copyWith(isOtpVerifyingProgress: false));
+
+      if (!await _isLicenseUsable()) return;
+      _proceedOrRequireEmailVerification(session);
+    } on ApiException catch (e) {
+      isOTPVerified = false;
+      isAnotherDevice = false;
+
+      showAppMessage(context, e.message);
+      currentText = '';
+
+      if (!mounted) return;
+      _login_.update(
+        (s) => s.copyWith(isVerifyingOtp: false, isOtpVerifyingProgress: false),
+      );
+      _clearOtpFieldAfterRebuild(otpController);
+    } catch (e) {
+      isOTPVerified = false;
+      isAnotherDevice = false;
+
+      showAppMessage(context, 'Could not reach the server. Please try again.');
+      currentText = '';
+
+      if (!mounted) return;
+      _login_.update(
+        (s) => s.copyWith(isVerifyingOtp: false, isOtpVerifyingProgress: false),
+      );
+      _clearOtpFieldAfterRebuild(otpController);
+    }
+  }
+
+  /// [PinCodeTextField] only reacts to a controller `.clear()` when its
+  /// own `enabled` internally still matches `true` at the moment the
+  /// listener fires (see pin_code_fields' `_textEditingControllerListener`)
+  /// - clearing the controller in the same synchronous block as an
+  /// `enabled: false -> true` state flip clears it *before* the widget has
+  /// rebuilt with the new `enabled` value, so the boxes visually keep the
+  /// wrong digits and backspace does nothing (the package's internal
+  /// `_inputList` never got the memo). Scheduling the clear for the frame
+  /// *after* the state update - once the field is actually rebuilt
+  /// enabled - fixes it without touching the package.
+  void _clearOtpFieldAfterRebuild(TextEditingController controller) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) controller.clear();
+    });
   }
 
   bool isEmail(String value) {
@@ -682,6 +722,7 @@ class _LoginPageState extends ConsumerState<Login>
           passwordResetToken: token,
           isVisibleResetPassForm: false,
           isVisibleResetOtpForm: true,
+          isResetOtpConfirmed: false,
         ),
       );
       resetOtpController.clear();
@@ -701,14 +742,54 @@ class _LoginPageState extends ConsumerState<Login>
     }
   }
 
+  /// Fires once all 6 digits are entered in [_buildResetOtpForm]'s pin
+  /// field - a real, non-consuming backend check
+  /// ([AuthRepository.verifyResetPasswordOtp]) so the new/confirm-password
+  /// fields only reveal once the code is actually correct, not just fully
+  /// typed. A wrong code doesn't burn the reset token, so the user can
+  /// just retype and retry; the real, single-use verification still
+  /// happens in [_confirmPasswordReset] on final submit.
+  Future<void> _verifyResetOtp(String enteredOtp) async {
+    final resetToken = _s.passwordResetToken;
+    if (resetToken == null || enteredOtp.length != 6) return;
+
+    _login_.update(
+      (s) => s.copyWith(isVerifyingResetOtp: true, isResetOtpConfirmed: false),
+    );
+    try {
+      await AuthRepository.instance.verifyResetPasswordOtp(
+        resetToken: resetToken,
+        otp: enteredOtp,
+      );
+      if (!mounted) return;
+      _login_.update(
+        (s) => s
+            .copyWith(isVerifyingResetOtp: false, isResetOtpConfirmed: true),
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      _login_.update((s) => s.copyWith(isVerifyingResetOtp: false));
+      showAppMessage(context, e.message);
+      _clearOtpFieldAfterRebuild(resetOtpController);
+    } catch (e) {
+      if (!mounted) return;
+      _login_.update((s) => s.copyWith(isVerifyingResetOtp: false));
+      showAppMessage(context, 'Could not reach the server. Please try again.');
+      _clearOtpFieldAfterRebuild(resetOtpController);
+    }
+  }
+
   /// Step 2 of the tally-oauth reset flow - the OTP + new password form's
   /// submit handler.
   Future<void> _confirmPasswordReset() async {
     final resetToken = _s.passwordResetToken;
     if (resetToken == null) return;
 
-    if (resetOtpController.text.trim().length != 4) {
-      showAppMessage(context, 'Please enter the 4-digit code');
+    // The backend's OtpProvider.generate() defaults to a 6-digit code for
+    // every OTP flow (see tally-admin-api's user-auth.service.ts) - this
+    // was left at 4 from before this form called the real endpoint.
+    if (resetOtpController.text.trim().length != 6) {
+      showAppMessage(context, 'Please enter the 6-digit code');
       return;
     }
     if (newPasswordController.text.length < 8) {
@@ -747,7 +828,17 @@ class _LoginPageState extends ConsumerState<Login>
       newPasswordController.clear();
       confirmNewPasswordController.clear();
     } on ApiException catch (e) {
-      _login_.update((s) => s.copyWith(isConfirmingPasswordReset: false));
+      // Can't tell from here whether the server rejected the OTP
+      // specifically or something else - safest is to fold back to the
+      // OTP step and make the user re-enter/re-confirm the code, since a
+      // stale/wrong code is the most likely real-world cause.
+      _login_.update(
+        (s) => s.copyWith(
+          isConfirmingPasswordReset: false,
+          isResetOtpConfirmed: false,
+        ),
+      );
+      _clearOtpFieldAfterRebuild(resetOtpController);
       showAppMessage(context, e.message);
     } catch (e) {
       _login_.update((s) => s.copyWith(isConfirmingPasswordReset: false));
@@ -841,7 +932,7 @@ class _LoginPageState extends ConsumerState<Login>
   /// half-authed session is worse than a clear error up front.
   Future<bool> _loginToTallyOauth() async {
     try {
-      await AuthRepository.instance.loginToTallyOauth(
+      _lastLoginSession = await AuthRepository.instance.loginToTallyOauth(
         userName: usernamee,
         password: passwordd,
       );
@@ -853,6 +944,31 @@ class _LoginPageState extends ConsumerState<Login>
       showAppMessage(context, 'Could not reach the server. Please try again.');
       return false;
     }
+  }
+
+  /// Set by [_loginToTallyOauth] on success (direct-login path) so
+  /// [_directlogin] can decide whether to route through [VerifyEmail]
+  /// before company selection; the OTP-login path gets its own result
+  /// straight from [AuthRepository.verifyLoginOtp] in
+  /// [_verifyOtpAndProceed] instead, since it never calls this method.
+  LoginSessionResult? _lastLoginSession;
+
+  /// Per the user's spec: an email-shaped login whose account has not
+  /// verified its email is sent to [VerifyEmail] instead of company
+  /// selection - on every such login, not just the first, until the
+  /// account's email is actually verified. A username-style login always
+  /// skips this regardless of `emailVerified`.
+  void _proceedOrRequireEmailVerification(LoginSessionResult? session) {
+    if (isEmail(usernamee) && session != null && !session.emailVerified) {
+      if (mounted) _login_.update((s) => s.copyWith(isLoading: false));
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => VerifyEmail(email: session.email ?? usernamee),
+        ),
+      );
+      return;
+    }
+    _proceedToCompanySelection();
   }
 
   /// tally-oauth is now the sole driver of login (Phase 6) - no legacy
@@ -977,33 +1093,65 @@ class _LoginPageState extends ConsumerState<Login>
     // and resets loading state itself when it returns false.
     if (!await _isLicenseUsable()) return;
 
-    _proceedToCompanySelection();
+    _proceedOrRequireEmailVerification(_lastLoginSession);
   }
 
+  /// Step 1 of the real, backend-verified login-OTP flow: verifies the
+  /// password via `POST /auth/user/login-otp/send` (same credential check
+  /// as a normal login) and, on success, emails a real server-generated
+  /// OTP - no tally-oauth session exists yet at this point (unlike the old
+  /// flow, which fully logged in *before* ever showing the OTP screen,
+  /// making that "verification" meaningless). The session is only
+  /// established once [_verifyOtpAndProceed] confirms the code.
   Future<void> _otplogin(String email) async {
     _login_.update((s) => s.copyWith(isLoading: true));
     isDirectLogin = false;
     isOTPLogin = true;
 
-    if (!await _loginToTallyOauth()) {
-      if (mounted) _login_.update((s) => s.copyWith(isLoading: false));
+    LoginOtpSendResult sendResult;
+    try {
+      sendResult = await AuthRepository.instance.sendLoginOtp(
+        userName: usernamee,
+        password: passwordd,
+      );
+    } on ApiException catch (e) {
+      if (mounted) {
+        _login_.update((s) => s.copyWith(isLoading: false));
+        showAppMessage(context, e.message);
+      }
+      return;
+    } catch (e) {
+      if (mounted) {
+        _login_.update((s) => s.copyWith(isLoading: false));
+        showAppMessage(context, 'Could not reach the server. Please try again.');
+      }
       return;
     }
 
-    // Same license check as _directlogin, but here it must run before the
-    // OTP screen is ever shown - not just before company selection.
-    if (!await _isLicenseUsable()) return;
-
-    // Phase 6 (making tally-oauth the sole login driver) dropped this step
-    // by mistake while removing the legacy device-approval socket flow it
-    // used to sit next to - restored on request. tally-oauth auth is
-    // already confirmed above; this is an additional emailed-OTP
-    // verification layer before company selection.
-    // _verifyOtpAndProceed already calls _directlogin() on success, which
-    // re-runs the (already-succeeded, idempotent) tally-oauth login and
-    // proceeds to CompanySelectTallyOauth - unchanged.
-    sendOTP(email);
     if (!mounted) return;
+
+    // Trusted-device shortcut: this device already passed OTP before and
+    // hasn't been logged out since (see tally-admin-api's
+    // UserDeviceService.isOtpVerified) - the backend already established
+    // a real session, so there's nothing to verify here. Skip the OTP
+    // screen entirely and proceed exactly like a direct login would.
+    if (!sendResult.otpRequired) {
+      _login_.update((s) => s.copyWith(isLoading: false));
+      if (!await _isLicenseUsable()) return;
+      _proceedOrRequireEmailVerification(sendResult.session);
+      return;
+    }
+
+    // Dev/testing convenience only - the backend never includes this
+    // outside a non-production environment (see UserAuthService.
+    // sendLoginOtp), so debugOtp is always null against a real
+    // production backend regardless of this build's own mode. Compiled
+    // out of release builds either way, same guard the old fake-OTP
+    // debug print used.
+    if (kDebugMode && sendResult.debugOtp != null) {
+      debugPrint('Login OTP (debug only): ${sendResult.debugOtp}');
+    }
+
     _login_.update(
       (s) => s.copyWith(
         isLoading: false,
@@ -1015,6 +1163,7 @@ class _LoginPageState extends ConsumerState<Login>
         isVerifyingOtp: false,
         isVisibleOTPForm: true,
         maskedEmail: email,
+        otpToken: sendResult.otpToken!,
       ),
     );
     otpController.clear();
@@ -1055,76 +1204,6 @@ class _LoginPageState extends ConsumerState<Login>
     });*/
 
     _initSharedPreferences();
-  }
-
-  void sendOTP(String email) async {
-    final random = Random();
-    // Generates a 4-digit random OTP
-    final otp =
-        '${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}${random.nextInt(10)}';
-    _login_.update((s) => s.copyWith(generatedOtp: otp));
-
-    // Debug-only: never prints in a release build (kDebugMode is compiled
-    // out to `false` there), so the OTP can't leak into a real user's
-    // device logs - only useful while testing on a debug build.
-    if (kDebugMode) {
-      debugPrint('OTP (debug only): $otp');
-    }
-
-    final smtpServer = SmtpServer(
-      'smtp.hostinger.com',
-      username: 'noreply@fincoreerp.com',
-      password: '^QLNlsU8m',
-      port: 465,
-      ssl: true,
-    );
-
-    final message = Message()
-      ..from =
-          Address(
-            'noreply@fincoreerp.com',
-            'Fincore Support',
-          ) // Replace with your Outlook email
-      ..recipients.add(email) // Use the email entered by the user
-      ..subject = 'Your One-Time Passcode from Fincore Go'
-      ..html =
-          '''
-                  <div style="border: 1px solid #ccc; padding-left: 30px; padding-right: 30px; padding-top: 30px; padding-bottom: 30px; margin-left: 20px; margin-right: 20px; margin-top: 0px; text-align: center;">
-                 
-                <a href="https://tallyuae.ae/">
-                <img src="https://mobile.chaturvedigroup.com/fincore_logo/tally_1.png" alt="Image" style="width: 150px; height: auto; margin-bottom: 10px;">
-            </a>
-                <div style="text-align: center;"><p style="font-size: 12px; font-family: Arial, sans-serif; color: #333;">Your one-time passcode (OTP) to log into the Fincore Go app is</p></div>
-                <br>
-                <div style="text-align: center;">
-                
-                <p style="display: inline-block; background-color: #30D5C8; color: #fff; font-size: 16px; font-family: Arial, sans-serif; text-decoration: none; padding: 10px 20px; border-radius: 5px;">$otp</p>
-                </div >
-                <br>
-                <div style="text-align: start;"><p style="font-size: 12px; font-family: Arial, sans-serif; color: #333;">If you did not attempt this, please contact <a href="mailto:saadan@ca-eim.com">saadan@ca-eim.com</a></p></div>
-                
-                <br>
-                      <div style="text-align: start;"><p style="color: #999999; font-style: italic; font-size: 12px">Disclaimer: 
-                      This email is for verification purposes only.
-                      Please do not share your OTP with anyone.<br><br>
-                      This is system generated email. Do not reply.</p>
-                </div>
-              
-                <div style="text-align: start;"><div style="text-align: start; border-top: 1px solid #ccc; padding-top: 10px;  "><p style="font-size: 10px; font-family: Arial, sans-serif; color: #a3a2a2;">© 2023-2026 Chaturvedi Software House LLC. All Rights Reserved</p>
-                <p style="font-size: 10px; font-family: Arial, sans-serif; color: #a3a2a2; padding-top: 0px">513 Al Khaleej Center Bur Dubai, Dubai United Arab Emirates, +97143258361 </p>
-                
-                </div>
-                </div>''';
-
-    try {
-      // Re-enabled - was left commented out mid-migration, which meant the
-      // OTP screen this feeds (see _otplogin) would show a code the user
-      // never actually received by email.
-      await send(message, smtpServer);
-    } catch (e) {
-      showAppMessage(context, e.toString());
-      /*print('$e');*/
-    }
   }
 
   @override
@@ -1896,77 +1975,158 @@ class _LoginPageState extends ConsumerState<Login>
             icon: Icons.mark_email_read_rounded,
             title: 'Reset your password',
             subtitle:
-                'Enter the 4-digit code sent to ${resetemailController.text}, then choose a new password.',
+                'Enter the 6-digit code sent to ${resetemailController.text}, then choose a new password.',
           ),
           const SizedBox(height: 26),
-          TextFormField(
+          PinCodeTextField(
+            appContext: context,
             controller: resetOtpController,
+            length: 6,
             keyboardType: TextInputType.number,
-            maxLength: 4,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 20,
-              letterSpacing: 8,
-              fontWeight: FontWeight.w700,
+            enabled: !_s.isVerifyingResetOtp,
+            animationType: AnimationType.fade,
+            onChanged: (value) {
+              // Editing after a confirmed/failed attempt un-confirms so the
+              // password fields hide again until re-verified.
+              if (value.length < 6 && _s.isResetOtpConfirmed) {
+                _login_.update((s) => s.copyWith(isResetOtpConfirmed: false));
+              }
+            },
+            onCompleted: _verifyResetOtp,
+            mainAxisAlignment: MainAxisAlignment.center,
+            separatorBuilder: otpPinSeparator,
+            pinTheme: PinTheme(
+              shape: PinCodeFieldShape.box,
+              borderRadius: BorderRadius.circular(12),
+              fieldHeight: 46,
+              fieldWidth: 46,
+              activeFillColor: app_color.withOpacity(0.1),
+              inactiveFillColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1F2937)
+                  : const Color(0xFFF7F9FB),
+              selectedFillColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1F2937)
+                  : Colors.white,
+              activeColor: app_color,
+              inactiveColor: Theme.of(context).dividerColor,
+              selectedColor: app_color,
+              borderWidth: 1.2,
             ),
-            decoration: _inputDecoration(
-              label: 'One-time code',
-              icon: Icons.pin_outlined,
-            ).copyWith(counterText: ''),
+            enableActiveFill: true,
+            // resetOtpController is a class-level field this State owns
+            // and disposes itself (see dispose()) - pin_code_fields
+            // defaults to disposing the controller it's given the moment
+            // this widget unmounts (e.g. "Back to login"/successful
+            // reset switch away from this form), which would leave the
+            // shared controller unusable on a later reset attempt and
+            // double-dispose it in dispose(). Must stay false wherever a
+            // controller outlives one PinCodeTextField instance.
+            autoDisposeControllers: false,
           ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: newPasswordController,
-            obscureText: !_isNewPasswordVisible,
-            decoration: _inputDecoration(
-              label: 'New password',
-              icon: Icons.lock_reset_rounded,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _isNewPasswordVisible
-                      ? Icons.visibility_off_rounded
-                      : Icons.visibility_rounded,
-                ),
-                onPressed: () => setState(
-                  () => _isNewPasswordVisible = !_isNewPasswordVisible,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: confirmNewPasswordController,
-            obscureText: !_isConfirmNewPasswordVisible,
-            decoration: _inputDecoration(
-              label: 'Confirm new password',
-              icon: Icons.check_circle_outline_rounded,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _isConfirmNewPasswordVisible
-                      ? Icons.visibility_off_rounded
-                      : Icons.visibility_rounded,
-                ),
-                onPressed: () => setState(
-                  () => _isConfirmNewPasswordVisible =
-                      !_isConfirmNewPasswordVisible,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          _s.isConfirmingPasswordReset
-              ? SizedBox(
-                  height: 52,
-                  child: Center(
-                    child: CupertinoActivityIndicator(color: app_color),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            alignment: Alignment.topCenter,
+            child: !_s.isResetOtpConfirmed
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 14),
+                    child: _s.isVerifyingResetOtp
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(
+                                height: 14,
+                                width: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: app_color,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                'Verifying code...',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12.5,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Text(
+                            'Enter the code above to set a new password.',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12.5,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: newPasswordController,
+                        obscureText: !_isNewPasswordVisible,
+                        decoration: _inputDecoration(
+                          label: 'New password',
+                          icon: Icons.lock_reset_rounded,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isNewPasswordVisible
+                                  ? Icons.visibility_off_rounded
+                                  : Icons.visibility_rounded,
+                            ),
+                            onPressed: () => setState(
+                              () => _isNewPasswordVisible =
+                                  !_isNewPasswordVisible,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: confirmNewPasswordController,
+                        obscureText: !_isConfirmNewPasswordVisible,
+                        decoration: _inputDecoration(
+                          label: 'Confirm new password',
+                          icon: Icons.check_circle_outline_rounded,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isConfirmNewPasswordVisible
+                                  ? Icons.visibility_off_rounded
+                                  : Icons.visibility_rounded,
+                            ),
+                            onPressed: () => setState(
+                              () => _isConfirmNewPasswordVisible =
+                                  !_isConfirmNewPasswordVisible,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      _s.isConfirmingPasswordReset
+                          ? SizedBox(
+                              height: 52,
+                              child: Center(
+                                child: CupertinoActivityIndicator(
+                                  color: app_color,
+                                ),
+                              ),
+                            )
+                          : ElevatedButton.icon(
+                              style: _primaryButtonStyle(),
+                              onPressed: _confirmPasswordReset,
+                              icon: const Icon(Icons.verified_rounded),
+                              label: const Text('Change password'),
+                            ),
+                    ],
                   ),
-                )
-              : ElevatedButton.icon(
-                  style: _primaryButtonStyle(),
-                  onPressed: _confirmPasswordReset,
-                  icon: const Icon(Icons.verified_rounded),
-                  label: const Text('Change password'),
-                ),
+          ),
           const SizedBox(height: 12),
           ElevatedButton.icon(
             style: _secondaryButtonStyle(),
@@ -1976,6 +2136,7 @@ class _LoginPageState extends ConsumerState<Login>
                   clearPasswordResetToken: true,
                   isVisibleResetOtpForm: false,
                   isVisibleLoginForm: true,
+                  isResetOtpConfirmed: false,
                 ),
               );
               usernameController.text = resetemailController.text;
@@ -2003,7 +2164,7 @@ class _LoginPageState extends ConsumerState<Login>
             _buildFormHeader(
               icon: Icons.mark_email_read_rounded,
               title: 'Verify your login',
-              subtitle: 'Enter the 4-digit code sent to your email address.',
+              subtitle: 'Enter the 6-digit code sent to your email address.',
             ),
             const SizedBox(height: 12),
             Container(
@@ -2029,7 +2190,10 @@ class _LoginPageState extends ConsumerState<Login>
             PinCodeTextField(
               appContext: context,
               controller: otpController,
-              length: 4,
+              // Matches the backend's OtpProvider.generate() default (6
+              // digits, every OTP flow) - was 4 from the old client-side
+              // fake OTP, which physically blocked entering a real code.
+              length: 6,
               enabled: !_s.isOtpVerifyingProgress,
               animationType: AnimationType.fade,
               onChanged: (value) {
@@ -2039,11 +2203,13 @@ class _LoginPageState extends ConsumerState<Login>
                 currentText = value;
                 _verifyOtpAndProceed(value);
               },
+              mainAxisAlignment: MainAxisAlignment.center,
+              separatorBuilder: otpPinSeparator,
               pinTheme: PinTheme(
                 shape: PinCodeFieldShape.box,
-                borderRadius: BorderRadius.circular(14),
-                fieldHeight: 58,
-                fieldWidth: 58,
+                borderRadius: BorderRadius.circular(12),
+                fieldHeight: 46,
+                fieldWidth: 46,
                 activeFillColor: app_color.withOpacity(0.1),
                 inactiveFillColor:
                     Theme.of(context).brightness == Brightness.dark
@@ -2060,6 +2226,10 @@ class _LoginPageState extends ConsumerState<Login>
               ),
               animationDuration: const Duration(milliseconds: 200),
               enableActiveFill: true,
+              // Same reason as resetOtpController's PinCodeTextField above
+              // - otpController is a shared class-level field this State
+              // disposes itself, not owned by a single field instance.
+              autoDisposeControllers: false,
               keyboardType: TextInputType.number,
               obscureText: false,
             ),
@@ -2095,16 +2265,11 @@ class _LoginPageState extends ConsumerState<Login>
               ElevatedButton.icon(
                 style: _secondaryButtonStyle(),
                 icon: const Icon(Icons.refresh_rounded),
-                onPressed: () {
-                  sendOTP(usernamee);
-                  _login_.update(
-                    (s) => s.copyWith(
-                      isResendButtonEnabled: false,
-                      isVisibleTimer: true,
-                    ),
-                  );
-                  _startTimer();
-                },
+                // Reuses _otplogin wholesale rather than duplicating its
+                // send-OTP-and-update-state logic - a resend is exactly
+                // that (a fresh backend-verified send, a fresh token, a
+                // restarted timer), not a different operation.
+                onPressed: () => _otplogin(usernamee),
                 label: const Text('Resend OTP'),
               ),
             ],

@@ -4,10 +4,13 @@ import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'api/assistant_repository.dart';
+import 'api/token_store.dart';
+import 'utils/email_template.dart';
 
 // Matches the brand gradient used elsewhere in the app (see the "Live Chat"
 // card in Help.dart).
@@ -125,8 +128,7 @@ class _AssistantChatState extends State<AssistantChat> {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  String _hostname = '';
-  String _token = '';
+  bool _hasActiveCompany = false;
   String _userName = '';
   String _userEmail = '';
 
@@ -135,7 +137,11 @@ class _AssistantChatState extends State<AssistantChat> {
   bool _awaitingCloseConfirmation = false;
 
   Timer? _sessionTimer;
-  static const _sessionTimeout = Duration(minutes: 30);
+  // How long a chat session stays resumable after the user's last message -
+  // both while the screen stays open (the idle auto-end timer) and after
+  // leaving the screen entirely (re-entering within this window restores
+  // the conversation; past it, a fresh chat starts instead).
+  static const _sessionTimeout = Duration(minutes: 15);
   static const _prefsMessagesKey = 'assistant_chat_messages';
   static const _prefsLastInputKey = 'assistant_chat_last_input_at';
 
@@ -147,10 +153,10 @@ class _AssistantChatState extends State<AssistantChat> {
 
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
+    final companyGuid = await TokenStore.instance.activeCompanyGuid;
     if (!mounted) return;
     setState(() {
-      _hostname = prefs.getString('hostname') ?? '';
-      _token = prefs.getString('token') ?? '';
+      _hasActiveCompany = companyGuid != null;
       _userName = prefs.getString('name_nav') ?? '';
       _userEmail = prefs.getString('email_nav') ?? '';
     });
@@ -231,6 +237,13 @@ class _AssistantChatState extends State<AssistantChat> {
   void dispose() {
     _inputController.dispose();
     _scrollController.dispose();
+    // Deliberately does NOT clear the persisted session - leaving the
+    // screen alone doesn't end the chat. Re-entering within
+    // _sessionTimeout of the last reply (checked in
+    // _restoreOrStartSession, against the persisted timestamp - not this
+    // timer, which dies with the widget) resumes the same conversation;
+    // past that window it starts fresh. Only cancel the in-screen idle
+    // timer itself, since it can't fire on a disposed widget anyway.
     _sessionTimer?.cancel();
     super.dispose();
   }
@@ -441,13 +454,10 @@ class _AssistantChatState extends State<AssistantChat> {
       return;
     }
 
-    // The AI Assistant runs on each company's own legacy middleware server
-    // (`hostname`), which a tally-oauth-only login never populates - there
-    // is no new-backend equivalent to fall back to yet. Rather than firing
-    // a network call that's guaranteed to fail and landing on the same
-    // generic "contact support" card as a real outage, say so plainly so
-    // it's clear this is a known gap, not a transient error.
-    if (_hostname.isEmpty) {
+    // The assistant is scoped to the active company (tally-api's
+    // `/tally-data/companies/:companyId/assistant/*`) - without one
+    // selected there's no companyId to call it with.
+    if (!_hasActiveCompany) {
       setState(() {
         _messages.add(
           _ChatMessage(
@@ -511,56 +521,27 @@ class _AssistantChatState extends State<AssistantChat> {
   }
 
   Future<_AssistantAnswer> _askQuestion(String question) async {
-    final uri = Uri.parse('$_hostname/api/assistant/query');
-    final response = await http
-        .post(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $_token',
-      },
-      body: jsonEncode({'question': question}),
-    )
-        .timeout(const Duration(seconds: 45));
-    return _extractAnswer(response);
+    final result = await AssistantRepository.instance.askQuestion(question);
+    return _toAnswer(result);
   }
 
   Future<_AssistantAnswer> _analyzeDocument(
       PlatformFile file, String question) async {
-    final uri = Uri.parse('$_hostname/api/assistant/analyze-document');
-    final request = http.MultipartRequest('POST', uri)
-      ..headers['Authorization'] = 'Bearer $_token'
-      ..fields['question'] = question
-      ..files.add(
-        http.MultipartFile.fromBytes(
-          'file',
-          file.bytes ?? [],
-          filename: file.name,
-        ),
-      );
-    final streamed = await request.send().timeout(
-      const Duration(seconds: 60),
+    final result = await AssistantRepository.instance.analyzeDocument(
+      file,
+      question,
     );
-    final response = await http.Response.fromStream(streamed);
-    return _extractAnswer(response);
+    return _toAnswer(result);
   }
 
-  _AssistantAnswer _extractAnswer(http.Response response) {
-    if (response.statusCode != 200) {
-      throw Exception('Assistant request failed (${response.statusCode})');
+  _AssistantAnswer _toAnswer(AssistantAnswer result) {
+    if (result.answer.trim().isEmpty) {
+      throw Exception('Empty response from assistant');
     }
-    final body = jsonDecode(response.body);
-    final data = body is Map && body['data'] != null ? body['data'] : body;
-    final answer = data is Map ? data['answer'] : null;
-    if (answer is String && answer.trim().isNotEmpty) {
-      final requiresSupport =
-          data is Map && data['requiresSupport'] == true;
-      return _AssistantAnswer(
-        text: answer.trim(),
-        requiresSupport: requiresSupport,
-      );
-    }
-    throw Exception('Empty response from assistant');
+    return _AssistantAnswer(
+      text: result.answer.trim(),
+      requiresSupport: result.requiresSupport,
+    );
   }
 
   Future<void> _sendSupportEmail({
@@ -578,21 +559,19 @@ class _AssistantChatState extends State<AssistantChat> {
     );
 
     final message = Message()
-      ..from = Address('noreply@fincoreerp.com', 'Fincore Go Assistant')
+      ..from = Address('noreply@fincoreerp.com', 'Fincore Go Support')
       ..recipients.add('saadan@ca-eim.com')
       ..subject = 'Fincore Go Assistant - Support Request'
-      ..html =
-      '''
-          <div style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+      ..html = buildBrandedEmailHtml('''
+          <div style="text-align: start; font-size: 14px; font-family: Arial, sans-serif; color: #333;">
             <p><b>Name:</b> $name</p>
             <p><b>Email:</b> $email</p>
             <p><b>Contact Number:</b> ${phone.trim().isEmpty ? 'Not provided' : phone}</p>
             <p><b>Message:</b></p>
             <p>${details.replaceAll('\n', '<br>')}</p>
-            <hr>
             <p style="color:#888;font-size:12px;">Sent from the Fincore Go in-app AI assistant.</p>
           </div>
-          ''';
+          ''');
 
     await send(message, smtpServer);
   }

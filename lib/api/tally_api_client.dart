@@ -29,14 +29,40 @@ class TallyApiClient extends BaseApiClient {
   Future<ApiResult> getForCompany(String subPath) async =>
       get(await _companyPath(subPath), scope: TokenScope.companyUser);
 
-  Future<ApiResult> postForCompany(String subPath, {Object? body}) async =>
-      post(await _companyPath(subPath), body: body, scope: TokenScope.companyUser);
+  Future<ApiResult> postForCompany(
+    String subPath, {
+    Object? body,
+    Duration? timeout,
+  }) async => post(
+    await _companyPath(subPath),
+    body: body,
+    scope: TokenScope.companyUser,
+    timeout: timeout,
+  );
 
   Future<ApiResult> patchForCompany(String subPath, {Object? body}) async =>
       patch(await _companyPath(subPath), body: body, scope: TokenScope.companyUser);
 
   Future<ApiResult> deleteForCompany(String subPath) async =>
       delete(await _companyPath(subPath), scope: TokenScope.companyUser);
+
+  Future<ApiResult> postMultipartForCompany(
+    String subPath, {
+    required List<int> fileBytes,
+    required String fileFieldName,
+    required String fileName,
+    Map<String, String> fields = const {},
+    Duration? timeout,
+  }) async =>
+      postMultipart(
+        await _companyPath(subPath),
+        fileBytes: fileBytes,
+        fileFieldName: fileFieldName,
+        fileName: fileName,
+        fields: fields,
+        scope: TokenScope.companyUser,
+        timeout: timeout,
+      );
 
   // -- User-scoped calls (master-restrictions) --------------------------
   //

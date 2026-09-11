@@ -92,6 +92,7 @@ abstract class BaseApiClient {
   Future<Map<String, String>> _headers(
     TokenScope scope, {
     required bool hasBody,
+    String? bearerOverride,
   }) async {
     final headers = <String, String>{
       if (hasBody) 'Content-Type': 'application/json',
@@ -100,7 +101,11 @@ abstract class BaseApiClient {
       // since it's harmless elsewhere and one place to maintain.
       'x-device-id': await TokenStore.instance.deviceId,
     };
-    final token = await _tokenFor(scope);
+    // An ephemeral, one-off bearer (e.g. a login-OTP token) that isn't a
+    // stored session at all - TokenStore/refresh has nothing to do with
+    // it, so it bypasses [_tokenFor] entirely rather than being shoehorned
+    // into one of the real [TokenScope]s.
+    final token = bearerOverride ?? await _tokenFor(scope);
     if (token != null) headers['Authorization'] = 'Bearer $token';
     return headers;
   }
@@ -112,7 +117,16 @@ abstract class BaseApiClient {
     String path, {
     Object? body,
     TokenScope scope = TokenScope.companyUser,
-  }) => _send('POST', path, body: body, scope: scope);
+    Duration? timeout,
+    String? bearerOverride,
+  }) => _send(
+    'POST',
+    path,
+    body: body,
+    scope: scope,
+    timeout: timeout,
+    bearerOverride: bearerOverride,
+  );
 
   Future<ApiResult> patch(
     String path, {
@@ -129,41 +143,131 @@ abstract class BaseApiClient {
   Future<ApiResult> delete(String path, {TokenScope scope = TokenScope.companyUser}) =>
       _send('DELETE', path, scope: scope);
 
+  /// Multipart POST (currently only `AssistantRepository.analyzeDocument`'s
+  /// file upload) - kept separate from [_send] since it needs a
+  /// `MultipartRequest` instead of a plain body, but shares the same
+  /// auth-header/401-refresh-retry/envelope-decode behavior.
+  Future<ApiResult> postMultipart(
+    String path, {
+    required List<int> fileBytes,
+    required String fileFieldName,
+    required String fileName,
+    Map<String, String> fields = const {},
+    TokenScope scope = TokenScope.companyUser,
+    bool isRetry = false,
+    Duration? timeout,
+  }) async {
+    final effectiveTimeout = timeout ?? _requestTimeout;
+    final uri = Uri.parse('$apiRoot$path');
+    final headers = await _headers(scope, hasBody: false).timeout(effectiveTimeout);
+
+    final request = http.MultipartRequest('POST', uri)
+      ..headers.addAll(headers)
+      ..fields.addAll(fields)
+      ..files.add(
+        http.MultipartFile.fromBytes(fileFieldName, fileBytes, filename: fileName),
+      );
+
+    late final http.Response response;
+    try {
+      final streamed = await _http.send(request).timeout(effectiveTimeout);
+      response = await http.Response.fromStream(streamed);
+    } on TimeoutException {
+      throw ApiException(
+        statusCode: 0,
+        code: 'TIMEOUT',
+        message: 'The request timed out. Please check your connection and try again.',
+      );
+    }
+
+    if (response.statusCode == 401 && scope != TokenScope.none && !isRetry) {
+      try {
+        await _refreshOnce(scope);
+      } catch (_) {
+        await TokenStore.instance.clearAll();
+        final navState = navigatorKey.currentState;
+        if (navState != null) {
+          navState.pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => Login(username: '', password: ''),
+            ),
+            (route) => false,
+          );
+        }
+        throw SessionExpiredException(
+          'Session expired - please log in again.',
+        );
+      }
+      return postMultipart(
+        path,
+        fileBytes: fileBytes,
+        fileFieldName: fileFieldName,
+        fileName: fileName,
+        fields: fields,
+        scope: scope,
+        isRetry: true,
+        timeout: timeout,
+      );
+    }
+
+    final decoded = response.body.isEmpty
+        ? <String, dynamic>{}
+        : jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+
+    final success = decoded['success'] as bool? ?? (response.statusCode < 300);
+    if (!success) {
+      final error = decoded['error'] as Map<String, dynamic>? ?? const {};
+      throw ApiException(
+        statusCode: (decoded['statusCode'] as int?) ?? response.statusCode,
+        code: (error['code'] as String?) ?? 'UNKNOWN',
+        message: _detailedMessage(error) ?? (error['message'] as String?) ?? 'Request failed',
+      );
+    }
+
+    return ApiResult(decoded['data'], decoded['meta'] as Map<String, dynamic>?);
+  }
+
   Future<ApiResult> _send(
     String method,
     String path, {
     Object? body,
     required TokenScope scope,
     bool isRetry = false,
+    Duration? timeout,
+    String? bearerOverride,
   }) async {
+    final effectiveTimeout = timeout ?? _requestTimeout;
     final uri = Uri.parse('$apiRoot$path');
-    final headers = await _headers(scope, hasBody: body != null)
-        .timeout(_requestTimeout);
+    final headers = await _headers(
+      scope,
+      hasBody: body != null,
+      bearerOverride: bearerOverride,
+    ).timeout(effectiveTimeout);
     final encodedBody = body == null ? null : jsonEncode(body);
 
     late final http.Response response;
     try {
       switch (method) {
         case 'GET':
-          response = await _http.get(uri, headers: headers).timeout(_requestTimeout);
+          response = await _http.get(uri, headers: headers).timeout(effectiveTimeout);
           break;
         case 'POST':
           response = await _http
               .post(uri, headers: headers, body: encodedBody)
-              .timeout(_requestTimeout);
+              .timeout(effectiveTimeout);
           break;
         case 'PATCH':
           response = await _http
               .patch(uri, headers: headers, body: encodedBody)
-              .timeout(_requestTimeout);
+              .timeout(effectiveTimeout);
           break;
         case 'PUT':
           response = await _http
               .put(uri, headers: headers, body: encodedBody)
-              .timeout(_requestTimeout);
+              .timeout(effectiveTimeout);
           break;
         case 'DELETE':
-          response = await _http.delete(uri, headers: headers).timeout(_requestTimeout);
+          response = await _http.delete(uri, headers: headers).timeout(effectiveTimeout);
           break;
         default:
           throw ArgumentError('Unsupported method: $method');
@@ -202,7 +306,15 @@ abstract class BaseApiClient {
           'Session expired - please log in again.',
         );
       }
-      return _send(method, path, body: body, scope: scope, isRetry: true);
+      return _send(
+        method,
+        path,
+        body: body,
+        scope: scope,
+        isRetry: true,
+        timeout: timeout,
+        bearerOverride: bearerOverride,
+      );
     }
 
     final decoded = response.body.isEmpty
